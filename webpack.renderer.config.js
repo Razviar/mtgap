@@ -19,7 +19,7 @@ module.exports = {
     alias: {
       root: SRC
     },
-    extensions: [".js", ".ts"],
+    extensions: [".js", ".ts", ".tsx"],
     modules: [NODE_MODULES],
     plugins: [TsConfigPathsPlugin]
   }

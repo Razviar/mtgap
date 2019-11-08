@@ -1,15 +1,22 @@
-import { app, BrowserWindow, ipcMain } from "electron";
-import axios from "axios";
-import { userbytokenid } from "./api/userbytokenid";
+import { app, BrowserWindow, ipcMain } from 'electron';
+import axios from 'axios';
+import { userbytokenid } from './api/userbytokenid';
+import { Store } from './lib/storage';
 declare var MAIN_WINDOW_WEBPACK_ENTRY: any;
 
 axios.defaults.withCredentials = true;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require("electron-squirrel-startup")) {
+if (require('electron-squirrel-startup')) {
   // eslint-disable-line global-require
   app.quit();
 }
+
+const store = new Store({
+  // We'll call our data file 'user-preferences'
+  configName: 'user-preferences',
+  defaults: ''
+});
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -32,7 +39,7 @@ const createWindow = () => {
   mainWindow.webContents.openDevTools();
 
   // Emitted when the window is closed.
-  mainWindow.on("closed", () => {
+  mainWindow.on('closed', () => {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
@@ -43,18 +50,18 @@ const createWindow = () => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on("ready", createWindow);
+app.on('ready', createWindow);
 
 // Quit when all windows are closed.
-app.on("window-all-closed", () => {
+app.on('window-all-closed', () => {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== "darwin") {
+  if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
-app.on("activate", () => {
+app.on('activate', () => {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) {
@@ -64,13 +71,13 @@ app.on("activate", () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
-ipcMain.on("token-input", (event, arg) => {
-  userbytokenid(arg).then(res => {
+ipcMain.on('token-input', (event, arg) => {
+  userbytokenid(arg, 1).then(res => {
     console.log(res);
-    if (res.status !== "BAD_TOKEN") {
-      mainWindow.webContents.send("token-updated", res.status);
+    if (res.status !== 'BAD_TOKEN') {
+      mainWindow.webContents.send('token-updated', res.status);
     } else {
-      mainWindow.webContents.send("token-bad");
+      mainWindow.webContents.send('token-bad');
     }
   });
 });
