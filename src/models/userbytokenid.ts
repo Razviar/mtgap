@@ -4,6 +4,6 @@ export interface UserResult {
 }
 
 export interface UserRequest {
-  cmd: string;
   cm_userbytokenid: string;
+  version: number;
 }

@@ -1,7 +1,5 @@
 import axios, { AxiosRequestConfig } from "axios";
 
-axios.defaults.withCredentials = true;
-
 function makeAxios<T, U>(method: "post" | "get") {
   return async (
     url: string,
@@ -9,6 +7,7 @@ function makeAxios<T, U>(method: "post" | "get") {
     config?: AxiosRequestConfig
   ): Promise<U> => {
     const configBase: AxiosRequestConfig = {
+      withCredentials: false,
       url: `https://mtgarena.pro/${url}`,
       method,
       data

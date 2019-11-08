@@ -67,6 +67,8 @@
     "axios": "^0.19.0",
     "electron-squirrel-startup": "^1.0.0",
     "ts-loader": "^6.2.1",
+    "tslint": "^5.20.1",
+    "tslint-loader": "^3.5.4",
     "typescript": "^3.7.2"
   },
   "devDependencies": {
