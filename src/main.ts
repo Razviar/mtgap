@@ -1,41 +1,35 @@
+// tslint:disable: no-any
 import { app, BrowserWindow, ipcMain } from 'electron';
 import axios from 'axios';
-import { userbytokenid } from './api/userbytokenid';
 import { Store } from './lib/storage';
+import { LogParser } from './lib/logparser';
 declare var MAIN_WINDOW_WEBPACK_ENTRY: any;
 
 axios.defaults.withCredentials = true;
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
+// tslint:disable-next-line: no-var-requires
 if (require('electron-squirrel-startup')) {
-  // eslint-disable-line global-require
   app.quit();
 }
 
 const store = new Store({
-  // We'll call our data file 'user-preferences'
   configName: 'user-preferences',
-  defaults: ''
+  defaults: {},
 });
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
 let mainWindow: any;
 
 const createWindow = () => {
-  // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
-      nodeIntegration: true
-    }
+      nodeIntegration: true,
+    },
+    show: false,
   });
 
-  // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-
-  // Open the DevTools.
   mainWindow.webContents.openDevTools();
 
   // Emitted when the window is closed.
@@ -44,6 +38,12 @@ const createWindow = () => {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     mainWindow = null;
+  });
+
+  mainWindow.once('ready-to-show', () => {
+    const preferences = store.getall();
+    mainWindow.webContents.send('set-token', preferences.usertoken);
+    mainWindow.show();
   });
 };
 
@@ -69,15 +69,16 @@ app.on('activate', () => {
   }
 });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
 ipcMain.on('token-input', (event, arg) => {
-  userbytokenid(arg, 1).then(res => {
-    console.log(res);
-    if (res.status !== 'BAD_TOKEN') {
-      mainWindow.webContents.send('token-updated', res.status);
-    } else {
-      mainWindow.webContents.send('token-bad');
-    }
-  });
+  store.set('usertoken', arg);
 });
+
+if (store.get('usertoken')) {
+  const logParser = new LogParser([
+    'LocalLow',
+    'Wizards Of The Coast',
+    'MTGA',
+    'output_log.txt',
+  ]);
+  logParser.checkLog();
+}

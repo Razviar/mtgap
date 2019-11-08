@@ -1,6 +1,6 @@
-import axios, { AxiosRequestConfig } from "axios";
+import axios, { AxiosRequestConfig } from 'axios';
 
-function makeAxios<T, U>(method: "post" | "get") {
+function makeAxios<T, U>(method: 'post' | 'get') {
   return async (
     url: string,
     data?: T,
@@ -10,7 +10,7 @@ function makeAxios<T, U>(method: "post" | "get") {
       withCredentials: false,
       url: `https://mtgarena.pro/${url}`,
       method,
-      data
+      data,
     };
     const newConfig = { ...(config || {}), ...configBase };
     return (await axios(newConfig)).data;
@@ -23,8 +23,8 @@ interface RequestInterface {
 }
 
 const Request: RequestInterface = {
-  get: makeAxios("get"),
-  post: makeAxios("post")
+  get: makeAxios('get'),
+  post: makeAxios('post'),
 };
 
 export default Request;
