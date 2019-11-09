@@ -2,7 +2,7 @@
 // tslint:disable: no-magic-numbers
 // tslint:disable: no-any
 
-import {redgreen} from './utils';
+import { redgreen } from './utils';
 
 // tslint:disable-next-line no-any
 export function countOfObject(obj: any): number {
@@ -93,4 +93,31 @@ export function slugify(text: string) {
 
 export function jsUcfirst(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+export function substrcount(
+  str: string,
+  subString: string,
+  allowOverlapping?: boolean
+) {
+  str += '';
+  subString += '';
+  if (subString.length <= 0) {
+    return str.length + 1;
+  }
+
+  let n = 0;
+  let pos = 0;
+  const step = allowOverlapping ? 1 : subString.length;
+
+  while (true) {
+    pos = str.indexOf(subString, pos);
+    if (pos >= 0) {
+      ++n;
+      pos += step;
+    } else {
+      break;
+    }
+  }
+  return n;
 }

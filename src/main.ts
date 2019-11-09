@@ -80,5 +80,5 @@ if (store.get('usertoken')) {
     'MTGA',
     'output_log.txt',
   ]);
-  logParser.checkLog();
+  logParser.start();
 }
