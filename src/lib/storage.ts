@@ -15,32 +15,46 @@ export class Store {
     );
     this.path = path.join(userDataPath, `${opts.configName}.json`);
 
-    this.data = parseDataFile(this.path, opts.defaults);
+    this.data = this.parseDataFile(this.path, opts.defaults);
   }
 
-  public get(key: string) {
-    return this.data[key];
+  public get(key: string, subkey?: any) {
+    if (subkey) {
+      return this.data['settings'][key][subkey];
+    } else {
+      return this.data[key];
+    }
   }
 
   public getall() {
     return this.data;
   }
 
-  public set(key: string, val: any) {
-    if (!this.data[key]) {
-      this.data[key] = '';
+  public set(key: string, val: any, subkey?: any) {
+    if (subkey) {
+      if (!this.data['settings']) {
+        this.data['settings'] = {};
+      }
+      if (!this.data['settings'][key]) {
+        this.data['settings'][key] = {};
+      }
+      this.data['settings'][key][subkey] = val;
+    } else {
+      if (!this.data[key]) {
+        this.data[key] = '';
+      }
+      this.data[key] = val;
     }
-    this.data[key] = val;
     try {
       fs.writeFileSync(this.path, JSON.stringify(this.data));
     } catch (e) {}
   }
-}
 
-function parseDataFile(filePath: string, defaults: any) {
-  try {
-    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
-  } catch (error) {
-    return defaults;
+  private parseDataFile(filePath: string, defaults: any) {
+    try {
+      return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    } catch (error) {
+      return defaults;
+    }
   }
 }

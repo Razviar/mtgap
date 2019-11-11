@@ -1,5 +1,7 @@
 import { ipcRenderer } from 'electron';
 import { userbytokenid } from './api/userbytokenid';
+// tslint:disable-next-line: no-import-side-effect
+import './index.css';
 
 const Token: HTMLInputElement | null = document.getElementById(
   'token'

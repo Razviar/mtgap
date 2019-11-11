@@ -121,3 +121,19 @@ export function substrcount(
   }
   return n;
 }
+
+export function Cut(
+  str: string,
+  from: string,
+  to: string,
+  offset?: number
+): string {
+  const startIndex = str.indexOf(from, offset);
+  const endIndex = str.indexOf(to, startIndex + from.length);
+  if (startIndex !== -1 && endIndex !== -1) {
+    const result = str.substring(startIndex + from.length, endIndex);
+    return result;
+  } else {
+    return '';
+  }
+}

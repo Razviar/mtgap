@@ -5,7 +5,7 @@ import readline from 'readline';
 import chokidar from 'chokidar';
 import { Indicators, ParseResults } from 'root/models/indicators';
 import { getindicators } from 'root/api/getindicators';
-import { substrcount } from './func';
+import { substrcount, Cut } from './func';
 import Emittery from 'emittery';
 
 export class LogParser {
@@ -18,6 +18,7 @@ export class LogParser {
   private dateregexp: RegExp = /[\d]{1,2}[:./ ]{1,2}[\d]{1,2}/gm;
   private nowWriting: number = 0;
   private results: ParseResults[] = [];
+  private logsdisabled: boolean = false;
   public emitter = new Emittery();
 
   constructor(targetname: string[]) {
@@ -81,16 +82,52 @@ export class LogParser {
         this.strdateUnparsed = line;
       }
 
+      if (line.includes('DETAILED LOGS: DISABLED')) {
+        this.logsdisabled = true;
+        this.emitter.emit('error', 'Enable Detailed Logs!');
+      }
+
+      if (line.includes('DETAILED LOGS: ENABLED')) {
+        this.logsdisabled = false;
+      }
+
+      const emitting = ['playerId', 'screenName', 'language', 'matchId'];
+
+      emitting.forEach(em => {
+        if (line.includes(`"${em}": `) && !line.includes('null')) {
+          this.emitter.emit(em, Cut(line, `"${em}": "`, '"'));
+        }
+      });
+
+      if (this.logsdisabled) {
+        return;
+      }
+
       this.indicators.forEach(indicator => {
         if (line.includes(indicator.Indicators) && indicator.Send) {
-          this.nowWriting = indicator.marker;
           this.strdate = this.parseDate(this.strdateUnparsed);
           if (indicator.Ignore !== 'a') {
+            this.nowWriting = indicator.marker;
             foundIndicator = true;
             brackets = this.bracketeer(
               line.replace('[UnityCrossThreadLogger]', ''),
               brackets
             );
+            let pusher = '';
+            if (line.includes('{')) {
+              pusher = '{';
+            }
+            if (line.includes('[')) {
+              pusher = '[';
+            }
+
+            if (pusher !== '') {
+              this.results.push({
+                time: this.strdate,
+                indicator: indicator.marker,
+                json: pusher,
+              });
+            }
           } else {
             this.results.push({
               time: this.strdate,

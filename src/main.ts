@@ -1,13 +1,10 @@
 // tslint:disable: no-any
 import { app, BrowserWindow, ipcMain } from 'electron';
-import axios from 'axios';
 import { Store } from './lib/storage';
 import { LogParser } from './lib/logparser';
 import { uploadpackfile } from './api/logsender';
 import { ParseResults } from './models/indicators';
 declare var MAIN_WINDOW_WEBPACK_ENTRY: any;
-
-axios.defaults.withCredentials = true;
 
 // tslint:disable-next-line: no-var-requires
 if (require('electron-squirrel-startup')) {
@@ -43,10 +40,37 @@ const createWindow = () => {
   });
 
   mainWindow.once('ready-to-show', () => {
-    const preferences = store.getall();
-    mainWindow.webContents.send('set-token', preferences.usertoken);
+    if (store.get('usertoken')) {
+      mainWindow.webContents.send('set-token', store.get('usertoken'));
+    }
     mainWindow.show();
   });
+};
+
+const beginParsing = (usertoken: string) => {
+  const logParser = new LogParser([
+    'LocalLow',
+    'Wizards Of The Coast',
+    'MTGA',
+    'output_log.txt',
+  ]);
+
+  logParser.emitter.on('newdata', data => {
+    const datasending: ParseResults[] = data as ParseResults[];
+    //console.log(datasending);
+    if (datasending.length > 0) {
+      uploadpackfile(datasending, +store.get('userid'), usertoken);
+    }
+  });
+
+  const emitting = ['playerId', 'screenName', 'language'];
+  emitting.forEach(em => {
+    logParser.emitter.on(em, data => {
+      store.set(usertoken, data, em);
+    });
+  });
+
+  logParser.start();
 };
 
 // This method will be called when Electron has finished
@@ -71,26 +95,13 @@ app.on('activate', () => {
   }
 });
 
-ipcMain.on('token-input', (event, arg) => {
+ipcMain.on('token-input', (_, arg) => {
   store.set('usertoken', arg.token);
-  store.set('userid', arg.uid);
+  store.set(arg.token, arg.uid, 'uid');
+  store.set(arg.token, arg.token, 'token');
+  beginParsing(arg.token);
 });
 
 if (store.get('usertoken')) {
-  const logParser = new LogParser([
-    'LocalLow',
-    'Wizards Of The Coast',
-    'MTGA',
-    'output_log.txt',
-  ]);
-
-  logParser.emitter.on('newdata', data => {
-    const datasending: ParseResults[] = data as ParseResults[];
-    console.log(datasending);
-    if (datasending.length > 0) {
-      uploadpackfile(datasending, +store.get('userid'), store.get('usertoken'));
-    }
-  });
-
-  logParser.start();
+  beginParsing(store.get('usertoken'));
 }

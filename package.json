@@ -1,8 +1,8 @@
 {
-  "name": "mtgap",
-  "productName": "mtgap",
+  "name": "mtgaprotracker",
+  "productName": "mtgaprotracker",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "MTG Arena Pro Tracker",
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",
