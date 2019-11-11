@@ -18,7 +18,7 @@ const TokenChecker = (token: string, elem: HTMLElement) => {
       elem.innerHTML = 'No user found!';
     } else {
       elem.innerHTML = `User found: <strong>${res.status}</strong>`;
-      ipcRenderer.send('token-input', token);
+      ipcRenderer.send('token-input', { token, uid: res.data });
     }
   });
 };

@@ -8,3 +8,9 @@ export interface Indicators {
   Needtohave: string;
   Ignore: string;
 }
+
+export interface ParseResults {
+  time: number;
+  indicator: number;
+  json: string;
+}

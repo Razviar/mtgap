@@ -3,9 +3,10 @@ import path from 'path';
 import fs from 'fs';
 import readline from 'readline';
 import chokidar from 'chokidar';
-import { Indicators } from 'root/models/indicators';
+import { Indicators, ParseResults } from 'root/models/indicators';
 import { getindicators } from 'root/api/getindicators';
 import { substrcount } from './func';
+import Emittery from 'emittery';
 
 export class LogParser {
   private path: string;
@@ -13,9 +14,11 @@ export class LogParser {
   private loglen: number = 0;
   private linesread: number = 0;
   private strdate: number = 0;
+  private strdateUnparsed: string = '';
   private dateregexp: RegExp = /[\d]{1,2}[:./ ]{1,2}[\d]{1,2}/gm;
   private nowWriting: number = 0;
-  private results: { [index: number]: { [index: number]: string } } = {};
+  private results: ParseResults[] = [];
+  public emitter = new Emittery();
 
   constructor(targetname: string[]) {
     const appDataPath = (electron.app || electron.remote.app).getPath(
@@ -29,11 +32,17 @@ export class LogParser {
     getindicators().then(i => {
       this.indicators = i;
       //console.log(this.indicators);
-      chokidar
-        .watch(this.path, { usePolling: true, interval: 500 })
-        .on('change', (p, s) => {
-          this.checkLog(p, s);
-        });
+      if (fs.existsSync(this.path)) {
+        chokidar
+          .watch(this.path, { usePolling: true, interval: 500 })
+          .on('change', (p, s) => {
+            this.checkLog(p, s);
+          });
+
+        this.checkLog(this.path, fs.statSync(this.path));
+      } else {
+        this.emitter.emit('error', 'No log file found');
+      }
     });
   }
 
@@ -50,8 +59,6 @@ export class LogParser {
     } else {
       this.loglen = 0;
     }
-
-    //console.log('Size:' + this.loglen);
 
     const Stream = fs.createReadStream(pth, {
       encoding: 'utf8',
@@ -71,19 +78,26 @@ export class LogParser {
         line.includes('[UnityCrossThreadLogger]') &&
         line.match(this.dateregexp)
       ) {
-        const cutter = line.indexOf(': ');
-        const shift = '[UnityCrossThreadLogger]'.length;
-        this.strdate = Date.parse(
-          line
-            .replace('[UnityCrossThreadLogger]', '')
-            .substring(0, cutter !== -1 ? cutter - shift : undefined)
-        );
+        this.strdateUnparsed = line;
       }
 
       this.indicators.forEach(indicator => {
-        if (line.includes(indicator.Indicators)) {
+        if (line.includes(indicator.Indicators) && indicator.Send) {
           this.nowWriting = indicator.marker;
-          foundIndicator = true && indicator.Ignore !== 'a';
+          this.strdate = this.parseDate(this.strdateUnparsed);
+          if (indicator.Ignore !== 'a') {
+            foundIndicator = true;
+            brackets = this.bracketeer(
+              line.replace('[UnityCrossThreadLogger]', ''),
+              brackets
+            );
+          } else {
+            this.results.push({
+              time: this.strdate,
+              indicator: indicator.marker,
+              json: this.writingSingleLine(line, indicator.Indicators),
+            });
+          }
         }
       });
 
@@ -102,27 +116,104 @@ export class LogParser {
 
     rl.on('close', () => {
       this.loglen = newloglen;
-      console.log(this.results);
-      this.results = {};
+      this.emitter.emit('newdata', this.results);
+      //console.log(this.results);
+      this.results = [];
     });
   }
 
-  private writing(line: string, brackets: { curly: number; squared: number }) {
+  private parseDate(line: string) {
+    const cutter = line.indexOf(': ');
+    const shift = '[UnityCrossThreadLogger]'.length;
+    return Date.parse(
+      line
+        .replace('[UnityCrossThreadLogger]', '')
+        .substring(0, cutter !== -1 ? cutter - shift : undefined)
+    );
+  }
+
+  private bracketeer(
+    line: string,
+    brackets: { curly: number; squared: number }
+  ) {
     brackets.curly =
       brackets.curly + substrcount(line, '{') - substrcount(line, '}');
 
     brackets.squared =
       brackets.squared + substrcount(line, '[') - substrcount(line, ']');
 
-    if (!this.results[this.strdate]) {
-      this.results[this.strdate] = {};
-    }
-    if (!this.results[this.strdate][this.nowWriting]) {
-      this.results[this.strdate][this.nowWriting] = '';
-    }
-
-    this.results[this.strdate][this.nowWriting] += line;
-
     return brackets;
+  }
+
+  private writing(line: string, brackets: { curly: number; squared: number }) {
+    const append = this.results.findIndex(
+      elem =>
+        +elem.indicator === +this.nowWriting && +elem.time === +this.strdate
+    );
+    if (append !== -1) {
+      this.results[append].json += line;
+    } else {
+      this.results.push({
+        time: this.strdate,
+        indicator: this.nowWriting,
+        json: line,
+      });
+    }
+
+    return this.bracketeer(line, brackets);
+  }
+
+  private writingSingleLine(line: string, indicator: string) {
+    //console.log(indicator);
+    const workingline = line.substring(
+      line.indexOf(indicator) + indicator.length
+    );
+    const brackets = { curly: 0, squared: 0 };
+    let result = '';
+    let i = 0;
+
+    while (
+      brackets.curly === 0 &&
+      brackets.squared === 0 &&
+      i < workingline.length
+    ) {
+      const char = workingline.charAt(i);
+      switch (char) {
+        case '{':
+          brackets.curly++;
+          result += char;
+          break;
+        case '[':
+          brackets.squared++;
+          result += char;
+          break;
+      }
+      i++;
+    }
+
+    while (
+      (brackets.curly > 0 || brackets.squared > 0) &&
+      i < workingline.length
+    ) {
+      const char = workingline.charAt(i);
+      result += char;
+      switch (char) {
+        case '{':
+          brackets.curly++;
+          break;
+        case '[':
+          brackets.squared++;
+          break;
+        case '}':
+          brackets.curly--;
+          break;
+        case ']':
+          brackets.squared--;
+          break;
+      }
+      i++;
+    }
+
+    return result;
   }
 }

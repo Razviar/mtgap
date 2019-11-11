@@ -3,6 +3,8 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import axios from 'axios';
 import { Store } from './lib/storage';
 import { LogParser } from './lib/logparser';
+import { uploadpackfile } from './api/logsender';
+import { ParseResults } from './models/indicators';
 declare var MAIN_WINDOW_WEBPACK_ENTRY: any;
 
 axios.defaults.withCredentials = true;
@@ -70,7 +72,8 @@ app.on('activate', () => {
 });
 
 ipcMain.on('token-input', (event, arg) => {
-  store.set('usertoken', arg);
+  store.set('usertoken', arg.token);
+  store.set('userid', arg.uid);
 });
 
 if (store.get('usertoken')) {
@@ -80,5 +83,14 @@ if (store.get('usertoken')) {
     'MTGA',
     'output_log.txt',
   ]);
+
+  logParser.emitter.on('newdata', data => {
+    const datasending: ParseResults[] = data as ParseResults[];
+    console.log(datasending);
+    if (datasending.length > 0) {
+      uploadpackfile(datasending, +store.get('userid'), store.get('usertoken'));
+    }
+  });
+
   logParser.start();
 }
