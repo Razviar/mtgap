@@ -19,14 +19,22 @@ export class LogParser {
   private nowWriting: number = 0;
   private results: ParseResults[] = [];
   private logsdisabled: boolean = false;
+  private watcher: chokidar.FSWatcher;
+  private currentPlayerId: string;
+
   public emitter = new Emittery();
 
-  constructor(targetname: string[]) {
+  constructor(targetname: string[], PlayerId: string) {
     const appDataPath = (electron.app || electron.remote.app).getPath(
       'appData'
     );
     this.path = path.join(appDataPath, ...targetname).replace('Roaming\\', '');
     this.indicators = [];
+    this.watcher = chokidar.watch(this.path, {
+      usePolling: true,
+      interval: 500,
+    });
+    this.currentPlayerId = PlayerId;
   }
 
   public start() {
@@ -34,17 +42,21 @@ export class LogParser {
       this.indicators = i;
       //console.log(this.indicators);
       if (fs.existsSync(this.path)) {
-        chokidar
-          .watch(this.path, { usePolling: true, interval: 500 })
-          .on('change', (p, s) => {
-            this.checkLog(p, s);
-          });
-
+        this.watcher.on('change', (p, s) => {
+          this.checkLog(p, s);
+        });
+        this.emitter.emit('status', 'Starting parser...');
         this.checkLog(this.path, fs.statSync(this.path));
       } else {
         this.emitter.emit('error', 'No log file found');
       }
     });
+  }
+
+  public stop() {
+    this.logsdisabled = false;
+    this.watcher.close();
+    return { linesread: this.linesread, loglen: this.loglen };
   }
 
   public checkLog(pth: string, stats: fs.Stats | undefined) {
@@ -71,6 +83,8 @@ export class LogParser {
       input: Stream,
     });
 
+    //this.emitter.emit('status', 'Reading log...');
+
     rl.on('line', line => {
       this.linesread++;
       let foundIndicator = false;
@@ -95,7 +109,15 @@ export class LogParser {
 
       emitting.forEach(em => {
         if (line.includes(`"${em}": `) && !line.includes('null')) {
-          this.emitter.emit(em, Cut(line, `"${em}": "`, '"'));
+          const param = Cut(line, `"${em}": "`, '"');
+          if (
+            em === 'playerId' &&
+            param !== this.currentPlayerId &&
+            this.currentPlayerId !== ''
+          ) {
+            this.emitter.emit('userchange', this.stop());
+          }
+          this.emitter.emit(em, param);
         }
       });
 
@@ -153,6 +175,11 @@ export class LogParser {
 
     rl.on('close', () => {
       this.loglen = newloglen;
+      if (this.results.length > 0 && !this.logsdisabled) {
+        this.emitter.emit('status', 'New data found');
+      } else if (!this.logsdisabled) {
+        this.emitter.emit('status', 'Awaiting updates...');
+      }
       this.emitter.emit('newdata', this.results);
       //console.log(this.results);
       this.results = [];

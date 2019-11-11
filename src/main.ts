@@ -1,9 +1,9 @@
 // tslint:disable: no-any
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { Store } from './lib/storage';
+import { beginParsing } from './lib/beginParsing';
 import { LogParser } from './lib/logparser';
-import { uploadpackfile } from './api/logsender';
-import { ParseResults } from './models/indicators';
+
 declare var MAIN_WINDOW_WEBPACK_ENTRY: any;
 
 // tslint:disable-next-line: no-var-requires
@@ -11,12 +11,25 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-const store = new Store({
+export const store = new Store({
   configName: 'user-preferences',
   defaults: {},
 });
 
-let mainWindow: any;
+export let mainWindow: any;
+
+export let logParser: LogParser | undefined;
+
+const setCreds = () => {
+  const token = store.get('usertoken');
+  if (token) {
+    mainWindow.webContents.send('set-token', token);
+    const screenName = store.get(token, 'screenName');
+    if (screenName) {
+      mainWindow.webContents.send('set-creds', screenName);
+    }
+  }
+};
 
 const createWindow = () => {
   mainWindow = new BrowserWindow({
@@ -40,37 +53,9 @@ const createWindow = () => {
   });
 
   mainWindow.once('ready-to-show', () => {
-    if (store.get('usertoken')) {
-      mainWindow.webContents.send('set-token', store.get('usertoken'));
-    }
+    setCreds();
     mainWindow.show();
   });
-};
-
-const beginParsing = (usertoken: string) => {
-  const logParser = new LogParser([
-    'LocalLow',
-    'Wizards Of The Coast',
-    'MTGA',
-    'output_log.txt',
-  ]);
-
-  logParser.emitter.on('newdata', data => {
-    const datasending: ParseResults[] = data as ParseResults[];
-    //console.log(datasending);
-    if (datasending.length > 0) {
-      uploadpackfile(datasending, +store.get('userid'), usertoken);
-    }
-  });
-
-  const emitting = ['playerId', 'screenName', 'language'];
-  emitting.forEach(em => {
-    logParser.emitter.on(em, data => {
-      store.set(usertoken, data, em);
-    });
-  });
-
-  logParser.start();
 };
 
 // This method will be called when Electron has finished
@@ -96,12 +81,14 @@ app.on('activate', () => {
 });
 
 ipcMain.on('token-input', (_, arg) => {
-  store.set('usertoken', arg.token);
-  store.set(arg.token, arg.uid, 'uid');
-  store.set(arg.token, arg.token, 'token');
-  beginParsing(arg.token);
+  if (!store.get('usertoken') || store.get('usertoken') !== arg.token) {
+    store.set('usertoken', arg.token);
+    store.set(arg.token, arg.uid, 'uid');
+    store.set(arg.token, arg.token, 'token');
+    logParser = beginParsing(arg.token);
+  }
 });
 
 if (store.get('usertoken')) {
-  beginParsing(store.get('usertoken'));
+  logParser = beginParsing(store.get('usertoken'));
 }

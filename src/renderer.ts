@@ -9,6 +9,12 @@ const Token: HTMLInputElement | null = document.getElementById(
 const TokenResponse: HTMLElement | null = document.getElementById(
   'TokenResponse'
 );
+const UserCredentials: HTMLElement | null = document.getElementById(
+  'UserCredentials'
+);
+const StatusMessage: HTMLElement | null = document.getElementById(
+  'StatusMessage'
+);
 
 const TokenChecker = (token: string, elem: HTMLElement) => {
   elem.innerHTML = 'Checking token...';
@@ -25,10 +31,19 @@ const TokenChecker = (token: string, elem: HTMLElement) => {
   });
 };
 
-if (Token && TokenResponse) {
+if (Token && TokenResponse && UserCredentials && StatusMessage) {
   ipcRenderer.on('set-token', (e, arg) => {
     Token.value = arg;
     TokenChecker(arg, TokenResponse);
+  });
+
+  ipcRenderer.on('set-creds', (e, arg) => {
+    UserCredentials.innerHTML = `MTGA nick: <strong>${arg}</strong>`;
+  });
+
+  ipcRenderer.on('show-status', (e, arg) => {
+    StatusMessage.innerHTML = arg.message;
+    StatusMessage.style.color = arg.color;
   });
 
   // tslint:disable-next-line: no-any

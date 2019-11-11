@@ -7,6 +7,13 @@ import { Indicators, ParseResults } from 'root/models/indicators';
 import { getindicators } from 'root/api/getindicators';
 import { substrcount } from './func';
 
-export class Dispatcher {
-  public sendlog(results: ParseResults[], uid: number, token: string) {}
+export class Match {
+  private matchId: string;
+  constructor(id: string) {
+    this.matchId = id;
+  }
+
+  public over() {}
+
+  public mycard() {}
 }
