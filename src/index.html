@@ -3,15 +3,32 @@
   <head>
     <meta charset="UTF-8" />
     <title>MTGA Pro Tracker</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Titillium+Web&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
-    <img
-      src="https://mtgarena.pro/wp-content/uploads/sites/3/2018/04/logo_03.png"
-      width="200"
-    />
-    <p><input type="text" name="token" id="token" /></p>
-    <div id="TokenResponse"></div>
-    <div id="UserCredentials"></div>
-    <div id="StatusMessage"></div>
+    <div id="header">
+      <img
+        id="titleimg"
+        src="https://mtgarena.pro/wp-content/uploads/sites/3/2018/04/logo_03.png"
+        width="200"
+      />
+      <div class="button active" data-activate="general">General</div>
+      <div class="button" data-activate="settings">Settings</div>
+      <div class="button" data-activate="overlay">Overlay</div>
+      <div class="button" data-activate="accounts">Accounts</div>
+    </div>
+    <div class="tab" id="general">
+      <div id="TokenInput"><input type="text" name="token" id="token" /></div>
+      <div id="TokenResponse"></div>
+      <div id="UserCredentials"></div>
+      <div id="StatusMessage"></div>
+      <div id="AppVersion"></div>
+    </div>
+    <div class="tab" id="settings"></div>
+    <div class="tab" id="overlay"></div>
+    <div class="tab" id="accounts"></div>
   </body>
 </html>

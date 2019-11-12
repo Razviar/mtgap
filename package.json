@@ -1,7 +1,7 @@
 {
   "name": "mtgaprotracker",
   "productName": "mtgaprotracker",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "MTG Arena Pro Tracker",
   "main": ".webpack/main",
   "scripts": {
@@ -66,8 +66,10 @@
     "awesome-typescript-loader": "^5.2.1",
     "axios": "^0.19.0",
     "chokidar": "^3.3.0",
+    "date-fns": "^2.7.0",
     "electron-squirrel-startup": "^1.0.0",
     "emittery": "^0.5.1",
+    "ps-list": "^6.3.0",
     "ts-loader": "^6.2.1",
     "tslint": "^5.20.1",
     "tslint-loader": "^3.5.4",

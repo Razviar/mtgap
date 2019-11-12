@@ -7,6 +7,7 @@ import { Indicators, ParseResults } from 'root/models/indicators';
 import { getindicators } from 'root/api/getindicators';
 import { substrcount, Cut } from './func';
 import Emittery from 'emittery';
+import { format } from 'date-fns';
 
 export class LogParser {
   private path: string;
@@ -19,6 +20,7 @@ export class LogParser {
   private nowWriting: number = 0;
   private results: ParseResults[] = [];
   private logsdisabled: boolean = false;
+  private firstread: boolean = true;
   private watcher: chokidar.FSWatcher;
   private currentPlayerId: string;
 
@@ -45,7 +47,6 @@ export class LogParser {
         this.watcher.on('change', (p, s) => {
           this.checkLog(p, s);
         });
-        this.emitter.emit('status', 'Starting parser...');
         this.checkLog(this.path, fs.statSync(this.path));
       } else {
         this.emitter.emit('error', 'No log file found');
@@ -82,8 +83,6 @@ export class LogParser {
     const rl = readline.createInterface({
       input: Stream,
     });
-
-    //this.emitter.emit('status', 'Reading log...');
 
     rl.on('line', line => {
       this.linesread++;
@@ -176,9 +175,16 @@ export class LogParser {
     rl.on('close', () => {
       this.loglen = newloglen;
       if (this.results.length > 0 && !this.logsdisabled) {
-        this.emitter.emit('status', 'New data found');
-      } else if (!this.logsdisabled) {
+        this.emitter.emit(
+          'status',
+          `Log parsed till: ${format(
+            new Date(this.results[this.results.length - 1].time),
+            'HH:mm:ss dd, MMM yyyy'
+          )}`
+        );
+      } else if (!this.logsdisabled && this.firstread) {
         this.emitter.emit('status', 'Awaiting updates...');
+        this.firstread = false;
       }
       this.emitter.emit('newdata', this.results);
       //console.log(this.results);

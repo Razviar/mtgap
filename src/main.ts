@@ -3,6 +3,7 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import { Store } from './lib/storage';
 import { beginParsing } from './lib/beginParsing';
 import { LogParser } from './lib/logparser';
+import { ProcessWatcher } from './lib/watchprocess';
 
 declare var MAIN_WINDOW_WEBPACK_ENTRY: any;
 
@@ -17,8 +18,9 @@ export const store = new Store({
 });
 
 export let mainWindow: any;
-
 export let logParser: LogParser | undefined;
+export let MTGApid = -1;
+export const processWatcher: ProcessWatcher = new ProcessWatcher('MTGA.exe');
 
 const setCreds = () => {
   const token = store.get('usertoken');
@@ -31,6 +33,20 @@ const setCreds = () => {
   }
 };
 
+const intervalFunc = () => {
+  if (processWatcher) {
+    processWatcher.getprocesses().then(res => {
+      MTGApid = res;
+      if (res === -1) {
+        mainWindow.webContents.send('show-status', {
+          color: '#dbb63d',
+          message: 'Game is not running!',
+        });
+      }
+    });
+  }
+};
+
 const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 800,
@@ -39,10 +55,12 @@ const createWindow = () => {
       nodeIntegration: true,
     },
     show: false,
+    frame: false,
   });
 
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   mainWindow.webContents.openDevTools();
+  mainWindow.setMenuBarVisibility(false);
 
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {
@@ -53,8 +71,9 @@ const createWindow = () => {
   });
 
   mainWindow.once('ready-to-show', () => {
-    setCreds();
     mainWindow.show();
+    mainWindow.webContents.send('set-version', app.getVersion());
+    setCreds();
   });
 };
 
@@ -91,4 +110,6 @@ ipcMain.on('token-input', (_, arg) => {
 
 if (store.get('usertoken')) {
   logParser = beginParsing(store.get('usertoken'));
+  const t = setInterval(intervalFunc, 1000);
+  //this.intervalFunc();
 }
