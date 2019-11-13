@@ -26,7 +26,7 @@ export class Store {
     }
   }
 
-  public getall() {
+  public getall(): { [index: string]: any } {
     return this.data;
   }
 

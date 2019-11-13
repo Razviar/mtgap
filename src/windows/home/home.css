@@ -25,7 +25,7 @@ a[href^="ftp://"] {
 
 #titleimg {
   -webkit-app-region: drag;
-  margin-right: 25px;
+  margin-right: 50px;
 }
 
 input#token {
@@ -44,9 +44,10 @@ input#token {
 #header {
   vertical-align: middle;
   background-color: rgba(132, 52, 38, 0.9);
-  width: 780px;
+  width: 680px;
   padding: 10px;
   height: 50px;
+  -webkit-app-region: drag;
 }
 
 .button {
@@ -56,11 +57,12 @@ input#token {
   font-family: titillium web, sans-serif;
   display: inline-block;
   margin-right: 2px;
-  padding: 0 15px;
+  padding: 1px 15px;
   cursor: pointer;
   transition: all 0.2s linear;
   border: none;
   vertical-align: top;
+  -webkit-app-region: none;
 }
 
 .button:hover {
@@ -86,8 +88,37 @@ input#token {
   font-size: 1.5em;
   line-height: 1em;
   vertical-align: top;
+  -webkit-app-region: none;
 }
 
 .buttonClose:hover {
   color: #fff;
+}
+
+.tab {
+  padding: 10px;
+  display: none;
+}
+
+.activetab {
+  display: block !important;
+}
+
+.table {
+  display: table;
+  width: 100%;
+}
+
+.row {
+  display: table-row;
+}
+
+.cell {
+  display: table-cell;
+}
+
+.link {
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: 700;
 }

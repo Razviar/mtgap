@@ -24,7 +24,7 @@ export let logParser: LogParser | undefined;
 export let MTGApid = -1;
 export const processWatcher: ProcessWatcher = new ProcessWatcher('MTGA.exe');
 
-const setCreds = () => {
+export const setCreds = () => {
   const token = store.get('usertoken');
   if (token) {
     mainWindow.webContents.send('set-token', token);
@@ -32,6 +32,13 @@ const setCreds = () => {
     if (screenName) {
       mainWindow.webContents.send('set-creds', screenName);
     }
+  }
+};
+
+const setAccounts = () => {
+  const accounts = store.get('settings');
+  if (accounts) {
+    mainWindow.webContents.send('set-accounts', accounts);
   }
 };
 
@@ -62,13 +69,18 @@ const createWindow = () => {
     {
       label: 'Quit',
       click: () => {
-        //app.isQuiting = true;
         app.quit();
       },
     },
   ]);
 
   appIcon.setContextMenu(contextMenu);
+  appIcon.on('double-click', () => {
+    if (mainWindow.isMinimized()) {
+      mainWindow.restore();
+    }
+    mainWindow.focus();
+  });
 
   mainWindow = new BrowserWindow({
     width: 700,
@@ -88,11 +100,7 @@ const createWindow = () => {
   mainWindow.setMenuBarVisibility(false);
   mainWindow.Tray = appIcon;
 
-  // Emitted when the window is closed.
   mainWindow.on('closed', () => {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
     mainWindow = null;
   });
 
@@ -100,56 +108,60 @@ const createWindow = () => {
     mainWindow.show();
     mainWindow.webContents.send('set-version', app.getVersion());
     setCreds();
+    setAccounts();
   });
 
   mainWindow.on('minimize', function(event: any) {
     event.preventDefault();
     mainWindow.hide();
   });
-
-  /*mainWindow.on('close', function(event: any) {
-    if (!app.isQuiting) {
-      event.preventDefault();
-      mainWindow.hide();
-    }
-
-    return false;
-  });*/
 };
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) {
+        mainWindow.restore();
+      }
+      mainWindow.focus();
+    }
+  });
 
-// Quit when all windows are closed.
-app.on('window-all-closed', () => {
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
+  app.on('ready', createWindow);
 
-app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (mainWindow === null) {
-    createWindow();
-  }
-});
+  app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
+      app.quit();
+    }
+  });
+
+  app.on('activate', () => {
+    if (mainWindow === null) {
+      createWindow();
+    }
+  });
+}
 
 ipcMain.on('token-input', (_, arg) => {
   if (!store.get('usertoken') || store.get('usertoken') !== arg.token) {
     store.set('usertoken', arg.token);
     store.set(arg.token, arg.uid, 'uid');
     store.set(arg.token, arg.token, 'token');
+    store.set(arg.token, arg.nick, 'nick');
+    store.set(arg.token, false, 'overlay');
     logParser = beginParsing();
   }
 });
 
 ipcMain.on('minimize-me', (_, arg) => {
   mainWindow.minimize();
+});
+
+ipcMain.on('set-overlay', (_, arg) => {
+  store.set(store.get('usertoken'), arg, 'overlay');
 });
 
 if (store.get('usertoken')) {

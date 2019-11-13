@@ -1,4 +1,5 @@
-import { ipcRenderer } from 'electron';
+// tslint:disable: no-any
+import { ipcRenderer, shell } from 'electron';
 import { userbytokenid } from 'root/api/userbytokenid';
 // tslint:disable: no-import-side-effect
 import 'root/windows/home/home.css';
@@ -8,6 +9,7 @@ const Token: HTMLInputElement | null = document.getElementById(
   'token'
 ) as HTMLInputElement;
 const TokenResponse = document.getElementById('TokenResponse');
+const TokenInput = document.getElementById('TokenInput');
 const UserCredentials = document.getElementById('UserCredentials');
 const StatusMessage = document.getElementById('StatusMessage');
 const AppVersion = document.getElementById('AppVersion');
@@ -15,6 +17,14 @@ const titleIcon: HTMLImageElement | null = document.getElementById(
   'titleimg'
 ) as HTMLImageElement;
 const minimizeButton = document.getElementById('minimize');
+const AccountsTab = document.getElementById('accounts');
+const EnableOverlay: HTMLInputElement | null = document.getElementById(
+  'EnableOverlay'
+) as HTMLInputElement;
+
+const buttons = document.getElementsByClassName('button');
+const tabs = document.getElementsByClassName('tab');
+const links = document.getElementsByClassName('link');
 
 if (titleIcon) {
   titleIcon.src = Icon;
@@ -28,25 +38,32 @@ const TokenChecker = (token: string, elem: HTMLElement) => {
       elem.innerHTML = 'Bad Token!';
     } else if (res.status === 'NO_USER') {
       elem.innerHTML = 'No user found!';
-    } else {
-      Token.style.display = 'none';
+    } else if (TokenInput) {
+      TokenInput.style.display = 'none';
       elem.innerHTML = `Current user: <strong>${res.status}</strong>`;
-      ipcRenderer.send('token-input', { token, uid: res.data });
+      ipcRenderer.send('token-input', {
+        token,
+        uid: res.data,
+        nick: res.status,
+      });
     }
   });
 };
 
 if (
   Token &&
+  TokenInput &&
   TokenResponse &&
   UserCredentials &&
   StatusMessage &&
   AppVersion &&
-  minimizeButton
+  minimizeButton &&
+  AccountsTab &&
+  EnableOverlay
 ) {
   ipcRenderer.on('set-token', (e, arg) => {
     Token.value = arg;
-    Token.style.display = 'none';
+    TokenInput.style.display = 'none';
     TokenChecker(arg, TokenResponse);
   });
 
@@ -63,7 +80,26 @@ if (
     StatusMessage.style.color = arg.color;
   });
 
-  // tslint:disable-next-line: no-any
+  ipcRenderer.on('set-accounts', (e, arg) => {
+    let output = `<div class="table"><div class='row'>
+    <div class='cell'><strong>Nick</strong></div>
+    <div class='cell'><strong>MTGA nick</strong></div>
+    <div class='cell'><strong>Language</strong></div>
+    <div class='cell'><strong>Token</strong></div>
+    </div>`;
+    Object.keys(arg).forEach(val => {
+      const settingsData = arg[val];
+      output += `<div class='row'>
+      <div class='cell'>${settingsData.nick}</div>
+      <div class='cell'>${settingsData.screenName}</div>
+      <div class='cell'>${settingsData.language}</div>
+      <div class='cell'>${settingsData.token}</div>
+      </div>`;
+    });
+    output += '</div>';
+    AccountsTab.innerHTML = output;
+  });
+
   Token.addEventListener('input', (event: any) => {
     if (event && event.target && event.target.value) {
       TokenChecker(event.target.value, TokenResponse);
@@ -73,10 +109,13 @@ if (
   minimizeButton.addEventListener('click', (event: any) => {
     ipcRenderer.send('minimize-me', 'test');
   });
-}
 
-const buttons = document.getElementsByClassName('button');
-const tabs = document.getElementsByClassName('tab');
+  EnableOverlay.addEventListener('change', (event: any) => {
+    if (event && event.target) {
+      ipcRenderer.send('set-overlay', event.target.checked);
+    }
+  });
+}
 
 const tabclick = (event: any) => {
   const cl: HTMLElement = event.target;
@@ -91,17 +130,27 @@ const tabclick = (event: any) => {
 
   Array.from(tabs).forEach(el => {
     const elem = el as HTMLElement;
-    elem.style.display = 'none';
-  });
-  if (activate) {
-    const show = document.getElementById(activate);
-    if (show) {
-      show.style.display = 'block';
+    const clas = elem.classList;
+    if (elem.id === activate) {
+      clas.add('activetab');
+    } else {
+      clas.remove('activetab');
     }
-    cls.add('active');
+  });
+};
+
+const linkclick = (event: any) => {
+  const cl: HTMLElement = event.target;
+  const link = cl.getAttribute('data-link');
+  if (link) {
+    shell.openExternal(link);
   }
 };
 
 Array.from(buttons).forEach(el => {
   el.addEventListener('click', tabclick);
+});
+
+Array.from(links).forEach(el => {
+  el.addEventListener('click', linkclick);
 });

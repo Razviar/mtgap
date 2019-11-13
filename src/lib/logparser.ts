@@ -16,6 +16,7 @@ export class LogParser {
   private userlang = 'English';
   private loglen: number = 0;
   private linesread: number = 0;
+  private skiplines: number = 0;
   private strdate: number = 0;
   private strdateUnparsed: string = '';
   private dateregexp: RegExp = /[\d]{1,2}[:./ ]{1,2}[\d]{1,2}/gm;
@@ -62,7 +63,6 @@ export class LogParser {
   public stop() {
     this.logsdisabled = false;
     this.watcher.close();
-    return { linesread: this.linesread, loglen: this.loglen };
   }
 
   public checkLog(pth: string, stats: fs.Stats | undefined) {
@@ -90,8 +90,12 @@ export class LogParser {
     });
 
     rl.on('line', line => {
-      this.linesread++;
       let foundIndicator = false;
+
+      if (this.skiplines > 0) {
+        this.skiplines--;
+        return;
+      }
 
       if (
         line.includes('[UnityCrossThreadLogger]') &&
@@ -119,7 +123,8 @@ export class LogParser {
             param !== this.currentPlayerId &&
             this.currentPlayerId !== ''
           ) {
-            this.emitter.emit('userchange', this.stop());
+            this.logsdisabled = true;
+            this.emitter.emit('userchange', param);
           }
           if (em === 'language') {
             this.userlang = param;
@@ -131,6 +136,8 @@ export class LogParser {
       if (this.logsdisabled) {
         return;
       }
+
+      this.linesread++;
 
       this.indicators.forEach(indicator => {
         if (line.includes(indicator.Indicators) && indicator.Send) {

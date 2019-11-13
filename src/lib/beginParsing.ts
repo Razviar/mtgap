@@ -1,7 +1,8 @@
 import { LogParser } from './logparser';
 import { uploadpackfile } from '../api/logsender';
 import { ParseResults } from '../models/indicators';
-import { store, mainWindow } from '../main';
+import { store, mainWindow, setCreds } from '../main';
+import { UserSwitch } from './userswitch';
 
 export function beginParsing(): LogParser {
   const usertoken = store.get('usertoken');
@@ -41,6 +42,20 @@ export function beginParsing(): LogParser {
       message: msg,
     });
   });
+
+  logParser.emitter.on('userchange', msg => {
+    mainWindow.webContents.send('show-status', {
+      color: '#dbb63d',
+      message: 'New User Detected!',
+    });
+    const newtoken = UserSwitch(msg as string);
+    console.log('NT:' + newtoken);
+    if (newtoken !== '') {
+      store.set('usertoken', newtoken);
+      setCreds();
+    }
+  });
+
   logParser.start();
 
   return logParser;
