@@ -24,7 +24,7 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "mtgap"
+            "name": "mtgaprotracker"
           }
         },
         {
@@ -85,6 +85,7 @@
     "@marshallofsound/webpack-asset-relocator-loader": "^0.5.0",
     "css-loader": "^3.0.0",
     "electron": "7.1.0",
+    "file-loader": "^4.2.0",
     "node-loader": "^0.6.0",
     "style-loader": "^0.23.1"
   }

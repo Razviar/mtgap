@@ -1,9 +1,11 @@
 // tslint:disable: no-any
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
 import { Store } from './lib/storage';
 import { beginParsing } from './lib/beginParsing';
 import { LogParser } from './lib/logparser';
 import { ProcessWatcher } from './lib/watchprocess';
+import Icon from 'root/statics/icon0.ico';
+import path from 'path';
 
 declare var HOME_WINDOW_WEBPACK_ENTRY: any;
 
@@ -48,19 +50,43 @@ const intervalFunc = () => {
 };
 
 const createWindow = () => {
+  const appIcoImg = nativeImage.createFromPath(path.join(__dirname, Icon));
+  const appIcon = new Tray(appIcoImg);
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Show App',
+      click: () => {
+        mainWindow.show();
+      },
+    },
+    {
+      label: 'Quit',
+      click: () => {
+        //app.isQuiting = true;
+        app.quit();
+      },
+    },
+  ]);
+
+  appIcon.setContextMenu(contextMenu);
+
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 700,
+    height: 500,
     webPreferences: {
       nodeIntegration: true,
     },
     show: false,
     frame: false,
+    title: 'MTGA Pro Tracker',
+    icon: appIcoImg,
+    resizable: false,
   });
 
   mainWindow.loadURL(HOME_WINDOW_WEBPACK_ENTRY);
   mainWindow.webContents.openDevTools();
   mainWindow.setMenuBarVisibility(false);
+  mainWindow.Tray = appIcon;
 
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {
@@ -75,6 +101,20 @@ const createWindow = () => {
     mainWindow.webContents.send('set-version', app.getVersion());
     setCreds();
   });
+
+  mainWindow.on('minimize', function(event: any) {
+    event.preventDefault();
+    mainWindow.hide();
+  });
+
+  /*mainWindow.on('close', function(event: any) {
+    if (!app.isQuiting) {
+      event.preventDefault();
+      mainWindow.hide();
+    }
+
+    return false;
+  });*/
 };
 
 // This method will be called when Electron has finished
@@ -106,6 +146,10 @@ ipcMain.on('token-input', (_, arg) => {
     store.set(arg.token, arg.token, 'token');
     logParser = beginParsing();
   }
+});
+
+ipcMain.on('minimize-me', (_, arg) => {
+  mainWindow.minimize();
 });
 
 if (store.get('usertoken')) {

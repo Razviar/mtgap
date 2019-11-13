@@ -1,21 +1,24 @@
 import { ipcRenderer } from 'electron';
 import { userbytokenid } from 'root/api/userbytokenid';
-// tslint:disable-next-line: no-import-side-effect
+// tslint:disable: no-import-side-effect
 import 'root/windows/home/home.css';
+import Icon from 'root/statics/logo_03.png';
 
 const Token: HTMLInputElement | null = document.getElementById(
   'token'
 ) as HTMLInputElement;
-const TokenResponse: HTMLElement | null = document.getElementById(
-  'TokenResponse'
-);
-const UserCredentials: HTMLElement | null = document.getElementById(
-  'UserCredentials'
-);
-const StatusMessage: HTMLElement | null = document.getElementById(
-  'StatusMessage'
-);
-const AppVersion: HTMLElement | null = document.getElementById('AppVersion');
+const TokenResponse = document.getElementById('TokenResponse');
+const UserCredentials = document.getElementById('UserCredentials');
+const StatusMessage = document.getElementById('StatusMessage');
+const AppVersion = document.getElementById('AppVersion');
+const titleIcon: HTMLImageElement | null = document.getElementById(
+  'titleimg'
+) as HTMLImageElement;
+const minimizeButton = document.getElementById('minimize');
+
+if (titleIcon) {
+  titleIcon.src = Icon;
+}
 
 const TokenChecker = (token: string, elem: HTMLElement) => {
   elem.innerHTML = 'Checking token...';
@@ -33,7 +36,14 @@ const TokenChecker = (token: string, elem: HTMLElement) => {
   });
 };
 
-if (Token && TokenResponse && UserCredentials && StatusMessage && AppVersion) {
+if (
+  Token &&
+  TokenResponse &&
+  UserCredentials &&
+  StatusMessage &&
+  AppVersion &&
+  minimizeButton
+) {
   ipcRenderer.on('set-token', (e, arg) => {
     Token.value = arg;
     Token.style.display = 'none';
@@ -58,6 +68,10 @@ if (Token && TokenResponse && UserCredentials && StatusMessage && AppVersion) {
     if (event && event.target && event.target.value) {
       TokenChecker(event.target.value, TokenResponse);
     }
+  });
+
+  minimizeButton.addEventListener('click', (event: any) => {
+    ipcRenderer.send('minimize-me', 'test');
   });
 }
 

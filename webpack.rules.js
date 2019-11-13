@@ -2,42 +2,46 @@ module.exports = [
   // Add support for native node modules
   {
     test: /\.node$/,
-    use: "node-loader"
+    use: 'node-loader',
   },
   {
     test: /\.(m?js|node)$/,
     parser: { amd: false },
     use: {
-      loader: "@marshallofsound/webpack-asset-relocator-loader",
+      loader: '@marshallofsound/webpack-asset-relocator-loader',
       options: {
-        outputAssetBase: "native_modules"
-      }
-    }
+        outputAssetBase: 'native_modules',
+      },
+    },
   },
   {
     test: /\.tsx?$/,
     exclude: /(node_modules|.webpack)/,
     loaders: [
       {
-        loader: "awesome-typescript-loader",
+        loader: 'awesome-typescript-loader',
         options: {
-          transpileOnly: true
-        }
-      }
-    ]
+          transpileOnly: true,
+        },
+      },
+    ],
   },
   {
     test: /\.tsx?$/,
     exclude: /(node_modules|.webpack)/,
     loaders: [
       {
-        loader: "tslint-loader",
+        loader: 'tslint-loader',
         options: {
-          tsConfigFile: "tsconfig.json",
+          tsConfigFile: 'tsconfig.json',
           typeCheck: true,
-          formatter: "verbose"
-        }
-      }
-    ]
-  }
+          formatter: 'verbose',
+        },
+      },
+    ],
+  },
+  {
+    test: /\.(png|ico|svg|jpg|gif)$/,
+    use: [{ loader: 'file-loader' }],
+  },
 ];

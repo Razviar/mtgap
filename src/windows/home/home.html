@@ -14,21 +14,24 @@
   </head>
   <body>
     <div id="header">
-      <img
-        id="titleimg"
-        src="https://mtgarena.pro/wp-content/uploads/sites/3/2018/04/logo_03.png"
-        width="200"
-      />
+      <img id="titleimg" width="220" />
       <div class="button active" data-activate="general">General</div>
       <div class="button" data-activate="settings">Settings</div>
       <div class="button" data-activate="overlay">Overlay</div>
       <div class="button" data-activate="accounts">Accounts</div>
+      <div id="minimize" class="buttonClose" title="Minimize to tray">
+        &#10799;
+      </div>
     </div>
     <div class="tab" id="general">
       <div id="TokenInput"><input type="text" name="token" id="token" /></div>
       <div id="TokenResponse"></div>
       <div id="UserCredentials"></div>
       <div id="StatusMessage"></div>
+      <div class="pretty p-switch p-fill">
+        <div class="state p-danger"><label>Enable Overlay</label></div>
+        <input type="checkbox" name="collection" value="1" />
+      </div>
       <div id="AppVersion"></div>
     </div>
     <div class="tab" id="settings"></div>

@@ -1,9 +1,12 @@
-body {
+body,
+html {
   font-family: 'titillium web', sans-serif;
   max-width: 38rem;
   padding: 0;
+  margin: 0;
   background-color: #1b0000;
   color: #9f9f9f;
+  width: 100%;
 }
 
 div {
@@ -22,6 +25,7 @@ a[href^="ftp://"] {
 
 #titleimg {
   -webkit-app-region: drag;
+  margin-right: 25px;
 }
 
 input#token {
@@ -30,43 +34,60 @@ input#token {
   text-align: center;
 }
 
-div#AppVersion {
+#AppVersion {
   position: absolute;
   bottom: 10px;
   right: 10px;
   font-size: 0.7em;
 }
 
-div#header {
+#header {
   vertical-align: middle;
+  background-color: rgba(132, 52, 38, 0.9);
+  width: 780px;
+  padding: 10px;
+  height: 50px;
 }
 
 .button {
   text-align: center;
-  color: #9f9f9f;
+  color: #fff;
   background-color: transparent;
   font-family: titillium web, sans-serif;
-  font-weight: 700;
   display: inline-block;
   margin-right: 2px;
-  padding: 5px 15px;
+  padding: 0 15px;
   cursor: pointer;
   transition: all 0.2s linear;
   border: none;
-  border-radius: 4px;
   vertical-align: top;
 }
 
 .button:hover {
   color: #fff;
-  background-color: rgba(183, 171, 169, 0.35);
+  background-color: rgba(183, 171, 169, 0.1);
+  border-bottom: solid 1px rgba(183, 171, 169, 0.3);
 }
 
 .active {
-  color: #fff;
-  background-color: #843426;
+  font-weight: 700;
+  border-bottom: solid 1px #fff;
 }
 
 .active:hover {
-  background-color: #843426;
+  background-color: rgba(183, 171, 169, 0.1);
+}
+
+.buttonClose {
+  position: absolute;
+  right: 3px;
+  top: 0px;
+  cursor: pointer;
+  font-size: 1.5em;
+  line-height: 1em;
+  vertical-align: top;
+}
+
+.buttonClose:hover {
+  color: #fff;
 }
