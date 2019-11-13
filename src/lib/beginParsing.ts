@@ -3,10 +3,13 @@ import { uploadpackfile } from '../api/logsender';
 import { ParseResults } from '../models/indicators';
 import { store, mainWindow } from '../main';
 
-export function beginParsing(usertoken: string): LogParser {
+export function beginParsing(): LogParser {
+  const usertoken = store.get('usertoken');
+  const language = store.get(usertoken, 'language');
   const logParser = new LogParser(
     ['LocalLow', 'Wizards Of The Coast', 'MTGA', 'output_log.txt'],
-    store.get(usertoken, 'playerId')
+    store.get(usertoken, 'playerId'),
+    language
   );
   logParser.emitter.on('newdata', data => {
     const datasending: ParseResults[] = data as ParseResults[];

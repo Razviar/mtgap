@@ -7,11 +7,13 @@ import { Indicators, ParseResults } from 'root/models/indicators';
 import { getindicators } from 'root/api/getindicators';
 import { substrcount, Cut } from './func';
 import Emittery from 'emittery';
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 
 export class LogParser {
   private path: string;
-  private indicators: Indicators[];
+  private indicators: Indicators[] = [];
+  private dateformats: { [index: string]: string } = {};
+  private userlang = 'English';
   private loglen: number = 0;
   private linesread: number = 0;
   private strdate: number = 0;
@@ -26,22 +28,25 @@ export class LogParser {
 
   public emitter = new Emittery();
 
-  constructor(targetname: string[], PlayerId: string) {
+  constructor(targetname: string[], PlayerId: string, lang: string) {
     const appDataPath = (electron.app || electron.remote.app).getPath(
       'appData'
     );
     this.path = path.join(appDataPath, ...targetname).replace('Roaming\\', '');
-    this.indicators = [];
     this.watcher = chokidar.watch(this.path, {
       usePolling: true,
       interval: 500,
     });
     this.currentPlayerId = PlayerId;
+    if (lang !== '') {
+      this.userlang = lang;
+    }
   }
 
   public start() {
     getindicators().then(i => {
-      this.indicators = i;
+      this.indicators = i.indicators;
+      this.dateformats = i.dates;
       //console.log(this.indicators);
       if (fs.existsSync(this.path)) {
         this.watcher.on('change', (p, s) => {
@@ -116,6 +121,9 @@ export class LogParser {
           ) {
             this.emitter.emit('userchange', this.stop());
           }
+          if (em === 'language') {
+            this.userlang = param;
+          }
           this.emitter.emit(em, param);
         }
       });
@@ -179,7 +187,7 @@ export class LogParser {
           'status',
           `Log parsed till: ${format(
             new Date(this.results[this.results.length - 1].time),
-            'HH:mm:ss dd, MMM yyyy'
+            'h:mm:ss a dd, MMM yyyy'
           )}`
         );
       } else if (!this.logsdisabled && this.firstread) {
@@ -195,11 +203,17 @@ export class LogParser {
   private parseDate(line: string) {
     const cutter = line.indexOf(': ');
     const shift = '[UnityCrossThreadLogger]'.length;
-    return Date.parse(
-      line
-        .replace('[UnityCrossThreadLogger]', '')
-        .substring(0, cutter !== -1 ? cutter - shift : undefined)
-    );
+    let dt = new Date();
+    try {
+      dt = parse(
+        line
+          .replace('[UnityCrossThreadLogger]', '')
+          .substring(0, cutter !== -1 ? cutter - shift : undefined),
+        this.dateformats[this.userlang],
+        new Date()
+      );
+    } catch (e) {}
+    return dt.getTime();
   }
 
   private bracketeer(

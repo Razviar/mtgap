@@ -5,7 +5,7 @@ import { beginParsing } from './lib/beginParsing';
 import { LogParser } from './lib/logparser';
 import { ProcessWatcher } from './lib/watchprocess';
 
-declare var MAIN_WINDOW_WEBPACK_ENTRY: any;
+declare var HOME_WINDOW_WEBPACK_ENTRY: any;
 
 // tslint:disable-next-line: no-var-requires
 if (require('electron-squirrel-startup')) {
@@ -58,7 +58,7 @@ const createWindow = () => {
     frame: false,
   });
 
-  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+  mainWindow.loadURL(HOME_WINDOW_WEBPACK_ENTRY);
   mainWindow.webContents.openDevTools();
   mainWindow.setMenuBarVisibility(false);
 
@@ -104,12 +104,12 @@ ipcMain.on('token-input', (_, arg) => {
     store.set('usertoken', arg.token);
     store.set(arg.token, arg.uid, 'uid');
     store.set(arg.token, arg.token, 'token');
-    logParser = beginParsing(arg.token);
+    logParser = beginParsing();
   }
 });
 
 if (store.get('usertoken')) {
-  logParser = beginParsing(store.get('usertoken'));
+  logParser = beginParsing();
   const t = setInterval(intervalFunc, 1000);
   //this.intervalFunc();
 }

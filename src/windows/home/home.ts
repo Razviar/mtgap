@@ -1,7 +1,7 @@
 import { ipcRenderer } from 'electron';
-import { userbytokenid } from './api/userbytokenid';
+import { userbytokenid } from 'root/api/userbytokenid';
 // tslint:disable-next-line: no-import-side-effect
-import './index.css';
+import 'root/windows/home/home.css';
 
 const Token: HTMLInputElement | null = document.getElementById(
   'token'
@@ -26,6 +26,7 @@ const TokenChecker = (token: string, elem: HTMLElement) => {
     } else if (res.status === 'NO_USER') {
       elem.innerHTML = 'No user found!';
     } else {
+      Token.style.display = 'none';
       elem.innerHTML = `Current user: <strong>${res.status}</strong>`;
       ipcRenderer.send('token-input', { token, uid: res.data });
     }
@@ -35,6 +36,7 @@ const TokenChecker = (token: string, elem: HTMLElement) => {
 if (Token && TokenResponse && UserCredentials && StatusMessage && AppVersion) {
   ipcRenderer.on('set-token', (e, arg) => {
     Token.value = arg;
+    Token.style.display = 'none';
     TokenChecker(arg, TokenResponse);
   });
 
