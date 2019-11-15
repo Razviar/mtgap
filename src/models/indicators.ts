@@ -1,9 +1,9 @@
 export interface Indicators {
-  marker: number;
+  marker: string;
   Indicators: string;
-  Send: boolean;
-  Needrunning: boolean;
-  Addup: boolean;
+  Send: string;
+  Needrunning: string;
+  Addup: string;
   Stopper: string;
   Needtohave: string;
   Ignore: string;
@@ -13,4 +13,6 @@ export interface ParseResults {
   time: number;
   indicator: number;
   json: string;
+  uid: string;
+  matchId: string;
 }

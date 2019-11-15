@@ -41,6 +41,7 @@ const TokenChecker = (token: string, elem: HTMLElement) => {
     } else if (TokenInput) {
       TokenInput.style.display = 'none';
       elem.innerHTML = `Current user: <strong>${res.status}</strong>`;
+      EnableOverlay.style.display = '';
       ipcRenderer.send('token-input', {
         token,
         uid: res.data,
@@ -68,7 +69,7 @@ if (
   });
 
   ipcRenderer.on('set-creds', (e, arg) => {
-    UserCredentials.innerHTML = `MTGA nick: <strong>${arg}</strong>`;
+    UserCredentials.innerHTML = `Linked MTGA nick: <strong>${arg}</strong>`;
   });
 
   ipcRenderer.on('set-version', (e, arg) => {
@@ -100,8 +101,15 @@ if (
     AccountsTab.innerHTML = output;
   });
 
+  ipcRenderer.on('new-account', (e, arg) => {
+    StatusMessage.innerHTML = '';
+    TokenResponse.innerHTML = '';
+    TokenInput.style.display = '';
+    Token.value = '';
+  });
+
   Token.addEventListener('input', (event: any) => {
-    if (event && event.target && event.target.value) {
+    if (event.target && event.target.value && event.target.value !== '') {
       TokenChecker(event.target.value, TokenResponse);
     }
   });
@@ -120,12 +128,15 @@ if (
 const tabclick = (event: any) => {
   const cl: HTMLElement = event.target;
   const activate = cl.getAttribute('data-activate');
-  const cls = cl.classList;
 
   Array.from(buttons).forEach(el => {
     const elem = el as HTMLElement;
     const clas = elem.classList;
-    clas.remove('active');
+    if (elem.getAttribute('data-activate') === activate) {
+      clas.add('active');
+    } else {
+      clas.remove('active');
+    }
   });
 
   Array.from(tabs).forEach(el => {

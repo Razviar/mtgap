@@ -5,28 +5,23 @@ import { store, mainWindow, setCreds } from '../main';
 import { UserSwitch } from './userswitch';
 
 export function beginParsing(): LogParser {
-  const usertoken = store.get('usertoken');
-  const language = store.get(usertoken, 'language');
-  const logParser = new LogParser(
-    ['LocalLow', 'Wizards Of The Coast', 'MTGA', 'output_log.txt'],
-    store.get(usertoken, 'playerId'),
-    language
-  );
+  const logParser = new LogParser([
+    'LocalLow',
+    'Wizards Of The Coast',
+    'MTGA',
+    'output_log.txt',
+  ]);
   logParser.emitter.on('newdata', data => {
     const datasending: ParseResults[] = data as ParseResults[];
-    //console.log(datasending);
     if (datasending.length > 0) {
-      uploadpackfile(datasending, +store.get('userid'), usertoken);
+      uploadpackfile(datasending, store.get('usertoken'));
     }
   });
-  const emitting = ['playerId', 'screenName', 'language'];
-  emitting.forEach(em => {
-    logParser.emitter.on(em, data => {
-      const check = store.get(usertoken, em);
-      if ((em === 'playerId' && !check) || em !== 'playerId') {
-        store.set(usertoken, data, em);
-      }
-    });
+
+  logParser.emitter.on('language', data => {
+    if (store.get('usertoken')) {
+      store.set(store.get('usertoken'), data, 'language');
+    }
   });
 
   logParser.emitter.on('error', msg => {
@@ -44,15 +39,30 @@ export function beginParsing(): LogParser {
   });
 
   logParser.emitter.on('userchange', msg => {
+    /*console.log('userchange');
+    console.log(msg);*/
+
+    const m = msg as { playerId: string; screenName: string; language: string };
+
     mainWindow.webContents.send('show-status', {
       color: '#dbb63d',
       message: 'New User Detected!',
     });
-    const newtoken = UserSwitch(msg as string);
-    console.log('NT:' + newtoken);
-    if (newtoken !== '') {
+    const newtoken = UserSwitch(m.screenName);
+    //console.log('NT:' + newtoken);
+    mainWindow.webContents.send('set-creds', m.screenName);
+    if (newtoken !== '' && newtoken !== 'awaiting') {
       store.set('usertoken', newtoken);
+      logParser.setPlayerId(
+        store.get(newtoken, 'playerId'),
+        store.get(newtoken, 'screenName')
+      );
       setCreds();
+    } else {
+      mainWindow.webContents.send('new-account');
+      store.set('awaiting', m.playerId, 'playerId');
+      store.set('awaiting', m.screenName, 'screenName');
+      store.set('awaiting', m.language, 'language');
     }
   });
 

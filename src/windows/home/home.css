@@ -118,7 +118,12 @@ input#token {
 }
 
 .link {
+  color: #60a1d6;
   cursor: pointer;
   text-decoration: underline;
   font-weight: 700;
+}
+
+#OverlaySwitch {
+  display: none;
 }

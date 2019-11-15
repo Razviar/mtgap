@@ -5,7 +5,7 @@ import readline from 'readline';
 import chokidar from 'chokidar';
 import { Indicators, ParseResults } from 'root/models/indicators';
 import { getindicators } from 'root/api/getindicators';
-import { substrcount, Cut } from './func';
+import { substrcount, Cut, findLastIndex } from './func';
 import Emittery from 'emittery';
 import { format, parse } from 'date-fns';
 
@@ -23,13 +23,21 @@ export class LogParser {
   private nowWriting: number = 0;
   private results: ParseResults[] = [];
   private logsdisabled: boolean = false;
+  private userswitched: boolean = false;
+  private newmatch: boolean = false;
   private firstread: boolean = true;
   private watcher: chokidar.FSWatcher;
-  private currentPlayerId: string;
+  private newPlayerData: {
+    playerId: string;
+    screenName: string;
+    language: string;
+  } = { playerId: '', screenName: '', language: '' };
+  private currentMatchId: string = '';
+  private doppler: { [index: number]: number } = {};
 
   public emitter = new Emittery();
 
-  constructor(targetname: string[], PlayerId: string, lang: string) {
+  constructor(targetname: string[]) {
     const appDataPath = (electron.app || electron.remote.app).getPath(
       'appData'
     );
@@ -38,10 +46,6 @@ export class LogParser {
       usePolling: true,
       interval: 500,
     });
-    this.currentPlayerId = PlayerId;
-    if (lang !== '') {
-      this.userlang = lang;
-    }
   }
 
   public start() {
@@ -49,13 +53,14 @@ export class LogParser {
       this.indicators = i.indicators;
       this.dateformats = i.dates;
       //console.log(this.indicators);
-      if (fs.existsSync(this.path)) {
-        this.watcher.on('change', (p, s) => {
-          this.checkLog(p, s);
-        });
-        this.checkLog(this.path, fs.statSync(this.path));
-      } else {
+      this.watcher.on('change', (p, s) => {
+        this.checkLog(p, s);
+      });
+
+      if (!fs.existsSync(this.path)) {
         this.emitter.emit('error', 'No log file found');
+      } else {
+        this.checkLog(this.path, fs.statSync(this.path));
       }
     });
   }
@@ -65,8 +70,20 @@ export class LogParser {
     this.watcher.close();
   }
 
+  public setPlayerId(plid: string, pname: string) {
+    if (
+      this.newPlayerData.playerId === plid &&
+      this.newPlayerData.screenName === pname
+    ) {
+      this.userswitched = false;
+      this.checkLog(this.path, fs.statSync(this.path));
+    }
+  }
+
   public checkLog(pth: string, stats: fs.Stats | undefined) {
+    const LoginIndicator = 21;
     let brackets = { curly: 0, squared: 0 };
+    let skip = this.skiplines;
 
     let newloglen = 0;
     this.linesread = 0;
@@ -74,9 +91,11 @@ export class LogParser {
       newloglen = stats.size;
       if (newloglen < this.loglen) {
         this.loglen = 0;
+        this.skiplines = 0;
       }
     } else {
       this.loglen = 0;
+      this.skiplines = 0;
     }
 
     const Stream = fs.createReadStream(pth, {
@@ -92,8 +111,8 @@ export class LogParser {
     rl.on('line', line => {
       let foundIndicator = false;
 
-      if (this.skiplines > 0) {
-        this.skiplines--;
+      if (skip > 0) {
+        skip--;
         return;
       }
 
@@ -106,6 +125,7 @@ export class LogParser {
 
       if (line.includes('DETAILED LOGS: DISABLED')) {
         this.logsdisabled = true;
+        this.skiplines = this.linesread;
         this.emitter.emit('error', 'Enable Detailed Logs!');
       }
 
@@ -113,37 +133,31 @@ export class LogParser {
         this.logsdisabled = false;
       }
 
-      const emitting = ['playerId', 'screenName', 'language', 'matchId'];
+      //, 'matchId'
 
-      emitting.forEach(em => {
-        if (line.includes(`"${em}": `) && !line.includes('null')) {
-          const param = Cut(line, `"${em}": "`, '"');
-          if (
-            em === 'playerId' &&
-            param !== this.currentPlayerId &&
-            this.currentPlayerId !== ''
-          ) {
-            this.logsdisabled = true;
-            this.emitter.emit('userchange', param);
-          }
-          if (em === 'language') {
-            this.userlang = param;
-          }
-          this.emitter.emit(em, param);
+      if (line.includes('"language": ') && !line.includes('null')) {
+        const param = Cut(line, '"language": "', '"');
+        this.userlang = param;
+        if (!this.logsdisabled) {
+          this.emitter.emit('language', param);
         }
-      });
+      }
 
-      if (this.logsdisabled) {
+      if (this.logsdisabled || this.userswitched || this.newmatch) {
         return;
       }
 
+      this.skiplines = 0;
       this.linesread++;
 
       this.indicators.forEach(indicator => {
-        if (line.includes(indicator.Indicators) && indicator.Send) {
+        if (line.includes(indicator.Indicators)) {
           this.strdate = this.parseDate(this.strdateUnparsed);
+          if (!this.doppler[this.strdate]) {
+            this.doppler[this.strdate] = 0;
+          }
           if (indicator.Ignore !== 'a') {
-            this.nowWriting = indicator.marker;
+            this.nowWriting = +indicator.marker;
             foundIndicator = true;
             brackets = this.bracketeer(
               line.replace('[UnityCrossThreadLogger]', ''),
@@ -160,15 +174,19 @@ export class LogParser {
             if (pusher !== '') {
               this.results.push({
                 time: this.strdate,
-                indicator: indicator.marker,
+                indicator: +indicator.marker,
                 json: pusher,
+                uid: this.newPlayerData.playerId,
+                matchId: this.currentMatchId,
               });
             }
           } else {
             this.results.push({
               time: this.strdate,
-              indicator: indicator.marker,
+              indicator: +indicator.marker,
               json: this.writingSingleLine(line, indicator.Indicators),
+              uid: this.newPlayerData.playerId,
+              matchId: this.currentMatchId,
             });
           }
         }
@@ -181,15 +199,52 @@ export class LogParser {
       if (this.nowWriting !== 0) {
         brackets = this.writing(line, brackets);
       }
+      //console.log(this.nowWriting);
 
       if (brackets.curly === 0 && brackets.squared === 0) {
+        if (this.nowWriting === LoginIndicator) {
+          const switchObject = findLastIndex(
+            this.results,
+            elem => elem.indicator === LoginIndicator
+          );
+          /*console.log(this.nowWriting);
+          console.log(this.results);
+          console.log(switchObject);*/
+          //console.log(this.results[switchObject]);
+          const bi: any = JSON.parse(this.results[switchObject].json);
+          const loginNfo = bi.params.payloadObject;
+          switch (bi.params.messageName) {
+            case 'Client.Connected':
+              if (this.newPlayerData.playerId !== loginNfo.playerId) {
+                this.newPlayerData.language =
+                  loginNfo.settings.language.language;
+                this.newPlayerData.playerId = loginNfo.playerId;
+                this.newPlayerData.screenName = loginNfo.screenName;
+                this.userswitched = true;
+                this.emitter.emit('userchange', this.newPlayerData);
+                this.results = [];
+              }
+              break;
+            case 'DuelScene.GameStart':
+              if (this.currentMatchId !== loginNfo.matchId) {
+                this.currentMatchId = loginNfo.matchId;
+                this.newmatch = true;
+                this.skiplines = this.linesread;
+              }
+          }
+        }
         this.nowWriting = 0;
       }
     });
 
     rl.on('close', () => {
-      this.loglen = newloglen;
-      if (this.results.length > 0 && !this.logsdisabled) {
+      if (!this.logsdisabled && !this.userswitched && !this.newmatch) {
+        this.loglen = newloglen;
+      }
+      if (this.newmatch) {
+        this.newmatch = false;
+      }
+      if (this.results.length > 0 && !this.logsdisabled && !this.userswitched) {
         this.emitter.emit(
           'status',
           `Log parsed till: ${format(
@@ -197,11 +252,16 @@ export class LogParser {
             'h:mm:ss a dd, MMM yyyy'
           )}`
         );
-      } else if (!this.logsdisabled && this.firstread) {
+      } else if (!this.logsdisabled && !this.userswitched && this.firstread) {
         this.emitter.emit('status', 'Awaiting updates...');
         this.firstread = false;
       }
-      this.emitter.emit('newdata', this.results);
+      this.emitter.emit(
+        'newdata',
+        this.results.filter(
+          result => this.indicators[result.indicator].Send === 'true'
+        )
+      );
       //console.log(this.results);
       this.results = [];
     });
@@ -223,6 +283,21 @@ export class LogParser {
     return dt.getTime();
   }
 
+  private checkjson(line: string): boolean {
+    const brackets = { curly: 0, squared: 0 };
+    brackets.curly =
+      brackets.curly + substrcount(line, '{') - substrcount(line, '}');
+
+    brackets.squared =
+      brackets.squared + substrcount(line, '[') - substrcount(line, ']');
+
+    if (brackets.curly === 0 && brackets.squared === 0 && line.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   private bracketeer(
     line: string,
     brackets: { curly: number; squared: number }
@@ -237,21 +312,40 @@ export class LogParser {
   }
 
   private writing(line: string, brackets: { curly: number; squared: number }) {
+    if (line.trim() === '') {
+      return brackets;
+    }
     const append = this.results.findIndex(
       elem =>
-        +elem.indicator === +this.nowWriting && +elem.time === +this.strdate
+        +elem.indicator === +this.nowWriting &&
+        +elem.time === this.strdate + this.doppler[this.strdate]
     );
+
     if (append !== -1) {
-      this.results[append].json += line;
+      if (!this.checkjson(this.results[append].json)) {
+        this.results[append].json += line.trim();
+        return this.bracketeer(line, brackets);
+      } else {
+        this.doppler[this.strdate]++;
+        this.results.push({
+          time: this.strdate + this.doppler[this.strdate],
+          indicator: this.nowWriting,
+          json: line.trim(),
+          uid: this.newPlayerData.playerId,
+          matchId: this.currentMatchId,
+        });
+        return this.bracketeer(line, { curly: 0, squared: 0 });
+      }
     } else {
       this.results.push({
-        time: this.strdate,
+        time: this.strdate + this.doppler[this.strdate],
         indicator: this.nowWriting,
-        json: line,
+        json: line.trim(),
+        uid: this.newPlayerData.playerId,
+        matchId: this.currentMatchId,
       });
+      return this.bracketeer(line, { curly: 0, squared: 0 });
     }
-
-    return this.bracketeer(line, brackets);
   }
 
   private writingSingleLine(line: string, indicator: string) {
@@ -287,7 +381,7 @@ export class LogParser {
       i < workingline.length
     ) {
       const char = workingline.charAt(i);
-      result += char;
+      result += char.trim();
       switch (char) {
         case '{':
           brackets.curly++;

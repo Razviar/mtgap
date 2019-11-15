@@ -19,15 +19,42 @@ export class Store {
   }
 
   public get(key: string, subkey?: any) {
-    if (subkey) {
-      return this.data['settings'][key][subkey];
-    } else {
-      return this.data[key];
+    try {
+      if (subkey) {
+        return this.data['settings'][key][subkey];
+      } else {
+        return this.data[key];
+      }
+    } catch (e) {
+      return '';
+    }
+  }
+
+  public getsettings(key: string) {
+    try {
+      return this.data['settings'][key];
+    } catch (e) {
+      return '';
     }
   }
 
   public getall(): { [index: string]: any } {
     return this.data;
+  }
+
+  public unset(key: string, subkey?: any, whole?: boolean) {
+    if (subkey) {
+      if (whole) {
+        delete this.data['settings'][key];
+      } else {
+        delete this.data['settings'][key][subkey];
+      }
+    } else {
+      delete this.data[key];
+    }
+    try {
+      fs.writeFileSync(this.path, JSON.stringify(this.data));
+    } catch (e) {}
   }
 
   public set(key: string, val: any, subkey?: any) {

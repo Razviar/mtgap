@@ -109,6 +109,8 @@ const createWindow = () => {
     mainWindow.webContents.send('set-version', app.getVersion());
     setCreds();
     setAccounts();
+    logParser = beginParsing();
+    const t = setInterval(intervalFunc, 1000);
   });
 
   mainWindow.on('minimize', function(event: any) {
@@ -146,13 +148,23 @@ if (!gotTheLock) {
 }
 
 ipcMain.on('token-input', (_, arg) => {
-  if (!store.get('usertoken') || store.get('usertoken') !== arg.token) {
+  if (store.get('usertoken') !== arg.token) {
     store.set('usertoken', arg.token);
     store.set(arg.token, arg.uid, 'uid');
     store.set(arg.token, arg.token, 'token');
     store.set(arg.token, arg.nick, 'nick');
     store.set(arg.token, false, 'overlay');
-    logParser = beginParsing();
+
+    const awaiting = store.getsettings('awaiting');
+    if (awaiting) {
+      if (logParser) {
+        logParser.setPlayerId(awaiting.playerId, awaiting.screenName);
+      }
+      store.set(arg.token, awaiting.playerId, 'playerId');
+      store.set(arg.token, awaiting.screenName, 'screenName');
+      store.set(arg.token, awaiting.language, 'language');
+      store.unset('awaiting', 'x', true);
+    }
   }
 });
 
@@ -163,9 +175,3 @@ ipcMain.on('minimize-me', (_, arg) => {
 ipcMain.on('set-overlay', (_, arg) => {
   store.set(store.get('usertoken'), arg, 'overlay');
 });
-
-if (store.get('usertoken')) {
-  logParser = beginParsing();
-  const t = setInterval(intervalFunc, 1000);
-  //this.intervalFunc();
-}
