@@ -54,6 +54,11 @@
                   "html": "./src/windows/home/home.html",
                   "js": "./src/windows/home/home.ts",
                   "name": "home_window"
+                },
+                {
+                  "html": "./src/windows/overlay/overlay.html",
+                  "js": "./src/windows/overlay/overlay.ts",
+                  "name": "overlay_window"
                 }
               ]
             }

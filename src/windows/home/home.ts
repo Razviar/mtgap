@@ -5,22 +5,17 @@ import { userbytokenid } from 'root/api/userbytokenid';
 import 'root/windows/home/home.css';
 import Icon from 'root/statics/logo_03.png';
 
-const Token: HTMLInputElement | null = document.getElementById(
-  'token'
-) as HTMLInputElement;
-const TokenResponse = document.getElementById('TokenResponse');
-const TokenInput = document.getElementById('TokenInput');
-const UserCredentials = document.getElementById('UserCredentials');
-const StatusMessage = document.getElementById('StatusMessage');
-const AppVersion = document.getElementById('AppVersion');
-const titleIcon: HTMLImageElement | null = document.getElementById(
-  'titleimg'
-) as HTMLImageElement;
-const minimizeButton = document.getElementById('minimize');
-const AccountsTab = document.getElementById('accounts');
-const EnableOverlay: HTMLInputElement | null = document.getElementById(
-  'EnableOverlay'
-) as HTMLInputElement;
+const Token: HTMLInputElement | null = document.getElementById('token') as HTMLInputElement;
+const TokenResponse = document.getElementById('TokenResponse') as HTMLElement;
+const TokenInput = document.getElementById('TokenInput') as HTMLElement;
+const UserCredentials = document.getElementById('UserCredentials') as HTMLElement;
+const StatusMessage = document.getElementById('StatusMessage') as HTMLElement;
+const AppVersion = document.getElementById('AppVersion') as HTMLElement;
+const titleIcon: HTMLImageElement | null = document.getElementById('titleimg') as HTMLImageElement;
+const minimizeButton = document.getElementById('minimize') as HTMLElement;
+const AccountsTab = document.getElementById('accounts') as HTMLElement;
+const OverlaySwitch = document.getElementById('OverlaySwitch') as HTMLElement;
+const EnableOverlay: HTMLInputElement | null = document.getElementById('EnableOverlay') as HTMLInputElement;
 
 const buttons = document.getElementsByClassName('button');
 const tabs = document.getElementsByClassName('tab');
@@ -41,7 +36,7 @@ const TokenChecker = (token: string, elem: HTMLElement) => {
     } else if (TokenInput) {
       TokenInput.style.display = 'none';
       elem.innerHTML = `Current user: <strong>${res.status}</strong>`;
-      EnableOverlay.style.display = '';
+      OverlaySwitch.style.display = '';
       ipcRenderer.send('token-input', {
         token,
         uid: res.data,
@@ -51,79 +46,67 @@ const TokenChecker = (token: string, elem: HTMLElement) => {
   });
 };
 
-if (
-  Token &&
-  TokenInput &&
-  TokenResponse &&
-  UserCredentials &&
-  StatusMessage &&
-  AppVersion &&
-  minimizeButton &&
-  AccountsTab &&
-  EnableOverlay
-) {
-  ipcRenderer.on('set-token', (e, arg) => {
-    Token.value = arg;
-    TokenInput.style.display = 'none';
-    TokenChecker(arg, TokenResponse);
-  });
+ipcRenderer.on('hide-token', (e, arg) => {
+  TokenInput.style.display = 'none';
+});
 
-  ipcRenderer.on('set-creds', (e, arg) => {
-    UserCredentials.innerHTML = `Linked MTGA nick: <strong>${arg}</strong>`;
-  });
+ipcRenderer.on('set-creds', (e, arg) => {
+  UserCredentials.innerHTML = `Linked MTGA nick: <strong>${arg.screenName}</strong>`;
+  TokenResponse.innerHTML = `Current user: <strong>${arg.nick}</strong>`;
+  OverlaySwitch.style.display = '';
+});
 
-  ipcRenderer.on('set-version', (e, arg) => {
-    AppVersion.innerHTML = arg;
-  });
+ipcRenderer.on('set-version', (e, arg) => {
+  AppVersion.innerHTML = arg;
+});
 
-  ipcRenderer.on('show-status', (e, arg) => {
-    StatusMessage.innerHTML = arg.message;
-    StatusMessage.style.color = arg.color;
-  });
+ipcRenderer.on('show-status', (e, arg) => {
+  StatusMessage.innerHTML = arg.message;
+  StatusMessage.style.color = arg.color;
+});
 
-  ipcRenderer.on('set-accounts', (e, arg) => {
-    let output = `<div class="table"><div class='row'>
+ipcRenderer.on('set-accounts', (e, arg) => {
+  let output = `<div class="table"><div class='row'>
     <div class='cell'><strong>Nick</strong></div>
     <div class='cell'><strong>MTGA nick</strong></div>
     <div class='cell'><strong>Language</strong></div>
     <div class='cell'><strong>Token</strong></div>
     </div>`;
-    Object.keys(arg).forEach(val => {
-      const settingsData = arg[val];
-      output += `<div class='row'>
+  Object.keys(arg).forEach(val => {
+    const settingsData = arg[val];
+    output += `<div class='row'>
       <div class='cell'>${settingsData.nick}</div>
       <div class='cell'>${settingsData.screenName}</div>
       <div class='cell'>${settingsData.language}</div>
       <div class='cell'>${settingsData.token}</div>
       </div>`;
-    });
-    output += '</div>';
-    AccountsTab.innerHTML = output;
   });
+  output += '</div>';
+  AccountsTab.innerHTML = output;
+});
 
-  ipcRenderer.on('new-account', (e, arg) => {
-    StatusMessage.innerHTML = '';
-    TokenResponse.innerHTML = '';
-    TokenInput.style.display = '';
-    Token.value = '';
-  });
+ipcRenderer.on('new-account', (e, arg) => {
+  StatusMessage.innerHTML = '';
+  TokenResponse.innerHTML = '';
+  TokenInput.style.display = '';
+  Token.value = '';
+});
 
-  Token.addEventListener('input', (event: any) => {
-    if (event.target && event.target.value && event.target.value !== '') {
-      TokenChecker(event.target.value, TokenResponse);
-    }
-  });
+Token.addEventListener('input', (event: any) => {
+  if (event.target && event.target.value && event.target.value !== '') {
+    TokenChecker(event.target.value, TokenResponse);
+  }
+});
 
-  minimizeButton.addEventListener('click', (event: any) => {
-    ipcRenderer.send('minimize-me', 'test');
-  });
+minimizeButton.addEventListener('click', (event: any) => {
+  ipcRenderer.send('minimize-me', 'test');
+});
 
-  EnableOverlay.addEventListener('change', (event: any) => {
-    if (event && event.target) {
-      ipcRenderer.send('set-overlay', event.target.checked);
-    }
-  });
-}
+EnableOverlay.addEventListener('change', (event: any) => {
+  if (event && event.target) {
+    ipcRenderer.send('set-overlay', event.target.checked);
+  }
+});
 
 const tabclick = (event: any) => {
   const cl: HTMLElement = event.target;

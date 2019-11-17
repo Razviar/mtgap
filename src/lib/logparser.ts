@@ -15,7 +15,6 @@ export class LogParser {
   private dateformats: { [index: string]: string } = {};
   private userlang = 'English';
   private loglen: number = 0;
-  private linesread: number = 0;
   private skiplines: number = 0;
   private strdate: number = 0;
   private strdateUnparsed: string = '';
@@ -54,13 +53,13 @@ export class LogParser {
       this.dateformats = i.dates;
       //console.log(this.indicators);
       this.watcher.on('change', (p, s) => {
-        this.checkLog(p, s);
+        this.checkLog(p, s, 'start');
       });
 
       if (!fs.existsSync(this.path)) {
         this.emitter.emit('error', 'No log file found');
       } else {
-        this.checkLog(this.path, fs.statSync(this.path));
+        this.checkLog(this.path, fs.statSync(this.path), 'watcher');
       }
     });
   }
@@ -76,17 +75,18 @@ export class LogParser {
       this.newPlayerData.screenName === pname
     ) {
       this.userswitched = false;
-      this.checkLog(this.path, fs.statSync(this.path));
+      this.checkLog(this.path, fs.statSync(this.path), 'setPlayerId');
     }
   }
 
-  public checkLog(pth: string, stats: fs.Stats | undefined) {
+  public checkLog(pth: string, stats: fs.Stats | undefined, source?: string) {
+    //(this.skiplines);
     const LoginIndicator = 21;
     let brackets = { curly: 0, squared: 0 };
     let skip = this.skiplines;
+    let linesread = 0;
 
     let newloglen = 0;
-    this.linesread = 0;
     if (stats) {
       newloglen = stats.size;
       if (newloglen < this.loglen) {
@@ -125,7 +125,7 @@ export class LogParser {
 
       if (line.includes('DETAILED LOGS: DISABLED')) {
         this.logsdisabled = true;
-        this.skiplines = this.linesread;
+        this.skiplines = linesread;
         this.emitter.emit('error', 'Enable Detailed Logs!');
       }
 
@@ -142,13 +142,12 @@ export class LogParser {
           this.emitter.emit('language', param);
         }
       }
-
+      linesread++;
       if (this.logsdisabled || this.userswitched || this.newmatch) {
         return;
       }
 
       this.skiplines = 0;
-      this.linesread++;
 
       this.indicators.forEach(indicator => {
         if (line.includes(indicator.Indicators)) {
@@ -173,7 +172,7 @@ export class LogParser {
 
             if (pusher !== '') {
               this.results.push({
-                time: this.strdate,
+                time: this.strdate + this.doppler[this.strdate],
                 indicator: +indicator.marker,
                 json: pusher,
                 uid: this.newPlayerData.playerId,
@@ -182,7 +181,7 @@ export class LogParser {
             }
           } else {
             this.results.push({
-              time: this.strdate,
+              time: this.strdate + this.doppler[this.strdate],
               indicator: +indicator.marker,
               json: this.writingSingleLine(line, indicator.Indicators),
               uid: this.newPlayerData.playerId,
@@ -210,27 +209,42 @@ export class LogParser {
           /*console.log(this.nowWriting);
           console.log(this.results);
           console.log(switchObject);*/
-          //console.log(this.results[switchObject]);
+
+          // tslint:disable-next-line: no-any
           const bi: any = JSON.parse(this.results[switchObject].json);
           const loginNfo = bi.params.payloadObject;
           switch (bi.params.messageName) {
             case 'Client.Connected':
+              /*console.log(
+                source +
+                  'Client.Connected:' +
+                  loginNfo.playerId +
+                  '/' +
+                  this.newPlayerData.playerId
+              );*/
               if (this.newPlayerData.playerId !== loginNfo.playerId) {
                 this.newPlayerData.language =
                   loginNfo.settings.language.language;
                 this.newPlayerData.playerId = loginNfo.playerId;
                 this.newPlayerData.screenName = loginNfo.screenName;
                 this.userswitched = true;
+                this.skiplines = linesread;
                 this.emitter.emit('userchange', this.newPlayerData);
                 this.results = [];
               }
               break;
             case 'DuelScene.GameStart':
+              //console.log(this.results);
+              //console.log(source + ':' + loginNfo.matchId + '/' + linesread);
               if (this.currentMatchId !== loginNfo.matchId) {
                 this.currentMatchId = loginNfo.matchId;
                 this.newmatch = true;
-                this.skiplines = this.linesread;
+                this.skiplines = linesread;
               }
+              break;
+            case 'DuelScene.EndOfMatchReport':
+              this.currentMatchId = '';
+              break;
           }
         }
         this.nowWriting = 0;
@@ -240,9 +254,6 @@ export class LogParser {
     rl.on('close', () => {
       if (!this.logsdisabled && !this.userswitched && !this.newmatch) {
         this.loglen = newloglen;
-      }
-      if (this.newmatch) {
-        this.newmatch = false;
       }
       if (this.results.length > 0 && !this.logsdisabled && !this.userswitched) {
         this.emitter.emit(
@@ -256,14 +267,20 @@ export class LogParser {
         this.emitter.emit('status', 'Awaiting updates...');
         this.firstread = false;
       }
-      this.emitter.emit(
-        'newdata',
-        this.results.filter(
-          result => this.indicators[result.indicator].Send === 'true'
-        )
-      );
+      if (!this.userswitched) {
+        this.emitter.emit(
+          'newdata',
+          this.results.filter(
+            result => this.indicators[result.indicator].Send === 'true'
+          )
+        );
+      }
       //console.log(this.results);
       this.results = [];
+      if (this.newmatch) {
+        this.newmatch = false;
+        this.checkLog(this.path, fs.statSync(this.path), 'newmatch');
+      }
     });
   }
 

@@ -6,8 +6,10 @@ import { LogParser } from './lib/logparser';
 import { ProcessWatcher } from './lib/watchprocess';
 import Icon from 'root/statics/icon0.ico';
 import path from 'path';
+import { setuserdata } from './api/userbytokenid';
 
 declare var HOME_WINDOW_WEBPACK_ENTRY: any;
+declare var OVERLAY_WINDOW_WEBPACK_ENTRY: any;
 
 // tslint:disable-next-line: no-var-requires
 if (require('electron-squirrel-startup')) {
@@ -20,6 +22,7 @@ export const store = new Store({
 });
 
 export let mainWindow: any;
+export let overlayWindow: any;
 export let logParser: LogParser | undefined;
 export let MTGApid = -1;
 export const processWatcher: ProcessWatcher = new ProcessWatcher('MTGA.exe');
@@ -27,10 +30,11 @@ export const processWatcher: ProcessWatcher = new ProcessWatcher('MTGA.exe');
 export const setCreds = () => {
   const token = store.get('usertoken');
   if (token) {
-    mainWindow.webContents.send('set-token', token);
     const screenName = store.get(token, 'screenName');
-    if (screenName) {
-      mainWindow.webContents.send('set-creds', screenName);
+    const nick = store.get(token, 'nick');
+    if (screenName && nick) {
+      mainWindow.webContents.send('hide-token');
+      mainWindow.webContents.send('set-creds', { screenName, nick });
     }
   }
 };
@@ -54,6 +58,28 @@ const intervalFunc = () => {
       }
     });
   }
+};
+
+export const createOverlay = () => {
+  overlayWindow = new BrowserWindow({
+    width: 400,
+    height: 500,
+    webPreferences: {
+      nodeIntegration: true,
+    },
+    show: false,
+    frame: false,
+    title: 'MTGA Pro Tracker',
+    resizable: false,
+  });
+
+  overlayWindow.loadURL(OVERLAY_WINDOW_WEBPACK_ENTRY);
+  overlayWindow.webContents.openDevTools();
+  overlayWindow.setMenuBarVisibility(false);
+
+  overlayWindow.once('ready-to-show', () => {
+    overlayWindow.show();
+  });
 };
 
 const createWindow = () => {
@@ -123,7 +149,7 @@ const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
   app.quit();
 } else {
-  app.on('second-instance', (event, commandLine, workingDirectory) => {
+  app.on('second-instance', () => {
     if (mainWindow) {
       if (mainWindow.isMinimized()) {
         mainWindow.restore();
@@ -163,12 +189,13 @@ ipcMain.on('token-input', (_, arg) => {
       store.set(arg.token, awaiting.playerId, 'playerId');
       store.set(arg.token, awaiting.screenName, 'screenName');
       store.set(arg.token, awaiting.language, 'language');
+      setuserdata(awaiting.playerId, awaiting.screenName, awaiting.language, arg.token);
       store.unset('awaiting', 'x', true);
     }
   }
 });
 
-ipcMain.on('minimize-me', (_, arg) => {
+ipcMain.on('minimize-me', () => {
   mainWindow.minimize();
 });
 

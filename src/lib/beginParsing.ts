@@ -1,16 +1,12 @@
 import { LogParser } from './logparser';
 import { uploadpackfile } from '../api/logsender';
 import { ParseResults } from '../models/indicators';
-import { store, mainWindow, setCreds } from '../main';
+import { store, mainWindow, setCreds, createOverlay } from '../main';
 import { UserSwitch } from './userswitch';
+import { setuserdata } from 'root/api/userbytokenid';
 
 export function beginParsing(): LogParser {
-  const logParser = new LogParser([
-    'LocalLow',
-    'Wizards Of The Coast',
-    'MTGA',
-    'output_log.txt',
-  ]);
+  const logParser = new LogParser(['LocalLow', 'Wizards Of The Coast', 'MTGA', 'output_log.txt']);
   logParser.emitter.on('newdata', data => {
     const datasending: ParseResults[] = data as ParseResults[];
     if (datasending.length > 0) {
@@ -53,10 +49,8 @@ export function beginParsing(): LogParser {
     mainWindow.webContents.send('set-creds', m.screenName);
     if (newtoken !== '' && newtoken !== 'awaiting') {
       store.set('usertoken', newtoken);
-      logParser.setPlayerId(
-        store.get(newtoken, 'playerId'),
-        store.get(newtoken, 'screenName')
-      );
+      logParser.setPlayerId(store.get(newtoken, 'playerId'), store.get(newtoken, 'screenName'));
+      setuserdata(m.playerId, m.screenName, m.language, newtoken);
       setCreds();
     } else {
       mainWindow.webContents.send('new-account');
@@ -67,6 +61,7 @@ export function beginParsing(): LogParser {
   });
 
   logParser.start();
+  //createOverlay();
 
   return logParser;
 }
