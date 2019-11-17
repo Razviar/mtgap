@@ -71,6 +71,7 @@ export const createOverlay = () => {
     frame: false,
     title: 'MTGA Pro Tracker',
     resizable: false,
+    transparent: true,
   });
 
   overlayWindow.loadURL(OVERLAY_WINDOW_WEBPACK_ENTRY);
@@ -201,4 +202,9 @@ ipcMain.on('minimize-me', () => {
 
 ipcMain.on('set-overlay', (_, arg) => {
   store.set(store.get('usertoken'), arg, 'overlay');
+  if (arg) {
+    createOverlay();
+  } else {
+    overlayWindow.hide();
+  }
 });

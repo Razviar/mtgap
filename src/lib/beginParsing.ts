@@ -10,7 +10,7 @@ export function beginParsing(): LogParser {
   logParser.emitter.on('newdata', data => {
     const datasending: ParseResults[] = data as ParseResults[];
     if (datasending.length > 0) {
-      uploadpackfile(datasending, store.get('usertoken'));
+      uploadpackfile(datasending);
     }
   });
 

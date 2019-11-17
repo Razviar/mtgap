@@ -1,0 +1,25 @@
+body,
+html {
+  font-family: 'titillium web', sans-serif;
+  max-width: 38rem;
+  padding: 0;
+  margin: 0;
+  background-color: #1b0000;
+  color: #9f9f9f;
+  width: 100%;
+  -webkit-app-region: drag;
+}
+
+div {
+  user-select: none;
+}
+
+a:not([draggable='true']),
+img:not([draggable='true']) {
+  -webkit-user-drag: none;
+}
+a[href^="http://"],
+a[href^="https://"],
+a[href^="ftp://"] {
+  -webkit-user-drag: auto;
+}

@@ -36,7 +36,7 @@ const TokenChecker = (token: string, elem: HTMLElement) => {
     } else if (TokenInput) {
       TokenInput.style.display = 'none';
       elem.innerHTML = `Current user: <strong>${res.status}</strong>`;
-      OverlaySwitch.style.display = '';
+      OverlaySwitch.classList.remove('hidden');
       ipcRenderer.send('token-input', {
         token,
         uid: res.data,
@@ -54,6 +54,7 @@ ipcRenderer.on('set-creds', (e, arg) => {
   UserCredentials.innerHTML = `Linked MTGA nick: <strong>${arg.screenName}</strong>`;
   TokenResponse.innerHTML = `Current user: <strong>${arg.nick}</strong>`;
   OverlaySwitch.style.display = '';
+  OverlaySwitch.classList.remove('hidden');
 });
 
 ipcRenderer.on('set-version', (e, arg) => {
@@ -89,6 +90,7 @@ ipcRenderer.on('new-account', (e, arg) => {
   StatusMessage.innerHTML = '';
   TokenResponse.innerHTML = '';
   TokenInput.style.display = '';
+  OverlaySwitch.classList.add('hidden');
   Token.value = '';
 });
 

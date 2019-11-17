@@ -124,6 +124,6 @@ input#token {
   font-weight: 700;
 }
 
-#OverlaySwitch {
+.hidden {
   display: none;
 }

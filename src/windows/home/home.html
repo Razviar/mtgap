@@ -3,14 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <title>MTGA Pro Tracker</title>
-    <link
-      href="https://fonts.googleapis.com/css?family=Titillium+Web&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/pretty-checkbox@3.0/dist/pretty-checkbox.min.css"
-    />
+    <link href="https://fonts.googleapis.com/css?family=Titillium+Web&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretty-checkbox@3.0/dist/pretty-checkbox.min.css" />
   </head>
   <body>
     <div id="header">
@@ -27,15 +21,13 @@
       <div id="TokenInput">
         <h2>Linking New Account</h2>
         To start data upload, please input
-        <strong class="link" data-link="https://mtgarena.pro/mtga-pro-tracker/"
-          >MTGA Pro account token</strong
-        >.
+        <strong class="link" data-link="https://mtgarena.pro/mtga-pro-tracker/">MTGA Pro account token</strong>.
         <input type="text" name="token" id="token" />
       </div>
       <div id="TokenResponse"></div>
       <div id="UserCredentials"></div>
       <div id="StatusMessage"></div>
-      <div id="OverlaySwitch" class="pretty p-switch p-fill">
+      <div id="OverlaySwitch" class="pretty p-switch p-fill hidden">
         <input type="checkbox" id="EnableOverlay" value="1" />
         <div class="state p-danger"><label>Enable Overlay</label></div>
       </div>

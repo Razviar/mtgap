@@ -32,14 +32,12 @@ export class LogParser {
     language: string;
   } = { playerId: '', screenName: '', language: '' };
   private currentMatchId: string = '';
-  private doppler: { [index: number]: number } = {};
+  private doppler: { [index: number]: { [index: number]: number } } = {};
 
   public emitter = new Emittery();
 
   constructor(targetname: string[]) {
-    const appDataPath = (electron.app || electron.remote.app).getPath(
-      'appData'
-    );
+    const appDataPath = (electron.app || electron.remote.app).getPath('appData');
     this.path = path.join(appDataPath, ...targetname).replace('Roaming\\', '');
     this.watcher = chokidar.watch(this.path, {
       usePolling: true,
@@ -70,10 +68,7 @@ export class LogParser {
   }
 
   public setPlayerId(plid: string, pname: string) {
-    if (
-      this.newPlayerData.playerId === plid &&
-      this.newPlayerData.screenName === pname
-    ) {
+    if (this.newPlayerData.playerId === plid && this.newPlayerData.screenName === pname) {
       this.userswitched = false;
       this.checkLog(this.path, fs.statSync(this.path), 'setPlayerId');
     }
@@ -116,10 +111,7 @@ export class LogParser {
         return;
       }
 
-      if (
-        line.includes('[UnityCrossThreadLogger]') &&
-        line.match(this.dateregexp)
-      ) {
+      if (line.includes('[UnityCrossThreadLogger]') && line.match(this.dateregexp)) {
         this.strdateUnparsed = line;
       }
 
@@ -127,13 +119,12 @@ export class LogParser {
         this.logsdisabled = true;
         this.skiplines = linesread;
         this.emitter.emit('error', 'Enable Detailed Logs!');
+        rl.close();
       }
 
       if (line.includes('DETAILED LOGS: ENABLED')) {
         this.logsdisabled = false;
       }
-
-      //, 'matchId'
 
       if (line.includes('"language": ') && !line.includes('null')) {
         const param = Cut(line, '"language": "', '"');
@@ -153,15 +144,15 @@ export class LogParser {
         if (line.includes(indicator.Indicators)) {
           this.strdate = this.parseDate(this.strdateUnparsed);
           if (!this.doppler[this.strdate]) {
-            this.doppler[this.strdate] = 0;
+            this.doppler[this.strdate] = {};
+          }
+          if (!this.doppler[this.strdate][+indicator.marker]) {
+            this.doppler[this.strdate][+indicator.marker] = 0;
           }
           if (indicator.Ignore !== 'a') {
             this.nowWriting = +indicator.marker;
             foundIndicator = true;
-            brackets = this.bracketeer(
-              line.replace('[UnityCrossThreadLogger]', ''),
-              brackets
-            );
+            brackets = this.bracketeer(line.replace('[UnityCrossThreadLogger]', ''), brackets);
             let pusher = '';
             if (line.includes('{')) {
               pusher = '{';
@@ -171,8 +162,20 @@ export class LogParser {
             }
 
             if (pusher !== '') {
+              const append = this.results.findIndex(
+                elem =>
+                  +elem.indicator === +this.nowWriting &&
+                  +elem.time === this.strdate + this.doppler[this.strdate][+indicator.marker]
+              );
+
+              if (append !== -1) {
+                if (this.checkjson(this.results[append].json)) {
+                  this.doppler[this.strdate][+indicator.marker]++;
+                }
+              }
+
               this.results.push({
-                time: this.strdate + this.doppler[this.strdate],
+                time: this.strdate + this.doppler[this.strdate][+indicator.marker],
                 indicator: +indicator.marker,
                 json: pusher,
                 uid: this.newPlayerData.playerId,
@@ -181,7 +184,7 @@ export class LogParser {
             }
           } else {
             this.results.push({
-              time: this.strdate + this.doppler[this.strdate],
+              time: this.strdate + this.doppler[this.strdate][+indicator.marker],
               indicator: +indicator.marker,
               json: this.writingSingleLine(line, indicator.Indicators),
               uid: this.newPlayerData.playerId,
@@ -201,11 +204,14 @@ export class LogParser {
       //console.log(this.nowWriting);
 
       if (brackets.curly === 0 && brackets.squared === 0) {
+        /*if (this.nowWriting === 17) {
+          const switchObject = findLastIndex(this.results, elem => elem.indicator === 17);
+           console.log(source);
+          console.log(this.results[switchObject]);
+        }*/
+
         if (this.nowWriting === LoginIndicator) {
-          const switchObject = findLastIndex(
-            this.results,
-            elem => elem.indicator === LoginIndicator
-          );
+          const switchObject = findLastIndex(this.results, elem => elem.indicator === LoginIndicator);
           /*console.log(this.nowWriting);
           console.log(this.results);
           console.log(switchObject);*/
@@ -215,22 +221,16 @@ export class LogParser {
           const loginNfo = bi.params.payloadObject;
           switch (bi.params.messageName) {
             case 'Client.Connected':
-              /*console.log(
-                source +
-                  'Client.Connected:' +
-                  loginNfo.playerId +
-                  '/' +
-                  this.newPlayerData.playerId
-              );*/
+              //console.log(source + 'Client.Connected:' + loginNfo.playerId + '/' + this.newPlayerData.playerId);
               if (this.newPlayerData.playerId !== loginNfo.playerId) {
-                this.newPlayerData.language =
-                  loginNfo.settings.language.language;
+                this.newPlayerData.language = loginNfo.settings.language.language;
                 this.newPlayerData.playerId = loginNfo.playerId;
                 this.newPlayerData.screenName = loginNfo.screenName;
                 this.userswitched = true;
                 this.skiplines = linesread;
-                this.emitter.emit('userchange', this.newPlayerData);
                 this.results = [];
+                this.emitter.emit('userchange', this.newPlayerData);
+                rl.close();
               }
               break;
             case 'DuelScene.GameStart':
@@ -240,6 +240,7 @@ export class LogParser {
                 this.currentMatchId = loginNfo.matchId;
                 this.newmatch = true;
                 this.skiplines = linesread;
+                rl.close();
               }
               break;
             case 'DuelScene.EndOfMatchReport':
@@ -258,10 +259,7 @@ export class LogParser {
       if (this.results.length > 0 && !this.logsdisabled && !this.userswitched) {
         this.emitter.emit(
           'status',
-          `Log parsed till: ${format(
-            new Date(this.results[this.results.length - 1].time),
-            'h:mm:ss a dd, MMM yyyy'
-          )}`
+          `Log parsed till: ${format(new Date(this.results[this.results.length - 1].time), 'h:mm:ss a dd, MMM yyyy')}`
         );
       } else if (!this.logsdisabled && !this.userswitched && this.firstread) {
         this.emitter.emit('status', 'Awaiting updates...');
@@ -270,12 +268,12 @@ export class LogParser {
       if (!this.userswitched) {
         this.emitter.emit(
           'newdata',
-          this.results.filter(
-            result => this.indicators[result.indicator].Send === 'true'
-          )
+          this.results.filter(result => this.indicators[result.indicator].Send === 'true')
         );
+        /*console.log('EMITTER!' + source);
+        console.log(this.results.filter(res => res.indicator === 17));*/
       }
-      //console.log(this.results);
+
       this.results = [];
       if (this.newmatch) {
         this.newmatch = false;
@@ -290,9 +288,7 @@ export class LogParser {
     let dt = new Date();
     try {
       dt = parse(
-        line
-          .replace('[UnityCrossThreadLogger]', '')
-          .substring(0, cutter !== -1 ? cutter - shift : undefined),
+        line.replace('[UnityCrossThreadLogger]', '').substring(0, cutter !== -1 ? cutter - shift : undefined),
         this.dateformats[this.userlang],
         new Date()
       );
@@ -302,11 +298,9 @@ export class LogParser {
 
   private checkjson(line: string): boolean {
     const brackets = { curly: 0, squared: 0 };
-    brackets.curly =
-      brackets.curly + substrcount(line, '{') - substrcount(line, '}');
+    brackets.curly = brackets.curly + substrcount(line, '{') - substrcount(line, '}');
 
-    brackets.squared =
-      brackets.squared + substrcount(line, '[') - substrcount(line, ']');
+    brackets.squared = brackets.squared + substrcount(line, '[') - substrcount(line, ']');
 
     if (brackets.curly === 0 && brackets.squared === 0 && line.length > 0) {
       return true;
@@ -315,15 +309,10 @@ export class LogParser {
     }
   }
 
-  private bracketeer(
-    line: string,
-    brackets: { curly: number; squared: number }
-  ) {
-    brackets.curly =
-      brackets.curly + substrcount(line, '{') - substrcount(line, '}');
+  private bracketeer(line: string, brackets: { curly: number; squared: number }) {
+    brackets.curly = brackets.curly + substrcount(line, '{') - substrcount(line, '}');
 
-    brackets.squared =
-      brackets.squared + substrcount(line, '[') - substrcount(line, ']');
+    brackets.squared = brackets.squared + substrcount(line, '[') - substrcount(line, ']');
 
     return brackets;
   }
@@ -335,7 +324,7 @@ export class LogParser {
     const append = this.results.findIndex(
       elem =>
         +elem.indicator === +this.nowWriting &&
-        +elem.time === this.strdate + this.doppler[this.strdate]
+        +elem.time === this.strdate + this.doppler[this.strdate][+this.indicators[this.nowWriting].marker]
     );
 
     if (append !== -1) {
@@ -343,9 +332,9 @@ export class LogParser {
         this.results[append].json += line.trim();
         return this.bracketeer(line, brackets);
       } else {
-        this.doppler[this.strdate]++;
+        this.doppler[this.strdate][+this.indicators[this.nowWriting].marker]++;
         this.results.push({
-          time: this.strdate + this.doppler[this.strdate],
+          time: this.strdate + this.doppler[this.strdate][+this.indicators[this.nowWriting].marker],
           indicator: this.nowWriting,
           json: line.trim(),
           uid: this.newPlayerData.playerId,
@@ -355,7 +344,7 @@ export class LogParser {
       }
     } else {
       this.results.push({
-        time: this.strdate + this.doppler[this.strdate],
+        time: this.strdate + this.doppler[this.strdate][+this.indicators[this.nowWriting].marker],
         indicator: this.nowWriting,
         json: line.trim(),
         uid: this.newPlayerData.playerId,
@@ -367,18 +356,12 @@ export class LogParser {
 
   private writingSingleLine(line: string, indicator: string) {
     //console.log(indicator);
-    const workingline = line.substring(
-      line.indexOf(indicator) + indicator.length
-    );
+    const workingline = line.substring(line.indexOf(indicator) + indicator.length);
     const brackets = { curly: 0, squared: 0 };
     let result = '';
     let i = 0;
 
-    while (
-      brackets.curly === 0 &&
-      brackets.squared === 0 &&
-      i < workingline.length
-    ) {
+    while (brackets.curly === 0 && brackets.squared === 0 && i < workingline.length) {
       const char = workingline.charAt(i);
       switch (char) {
         case '{':
@@ -393,10 +376,7 @@ export class LogParser {
       i++;
     }
 
-    while (
-      (brackets.curly > 0 || brackets.squared > 0) &&
-      i < workingline.length
-    ) {
+    while ((brackets.curly > 0 || brackets.squared > 0) && i < workingline.length) {
       const char = workingline.charAt(i);
       result += char.trim();
       switch (char) {
