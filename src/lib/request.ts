@@ -1,12 +1,8 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import zlib from 'zlib';
 
 function makeAxios<T, U>(method: 'post' | 'get', gzip?: boolean) {
-  return async (
-    url: string,
-    data?: T,
-    config?: AxiosRequestConfig
-  ): Promise<U> => {
+  return async (url: string, data?: T, config?: AxiosRequestConfig): Promise<U> => {
     let gzipped = '';
     if (data && gzip) {
       gzipped = zlib.gzipSync(JSON.stringify(data)).toString('base64');
@@ -19,7 +15,13 @@ function makeAxios<T, U>(method: 'post' | 'get', gzip?: boolean) {
     };
 
     const newConfig = { ...(config || {}), ...configBase };
-    return (await axios(newConfig)).data;
+    let result: any;
+    try {
+      result = (await axios(newConfig)).data;
+    } catch (e) {
+      result = null;
+    }
+    return result;
   };
 }
 

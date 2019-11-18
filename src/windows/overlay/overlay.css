@@ -4,10 +4,8 @@ html {
   max-width: 38rem;
   padding: 0;
   margin: 0;
-  background-color: #1b0000;
   color: #9f9f9f;
   width: 100%;
-  -webkit-app-region: drag;
 }
 
 div {
@@ -22,4 +20,10 @@ a[href^="http://"],
 a[href^="https://"],
 a[href^="ftp://"] {
   -webkit-user-drag: auto;
+}
+
+.overlay {
+  -webkit-app-region: drag;
+  /*opacity: 0.5;*/
+  background-color: rgba(11, 0, 0, 0.5);
 }

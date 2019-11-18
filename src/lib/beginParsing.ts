@@ -1,7 +1,7 @@
 import { LogParser } from './logparser';
 import { uploadpackfile } from '../api/logsender';
 import { ParseResults } from '../models/indicators';
-import { store, mainWindow, setCreds, createOverlay } from '../main';
+import { store, mainWindow, setCreds, createOverlay, connectionWaiter } from '../main';
 import { UserSwitch } from './userswitch';
 import { setuserdata } from 'root/api/userbytokenid';
 
@@ -10,7 +10,16 @@ export function beginParsing(): LogParser {
   logParser.emitter.on('newdata', data => {
     const datasending: ParseResults[] = data as ParseResults[];
     if (datasending.length > 0) {
-      uploadpackfile(datasending);
+      uploadpackfile(datasending).then(res => {
+        if (!res) {
+          logParser.stop();
+          connectionWaiter();
+          mainWindow.webContents.send('show-status', {
+            color: '#a11b1b',
+            message: 'Connection Error',
+          });
+        }
+      });
     }
   });
 
@@ -21,6 +30,9 @@ export function beginParsing(): LogParser {
   });
 
   logParser.emitter.on('error', msg => {
+    if (msg === 'Connection Error') {
+      connectionWaiter();
+    }
     mainWindow.webContents.send('show-status', {
       color: '#a11b1b',
       message: msg,

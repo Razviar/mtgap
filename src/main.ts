@@ -1,5 +1,5 @@
 // tslint:disable: no-any
-import { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } from 'electron';
+import { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage, MenuItemConstructorOptions, shell } from 'electron';
 import { Store } from './lib/storage';
 import { beginParsing } from './lib/beginParsing';
 import { LogParser } from './lib/logparser';
@@ -7,6 +7,7 @@ import { ProcessWatcher } from './lib/watchprocess';
 import Icon from 'root/statics/icon0.ico';
 import path from 'path';
 import { setuserdata } from './api/userbytokenid';
+import { ConnectionWaiter } from './lib/connectionwaiter';
 
 declare var HOME_WINDOW_WEBPACK_ENTRY: any;
 declare var OVERLAY_WINDOW_WEBPACK_ENTRY: any;
@@ -26,6 +27,7 @@ export let overlayWindow: any;
 export let logParser: LogParser | undefined;
 export let MTGApid = -1;
 export const processWatcher: ProcessWatcher = new ProcessWatcher('MTGA.exe');
+export const connWait: ConnectionWaiter = new ConnectionWaiter();
 
 export const setCreds = () => {
   const token = store.get('usertoken');
@@ -41,6 +43,7 @@ export const setCreds = () => {
 
 const setAccounts = () => {
   const accounts = store.get('settings');
+  //console.log(accounts);
   if (accounts) {
     mainWindow.webContents.send('set-accounts', accounts);
   }
@@ -50,7 +53,7 @@ const intervalFunc = () => {
   if (processWatcher) {
     processWatcher.getprocesses().then(res => {
       MTGApid = res;
-      if (res === -1) {
+      if (res === -1 && connWait.status) {
         mainWindow.webContents.send('show-status', {
           color: '#dbb63d',
           message: 'Game is not running!',
@@ -58,6 +61,21 @@ const intervalFunc = () => {
       }
     });
   }
+};
+
+export const connectionWaiter = () => {
+  connWait.pingMtga().then(res => {
+    if (res && logParser) {
+      //console.log('COnnection Restored');
+      logParser.start();
+    } else {
+      mainWindow.webContents.send('show-status', {
+        color: '#a11b1b',
+        message: 'Connection Error',
+      });
+      setTimeout(connectionWaiter, 1000);
+    }
+  });
 };
 
 export const createOverlay = () => {
@@ -72,6 +90,7 @@ export const createOverlay = () => {
     title: 'MTGA Pro Tracker',
     resizable: false,
     transparent: true,
+    alwaysOnTop: true,
   });
 
   overlayWindow.loadURL(OVERLAY_WINDOW_WEBPACK_ENTRY);
@@ -86,15 +105,41 @@ export const createOverlay = () => {
 const createWindow = () => {
   const appIcoImg = nativeImage.createFromPath(path.join(__dirname, Icon));
   const appIcon = new Tray(appIcoImg);
+  const MenuLinks: MenuItemConstructorOptions[] = [];
+  const MenuLabels: { [index: string]: string } = {
+    'My Profile': 'https://mtgarena.pro/u/',
+    Deckbuilder: 'https://mtgarena.pro/deckbuilder/',
+    'Deck Converter': 'https://mtgarena.pro/converter/',
+    Decks: 'https://mtgarena.pro/decks/?my',
+    Collection: 'https://mtgarena.pro/collection/',
+    Progress: 'https://mtgarena.pro/progress/',
+    Events: 'https://mtgarena.pro/events/',
+    Matches: 'https://mtgarena.pro/matches/',
+    Rewards: 'https://mtgarena.pro/rewards/',
+    Boosters: 'https://mtgarena.pro/boosters/',
+  };
+
+  Object.keys(MenuLabels).forEach(label => {
+    MenuLinks.push({
+      label,
+      click: () => {
+        shell.openExternal(MenuLabels[label]);
+      },
+    });
+  });
+
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: 'Show App',
+      label: 'Show Tracker',
       click: () => {
         mainWindow.show();
       },
     },
+    { type: 'separator' },
+    ...MenuLinks,
+    { type: 'separator' },
     {
-      label: 'Quit',
+      label: 'Stop Tracker',
       click: () => {
         app.quit();
       },
@@ -137,7 +182,7 @@ const createWindow = () => {
     setCreds();
     setAccounts();
     logParser = beginParsing();
-    const t = setInterval(intervalFunc, 1000);
+    setInterval(intervalFunc, 1000);
   });
 
   mainWindow.on('minimize', function(event: any) {

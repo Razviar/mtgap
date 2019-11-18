@@ -23,6 +23,10 @@ a[href^="ftp://"] {
   -webkit-user-drag: auto;
 }
 
+h2 {
+  margin: 0;
+}
+
 #titleimg {
   -webkit-app-region: drag;
   margin-right: 50px;
@@ -98,6 +102,7 @@ input#token {
 .tab {
   padding: 10px;
   display: none;
+  width: 680px;
 }
 
 .activetab {
@@ -115,6 +120,13 @@ input#token {
 
 .cell {
   display: table-cell;
+  padding: 5px;
+}
+
+.header {
+  background-color: rgb(54, 34, 30);
+  border-bottom: solid 1px #fff;
+  text-align: center;
 }
 
 .link {

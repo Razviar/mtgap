@@ -68,10 +68,11 @@ ipcRenderer.on('show-status', (e, arg) => {
 
 ipcRenderer.on('set-accounts', (e, arg) => {
   let output = `<div class="table"><div class='row'>
-    <div class='cell'><strong>Nick</strong></div>
-    <div class='cell'><strong>MTGA nick</strong></div>
-    <div class='cell'><strong>Language</strong></div>
-    <div class='cell'><strong>Token</strong></div>
+    <div class='cell header'><strong>Nick</strong></div>
+    <div class='cell header'><strong>MTGA nick</strong></div>
+    <div class='cell header'><strong>Language</strong></div>
+    <div class='cell header'><strong>Token</strong></div>
+    <div class='cell header'><strong>Actions</strong></div>
     </div>`;
   Object.keys(arg).forEach(val => {
     const settingsData = arg[val];
@@ -80,6 +81,7 @@ ipcRenderer.on('set-accounts', (e, arg) => {
       <div class='cell'>${settingsData.screenName}</div>
       <div class='cell'>${settingsData.language}</div>
       <div class='cell'>${settingsData.token}</div>
+      <div class='cell'></div>
       </div>`;
   });
   output += '</div>';

@@ -47,8 +47,13 @@ export class LogParser {
 
   public start() {
     getindicators().then(i => {
+      if (!i.indicators || !i.dates) {
+        this.emitter.emit('error', 'Connection Error');
+        return;
+      }
       this.indicators = i.indicators;
       this.dateformats = i.dates;
+      this.loglen = 0;
       //console.log(this.indicators);
       this.watcher.on('change', (p, s) => {
         this.checkLog(p, s, 'start');
@@ -253,9 +258,6 @@ export class LogParser {
     });
 
     rl.on('close', () => {
-      if (!this.logsdisabled && !this.userswitched && !this.newmatch) {
-        this.loglen = newloglen;
-      }
       if (this.results.length > 0 && !this.logsdisabled && !this.userswitched) {
         this.emitter.emit(
           'status',
@@ -272,6 +274,10 @@ export class LogParser {
         );
         /*console.log('EMITTER!' + source);
         console.log(this.results.filter(res => res.indicator === 17));*/
+      }
+
+      if (!this.logsdisabled && !this.userswitched && !this.newmatch) {
+        this.loglen = newloglen;
       }
 
       this.results = [];
