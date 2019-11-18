@@ -9,7 +9,7 @@ export async function uploadpackfile(results: ParseResults[]): Promise<boolean> 
     '/mtg/donew2.php?cmd=cm_uploadpackfile',
     results
   );
-  console.log(res);
+  //console.log(res);
   if (res && res.status && res.status === 'ok') {
     return true;
   } else {

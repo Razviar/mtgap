@@ -33,8 +33,8 @@ const TokenChecker = (token: string, elem: HTMLElement) => {
       elem.innerHTML = 'Bad Token!';
     } else if (res.status === 'NO_USER') {
       elem.innerHTML = 'No user found!';
-    } else if (TokenInput) {
-      TokenInput.style.display = 'none';
+    } else {
+      TokenInput.classList.add('hidden');
       elem.innerHTML = `Current user: <strong>${res.status}</strong>`;
       OverlaySwitch.classList.remove('hidden');
       ipcRenderer.send('token-input', {
@@ -46,27 +46,27 @@ const TokenChecker = (token: string, elem: HTMLElement) => {
   });
 };
 
-ipcRenderer.on('hide-token', (e, arg) => {
-  TokenInput.style.display = 'none';
+ipcRenderer.on('hide-token', () => {
+  TokenInput.classList.add('hidden');
 });
 
-ipcRenderer.on('set-creds', (e, arg) => {
+ipcRenderer.on('set-creds', (_, arg) => {
   UserCredentials.innerHTML = `Linked MTGA nick: <strong>${arg.screenName}</strong>`;
   TokenResponse.innerHTML = `Current user: <strong>${arg.nick}</strong>`;
   OverlaySwitch.style.display = '';
   OverlaySwitch.classList.remove('hidden');
 });
 
-ipcRenderer.on('set-version', (e, arg) => {
+ipcRenderer.on('set-version', (_, arg) => {
   AppVersion.innerHTML = arg;
 });
 
-ipcRenderer.on('show-status', (e, arg) => {
+ipcRenderer.on('show-status', (_, arg) => {
   StatusMessage.innerHTML = arg.message;
   StatusMessage.style.color = arg.color;
 });
 
-ipcRenderer.on('set-accounts', (e, arg) => {
+ipcRenderer.on('set-accounts', (_, arg) => {
   let output = `<div class="table"><div class='row'>
     <div class='cell header'><strong>Nick</strong></div>
     <div class='cell header'><strong>MTGA nick</strong></div>
@@ -88,10 +88,10 @@ ipcRenderer.on('set-accounts', (e, arg) => {
   AccountsTab.innerHTML = output;
 });
 
-ipcRenderer.on('new-account', (e, arg) => {
+ipcRenderer.on('new-account', () => {
   StatusMessage.innerHTML = '';
   TokenResponse.innerHTML = '';
-  TokenInput.style.display = '';
+  TokenInput.classList.remove('hidden');
   OverlaySwitch.classList.add('hidden');
   Token.value = '';
 });
@@ -102,7 +102,7 @@ Token.addEventListener('input', (event: any) => {
   }
 });
 
-minimizeButton.addEventListener('click', (event: any) => {
+minimizeButton.addEventListener('click', () => {
   ipcRenderer.send('minimize-me', 'test');
 });
 
