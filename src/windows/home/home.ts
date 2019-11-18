@@ -50,23 +50,26 @@ ipcRenderer.on('hide-token', () => {
   TokenInput.classList.add('hidden');
 });
 
-ipcRenderer.on('set-creds', (_, arg) => {
+ipcRenderer.on('set-creds', (e, arg) => {
   UserCredentials.innerHTML = `Linked MTGA nick: <strong>${arg.screenName}</strong>`;
   TokenResponse.innerHTML = `Current user: <strong>${arg.nick}</strong>`;
   OverlaySwitch.style.display = '';
   OverlaySwitch.classList.remove('hidden');
 });
-
-ipcRenderer.on('set-version', (_, arg) => {
+console.log('test!');
+ipcRenderer.on('set-version', (e, arg) => {
+  console.log(arg);
   AppVersion.innerHTML = arg;
 });
 
-ipcRenderer.on('show-status', (_, arg) => {
+ipcRenderer.on('show-status', (e, arg) => {
   StatusMessage.innerHTML = arg.message;
   StatusMessage.style.color = arg.color;
 });
 
-ipcRenderer.on('set-accounts', (_, arg) => {
+ipcRenderer.on('set-accounts', (e, arg) => {
+  console.log('!!!');
+  console.log(arg);
   let output = `<div class="table"><div class='row'>
     <div class='cell header'><strong>Nick</strong></div>
     <div class='cell header'><strong>MTGA nick</strong></div>

@@ -148,9 +148,7 @@ const createWindow = () => {
 
   appIcon.setContextMenu(contextMenu);
   appIcon.on('double-click', () => {
-    if (mainWindow.isMinimized()) {
-      mainWindow.restore();
-    }
+    mainWindow.show();
     mainWindow.focus();
   });
 
@@ -178,10 +176,12 @@ const createWindow = () => {
 
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
-    mainWindow.webContents.send('set-version', app.getVersion());
-    setCreds();
-    setAccounts();
     logParser = beginParsing();
+    mainWindow.webContents.on('did-finish-load', () => {
+      mainWindow.webContents.send('set-version', app.getVersion());
+      setCreds();
+      setAccounts();
+    });
     setInterval(intervalFunc, 1000);
   });
 
