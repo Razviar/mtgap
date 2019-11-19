@@ -5,14 +5,16 @@
     <title>MTGA Pro Tracker</title>
     <link href="https://fonts.googleapis.com/css?family=Titillium+Web&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretty-checkbox@3.0/dist/pretty-checkbox.min.css" />
+    <script src="https://kit.fontawesome.com/ab50eb8d97.js" crossorigin="anonymous"></script>
   </head>
+
   <body>
     <div id="header">
       <img id="titleimg" width="220" />
-      <div class="button active" data-activate="general">General</div>
-      <div class="button" data-activate="settings">Settings</div>
-      <div class="button" data-activate="overlay">Overlay</div>
-      <div class="button" data-activate="accounts">Accounts</div>
+      <div class="button white active" data-activate="general">General</div>
+      <div class="button white" data-activate="settings">Settings</div>
+      <div class="button white" data-activate="overlay">Overlay</div>
+      <div class="button white" data-activate="accounts">Accounts</div>
       <div id="minimize" class="buttonClose" title="Minimize to tray">
         &#10799;
       </div>
@@ -21,32 +23,74 @@
       <div id="TokenInput" class="hidden">
         <h2>Linking New Account</h2>
         To start data upload, please input
-        <strong class="link" data-link="https://mtgarena.pro/mtga-pro-tracker/">MTGA Pro account token</strong>.
-        <input type="text" name="token" id="token" />
+        <strong class="link linktext" data-link="https://mtgarena.pro/mtga-pro-tracker/">MTGA Pro account token</strong
+        >.
+        <input type="text" name="token" id="token" placeholder="Paste token..." />
+        <div
+          class="interfaceButton"
+          data-button="skip-acc"
+          title="Data from this account will not be uploaded. Parser will just skip it. You can review this in Accounts tab."
+        >
+          Skip This Account
+        </div>
       </div>
       <div id="TokenResponse"></div>
       <div id="UserCredentials"></div>
-      <div id="StatusMessage"></div>
+      <div id="StatusMessage">Launching tracker...</div>
+      <div
+        class="interfaceButton hidden"
+        data-button="unskip-acc"
+        title="Set MTGArena.pro Token and start tracking data from this account!"
+      >
+        Start Tracking
+      </div>
+      <div id="UserControls" class="hidden">
+        <div id="UserButtons">
+          <div class="interfaceButton">Re-sync Log</div>
+          <div class="interfaceButton">Stop Tracker</div>
+        </div>
+        <div id="UserLinks">
+          <div class="interfaceButton">My Account</div>
+          <div class="interfaceButton">Collection</div>
+          <div class="interfaceButton">Decks</div>
+          <div class="interfaceButton">Rewards</div>
+          <div class="interfaceButton">Progress</div>
+          <div class="interfaceButton">Profile Settings</div>
+        </div>
+      </div>
+    </div>
+    <div class="tab" id="settings">
       <div id="OverlaySwitch" class="pretty p-switch p-fill hidden">
         <input type="checkbox" id="EnableOverlay" value="1" />
         <div class="state p-danger"><label>Enable Overlay</label></div>
       </div>
-      <div id="UserButtons">
-        <div>Re-sync Log</div>
-        <div>Stop Tracker</div>
-      </div>
-      <div id="UserLinks">
-        <div>My Account</div>
-        <div>Collection</div>
-        <div>Decks</div>
-        <div>Rewards</div>
-        <div>Progress</div>
-        <div>Profile Settings</div>
-      </div>
     </div>
-    <div class="tab" id="settings"></div>
     <div class="tab" id="overlay"></div>
     <div class="tab" id="accounts"></div>
-    <div id="AppVersion"></div>
+    <div class="footer">
+      <i
+        class="link fab fa-twitter"
+        data-link="https://twitter.com/mtgapro"
+        title="Bugs? Suggestions? Let us know!"
+      ></i>
+      <i
+        class="link fab fa-github"
+        data-link="https://github.com/Razviar/mtgap"
+        title="Bugs? Suggestions? Let us know!"
+      ></i>
+      <i
+        class="link fab fa-reddit"
+        data-link="https://www.reddit.com/r/MTGArenaPro/"
+        title="Bugs? Suggestions? Let us know!"
+      ></i>
+      <i
+        class="link fab fa-discord"
+        data-link="https://discordapp.com/invite/auHdwKD"
+        title="Bugs? Suggestions? Let us know!"
+      ></i>
+    </div>
+    <div class="footerRight">
+      <div id="AppVersion"></div>
+    </div>
   </body>
 </html>

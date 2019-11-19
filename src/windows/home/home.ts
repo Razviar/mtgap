@@ -16,10 +16,12 @@ const minimizeButton = document.getElementById('minimize') as HTMLElement;
 const AccountsTab = document.getElementById('accounts') as HTMLElement;
 const OverlaySwitch = document.getElementById('OverlaySwitch') as HTMLElement;
 const EnableOverlay: HTMLInputElement | null = document.getElementById('EnableOverlay') as HTMLInputElement;
+const UserControls = document.getElementById('UserControls') as HTMLElement;
 
 const buttons = document.getElementsByClassName('button');
 const tabs = document.getElementsByClassName('tab');
 const links = document.getElementsByClassName('link');
+const controls = document.getElementsByClassName('interfaceButton');
 
 if (titleIcon) {
   titleIcon.src = Icon;
@@ -37,6 +39,7 @@ const TokenChecker = (token: string, elem: HTMLElement) => {
       TokenInput.classList.add('hidden');
       elem.innerHTML = `Current user: <strong>${res.status}</strong>`;
       OverlaySwitch.classList.remove('hidden');
+      UserControls.classList.remove('hidden');
       ipcRenderer.send('token-input', {
         token,
         uid: res.data,
@@ -50,15 +53,23 @@ ipcRenderer.on('hide-token', () => {
   TokenInput.classList.add('hidden');
 });
 
-ipcRenderer.on('set-creds', (e, arg) => {
-  UserCredentials.innerHTML = `Linked MTGA nick: <strong>${arg.screenName}</strong>`;
-  TokenResponse.innerHTML = `Current user: <strong>${arg.nick}</strong>`;
-  OverlaySwitch.style.display = '';
-  OverlaySwitch.classList.remove('hidden');
+ipcRenderer.on('set-screenname', (e, arg) => {
+  UserCredentials.innerHTML = `MTGA nick: <strong>${arg}</strong>`;
 });
-console.log('test!');
+
+ipcRenderer.on('set-creds', (e, arg) => {
+  const unhide = document.querySelector('[data-button="unskip-acc"]') as HTMLElement;
+  if (arg.nick !== 'Skipping') {
+    TokenResponse.innerHTML = `Current user: <strong>${arg.nick}</strong>`;
+    OverlaySwitch.classList.remove('hidden');
+    UserControls.classList.remove('hidden');
+    unhide.classList.add('hidden');
+  } else {
+    unhide.classList.remove('hidden');
+  }
+});
+
 ipcRenderer.on('set-version', (e, arg) => {
-  console.log(arg);
   AppVersion.innerHTML = arg;
 });
 
@@ -68,23 +79,21 @@ ipcRenderer.on('show-status', (e, arg) => {
 });
 
 ipcRenderer.on('set-accounts', (e, arg) => {
-  console.log('!!!');
-  console.log(arg);
   let output = `<div class="table"><div class='row'>
-    <div class='cell header'><strong>Nick</strong></div>
-    <div class='cell header'><strong>MTGA nick</strong></div>
-    <div class='cell header'><strong>Language</strong></div>
-    <div class='cell header'><strong>Token</strong></div>
-    <div class='cell header'><strong>Actions</strong></div>
+    <div class='cell header white'><strong>Nick</strong></div>
+    <div class='cell header white'><strong>MTGA nick</strong></div>
+    <div class='cell header white'><strong>Language</strong></div>
+    <div class='cell header white'><strong>Token</strong></div>
+    <div class='cell header white'><strong>Actions</strong></div>
     </div>`;
   Object.keys(arg).forEach(val => {
     const settingsData = arg[val];
     output += `<div class='row'>
-      <div class='cell'>${settingsData.nick}</div>
+      <div class='cell'><strong class="white">${settingsData.nick}</strong></div>
       <div class='cell'>${settingsData.screenName}</div>
       <div class='cell'>${settingsData.language}</div>
       <div class='cell'>${settingsData.token}</div>
-      <div class='cell'></div>
+      <div class='cell'><span>Skip</span><span>Unlink</span></div>
       </div>`;
   });
   output += '</div>';
@@ -92,10 +101,13 @@ ipcRenderer.on('set-accounts', (e, arg) => {
 });
 
 ipcRenderer.on('new-account', () => {
-  StatusMessage.innerHTML = '';
+  const unhide = document.querySelector('[data-button="unskip-acc"]') as HTMLElement;
+  unhide.classList.add('hidden');
+  StatusMessage.innerHTML = 'Awaiting account sync...';
   TokenResponse.innerHTML = '';
   TokenInput.classList.remove('hidden');
   OverlaySwitch.classList.add('hidden');
+  UserControls.classList.add('hidden');
   Token.value = '';
 });
 
@@ -148,10 +160,34 @@ const linkclick = (event: any) => {
   }
 };
 
+const controlClick = (event: any) => {
+  const cl: HTMLElement = event.target;
+  const button = cl.getAttribute('data-button');
+  switch (button) {
+    case 'skip-acc':
+      TokenInput.classList.add('hidden');
+      const unhide = document.querySelector('[data-button="unskip-acc"]') as HTMLElement;
+      unhide.classList.remove('hidden');
+      ipcRenderer.send('token-input', {
+        token: `SKIPPING${Math.floor(1000 * Math.random())}`,
+        uid: 0,
+        nick: 'Skipping',
+      });
+      break;
+    case 'unskip-acc':
+      ipcRenderer.send('kill-current-token');
+      break;
+  }
+};
+
 Array.from(buttons).forEach(el => {
   el.addEventListener('click', tabclick);
 });
 
 Array.from(links).forEach(el => {
   el.addEventListener('click', linkclick);
+});
+
+Array.from(controls).forEach(el => {
+  el.addEventListener('click', controlClick);
 });

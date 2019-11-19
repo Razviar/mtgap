@@ -3,8 +3,6 @@ const ROOT = path.resolve(__dirname);
 const SRC = path.join(ROOT, 'src');
 const NODE_MODULES = path.join(ROOT, 'node_modules');
 const { TsConfigPathsPlugin } = require('awesome-typescript-loader');
-const CONFIG = path.join(ROOT, 'conf', `conf.env`);
-const Dotenv = require('dotenv-webpack');
 
 module.exports = {
   /**
@@ -24,13 +22,4 @@ module.exports = {
     modules: [NODE_MODULES],
     plugins: [TsConfigPathsPlugin],
   },
-  plugins: [
-    new Dotenv({
-      path: CONFIG,
-      safe: false,
-      systemvars: false,
-      silent: false,
-      defaults: false,
-    }),
-  ],
 };

@@ -70,7 +70,7 @@ export const connectionWaiter = () => {
       logParser.start();
     } else {
       mainWindow.webContents.send('show-status', {
-        color: '#a11b1b',
+        color: '#cc2d2d',
         message: 'Connection Error',
       });
       setTimeout(connectionWaiter, 1000);
@@ -94,7 +94,6 @@ export const createOverlay = () => {
   });
 
   overlayWindow.loadURL(OVERLAY_WINDOW_WEBPACK_ENTRY);
-  overlayWindow.webContents.openDevTools();
   overlayWindow.setMenuBarVisibility(false);
 
   overlayWindow.once('ready-to-show', () => {
@@ -166,7 +165,6 @@ const createWindow = () => {
   });
 
   mainWindow.loadURL(HOME_WINDOW_WEBPACK_ENTRY);
-  mainWindow.webContents.openDevTools();
   mainWindow.setMenuBarVisibility(false);
   mainWindow.Tray = appIcon;
 
@@ -251,5 +249,18 @@ ipcMain.on('set-overlay', (_, arg) => {
     createOverlay();
   } else {
     overlayWindow.hide();
+  }
+});
+
+ipcMain.on('kill-current-token', () => {
+  const awaiting = store.getsettings(store.get('usertoken'));
+  store.set('awaiting', awaiting.playerId, 'playerId');
+  store.set('awaiting', awaiting.screenName, 'screenName');
+  store.set('awaiting', awaiting.language, 'language');
+  store.unset(store.get('usertoken'), 'x', true);
+  store.unset('usertoken');
+  if (logParser) {
+    logParser.stop();
+    mainWindow.webContents.send('new-account');
   }
 });

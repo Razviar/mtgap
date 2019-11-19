@@ -10,12 +10,19 @@ export function beginParsing(): LogParser {
   logParser.emitter.on('newdata', data => {
     const datasending: ParseResults[] = data as ParseResults[];
     if (datasending.length > 0) {
+      if (store.get('usertoken') && store.get('usertoken').includes('SKIPPING')) {
+        mainWindow.webContents.send('show-status', {
+          color: '#dbb63d',
+          message: 'Skipping this account...',
+        });
+        return;
+      }
       uploadpackfile(datasending).then(res => {
         if (!res) {
           logParser.stop();
           connectionWaiter();
           mainWindow.webContents.send('show-status', {
-            color: '#a11b1b',
+            color: '#cc2d2d',
             message: 'Connection Error',
           });
         }
@@ -34,7 +41,7 @@ export function beginParsing(): LogParser {
       connectionWaiter();
     }
     mainWindow.webContents.send('show-status', {
-      color: '#a11b1b',
+      color: '#cc2d2d',
       message: msg,
     });
   });
@@ -57,8 +64,10 @@ export function beginParsing(): LogParser {
       message: 'New User Detected!',
     });
     const newtoken = UserSwitch(m.screenName);
-    //console.log('NT:' + newtoken);
-    mainWindow.webContents.send('set-creds', m.screenName);
+    //console.log('NT:' + m.screenName);
+
+    mainWindow.webContents.send('set-screenname', m.screenName);
+
     if (newtoken !== '' && newtoken !== 'awaiting') {
       store.set('usertoken', newtoken);
       logParser.setPlayerId(store.get(newtoken, 'playerId'), store.get(newtoken, 'screenName'));
@@ -72,7 +81,7 @@ export function beginParsing(): LogParser {
     }
   });
 
-  logParser.start();
+  connectionWaiter();
   //createOverlay();
 
   return logParser;
