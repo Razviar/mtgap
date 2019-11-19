@@ -87,3 +87,4 @@ typings/
 
 # Electron-Forge
 out/
+conf/conf.env
