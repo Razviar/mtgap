@@ -46,7 +46,7 @@ module.exports = [
       {
         loader: 'file-loader',
         options: {
-          name: './statics/[name].[hash].[ext]',
+          name: './statics/[name].[ext]',
         },
       },
     ],

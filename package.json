@@ -36,7 +36,8 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "mtgaprotracker"
+            "name": "mtgaprotracker",
+            "certificateFile": "./cert/mtgapro.p12"
           }
         },
         {

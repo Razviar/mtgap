@@ -4,7 +4,7 @@ import { Store } from './lib/storage';
 import { beginParsing } from './lib/beginParsing';
 import { LogParser } from './lib/logparser';
 import { ProcessWatcher } from './lib/watchprocess';
-import Icon from 'root/statics/icon0.ico';
+import Icon from 'root/statics/icon.ico';
 import path from 'path';
 import { setuserdata } from './api/userbytokenid';
 import { ConnectionWaiter } from './lib/connectionwaiter';

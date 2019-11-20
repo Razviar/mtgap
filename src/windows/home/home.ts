@@ -1,6 +1,7 @@
 // tslint:disable: no-any
 import { ipcRenderer, shell } from 'electron';
 import { userbytokenid } from 'root/api/userbytokenid';
+import path from 'path';
 // tslint:disable: no-import-side-effect
 import 'root/windows/home/home.css';
 import Logo from 'root/statics/logo_03.png';
