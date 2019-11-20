@@ -62,7 +62,7 @@ input#token {
   font-family: titillium web, sans-serif;
   display: inline-block;
   margin-right: 2px;
-  padding: 1px 15px;
+  padding: 1px 5px;
   cursor: pointer;
   transition: all 0.3s linear;
   border: none;
@@ -165,10 +165,11 @@ input#token {
 
 .fab {
   font-size: 1.5em;
+  filter: opacity(0.8);
 }
 
 .fab:hover {
-  filter: brightness(1.2);
+  filter: opacity(1);
 }
 
 .fa-twitter {
@@ -194,4 +195,16 @@ input#token {
   position: absolute;
   bottom: 10px;
   left: 10px;
+}
+
+div#UserLinks {
+  width: 154px;
+  display: inline-block;
+  position: absolute;
+  top: 85px;
+  right: 10px;
+}
+
+.imgico {
+  vertical-align: sub;
 }

@@ -42,6 +42,13 @@ module.exports = [
   },
   {
     test: /\.(png|ico|svg|jpg|gif)$/,
-    use: [{ loader: 'file-loader' }],
+    use: [
+      {
+        loader: 'file-loader',
+        options: {
+          name: './statics/[name].[hash].[ext]',
+        },
+      },
+    ],
   },
 ];

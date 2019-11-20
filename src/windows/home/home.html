@@ -11,10 +11,16 @@
   <body>
     <div id="header">
       <img id="titleimg" width="220" />
-      <div class="button white active" data-activate="general">General</div>
-      <div class="button white" data-activate="settings">Settings</div>
-      <div class="button white" data-activate="overlay">Overlay</div>
-      <div class="button white" data-activate="accounts">Accounts</div>
+      <div class="button white active" data-activate="general">
+        <img class="imgico" id="Generalico" width="20" /> General
+      </div>
+      <div class="button white" data-activate="settings">
+        <img class="imgico" id="Settingsico" width="20" /> Settings
+      </div>
+      <div class="button white" data-activate="overlay"><img class="imgico" id="Overlayico" width="20" /> Overlay</div>
+      <div class="button white" data-activate="accounts">
+        <img class="imgico" id="Accountsico" width="20" /> Accounts
+      </div>
       <div id="minimize" class="buttonClose" title="Minimize to tray">
         &#10799;
       </div>
@@ -50,12 +56,12 @@
           <div class="interfaceButton">Stop Tracker</div>
         </div>
         <div id="UserLinks">
-          <div class="interfaceButton">My Account</div>
-          <div class="interfaceButton">Collection</div>
-          <div class="interfaceButton">Decks</div>
-          <div class="interfaceButton">Rewards</div>
-          <div class="interfaceButton">Progress</div>
-          <div class="interfaceButton">Profile Settings</div>
+          <div class="interfaceButton link" data-link="https://mtgarena.pro/u/">My Account</div>
+          <div class="interfaceButton link" data-link="https://mtgarena.pro/collection/">Collection</div>
+          <div class="interfaceButton link" data-link="https://mtgarena.pro/decks/?my">Decks</div>
+          <div class="interfaceButton link" data-link="https://mtgarena.pro/rewards/">Rewards</div>
+          <div class="interfaceButton link" data-link="https://mtgarena.pro/progress/">Progress</div>
+          <div class="interfaceButton link" data-link="https://mtgarena.pro/edit-profile/">Profile Settings</div>
         </div>
       </div>
     </div>
@@ -70,7 +76,7 @@
     <div class="footer">
       <i
         class="link fab fa-twitter"
-        data-link="https://twitter.com/mtgapro"
+        data-link="https://twitter.com/mtgapro/"
         title="Bugs? Suggestions? Let us know!"
       ></i>
       <i

@@ -3,29 +3,41 @@ import { ipcRenderer, shell } from 'electron';
 import { userbytokenid } from 'root/api/userbytokenid';
 // tslint:disable: no-import-side-effect
 import 'root/windows/home/home.css';
-import Icon from 'root/statics/logo_03.png';
+import Logo from 'root/statics/logo_03.png';
+import Generalico from 'root/statics/home.png';
+import Settingsico from 'root/statics/settings.png';
+import Overlayico from 'root/statics/overlay.png';
+import Accountsico from 'root/statics/accounts.png';
 
 const Token: HTMLInputElement | null = document.getElementById('token') as HTMLInputElement;
+const EnableOverlay: HTMLInputElement | null = document.getElementById('EnableOverlay') as HTMLInputElement;
+
 const TokenResponse = document.getElementById('TokenResponse') as HTMLElement;
 const TokenInput = document.getElementById('TokenInput') as HTMLElement;
 const UserCredentials = document.getElementById('UserCredentials') as HTMLElement;
 const StatusMessage = document.getElementById('StatusMessage') as HTMLElement;
 const AppVersion = document.getElementById('AppVersion') as HTMLElement;
-const titleIcon: HTMLImageElement | null = document.getElementById('titleimg') as HTMLImageElement;
 const minimizeButton = document.getElementById('minimize') as HTMLElement;
 const AccountsTab = document.getElementById('accounts') as HTMLElement;
 const OverlaySwitch = document.getElementById('OverlaySwitch') as HTMLElement;
-const EnableOverlay: HTMLInputElement | null = document.getElementById('EnableOverlay') as HTMLInputElement;
 const UserControls = document.getElementById('UserControls') as HTMLElement;
+
+const titleIcon: HTMLImageElement | null = document.getElementById('titleimg') as HTMLImageElement;
+const GeneralIcon: HTMLImageElement | null = document.getElementById('Generalico') as HTMLImageElement;
+const SettingsIcon: HTMLImageElement | null = document.getElementById('Settingsico') as HTMLImageElement;
+const OverlayIcon: HTMLImageElement | null = document.getElementById('Overlayico') as HTMLImageElement;
+const AccountsIcon: HTMLImageElement | null = document.getElementById('Accountsico') as HTMLImageElement;
 
 const buttons = document.getElementsByClassName('button');
 const tabs = document.getElementsByClassName('tab');
 const links = document.getElementsByClassName('link');
 const controls = document.getElementsByClassName('interfaceButton');
 
-if (titleIcon) {
-  titleIcon.src = Icon;
-}
+titleIcon.src = Logo;
+GeneralIcon.src = Generalico;
+SettingsIcon.src = Settingsico;
+OverlayIcon.src = Overlayico;
+AccountsIcon.src = Accountsico;
 
 const TokenChecker = (token: string, elem: HTMLElement) => {
   elem.innerHTML = 'Checking token...';
