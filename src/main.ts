@@ -1,5 +1,15 @@
 // tslint:disable: no-any
-import { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage, MenuItemConstructorOptions, shell } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  Tray,
+  Menu,
+  nativeImage,
+  MenuItemConstructorOptions,
+  shell,
+  dialog,
+} from 'electron';
 import { Store } from './lib/storage';
 import { beginParsing } from './lib/beginParsing';
 import { LogParser } from './lib/logparser';
@@ -263,4 +273,10 @@ ipcMain.on('kill-current-token', () => {
     logParser.stop();
     mainWindow.webContents.send('new-account');
   }
+});
+
+ipcMain.on('set-log-path', (_, arg) => {
+  dialog.showOpenDialog({ properties: ['openFile'] }).then(log => {
+    console.log(log);
+  });
 });

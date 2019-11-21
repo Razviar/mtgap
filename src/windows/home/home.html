@@ -21,23 +21,27 @@
       <div class="button white" data-activate="accounts">
         <img class="imgico" id="Accountsico" width="20" /> Accounts
       </div>
-      <div id="minimize" class="buttonClose" title="Minimize to tray">
+      <div id="minimize" class="buttonClose white" title="Minimize to tray">
         &#10799;
       </div>
     </div>
     <div class="tab activetab" id="general">
       <div id="TokenInput" class="hidden">
         <h2>Linking New Account</h2>
-        To start data upload, please input
-        <strong class="link linktext" data-link="https://mtgarena.pro/mtga-pro-tracker/">MTGA Pro account token</strong
-        >.
-        <input type="text" name="token" id="token" placeholder="Paste token..." />
+        You can connect your MTGA user ID to MTGAPro account or just skip this account.
+        <div
+          class="interfaceButton"
+          data-button="connect-acc"
+          title="You will be redirected to MTGAPro website to confirm sync"
+        >
+          Sync Account
+        </div>
         <div
           class="interfaceButton"
           data-button="skip-acc"
           title="Data from this account will not be uploaded. Parser will just skip it. You can review this in Accounts tab."
         >
-          Skip This Account
+          Skip Account
         </div>
       </div>
       <div id="TokenResponse"></div>
@@ -52,26 +56,94 @@
       </div>
       <div id="UserControls" class="hidden">
         <div id="UserButtons">
-          <div class="interfaceButton">Re-sync Log</div>
-          <div class="interfaceButton">Stop Tracker</div>
+          <div class="interfaceButton"><img class="imgico" id="refreshIco" width="20" /> Re-sync Log</div>
+          <div class="interfaceButton"><img class="imgico" id="stopIco" width="20" /> Stop Tracker</div>
         </div>
         <div id="UserLinks">
-          <div class="interfaceButton link" data-link="https://mtgarena.pro/u/">My Account</div>
-          <div class="interfaceButton link" data-link="https://mtgarena.pro/collection/">Collection</div>
-          <div class="interfaceButton link" data-link="https://mtgarena.pro/decks/?my">Decks</div>
-          <div class="interfaceButton link" data-link="https://mtgarena.pro/rewards/">Rewards</div>
-          <div class="interfaceButton link" data-link="https://mtgarena.pro/progress/">Progress</div>
-          <div class="interfaceButton link" data-link="https://mtgarena.pro/edit-profile/">Profile Settings</div>
+          <div class="interfaceButton link" data-link="https://mtgarena.pro/u/">
+            <img class="imgico Linkico" width="15" /> My Account
+          </div>
+          <div class="interfaceButton link" data-link="https://mtgarena.pro/collection/">
+            <img class="imgico Linkico" width="15" /> Collection
+          </div>
+          <div class="interfaceButton link" data-link="https://mtgarena.pro/decks/?my">
+            <img class="imgico Linkico" width="15" /> Decks
+          </div>
+          <div class="interfaceButton link" data-link="https://mtgarena.pro/rewards/">
+            <img class="imgico Linkico" width="15" /> Rewards
+          </div>
+          <div class="interfaceButton link" data-link="https://mtgarena.pro/progress/">
+            <img class="imgico Linkico" width="15" /> Progress
+          </div>
+          <div class="interfaceButton link" data-link="https://mtgarena.pro/edit-profile/">
+            <img class="imgico Linkico" width="15" /> Profile Settings
+          </div>
         </div>
       </div>
     </div>
     <div class="tab" id="settings">
-      <div id="OverlaySwitch" class="pretty p-switch p-fill hidden">
+      <div class="pretty p-switch p-fill">
+        <input type="checkbox" id="AutoRun" value="1" />
+        <div class="state p-danger"><label>Start with Windows</label></div>
+      </div>
+      <br />
+      <div class="pretty p-switch p-fill">
+        <input type="checkbox" id="AutoHide" value="1" />
+        <div class="state p-danger"><label>Start Minimized</label></div>
+      </div>
+      <br />
+      <div class="interfaceButton" data-button="set-log-path">Manually Locate Log</div>
+    </div>
+    <div class="tab" id="overlay">
+      <div id="OverlaySwitch" class="pretty p-switch p-fill">
         <input type="checkbox" id="EnableOverlay" value="1" />
         <div class="state p-danger"><label>Enable Overlay</label></div>
       </div>
+      <h2>Combat mode</h2>
+      [Card name] [mana]
+      <select>
+        <option>Cards Left In deck</option
+        ><option>Cards Total In deck</option
+        ><option>Draw Chance</option
+        ><option>Disable</option>
+      </select>
+      |
+      <select></select>
+      <h2>Draft Mode</h2>
+      [Card name] [mana]
+      <select>
+        <option>Draft Eval by Picks</option
+        ><option>Draft Eval by W/L</option
+        ><option>In Collection</option
+        ><option>Disable</option>
+      </select>
+      | [Select]
+      <h2>Preferences</h2>
+      <div class="pretty p-switch p-fill">
+        <input type="checkbox" value="1" />
+        <div class="state p-danger"><label>Don't hide overlay</label></div>
+      </div>
+      <br />
+      <div class="pretty p-switch p-fill">
+        <input type="checkbox" value="1" />
+        <div class="state p-danger"><label>Show My Decks between battles</label></div>
+      </div>
+      <br />
+      <div class="pretty p-switch p-fill">
+        <input type="checkbox" value="1" />
+        <div class="state p-danger"><label>Auto-toggle my and opponent's deck</label></div>
+      </div>
+      <br />
+      <div class="pretty p-switch p-fill">
+        <input type="checkbox" value="1" />
+        <div class="state p-danger"><label>Show card image on hover</label></div>
+      </div>
+      <br />
+      <div class="pretty p-switch p-fill">
+        <input type="checkbox" value="1" />
+        <div class="state p-danger"><label>Show timers</label></div>
+      </div>
     </div>
-    <div class="tab" id="overlay"></div>
     <div class="tab" id="accounts"></div>
     <div class="footer">
       <i

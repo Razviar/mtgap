@@ -1,16 +1,9 @@
 // tslint:disable: no-any
 import { ipcRenderer, shell } from 'electron';
-import { userbytokenid } from 'root/api/userbytokenid';
-import path from 'path';
+import { tokenrequest, tokencheck } from 'root/api/userbytokenid';
 // tslint:disable: no-import-side-effect
 import 'root/windows/home/home.css';
-import Logo from 'root/statics/logo_03.png';
-import Generalico from 'root/statics/home.png';
-import Settingsico from 'root/statics/settings.png';
-import Overlayico from 'root/statics/overlay.png';
-import Accountsico from 'root/statics/accounts.png';
 
-const Token: HTMLInputElement | null = document.getElementById('token') as HTMLInputElement;
 const EnableOverlay: HTMLInputElement | null = document.getElementById('EnableOverlay') as HTMLInputElement;
 
 const TokenResponse = document.getElementById('TokenResponse') as HTMLElement;
@@ -23,44 +16,12 @@ const AccountsTab = document.getElementById('accounts') as HTMLElement;
 const OverlaySwitch = document.getElementById('OverlaySwitch') as HTMLElement;
 const UserControls = document.getElementById('UserControls') as HTMLElement;
 
-const titleIcon: HTMLImageElement | null = document.getElementById('titleimg') as HTMLImageElement;
-const GeneralIcon: HTMLImageElement | null = document.getElementById('Generalico') as HTMLImageElement;
-const SettingsIcon: HTMLImageElement | null = document.getElementById('Settingsico') as HTMLImageElement;
-const OverlayIcon: HTMLImageElement | null = document.getElementById('Overlayico') as HTMLImageElement;
-const AccountsIcon: HTMLImageElement | null = document.getElementById('Accountsico') as HTMLImageElement;
-
 const buttons = document.getElementsByClassName('button');
 const tabs = document.getElementsByClassName('tab');
 const links = document.getElementsByClassName('link');
 const controls = document.getElementsByClassName('interfaceButton');
 
-titleIcon.src = Logo;
-GeneralIcon.src = Generalico;
-SettingsIcon.src = Settingsico;
-OverlayIcon.src = Overlayico;
-AccountsIcon.src = Accountsico;
-
-const TokenChecker = (token: string, elem: HTMLElement) => {
-  elem.innerHTML = 'Checking token...';
-  userbytokenid(token, 1).then(res => {
-    //console.log(res);
-    if (res.status === 'BAD_TOKEN') {
-      elem.innerHTML = 'Bad Token!';
-    } else if (res.status === 'NO_USER') {
-      elem.innerHTML = 'No user found!';
-    } else {
-      TokenInput.classList.add('hidden');
-      elem.innerHTML = `Current user: <strong>${res.status}</strong>`;
-      OverlaySwitch.classList.remove('hidden');
-      UserControls.classList.remove('hidden');
-      ipcRenderer.send('token-input', {
-        token,
-        uid: res.data,
-        nick: res.status,
-      });
-    }
-  });
-};
+let currentMtgaNick: string = '';
 
 ipcRenderer.on('hide-token', () => {
   TokenInput.classList.add('hidden');
@@ -68,6 +29,7 @@ ipcRenderer.on('hide-token', () => {
 
 ipcRenderer.on('set-screenname', (e, arg) => {
   UserCredentials.innerHTML = `MTGA nick: <strong>${arg}</strong>`;
+  currentMtgaNick = arg;
 });
 
 ipcRenderer.on('set-creds', (e, arg) => {
@@ -121,13 +83,6 @@ ipcRenderer.on('new-account', () => {
   TokenInput.classList.remove('hidden');
   OverlaySwitch.classList.add('hidden');
   UserControls.classList.add('hidden');
-  Token.value = '';
-});
-
-Token.addEventListener('input', (event: any) => {
-  if (event.target && event.target.value && event.target.value !== '') {
-    TokenChecker(event.target.value, TokenResponse);
-  }
 });
 
 minimizeButton.addEventListener('click', () => {
@@ -187,10 +142,51 @@ const controlClick = (event: any) => {
         nick: 'Skipping',
       });
       break;
+    case 'connect-acc':
+      if (cl.innerHTML !== 'Awaiting...') {
+        cl.innerHTML = 'Awaiting...';
+        tokenrequest(currentMtgaNick).then(res => {
+          if (res.mode === 'needauth') {
+            shell.openExternal(`https://mtgarena.pro/sync/?request=${res}`);
+            tokenWaiter(res.request, cl);
+          } else if (res.mode === 'hasauth') {
+            login(res.token, +res.uid, res.nick);
+          }
+        });
+      }
+      break;
     case 'unskip-acc':
       ipcRenderer.send('kill-current-token');
       break;
+    case 'set-log-path':
+      ipcRenderer.send('set-log-path');
+      break;
   }
+};
+
+const login = (token: string, uid: number, nick: string) => {
+  TokenInput.classList.add('hidden');
+  TokenResponse.innerHTML = `Current user: <strong>${nick}</strong>`;
+  OverlaySwitch.classList.remove('hidden');
+  UserControls.classList.remove('hidden');
+  ipcRenderer.send('token-input', {
+    token,
+    uid,
+    nick,
+  });
+};
+
+const tokenWaiter = (request: string, cl: HTMLElement) => {
+  tokencheck(request).then(res => {
+    if (res && res.token) {
+      login(res.token, res.uid, res.nick);
+      cl.innerHTML = 'Sync Account';
+    } else {
+      setTimeout(() => {
+        tokenWaiter(request, cl);
+      }, 1000);
+    }
+  });
 };
 
 Array.from(buttons).forEach(el => {

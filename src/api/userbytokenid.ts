@@ -1,11 +1,23 @@
 import Request from 'root/lib/request';
 import { UserResult, UserRequest } from 'root/models/userbytokenid';
 
-export async function userbytokenid(cmUserbyTokenid: string, version: number): Promise<UserResult> {
-  const res = await Request.post<UserRequest, UserResult>('/mtg/donew2.php?cmd=cm_userbytokenid', {
-    cm_userbytokenid: cmUserbyTokenid,
-    version,
-  });
+export async function tokencheck(request: string): Promise<{ uid: number; token: string; nick: string }> {
+  const res = await Request.post<{ request: string }, { uid: number; token: string; nick: string }>(
+    '/mtg/donew2.php?cmd=cm_tokencheck',
+    {
+      request,
+    }
+  );
+  return res;
+}
+
+export async function tokenrequest(mtgaid: string): Promise<{ [index: string]: string }> {
+  const res = await Request.post<{ mtgaid: string }, { [index: string]: string }>(
+    '/mtg/donew2.php?cmd=cm_tokenrequest',
+    {
+      mtgaid,
+    }
+  );
   return res;
 }
 
