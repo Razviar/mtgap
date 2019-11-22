@@ -21,6 +21,14 @@ export async function tokenrequest(mtgaid: string): Promise<{ [index: string]: s
   return res;
 }
 
+export async function userbytokenid(cmUserbyTokenid: string, version: string): Promise<UserResult> {
+  const res = await Request.post<UserRequest, UserResult>('/mtg/donew2.php?cmd=cm_userbytokenid', {
+    cm_userbytokenid: cmUserbyTokenid,
+    version,
+  });
+  return res;
+}
+
 export async function setuserdata(mtgaId: string, mtgaNick: string, language: string, token: string) {
   const res = await Request.post<{ [index: string]: string }, UserResult>('/mtg/donew2.php?cmd=cm_setuserdata', {
     mtgaId,

@@ -42,18 +42,16 @@ export const connWait: ConnectionWaiter = new ConnectionWaiter();
 export const setCreds = () => {
   const token = store.get('usertoken');
   if (token) {
-    const screenName = store.get(token, 'screenName');
+    const uid = store.get(token, 'uid');
     const nick = store.get(token, 'nick');
-    if (screenName && nick) {
-      mainWindow.webContents.send('hide-token');
-      mainWindow.webContents.send('set-creds', { screenName, nick });
+    if (uid && nick) {
+      mainWindow.webContents.send('set-creds', { token, uid, nick });
     }
   }
 };
 
 const setAccounts = () => {
   const accounts = store.get('settings');
-  //console.log(accounts);
   if (accounts) {
     mainWindow.webContents.send('set-accounts', accounts);
   }
@@ -253,13 +251,13 @@ ipcMain.on('minimize-me', () => {
   mainWindow.minimize();
 });
 
-ipcMain.on('set-overlay', (_, arg) => {
-  store.set(store.get('usertoken'), arg, 'overlay');
-  if (arg) {
+ipcMain.on('set-setting', (_, arg) => {
+  store.set(store.get('usertoken'), arg.data, arg.setting);
+  /*if (arg) {
     createOverlay();
   } else {
     overlayWindow.hide();
-  }
+  }*/
 });
 
 ipcMain.on('kill-current-token', () => {

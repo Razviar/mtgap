@@ -1,10 +1,10 @@
 // tslint:disable: no-any
 import { ipcRenderer, shell } from 'electron';
-import { tokenrequest, tokencheck } from 'root/api/userbytokenid';
+import { tokenrequest, tokencheck, userbytokenid } from 'root/api/userbytokenid';
 // tslint:disable: no-import-side-effect
 import 'root/windows/home/home.css';
 
-const EnableOverlay: HTMLInputElement | null = document.getElementById('EnableOverlay') as HTMLInputElement;
+const EnableOverlay = document.getElementById('EnableOverlay') as HTMLInputElement;
 
 const TokenResponse = document.getElementById('TokenResponse') as HTMLElement;
 const TokenInput = document.getElementById('TokenInput') as HTMLElement;
@@ -20,12 +20,9 @@ const buttons = document.getElementsByClassName('button');
 const tabs = document.getElementsByClassName('tab');
 const links = document.getElementsByClassName('link');
 const controls = document.getElementsByClassName('interfaceButton');
+const settings = document.getElementsByClassName('settings');
 
 let currentMtgaNick: string = '';
-
-ipcRenderer.on('hide-token', () => {
-  TokenInput.classList.add('hidden');
-});
 
 ipcRenderer.on('set-screenname', (e, arg) => {
   UserCredentials.innerHTML = `MTGA nick: <strong>${arg}</strong>`;
@@ -35,9 +32,7 @@ ipcRenderer.on('set-screenname', (e, arg) => {
 ipcRenderer.on('set-creds', (e, arg) => {
   const unhide = document.querySelector('[data-button="unskip-acc"]') as HTMLElement;
   if (arg.nick !== 'Skipping') {
-    TokenResponse.innerHTML = `Current user: <strong>${arg.nick}</strong>`;
-    OverlaySwitch.classList.remove('hidden');
-    UserControls.classList.remove('hidden');
+    login(arg.token, arg.uid, arg.nick);
     unhide.classList.add('hidden');
   } else {
     unhide.classList.remove('hidden');
@@ -87,12 +82,6 @@ ipcRenderer.on('new-account', () => {
 
 minimizeButton.addEventListener('click', () => {
   ipcRenderer.send('minimize-me', 'test');
-});
-
-EnableOverlay.addEventListener('change', (event: any) => {
-  if (event && event.target) {
-    ipcRenderer.send('set-overlay', event.target.checked);
-  }
 });
 
 const tabclick = (event: any) => {
@@ -147,7 +136,7 @@ const controlClick = (event: any) => {
         cl.innerHTML = 'Awaiting...';
         tokenrequest(currentMtgaNick).then(res => {
           if (res.mode === 'needauth') {
-            shell.openExternal(`https://mtgarena.pro/sync/?request=${res}`);
+            shell.openExternal(`https://mtgarena.pro/sync/?request=${res.request}`);
             tokenWaiter(res.request, cl);
           } else if (res.mode === 'hasauth') {
             login(res.token, +res.uid, res.nick);
@@ -164,23 +153,37 @@ const controlClick = (event: any) => {
   }
 };
 
-const login = (token: string, uid: number, nick: string) => {
-  TokenInput.classList.add('hidden');
-  TokenResponse.innerHTML = `Current user: <strong>${nick}</strong>`;
-  OverlaySwitch.classList.remove('hidden');
-  UserControls.classList.remove('hidden');
-  ipcRenderer.send('token-input', {
-    token,
-    uid,
-    nick,
+const settingsChecker = (event: any) => {
+  const cl: HTMLInputElement = event.target;
+  const setting = cl.getAttribute('data-setting');
+  ipcRenderer.send('set-setting', { setting, data: event.target.checked });
+};
+
+const login = (token: string, uid: number, nick: string, cl?: HTMLElement) => {
+  userbytokenid(token, AppVersion.innerHTML).then(res => {
+    if (+res.data === +uid) {
+      TokenInput.classList.add('hidden');
+      TokenResponse.innerHTML = `Current user: <strong>${nick}</strong>`;
+      OverlaySwitch.classList.remove('hidden');
+      UserControls.classList.remove('hidden');
+      ipcRenderer.send('token-input', {
+        token,
+        uid,
+        nick,
+      });
+    } else if (res.status === 'UNSET_USER') {
+      ipcRenderer.send('kill-current-token');
+    }
   });
+  if (cl) {
+    cl.innerHTML = 'Sync Account';
+  }
 };
 
 const tokenWaiter = (request: string, cl: HTMLElement) => {
   tokencheck(request).then(res => {
     if (res && res.token) {
-      login(res.token, res.uid, res.nick);
-      cl.innerHTML = 'Sync Account';
+      login(res.token, res.uid, res.nick, cl);
     } else {
       setTimeout(() => {
         tokenWaiter(request, cl);
@@ -199,4 +202,8 @@ Array.from(links).forEach(el => {
 
 Array.from(controls).forEach(el => {
   el.addEventListener('click', controlClick);
+});
+
+Array.from(settings).forEach(el => {
+  el.addEventListener('change', settingsChecker);
 });

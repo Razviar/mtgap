@@ -89,3 +89,4 @@ typings/
 out/
 conf/conf.env
 cert/
+package.json

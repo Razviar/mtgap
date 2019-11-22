@@ -19,6 +19,7 @@ export class LogParser {
   private strdate: number = 0;
   private strdateUnparsed: string = '';
   private dateregexp: RegExp = /[\d]{1,2}[:./ ]{1,2}[\d]{1,2}/gm;
+  private timestampregexp: RegExp = /"timestamp": "([\d]{18})"/m;
   private nowWriting: number = 0;
   private results: ParseResults[] = [];
   private logsdisabled: boolean = false;
@@ -116,8 +117,18 @@ export class LogParser {
         return;
       }
 
-      if (line.includes('[UnityCrossThreadLogger]') && line.match(this.dateregexp)) {
+      /*if (line.includes('[UnityCrossThreadLogger]') && line.match(this.dateregexp)) {
         this.strdateUnparsed = line;
+      }*/
+
+      const tstfinder = line.match(this.timestampregexp);
+      if (tstfinder) {
+        const epoch: number = 621355968000000000;
+        const ticks = 10000;
+        const tst: number = Math.floor((parseInt(tstfinder[1], 10) - epoch) / ticks);
+        this.strdate = tst;
+        //console.log(tstfinder[1] + '-' + epoch + '=' + tst);
+        //this.strdateUnparsed = line;
       }
 
       if (line.includes('DETAILED LOGS: DISABLED')) {
@@ -147,14 +158,20 @@ export class LogParser {
 
       this.indicators.forEach(indicator => {
         if (line.includes(indicator.Indicators)) {
-          this.strdate = this.parseDate(this.strdateUnparsed);
+          /*if (this.strdateUnparsed !== '') {
+            this.strdate = this.parseDate(this.strdateUnparsed);
+            console.log(this.strdateUnparsed + '!' + this.strdate);
+          }*/
+          line = line.replace(/(\\r\\n)/gm, '');
+
           if (!this.doppler[this.strdate]) {
             this.doppler[this.strdate] = {};
           }
           if (!this.doppler[this.strdate][+indicator.marker]) {
             this.doppler[this.strdate][+indicator.marker] = 0;
           }
-          if (indicator.Ignore !== 'a') {
+
+          if (line.length < 100 && !line.includes('{') && !line.replace('[UnityCrossThreadLogger]', '').includes('[')) {
             this.nowWriting = +indicator.marker;
             foundIndicator = true;
             brackets = this.bracketeer(line.replace('[UnityCrossThreadLogger]', ''), brackets);
@@ -195,6 +212,9 @@ export class LogParser {
               uid: this.newPlayerData.playerId,
               matchId: this.currentMatchId,
             });
+            if (+indicator.marker === LoginIndicator) {
+              this.checkEvents(LoginIndicator, linesread, rl);
+            }
           }
         }
       });
@@ -214,45 +234,11 @@ export class LogParser {
            console.log(source);
           console.log(this.results[switchObject]);
         }*/
-
+        //console.log(this.nowWriting);
         if (this.nowWriting === LoginIndicator) {
-          const switchObject = findLastIndex(this.results, elem => elem.indicator === LoginIndicator);
-          /*console.log(this.nowWriting);
-          console.log(this.results);
-          console.log(switchObject);*/
-
-          // tslint:disable-next-line: no-any
-          const bi: any = JSON.parse(this.results[switchObject].json);
-          const loginNfo = bi.params.payloadObject;
-          switch (bi.params.messageName) {
-            case 'Client.Connected':
-              //console.log(source + 'Client.Connected:' + loginNfo.playerId + '/' + this.newPlayerData.playerId);
-              if (this.newPlayerData.playerId !== loginNfo.playerId) {
-                this.newPlayerData.language = loginNfo.settings.language.language;
-                this.newPlayerData.playerId = loginNfo.playerId;
-                this.newPlayerData.screenName = loginNfo.screenName;
-                this.userswitched = true;
-                this.skiplines = linesread;
-                this.results = [];
-                this.emitter.emit('userchange', this.newPlayerData);
-                rl.close();
-              }
-              break;
-            case 'DuelScene.GameStart':
-              //console.log(this.results);
-              //console.log(source + ':' + loginNfo.matchId + '/' + linesread);
-              if (this.currentMatchId !== loginNfo.matchId) {
-                this.currentMatchId = loginNfo.matchId;
-                this.newmatch = true;
-                this.skiplines = linesread;
-                rl.close();
-              }
-              break;
-            case 'DuelScene.EndOfMatchReport':
-              this.currentMatchId = '';
-              break;
-          }
+          this.checkEvents(LoginIndicator, linesread, rl);
         }
+
         this.nowWriting = 0;
       }
     });
@@ -270,7 +256,7 @@ export class LogParser {
       if (!this.userswitched) {
         this.emitter.emit(
           'newdata',
-          this.results.filter(result => this.indicators[result.indicator].Send === 'true')
+          this.results.filter(result => this.indicators[result.indicator].Send === 'true' && result.time !== 0)
         );
         /*console.log('EMITTER!' + source);
         console.log(this.results.filter(res => res.indicator === 17));*/
@@ -279,13 +265,73 @@ export class LogParser {
       if (!this.logsdisabled && !this.userswitched && !this.newmatch) {
         this.loglen = newloglen;
       }
-
+      //console.log(this.results);
       this.results = [];
       if (this.newmatch) {
         this.newmatch = false;
         this.checkLog(this.path, fs.statSync(this.path), 'newmatch');
       }
     });
+  }
+
+  private checkEvents(LoginIndicator: number, linesread: number, rl: readline.Interface) {
+    const switchObject = findLastIndex(this.results, elem => elem.indicator === LoginIndicator);
+    /*console.log(this.nowWriting);
+      console.log(this.results);
+      console.log(switchObject);*/
+
+    // tslint:disable-next-line: no-any
+    //console.log('???');
+
+    if (!this.results[switchObject]) {
+      return;
+    }
+    //console.log(this.results[switchObject].json);
+    let json: any = false;
+    let bi: any = false;
+    try {
+      json = JSON.parse(this.results[switchObject].json);
+      bi = JSON.parse(json.request);
+    } catch (e) {}
+    //console.log('!!!');
+    //console.log(bi);
+    if (!bi || !bi.params) {
+      return;
+    }
+    const loginNfo = bi.params.payloadObject;
+    if (loginNfo.timestamp) {
+      this.strdate = Date.parse(bi.params.payloadObject.timestamp);
+      //this.strdateUnparsed = '';
+      //console.log(this.strdate);
+    }
+    switch (bi.params.messageName) {
+      case 'Client.Connected':
+        //console.log(source + 'Client.Connected:' + loginNfo.playerId + '/' + this.newPlayerData.playerId);
+        if (this.newPlayerData.playerId !== loginNfo.playerId) {
+          this.newPlayerData.language = loginNfo.settings.language.language;
+          this.newPlayerData.playerId = loginNfo.playerId;
+          this.newPlayerData.screenName = loginNfo.screenName;
+          this.userswitched = true;
+          this.skiplines = linesread;
+          this.results = [];
+          this.emitter.emit('userchange', this.newPlayerData);
+          rl.close();
+        }
+        break;
+      case 'DuelScene.GameStart':
+        //console.log(this.results);
+        //console.log(source + ':' + loginNfo.matchId + '/' + linesread);
+        if (this.currentMatchId !== loginNfo.matchId) {
+          this.currentMatchId = loginNfo.matchId;
+          this.newmatch = true;
+          this.skiplines = linesread;
+          rl.close();
+        }
+        break;
+      case 'DuelScene.EndOfMatchReport':
+        this.currentMatchId = '';
+        break;
+    }
   }
 
   private parseDate(line: string) {
