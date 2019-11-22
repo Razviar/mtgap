@@ -117,6 +117,7 @@ export const createOverlay = () => {
     height: 500,
     webPreferences: {
       nodeIntegration: true,
+      devTools: isDev,
     },
     show: false,
     frame: false,
@@ -223,12 +224,6 @@ const createWindow = () => {
     event.preventDefault();
     mainWindow.hide();
   });
-
-  if (!isDev) {
-    mainWindow.webContents.on('devtools-opened', () => {
-      mainWindow.webContents.closeDevTools();
-    });
-  }
 };
 
 const gotTheLock = app.requestSingleInstanceLock();
