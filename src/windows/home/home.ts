@@ -15,6 +15,7 @@ const minimizeButton = document.getElementById('minimize') as HTMLElement;
 const AccountsTab = document.getElementById('accounts') as HTMLElement;
 const OverlaySwitch = document.getElementById('OverlaySwitch') as HTMLElement;
 const UserControls = document.getElementById('UserControls') as HTMLElement;
+const BrightButton = document.getElementById('brightButton') as HTMLElement;
 
 const buttons = document.getElementsByClassName('button');
 const tabs = document.getElementsByClassName('tab');
@@ -30,9 +31,10 @@ ipcRenderer.on('set-screenname', (e, arg) => {
 });
 
 ipcRenderer.on('set-creds', (e, arg) => {
+  //console.log(arg.source);
   const unhide = document.querySelector('[data-button="unskip-acc"]') as HTMLElement;
   if (arg.nick !== 'Skipping') {
-    login(arg.token, arg.uid, arg.nick);
+    login(arg.token, arg.uid, arg.nick, 'set-creds');
     unhide.classList.add('hidden');
   } else {
     unhide.classList.remove('hidden');
@@ -71,6 +73,7 @@ ipcRenderer.on('set-accounts', (e, arg) => {
 });
 
 ipcRenderer.on('new-account', () => {
+  //console.log('new-account');
   const unhide = document.querySelector('[data-button="unskip-acc"]') as HTMLElement;
   unhide.classList.add('hidden');
   StatusMessage.innerHTML = 'Awaiting account sync...';
@@ -82,6 +85,10 @@ ipcRenderer.on('new-account', () => {
 
 minimizeButton.addEventListener('click', () => {
   ipcRenderer.send('minimize-me', 'test');
+});
+
+AppVersion.addEventListener('click', () => {
+  ipcRenderer.send('check-updates');
 });
 
 const tabclick = (event: any) => {
@@ -137,9 +144,9 @@ const controlClick = (event: any) => {
         tokenrequest(currentMtgaNick).then(res => {
           if (res.mode === 'needauth') {
             shell.openExternal(`https://mtgarena.pro/sync/?request=${res.request}`);
-            tokenWaiter(res.request, cl);
+            tokenWaiter(res.request);
           } else if (res.mode === 'hasauth') {
-            login(res.token, +res.uid, res.nick);
+            login(res.token, +res.uid, res.nick, 'connect-acc');
           }
         });
       }
@@ -150,6 +157,9 @@ const controlClick = (event: any) => {
     case 'set-log-path':
       ipcRenderer.send('set-log-path');
       break;
+    case 'stop-tracker':
+      ipcRenderer.send('stop-tracker');
+      break;
   }
 };
 
@@ -159,34 +169,35 @@ const settingsChecker = (event: any) => {
   ipcRenderer.send('set-setting', { setting, data: event.target.checked });
 };
 
-const login = (token: string, uid: number, nick: string, cl?: HTMLElement) => {
+const login = (token: string, uid: number, nick: string, source?: string) => {
+  //console.log('login!' + token + '/' + nick + '/' + source);
+
+  TokenInput.classList.add('hidden');
+  TokenResponse.innerHTML = `Current user: <strong>${nick}</strong>`;
+  OverlaySwitch.classList.remove('hidden');
+  UserControls.classList.remove('hidden');
+  ipcRenderer.send('token-input', {
+    token,
+    uid,
+    nick,
+  });
+
   userbytokenid(token, AppVersion.innerHTML).then(res => {
-    if (+res.data === +uid) {
-      TokenInput.classList.add('hidden');
-      TokenResponse.innerHTML = `Current user: <strong>${nick}</strong>`;
-      OverlaySwitch.classList.remove('hidden');
-      UserControls.classList.remove('hidden');
-      ipcRenderer.send('token-input', {
-        token,
-        uid,
-        nick,
-      });
-    } else if (res.status === 'UNSET_USER') {
+    if (res.status === 'UNSET_USER') {
       ipcRenderer.send('kill-current-token');
     }
   });
-  if (cl) {
-    cl.innerHTML = 'Sync Account';
-  }
+
+  BrightButton.innerHTML = '<img class="imgico" id="uploadIco" width="20" /> Sync Account';
 };
 
-const tokenWaiter = (request: string, cl: HTMLElement) => {
+const tokenWaiter = (request: string) => {
   tokencheck(request).then(res => {
     if (res && res.token) {
-      login(res.token, res.uid, res.nick, cl);
+      login(res.token, res.uid, res.nick);
     } else {
       setTimeout(() => {
-        tokenWaiter(request, cl);
+        tokenWaiter(request);
       }, 1000);
     }
   });

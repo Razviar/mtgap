@@ -9,6 +9,7 @@ import {
   MenuItemConstructorOptions,
   shell,
   dialog,
+  autoUpdater,
 } from 'electron';
 import { Store } from './lib/storage';
 import { beginParsing } from './lib/beginParsing';
@@ -18,9 +19,32 @@ import Icon from 'root/statics/icon.ico';
 import path from 'path';
 import { setuserdata } from './api/userbytokenid';
 import { ConnectionWaiter } from './lib/connectionwaiter';
+import isDev from 'electron-is-dev';
+import AutoLaunch from 'auto-launch';
 
 declare var HOME_WINDOW_WEBPACK_ENTRY: any;
 declare var OVERLAY_WINDOW_WEBPACK_ENTRY: any;
+
+/*const server = 'https://update.electronjs.org';
+const url = `${server}/Razviar/mtgap/${process.platform}-${process.arch}/${app.getVersion()}`;
+autoUpdater.setFeedURL({
+  url,
+});*/
+
+if (!isDev) {
+  // tslint:disable-next-line: no-var-requires
+  require('update-electron-app')({
+    repo: 'Razviar/mtgap',
+  });
+}
+
+const AutoLauncher = new AutoLaunch({
+  name: 'mtgaprotracker',
+});
+
+const UpdatesHunter = () => {
+  autoUpdater.checkForUpdates();
+};
 
 // tslint:disable-next-line: no-var-requires
 if (require('electron-squirrel-startup')) {
@@ -39,13 +63,14 @@ export let MTGApid = -1;
 export const processWatcher: ProcessWatcher = new ProcessWatcher('MTGA.exe');
 export const connWait: ConnectionWaiter = new ConnectionWaiter();
 
-export const setCreds = () => {
+export const setCreds = (source: string) => {
+  //console.log('setCreds:' + source);
   const token = store.get('usertoken');
   if (token) {
     const uid = store.get(token, 'uid');
     const nick = store.get(token, 'nick');
     if (uid && nick) {
-      mainWindow.webContents.send('set-creds', { token, uid, nick });
+      mainWindow.webContents.send('set-creds', { token, uid, nick, source });
     }
   }
 };
@@ -185,16 +210,25 @@ const createWindow = () => {
     logParser = beginParsing();
     mainWindow.webContents.on('did-finish-load', () => {
       mainWindow.webContents.send('set-version', app.getVersion());
-      setCreds();
+      setCreds('ready-to-show');
       setAccounts();
     });
     setInterval(intervalFunc, 1000);
+    if (store.get(store.get('usertoken'), 'minimized')) {
+      mainWindow.minimize();
+    }
   });
 
   mainWindow.on('minimize', function(event: any) {
     event.preventDefault();
     mainWindow.hide();
   });
+
+  if (!isDev) {
+    mainWindow.webContents.on('devtools-opened', () => {
+      mainWindow.webContents.closeDevTools();
+    });
+  }
 };
 
 const gotTheLock = app.requestSingleInstanceLock();
@@ -253,6 +287,15 @@ ipcMain.on('minimize-me', () => {
 
 ipcMain.on('set-setting', (_, arg) => {
   store.set(store.get('usertoken'), arg.data, arg.setting);
+  switch (arg.setting) {
+    case 'autorun':
+      if (arg.data) {
+        AutoLauncher.enable();
+      } else {
+        AutoLauncher.disable();
+      }
+      break;
+  }
   /*if (arg) {
     createOverlay();
   } else {
@@ -275,6 +318,18 @@ ipcMain.on('kill-current-token', () => {
 
 ipcMain.on('set-log-path', (_, arg) => {
   dialog.showOpenDialog({ properties: ['openFile'] }).then(log => {
-    console.log(log);
+    //console.log(log);
   });
 });
+
+ipcMain.on('check-updates', (_, arg) => {
+  UpdatesHunter();
+});
+
+ipcMain.on('stop-tracker', (_, arg) => {
+  app.quit();
+});
+
+if (store.get(store.get('usertoken'), 'autorun')) {
+  AutoLauncher.enable();
+}

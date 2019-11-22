@@ -84,6 +84,7 @@ input#token {
 #AppVersion {
   font-size: 0.7em;
   display: inline-block;
+  cursor: pointer;
 }
 
 #header {
@@ -259,4 +260,8 @@ div#UserLinks {
   color: #fff !important;
   background-color: rgba(132, 52, 38, 1) !important;
   border-color: rgb(173, 64, 45) !important;
+}
+
+#brightButton:hover {
+  filter: brightness(1.4) !important;
 }

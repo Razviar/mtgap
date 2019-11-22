@@ -64,7 +64,7 @@ export function beginParsing(): LogParser {
       message: 'New User Detected!',
     });
     const newtoken = UserSwitch(m.screenName);
-    //console.log('NT:' + m.screenName);
+    //console.log('NT:' + m.screenName + '/' + newtoken);
 
     mainWindow.webContents.send('set-screenname', m.screenName);
 
@@ -72,7 +72,7 @@ export function beginParsing(): LogParser {
       store.set('usertoken', newtoken);
       logParser.setPlayerId(store.get(newtoken, 'playerId'), store.get(newtoken, 'screenName'));
       setuserdata(m.playerId, m.screenName, m.language, newtoken);
-      setCreds();
+      setCreds('userchange');
     } else {
       mainWindow.webContents.send('new-account');
       store.set('awaiting', m.playerId, 'playerId');
