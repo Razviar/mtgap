@@ -265,3 +265,104 @@ div#UserLinks {
 #brightButton:hover {
   filter: brightness(1.4) !important;
 }
+
+.select-holder {
+  width: 200px;
+}
+
+.settingRow {
+  margin-top: 10px;
+}
+
+/*Prompt*/
+
+.prompt-wnd {
+  /*display: block;*/
+  position: fixed;
+  z-index: 10000;
+  top: 0;
+  left: 0;
+
+  display: none;
+
+  width: 100%;
+  height: 100%;
+
+  text-align: center;
+
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.prompt-wnd .prompt-wnd-inner {
+  display: inline-block;
+  overflow-y: auto;
+
+  max-height: 90% !important;
+  margin-top: 150px;
+
+  vertical-align: middle;
+}
+
+.prompt-wnd .prompt-wnd-obj {
+  max-width: 400px;
+  padding: 20px;
+
+  text-align: left;
+
+  background-color: #36221e !important;
+}
+
+.prompt-wnd .prompt-wnd-header {
+  font-family: titillium web, sans-serif !important;
+  font-weight: bold;
+
+  margin-top: -20px;
+  margin-right: -20px;
+  margin-bottom: 20px;
+  margin-left: -20px;
+  padding: 2px 20px;
+
+  color: white;
+  background-color: rgba(132, 52, 38, 1);
+  text-shadow: 1px 1px 2px #000;
+}
+
+.prompt-wnd .prompt-wnd-text {
+  margin-bottom: 20px;
+}
+
+.prompt-wnd .prompt-wnd-btns {
+  text-align: right;
+}
+
+.prompt-wnd .prompt-wnd-btns button {
+  line-height: 22px;
+
+  margin-right: 5px;
+  margin-bottom: 5px;
+  padding: 5px 15px;
+}
+
+.prompt-wnd .prompt-wnd-btns button img {
+  max-height: 20px;
+
+  vertical-align: middle;
+}
+
+.prompt-wnd .prompt-wnd-btns button.red {
+  color: white;
+  background-color: #ac3925;
+}
+
+.prompt-wnd .prompt-wnd-btns button.blue {
+  color: white;
+  background-color: #2573ac;
+}
+.prompt-wnd .prompt-wnd-btns button.black {
+  color: white;
+  background-color: #000;
+}
+.prompt-wnd .prompt-wnd-btns button.green {
+  color: white;
+  background-color: #25ac3d;
+}

@@ -6,13 +6,8 @@ import fs from 'fs';
 export class Store {
   private path: string;
   private data: { [index: string]: any };
-  constructor(opts: {
-    configName: string;
-    defaults: { [index: string]: any };
-  }) {
-    const userDataPath = (electron.app || electron.remote.app).getPath(
-      'userData'
-    );
+  constructor(opts: { configName: string; defaults: { [index: string]: any } }) {
+    const userDataPath = (electron.app || electron.remote.app).getPath('userData');
     this.path = path.join(userDataPath, `${opts.configName}.json`);
 
     this.data = this.parseDataFile(this.path, opts.defaults);
@@ -40,6 +35,13 @@ export class Store {
 
   public getall(): { [index: string]: any } {
     return this.data;
+  }
+
+  public wipe() {
+    this.data = {};
+    try {
+      fs.writeFileSync(this.path, JSON.stringify(this.data));
+    } catch (e) {}
   }
 
   public unset(key: string, subkey?: any, whole?: boolean) {

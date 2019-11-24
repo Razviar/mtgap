@@ -3,6 +3,7 @@ import { ipcRenderer, shell } from 'electron';
 import { tokenrequest, tokencheck, userbytokenid } from 'root/api/userbytokenid';
 // tslint:disable: no-import-side-effect
 import 'root/windows/home/home.css';
+import Choices from 'choices.js';
 
 const EnableOverlay = document.getElementById('EnableOverlay') as HTMLInputElement;
 
@@ -16,12 +17,27 @@ const AccountsTab = document.getElementById('accounts') as HTMLElement;
 const OverlaySwitch = document.getElementById('OverlaySwitch') as HTMLElement;
 const UserControls = document.getElementById('UserControls') as HTMLElement;
 const BrightButton = document.getElementById('brightButton') as HTMLElement;
+const PromptWnd = document.getElementById('PromptWnd') as HTMLElement;
+const PromptText = document.getElementById('PromptText') as HTMLElement;
 
 const buttons = document.getElementsByClassName('button');
 const tabs = document.getElementsByClassName('tab');
 const links = document.getElementsByClassName('link');
 const controls = document.getElementsByClassName('interfaceButton');
 const settings = document.getElementsByClassName('settings');
+
+const element = document.querySelector('.js-choice') as HTMLSelectElement;
+//const choices = new Choices(element, { searchEnabled: false });
+
+const ShowPrompt = (message: string, autohide: number = 0) => {
+  PromptWnd.style.display = 'block';
+  PromptText.innerHTML = message;
+  if (autohide > 0) {
+    setTimeout(() => {
+      PromptWnd.style.display = 'none';
+    }, autohide);
+  }
+};
 
 let currentMtgaNick: string = '';
 
@@ -70,6 +86,10 @@ ipcRenderer.on('set-accounts', (e, arg) => {
   });
   output += '</div>';
   AccountsTab.innerHTML = output;
+});
+
+ipcRenderer.on('showprompt', (e, arg) => {
+  ShowPrompt(arg.message, arg.autoclose);
 });
 
 ipcRenderer.on('new-account', () => {
@@ -141,7 +161,7 @@ const controlClick = (event: any) => {
     case 'connect-acc':
       if (cl.innerHTML !== 'Awaiting...') {
         cl.innerHTML = 'Awaiting...';
-        tokenrequest(currentMtgaNick).then(res => {
+        tokenrequest(currentMtgaNick, AppVersion.innerHTML).then(res => {
           if (res.mode === 'needauth') {
             shell.openExternal(`https://mtgarena.pro/sync/?request=${res.request}`);
             tokenWaiter(res.request);
@@ -159,6 +179,12 @@ const controlClick = (event: any) => {
       break;
     case 'stop-tracker':
       ipcRenderer.send('stop-tracker');
+      break;
+    case 'default-log-path':
+      ipcRenderer.send('default-log-path');
+      break;
+    case 'wipe-all':
+      ipcRenderer.send('wipe-all');
       break;
   }
 };
@@ -192,7 +218,7 @@ const login = (token: string, uid: number, nick: string, source?: string) => {
 };
 
 const tokenWaiter = (request: string) => {
-  tokencheck(request).then(res => {
+  tokencheck(request, AppVersion.innerHTML).then(res => {
     if (res && res.token) {
       login(res.token, res.uid, res.nick);
     } else {

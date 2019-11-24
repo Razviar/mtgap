@@ -4,9 +4,13 @@ import { ParseResults } from '../models/indicators';
 import { store, mainWindow, setCreds, createOverlay, connectionWaiter } from '../main';
 import { UserSwitch } from './userswitch';
 import { setuserdata } from 'root/api/userbytokenid';
+import { app } from 'electron';
 
 export function beginParsing(): LogParser {
-  const logParser = new LogParser(['LocalLow', 'Wizards Of The Coast', 'MTGA', 'output_log.txt']);
+  const defaultpath = ['LocalLow', 'Wizards Of The Coast', 'MTGA', 'output_log.txt'];
+  const specialpath = store.get('logpath');
+  const logParser = new LogParser(specialpath ? specialpath : defaultpath, specialpath ? true : false);
+
   logParser.emitter.on('newdata', data => {
     const datasending: ParseResults[] = data as ParseResults[];
     if (datasending.length > 0) {
@@ -17,10 +21,10 @@ export function beginParsing(): LogParser {
         });
         return;
       }
-      uploadpackfile(datasending).then(res => {
+      uploadpackfile(datasending, app.getVersion()).then(res => {
         if (!res) {
           logParser.stop();
-          connectionWaiter();
+          connectionWaiter(1000);
           mainWindow.webContents.send('show-status', {
             color: '#cc2d2d',
             message: 'Connection Error',
@@ -38,7 +42,7 @@ export function beginParsing(): LogParser {
 
   logParser.emitter.on('error', msg => {
     if (msg === 'Connection Error') {
-      connectionWaiter();
+      connectionWaiter(1000);
     }
     mainWindow.webContents.send('show-status', {
       color: '#cc2d2d',
@@ -71,7 +75,7 @@ export function beginParsing(): LogParser {
     if (newtoken !== '' && newtoken !== 'awaiting') {
       store.set('usertoken', newtoken);
       logParser.setPlayerId(store.get(newtoken, 'playerId'), store.get(newtoken, 'screenName'));
-      setuserdata(m.playerId, m.screenName, m.language, newtoken);
+      setuserdata(m.playerId, m.screenName, m.language, newtoken, app.getVersion());
       setCreds('userchange');
     } else {
       mainWindow.webContents.send('new-account');
@@ -81,7 +85,7 @@ export function beginParsing(): LogParser {
     }
   });
 
-  connectionWaiter();
+  connectionWaiter(1000);
   //createOverlay();
 
   return logParser;

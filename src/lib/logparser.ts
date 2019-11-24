@@ -37,9 +37,14 @@ export class LogParser {
 
   public emitter = new Emittery();
 
-  constructor(targetname: string[]) {
-    const appDataPath = (electron.app || electron.remote.app).getPath('appData');
-    this.path = path.join(appDataPath, ...targetname).replace('Roaming\\', '');
+  constructor(targetname: string[] | string, pathset?: boolean) {
+    if (!pathset) {
+      const appDataPath = (electron.app || electron.remote.app).getPath('appData');
+      this.path = path.join(appDataPath, ...targetname).replace('Roaming\\', '');
+    } else {
+      this.path = targetname as string;
+    }
+    //console.log(this.path);
     this.watcher = chokidar.watch(this.path, {
       usePolling: true,
       interval: 500,
@@ -47,7 +52,10 @@ export class LogParser {
   }
 
   public start() {
-    getindicators().then(i => {
+    //console.log('starting!');
+    getindicators((electron.app || electron.remote.app).getVersion()).then(i => {
+      /*console.log('!!');
+      console.log(i);*/
       if (!i.indicators || !i.dates) {
         this.emitter.emit('error', 'Connection Error');
         return;
@@ -71,6 +79,7 @@ export class LogParser {
   public stop() {
     this.logsdisabled = false;
     this.watcher.close();
+    this.watcher.unwatch(this.path);
   }
 
   public setPlayerId(plid: string, pname: string) {
@@ -81,11 +90,11 @@ export class LogParser {
   }
 
   public checkLog(pth: string, stats: fs.Stats | undefined, source?: string) {
-    //(this.skiplines);
+    //console.log(this.loglen + '///' + this.skiplines);
     const LoginIndicator = 21;
     let brackets = { curly: 0, squared: 0 };
-    let skip = this.skiplines;
     let linesread = 0;
+    let skip = this.skiplines;
 
     let newloglen = 0;
     if (stats) {
@@ -133,7 +142,7 @@ export class LogParser {
 
       if (line.includes('DETAILED LOGS: DISABLED')) {
         this.logsdisabled = true;
-        this.skiplines = linesread;
+        this.skiplines += linesread;
         this.emitter.emit('error', 'Enable Detailed Logs!');
         rl.close();
       }
@@ -154,7 +163,7 @@ export class LogParser {
         return;
       }
 
-      this.skiplines = 0;
+      //  = 0;
 
       this.indicators.forEach(indicator => {
         if (line.includes(indicator.Indicators)) {
@@ -205,13 +214,20 @@ export class LogParser {
               });
             }
           } else {
-            this.results.push({
-              time: this.strdate + this.doppler[this.strdate][+indicator.marker],
-              indicator: +indicator.marker,
-              json: this.writingSingleLine(line, indicator.Indicators),
-              uid: this.newPlayerData.playerId,
-              matchId: this.currentMatchId,
-            });
+            const occurances = substrcount(line, indicator.Indicators);
+            let position = 0;
+            for (let k = 0; k < occurances; k++) {
+              const parsed = this.writingSingleLine(line, indicator.Indicators, position);
+              this.results.push({
+                time: this.strdate + this.doppler[this.strdate][+indicator.marker],
+                indicator: +indicator.marker,
+                json: parsed.result,
+                uid: this.newPlayerData.playerId,
+                matchId: this.currentMatchId,
+              });
+              position += parsed.dopler;
+              this.doppler[this.strdate][+indicator.marker]++;
+            }
             if (+indicator.marker === LoginIndicator) {
               this.checkEvents(LoginIndicator, linesread, rl);
             }
@@ -258,12 +274,13 @@ export class LogParser {
           'newdata',
           this.results.filter(result => this.indicators[result.indicator].Send === 'true' && result.time !== 0)
         );
-        /*console.log('EMITTER!' + source);
-        console.log(this.results.filter(res => res.indicator === 17));*/
+        /*console.log('EMITTER!');
+        console.log(this.loglen + '/' + this.skiplines);*/
       }
 
       if (!this.logsdisabled && !this.userswitched && !this.newmatch) {
         this.loglen = newloglen;
+        this.skiplines = 0;
       }
       //console.log(this.results);
       this.results = [];
@@ -275,6 +292,13 @@ export class LogParser {
   }
 
   private checkEvents(LoginIndicator: number, linesread: number, rl: readline.Interface) {
+    /*const maxuploads = 50;
+    if (this.results.length >= maxuploads) {
+      this.newmatch = true;
+      this.skiplines += linesread;
+      rl.close();
+    }*/
+
     const switchObject = findLastIndex(this.results, elem => elem.indicator === LoginIndicator);
     /*console.log(this.nowWriting);
       console.log(this.results);
@@ -306,13 +330,13 @@ export class LogParser {
     }
     switch (bi.params.messageName) {
       case 'Client.Connected':
-        //console.log(source + 'Client.Connected:' + loginNfo.playerId + '/' + this.newPlayerData.playerId);
+        //console.log('Client.Connected:' + linesread + '/' + loginNfo.playerId + '/' + this.newPlayerData.playerId);
         if (this.newPlayerData.playerId !== loginNfo.playerId) {
           this.newPlayerData.language = loginNfo.settings.language.language;
           this.newPlayerData.playerId = loginNfo.playerId;
           this.newPlayerData.screenName = loginNfo.screenName;
           this.userswitched = true;
-          this.skiplines = linesread;
+          this.skiplines += linesread;
           this.results = [];
           this.emitter.emit('userchange', this.newPlayerData);
           rl.close();
@@ -320,11 +344,11 @@ export class LogParser {
         break;
       case 'DuelScene.GameStart':
         //console.log(this.results);
-        //console.log(source + ':' + loginNfo.matchId + '/' + linesread);
+        //console.log(linesread + ':' + loginNfo.matchId + '/' + linesread);
         if (this.currentMatchId !== loginNfo.matchId) {
           this.currentMatchId = loginNfo.matchId;
           this.newmatch = true;
-          this.skiplines = linesread;
+          this.skiplines += linesread;
           rl.close();
         }
         break;
@@ -406,9 +430,9 @@ export class LogParser {
     }
   }
 
-  private writingSingleLine(line: string, indicator: string) {
+  private writingSingleLine(line: string, indicator: string, doppler: number) {
     //console.log(indicator);
-    const workingline = line.substring(line.indexOf(indicator) + indicator.length);
+    const workingline = line.substring(line.indexOf(indicator, doppler) + indicator.length);
     const brackets = { curly: 0, squared: 0 };
     let result = '';
     let i = 0;
@@ -448,6 +472,6 @@ export class LogParser {
       i++;
     }
 
-    return result;
+    return { result, dopler: line.indexOf(indicator, doppler) + indicator.length + i + doppler };
   }
 }

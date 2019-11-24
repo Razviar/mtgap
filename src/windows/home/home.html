@@ -5,6 +5,7 @@
     <title>MTGA Pro Tracker</title>
     <link href="https://fonts.googleapis.com/css?family=Titillium+Web&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretty-checkbox@3.0/dist/pretty-checkbox.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
     <script src="https://kit.fontawesome.com/ab50eb8d97.js" crossorigin="anonymous"></script>
   </head>
 
@@ -56,8 +57,7 @@
         Start Tracking
       </div>
       <div id="UserControls" class="hidden">
-        <div id="UserButtons">
-          <div class="interfaceButton"><img class="imgico" id="refreshIco" width="20" /> Re-sync Log</div>
+        <div id="UserButtons" class="settingRow">
           <div class="interfaceButton" data-button="stop-tracker">
             <img class="imgico" id="stopIco" width="20" /> Stop Tracker
           </div>
@@ -85,17 +85,34 @@
       </div>
     </div>
     <div class="tab" id="settings">
-      <div class="pretty p-switch p-fill">
-        <input class="settings" data-setting="autorun" type="checkbox" value="1" />
-        <div class="state p-danger"><label>Start with Windows</label></div>
+      <div class="settingRow">
+        <div class="pretty p-switch p-fill">
+          <input class="settings" data-setting="autorun" type="checkbox" value="1" />
+          <div class="state p-danger"><label>Start with Windows</label></div>
+        </div>
       </div>
-      <br />
-      <div class="pretty p-switch p-fill">
-        <input class="settings" data-setting="minimized" type="checkbox" id="AutoHide" value="1" />
-        <div class="state p-danger"><label>Start Minimized</label></div>
+      <div class="settingRow">
+        <div class="pretty p-switch p-fill">
+          <input class="settings" data-setting="minimized" type="checkbox" id="AutoHide" value="1" />
+          <div class="state p-danger"><label>Start Minimized</label></div>
+        </div>
       </div>
-      <br />
-      <div class="interfaceButton" data-button="set-log-path">Manually Locate Log</div>
+      <div class="settingRow">
+        <div class="interfaceButton" data-button="set-log-path">Locate Log</div>
+        <div class="interfaceButton" data-button="default-log-path">Default Log Path</div>
+      </div>
+      <div class="settingRow">
+        <div class="interfaceButton" data-button="wipe-all">Wipe All Settings</div>
+      </div>
+      <div class="select-holder">
+        <!--<select class="js-choice">
+          <option>White</option>
+          <option>Blue</option>
+          <option>Black</option>
+          <option>Red</option>
+          <option>Green</option>
+        </select>-->
+      </div>
     </div>
     <div class="tab" id="overlay">
       <div id="OverlaySwitch" class="pretty p-switch p-fill">
@@ -149,13 +166,22 @@
     </div>
     <div class="tab" id="accounts"></div>
     <div class="footer">
-      <i class="link fab fa-twitter" data-link="https://twitter.com/mtgapro/"></i>
+      <i class="link fab fa-twitter" data-link="https://shorturl.at/kKN37"></i>
       <i class="link fab fa-github" data-link="https://github.com/Razviar/mtgap"></i>
       <i class="link fab fa-reddit" data-link="https://www.reddit.com/r/MTGArenaPro/"></i>
       <i class="link fab fa-discord" data-link="https://discordapp.com/invite/auHdwKD"></i>
     </div>
     <div class="footerRight">
-      <div id="AppVersion"></div>
+      <div id="AppVersion" title="Click to check updates"></div>
+    </div>
+    <div class="prompt-wnd" id="PromptWnd">
+      <div class="prompt-wnd-inner">
+        <div class="prompt-wnd-obj">
+          <div class="prompt-wnd-header" id="PromptHeader">Notice</div>
+          <div class="prompt-wnd-text" id="PromptText"></div>
+          <div class="prompt-wnd-btns"></div>
+        </div>
+      </div>
     </div>
   </body>
 </html>

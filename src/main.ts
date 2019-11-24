@@ -16,6 +16,10 @@ import { beginParsing } from './lib/beginParsing';
 import { LogParser } from './lib/logparser';
 import { ProcessWatcher } from './lib/watchprocess';
 import Icon from 'root/statics/icon.ico';
+import Icon1 from 'root/statics/icon1.ico';
+import Icon2 from 'root/statics/icon2.ico';
+import Icon3 from 'root/statics/icon3.ico';
+import Icon4 from 'root/statics/icon4.ico';
 import path from 'path';
 import { setuserdata } from './api/userbytokenid';
 import { ConnectionWaiter } from './lib/connectionwaiter';
@@ -25,26 +29,41 @@ import AutoLaunch from 'auto-launch';
 declare var HOME_WINDOW_WEBPACK_ENTRY: any;
 declare var OVERLAY_WINDOW_WEBPACK_ENTRY: any;
 
-/*const server = 'https://update.electronjs.org';
-const url = `${server}/Razviar/mtgap/${process.platform}-${process.arch}/${app.getVersion()}`;
-autoUpdater.setFeedURL({
-  url,
-});*/
+const UpdateTimeout = 600000;
+
+const UpdatesHunter = () => {
+  //autoUpdater.checkForUpdates();
+  setTimeout(UpdatesHunter, UpdateTimeout);
+};
 
 if (!isDev) {
-  // tslint:disable-next-line: no-var-requires
-  require('update-electron-app')({
-    repo: 'Razviar/mtgap',
+  const server = 'https://update.electronjs.org';
+  const feed = `${server}/Razviar/mtgap/${process.platform}-${process.arch}/${app.getVersion()}`;
+
+  autoUpdater.setFeedURL({ url: feed });
+  autoUpdater.on('update-not-available', () => {
+    mainWindow.webContents.send('showprompt', { message: 'You have latest version!', autoclose: 1000 });
   });
+  autoUpdater.on('error', () => {
+    mainWindow.webContents.send('showprompt', { message: 'Error while checking updates!', autoclose: 1000 });
+  });
+  autoUpdater.on('checking-for-update', () => {
+    mainWindow.webContents.send('showprompt', { message: 'Checking updates...', autoclose: 0 });
+  });
+  autoUpdater.on('update-available', () => {
+    mainWindow.webContents.send('showprompt', { message: 'Downloading update...', autoclose: 0 });
+  });
+  autoUpdater.on('update-downloaded', () => {
+    mainWindow.webContents.send('showprompt', { message: 'Download complete. Restarting app...', autoclose: 0 });
+    autoUpdater.quitAndInstall();
+  });
+
+  UpdatesHunter();
 }
 
 const AutoLauncher = new AutoLaunch({
   name: 'mtgaprotracker',
 });
-
-const UpdatesHunter = () => {
-  autoUpdater.checkForUpdates();
-};
 
 // tslint:disable-next-line: no-var-requires
 if (require('electron-squirrel-startup')) {
@@ -96,8 +115,8 @@ const intervalFunc = () => {
   }
 };
 
-export const connectionWaiter = () => {
-  connWait.pingMtga().then(res => {
+export const connectionWaiter = (timeout: number) => {
+  connWait.pingMtga(app.getVersion()).then(res => {
     if (res && logParser) {
       //console.log('COnnection Restored');
       logParser.start();
@@ -106,7 +125,9 @@ export const connectionWaiter = () => {
         color: '#cc2d2d',
         message: 'Connection Error',
       });
-      setTimeout(connectionWaiter, 1000);
+      setTimeout(() => {
+        connectionWaiter(timeout + 1000);
+      }, 1000);
     }
   });
 };
@@ -190,6 +211,7 @@ const createWindow = () => {
     height: 500,
     webPreferences: {
       nodeIntegration: true,
+      devTools: isDev,
     },
     show: false,
     frame: false,
@@ -270,7 +292,7 @@ ipcMain.on('token-input', (_, arg) => {
       store.set(arg.token, awaiting.playerId, 'playerId');
       store.set(arg.token, awaiting.screenName, 'screenName');
       store.set(arg.token, awaiting.language, 'language');
-      setuserdata(awaiting.playerId, awaiting.screenName, awaiting.language, arg.token);
+      setuserdata(awaiting.playerId, awaiting.screenName, awaiting.language, arg.token, app.getVersion());
       store.unset('awaiting', 'x', true);
     }
   }
@@ -281,7 +303,7 @@ ipcMain.on('minimize-me', () => {
 });
 
 ipcMain.on('set-setting', (_, arg) => {
-  store.set(store.get('usertoken'), arg.data, arg.setting);
+  store.set(arg.setting, arg.data);
   switch (arg.setting) {
     case 'autorun':
       if (arg.data) {
@@ -313,12 +335,40 @@ ipcMain.on('kill-current-token', () => {
 
 ipcMain.on('set-log-path', (_, arg) => {
   dialog.showOpenDialog({ properties: ['openFile'] }).then(log => {
-    //console.log(log);
+    if (!log.canceled && log.filePaths[0]) {
+      store.set('logpath', log.filePaths[0]);
+      mainWindow.webContents.send('showprompt', { message: 'Log path have been updated!', autoclose: 1000 });
+      if (logParser) {
+        logParser.stop();
+        logParser = beginParsing();
+      }
+    }
   });
 });
 
+ipcMain.on('default-log-path', (_, arg) => {
+  store.unset('logpath');
+  if (logParser) {
+    mainWindow.webContents.send('showprompt', { message: 'Log path have been set to default!', autoclose: 1000 });
+    logParser.stop();
+    logParser = beginParsing();
+  }
+});
+
+ipcMain.on('wipe-all', (_, arg) => {
+  store.wipe();
+  if (logParser) {
+    mainWindow.webContents.send('showprompt', {
+      message: 'All settings have been wiped',
+      autoclose: 1000,
+    });
+    logParser.stop();
+    logParser = beginParsing();
+  }
+});
+
 ipcMain.on('check-updates', (_, arg) => {
-  UpdatesHunter();
+  autoUpdater.checkForUpdates();
 });
 
 ipcMain.on('stop-tracker', (_, arg) => {
