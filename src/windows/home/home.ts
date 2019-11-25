@@ -3,7 +3,7 @@ import { ipcRenderer, shell } from 'electron';
 import { tokenrequest, tokencheck, userbytokenid } from 'root/api/userbytokenid';
 // tslint:disable: no-import-side-effect
 import 'root/windows/home/home.css';
-import Choices from 'choices.js';
+//import Choices from 'choices.js';
 
 const EnableOverlay = document.getElementById('EnableOverlay') as HTMLInputElement;
 
@@ -22,11 +22,10 @@ const PromptText = document.getElementById('PromptText') as HTMLElement;
 
 const buttons = document.getElementsByClassName('button');
 const tabs = document.getElementsByClassName('tab');
-const links = document.getElementsByClassName('link');
 const controls = document.getElementsByClassName('interfaceButton');
 const settings = document.getElementsByClassName('settings');
 
-const element = document.querySelector('.js-choice') as HTMLSelectElement;
+//const element = document.querySelector('.js-choice') as HTMLSelectElement;
 //const choices = new Choices(element, { searchEnabled: false });
 
 const ShowPrompt = (message: string, autohide: number = 0) => {
@@ -57,6 +56,27 @@ ipcRenderer.on('set-creds', (e, arg) => {
   }
 });
 
+ipcRenderer.on('set-settings', (e, arg) => {
+  //const setters = ['autorun', 'minimized', 'logpath'];
+  if (arg.autorun) {
+    const sw = document.querySelector('[data-setting="autorun"]') as HTMLInputElement;
+    sw.checked = arg.autorun;
+  }
+
+  if (arg.minimized) {
+    const sw = document.querySelector('[data-setting="minimized"]') as HTMLInputElement;
+    sw.checked = arg.minimized;
+  }
+
+  if (arg.logpath) {
+    const sw = document.getElementById('CurrentLogPath') as HTMLElement;
+    sw.innerHTML = `Current Log path:<br> <strong>${arg.logpath}</strong>`;
+  } else {
+    const sw = document.getElementById('CurrentLogPath') as HTMLElement;
+    sw.innerHTML = 'Current Log path:<br> <strong>Default</strong>';
+  }
+});
+
 ipcRenderer.on('set-version', (e, arg) => {
   AppVersion.innerHTML = arg;
 });
@@ -81,11 +101,12 @@ ipcRenderer.on('set-accounts', (e, arg) => {
       <div class='cell'>${settingsData.screenName}</div>
       <div class='cell'>${settingsData.language}</div>
       <div class='cell'>${settingsData.token}</div>
-      <div class='cell'><span>Skip</span><span>Unlink</span></div>
+      <div class='cell'><span class="link" data-link="https://mtgarena.pro/sync/">Unlink</span></div>
       </div>`;
   });
   output += '</div>';
   AccountsTab.innerHTML = output;
+  updatelinks();
 });
 
 ipcRenderer.on('showprompt', (e, arg) => {
@@ -159,17 +180,16 @@ const controlClick = (event: any) => {
       });
       break;
     case 'connect-acc':
-      if (cl.innerHTML !== 'Awaiting...') {
-        cl.innerHTML = 'Awaiting...';
-        tokenrequest(currentMtgaNick, AppVersion.innerHTML).then(res => {
-          if (res.mode === 'needauth') {
-            shell.openExternal(`https://mtgarena.pro/sync/?request=${res.request}`);
-            tokenWaiter(res.request);
-          } else if (res.mode === 'hasauth') {
-            login(res.token, +res.uid, res.nick, 'connect-acc');
-          }
-        });
-      }
+      cl.innerHTML = 'Awaiting...';
+      tokenrequest(currentMtgaNick, AppVersion.innerHTML).then(res => {
+        if (res.mode === 'needauth') {
+          shell.openExternal(`https://mtgarena.pro/sync/?request=${res.request}`);
+          tokenWaiter(res.request);
+        } else if (res.mode === 'hasauth') {
+          login(res.token, +res.uid, res.nick, 'connect-acc');
+        }
+      });
+
       break;
     case 'unskip-acc':
       ipcRenderer.send('kill-current-token');
@@ -185,6 +205,9 @@ const controlClick = (event: any) => {
       break;
     case 'wipe-all':
       ipcRenderer.send('wipe-all');
+      break;
+    case 'old-log':
+      ipcRenderer.send('old-log');
       break;
   }
 };
@@ -233,9 +256,12 @@ Array.from(buttons).forEach(el => {
   el.addEventListener('click', tabclick);
 });
 
-Array.from(links).forEach(el => {
-  el.addEventListener('click', linkclick);
-});
+const updatelinks = () => {
+  const links = document.getElementsByClassName('link');
+  Array.from(links).forEach(el => {
+    el.addEventListener('click', linkclick);
+  });
+};
 
 Array.from(controls).forEach(el => {
   el.addEventListener('click', controlClick);

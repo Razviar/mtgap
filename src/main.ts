@@ -99,6 +99,12 @@ const setAccounts = () => {
   if (accounts) {
     mainWindow.webContents.send('set-accounts', accounts);
   }
+  const settings = {
+    autorun: store.get('autorun'),
+    minimized: store.get('minimized'),
+    logpath: store.get('logpath'),
+  };
+  mainWindow.webContents.send('set-settings', settings);
 };
 
 const intervalFunc = () => {
@@ -331,6 +337,7 @@ ipcMain.on('kill-current-token', () => {
     logParser.stop();
     mainWindow.webContents.send('new-account');
   }
+  setAccounts();
 });
 
 ipcMain.on('set-log-path', (_, arg) => {
@@ -342,6 +349,7 @@ ipcMain.on('set-log-path', (_, arg) => {
         logParser.stop();
         logParser = beginParsing();
       }
+      setAccounts();
     }
   });
 });
@@ -353,6 +361,28 @@ ipcMain.on('default-log-path', (_, arg) => {
     logParser.stop();
     logParser = beginParsing();
   }
+  setAccounts();
+});
+
+ipcMain.on('old-log', (_, arg) => {
+  dialog
+    .showOpenDialog({
+      properties: ['openFile'],
+      defaultPath: 'C:\\Program Files (x86)\\Wizards of the Coast\\MTGA\\MTGA_Data\\Logs\\Logs',
+      filters: [{ name: 'UTC_Log*', extensions: ['log'] }],
+    })
+    .then(log => {
+      if (!log.canceled && log.filePaths[0]) {
+        mainWindow.webContents.send('showprompt', { message: 'Parsing old log...', autoclose: 0 });
+        if (logParser) {
+          const parseOnce = beginParsing(log.filePaths[0], true);
+          parseOnce.start();
+          parseOnce.emitter.on('old-log-complete', () => {
+            mainWindow.webContents.send('showprompt', { message: 'Parsing complete!', autoclose: 0 });
+          });
+        }
+      }
+    });
 });
 
 ipcMain.on('wipe-all', (_, arg) => {
@@ -365,6 +395,7 @@ ipcMain.on('wipe-all', (_, arg) => {
     logParser.stop();
     logParser = beginParsing();
   }
+  setAccounts();
 });
 
 ipcMain.on('check-updates', (_, arg) => {

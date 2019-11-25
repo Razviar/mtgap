@@ -2,7 +2,6 @@ import electron from 'electron';
 import path from 'path';
 import fs from 'fs';
 import readline from 'readline';
-import chokidar from 'chokidar';
 import { Indicators, ParseResults } from 'root/models/indicators';
 import { getindicators } from 'root/api/getindicators';
 import { substrcount, Cut, findLastIndex } from './func';
@@ -15,10 +14,11 @@ export class LogParser {
   private dateformats: { [index: string]: string } = {};
   private userlang = 'English';
   private loglen: number = 0;
+  private loglencheck: number = 0;
   private skiplines: number = 0;
   private strdate: number = 0;
-  private strdateUnparsed: string = '';
-  private dateregexp: RegExp = /[\d]{1,2}[:./ ]{1,2}[\d]{1,2}/gm;
+  /*private strdateUnparsed: string = '';
+  private dateregexp: RegExp = /[\d]{1,2}[:./ ]{1,2}[\d]{1,2}/gm;*/
   private timestampregexp: RegExp = /"timestamp": "([\d]{18})"/m;
   private nowWriting: number = 0;
   private results: ParseResults[] = [];
@@ -26,7 +26,9 @@ export class LogParser {
   private userswitched: boolean = false;
   private newmatch: boolean = false;
   private firstread: boolean = true;
-  private watcher: chokidar.FSWatcher;
+  //private watcher: chokidar.FSWatcher;
+  private watcher: NodeJS.Timeout | undefined;
+  private parseOnce: boolean = false;
   private newPlayerData: {
     playerId: string;
     screenName: string;
@@ -37,21 +39,21 @@ export class LogParser {
 
   public emitter = new Emittery();
 
-  constructor(targetname: string[] | string, pathset?: boolean) {
+  constructor(targetname: string[] | string, pathset?: boolean, parseOnce?: boolean) {
     if (!pathset) {
       const appDataPath = (electron.app || electron.remote.app).getPath('appData');
       this.path = path.join(appDataPath, ...targetname).replace('Roaming\\', '');
     } else {
       this.path = targetname as string;
     }
-    //console.log(this.path);
-    this.watcher = chokidar.watch(this.path, {
-      usePolling: true,
-      interval: 500,
-    });
+    if (parseOnce) {
+      this.parseOnce = true;
+      //console.log('ParsingOnce' + this.path);
+    }
   }
 
   public start() {
+    const Interval = 250;
     //console.log('starting!');
     getindicators((electron.app || electron.remote.app).getVersion()).then(i => {
       /*console.log('!!');
@@ -63,23 +65,34 @@ export class LogParser {
       this.indicators = i.indicators;
       this.dateformats = i.dates;
       this.loglen = 0;
-      //console.log(this.indicators);
-      this.watcher.on('change', (p, s) => {
-        this.checkLog(p, s, 'start');
-      });
+      this.loglencheck = 0;
+      if (this.parseOnce) {
+        this.checkLog(this.path, fs.statSync(this.path), 'parseOnce');
+      } else {
+        this.watcher = setInterval(this.watch.bind(this), Interval);
+      }
 
       if (!fs.existsSync(this.path)) {
         this.emitter.emit('error', 'No log file found');
-      } else {
-        this.checkLog(this.path, fs.statSync(this.path), 'watcher');
       }
     });
   }
 
+  public watch() {
+    if (fs.existsSync(this.path)) {
+      const stats = fs.statSync(this.path);
+      if (stats.size !== this.loglencheck) {
+        this.loglencheck = stats.size;
+        this.checkLog(this.path, stats, 'watcher');
+      }
+    }
+  }
+
   public stop() {
     this.logsdisabled = false;
-    this.watcher.close();
-    this.watcher.unwatch(this.path);
+    if (this.watcher) {
+      clearInterval(this.watcher);
+    }
   }
 
   public setPlayerId(plid: string, pname: string) {
@@ -90,7 +103,7 @@ export class LogParser {
   }
 
   public checkLog(pth: string, stats: fs.Stats | undefined, source?: string) {
-    //console.log(this.loglen + '///' + this.skiplines);
+    //console.log(pth + '///' + this.loglen + '///' + this.skiplines);
     const LoginIndicator = 21;
     let brackets = { curly: 0, squared: 0 };
     let linesread = 0;
@@ -108,14 +121,14 @@ export class LogParser {
       this.skiplines = 0;
     }
 
-    const Stream = fs.createReadStream(pth, {
+    const stream = fs.createReadStream(pth, {
       encoding: 'utf8',
       autoClose: true,
       start: this.loglen,
     });
 
     const rl = readline.createInterface({
-      input: Stream,
+      input: stream,
     });
 
     rl.on('line', line => {
@@ -162,9 +175,7 @@ export class LogParser {
       if (this.logsdisabled || this.userswitched || this.newmatch) {
         return;
       }
-
-      //  = 0;
-
+      //console.log(source + ':' + line);
       this.indicators.forEach(indicator => {
         if (line.includes(indicator.Indicators)) {
           /*if (this.strdateUnparsed !== '') {
@@ -218,14 +229,22 @@ export class LogParser {
             let position = 0;
             for (let k = 0; k < occurances; k++) {
               const parsed = this.writingSingleLine(line, indicator.Indicators, position);
-              this.results.push({
-                time: this.strdate + this.doppler[this.strdate][+indicator.marker],
-                indicator: +indicator.marker,
-                json: parsed.result,
-                uid: this.newPlayerData.playerId,
-                matchId: this.currentMatchId,
-              });
-              position += parsed.dopler;
+              if (
+                !indicator.Needtohave ||
+                indicator.Needtohave === '' ||
+                (indicator.Needtohave !== '' && parsed.result.includes(indicator.Needtohave))
+              ) {
+                //console.log(indicator.Needtohave);
+                this.results.push({
+                  time: this.strdate + this.doppler[this.strdate][+indicator.marker],
+                  indicator: +indicator.marker,
+                  json: parsed.result,
+                  uid: this.newPlayerData.playerId,
+                  matchId: this.currentMatchId,
+                });
+              }
+
+              position = parsed.dopler;
               this.doppler[this.strdate][+indicator.marker]++;
             }
             if (+indicator.marker === LoginIndicator) {
@@ -281,6 +300,9 @@ export class LogParser {
       if (!this.logsdisabled && !this.userswitched && !this.newmatch) {
         this.loglen = newloglen;
         this.skiplines = 0;
+        if (this.parseOnce) {
+          this.emitter.emit('old-log-complete');
+        }
       }
       //console.log(this.results);
       this.results = [];
@@ -288,6 +310,8 @@ export class LogParser {
         this.newmatch = false;
         this.checkLog(this.path, fs.statSync(this.path), 'newmatch');
       }
+
+      stream.destroy();
     });
   }
 
@@ -431,11 +455,17 @@ export class LogParser {
   }
 
   private writingSingleLine(line: string, indicator: string, doppler: number) {
-    //console.log(indicator);
-    const workingline = line.substring(line.indexOf(indicator, doppler) + indicator.length);
+    const pos = line.indexOf(indicator, doppler);
+    const workingline = line.substring(pos + indicator.length);
     const brackets = { curly: 0, squared: 0 };
     let result = '';
     let i = 0;
+
+    /*if (indicator == '"turnInfo":') {
+      console.log('!!!!!!!!!!!!');
+      console.log(pos + '/' + doppler);
+      console.log(workingline);
+    }*/
 
     while (brackets.curly === 0 && brackets.squared === 0 && i < workingline.length) {
       const char = workingline.charAt(i);
@@ -454,7 +484,7 @@ export class LogParser {
 
     while ((brackets.curly > 0 || brackets.squared > 0) && i < workingline.length) {
       const char = workingline.charAt(i);
-      result += char.trim();
+      result += char;
       switch (char) {
         case '{':
           brackets.curly++;
@@ -472,6 +502,6 @@ export class LogParser {
       i++;
     }
 
-    return { result, dopler: line.indexOf(indicator, doppler) + indicator.length + i + doppler };
+    return { result, dopler: line.indexOf(indicator, doppler) + indicator.length + i };
   }
 }

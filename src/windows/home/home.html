@@ -54,12 +54,15 @@
         data-button="unskip-acc"
         title="Set MTGArena.pro Token and start tracking data from this account!"
       >
-        Start Tracking
+        <img class="imgico" id="uploadIco" width="20" /> Start Tracking
       </div>
       <div id="UserControls" class="hidden">
         <div id="UserButtons" class="settingRow">
           <div class="interfaceButton" data-button="stop-tracker">
             <img class="imgico" id="stopIco" width="20" /> Stop Tracker
+          </div>
+          <div class="interfaceButton" data-button="old-log">
+            <img class="imgico" id="refreshIco" width="20" /> Read Old Log
           </div>
         </div>
         <div id="UserLinks">
@@ -93,11 +96,12 @@
       </div>
       <div class="settingRow">
         <div class="pretty p-switch p-fill">
-          <input class="settings" data-setting="minimized" type="checkbox" id="AutoHide" value="1" />
+          <input class="settings" data-setting="minimized" type="checkbox" value="1" />
           <div class="state p-danger"><label>Start Minimized</label></div>
         </div>
       </div>
       <div class="settingRow">
+        <div id="CurrentLogPath"></div>
         <div class="interfaceButton" data-button="set-log-path">Locate Log</div>
         <div class="interfaceButton" data-button="default-log-path">Default Log Path</div>
       </div>
@@ -115,6 +119,9 @@
       </div>
     </div>
     <div class="tab" id="overlay">
+      <div style="color:brown">
+        <strong>OVERLAY TEMPORARILY DISABLED. It will be implemented in upcoming releases soon.</strong>
+      </div>
       <div id="OverlaySwitch" class="pretty p-switch p-fill">
         <input class="settings" data-setting="" type="checkbox" id="EnableOverlay" value="1" />
         <div class="state p-danger"><label>Enable Overlay</label></div>

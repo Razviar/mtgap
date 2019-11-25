@@ -274,6 +274,10 @@ div#UserLinks {
   margin-top: 10px;
 }
 
+#CurrentLogPath {
+  font-size: 0.8em;
+}
+
 /*Prompt*/
 
 .prompt-wnd {

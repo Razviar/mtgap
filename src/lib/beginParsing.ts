@@ -6,10 +6,14 @@ import { UserSwitch } from './userswitch';
 import { setuserdata } from 'root/api/userbytokenid';
 import { app } from 'electron';
 
-export function beginParsing(): LogParser {
+export function beginParsing(logpath?: string, parseOnce?: boolean): LogParser {
   const defaultpath = ['LocalLow', 'Wizards Of The Coast', 'MTGA', 'output_log.txt'];
   const specialpath = store.get('logpath');
-  const logParser = new LogParser(specialpath ? specialpath : defaultpath, specialpath ? true : false);
+  const logParser = new LogParser(
+    logpath ? logpath : specialpath ? specialpath : defaultpath,
+    specialpath || logpath ? true : false,
+    parseOnce
+  );
 
   logParser.emitter.on('newdata', data => {
     const datasending: ParseResults[] = data as ParseResults[];
