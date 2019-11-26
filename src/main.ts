@@ -1,3 +1,7 @@
+// tslint:disable:no-require-imports no-unsafe-any no-var-requires
+require('source-map-support').install();
+// tslint:enable:no-require-imports no-unsafe-any no-var-requires
+
 // tslint:disable: no-any
 import AutoLaunch from 'auto-launch';
 import {
