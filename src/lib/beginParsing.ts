@@ -1,17 +1,19 @@
-import { LogParser } from './logparser';
-import { uploadpackfile } from '../api/logsender';
-import { ParseResults } from '../models/indicators';
-import { store, mainWindow, setCreds, createOverlay, connectionWaiter } from '../main';
-import { UserSwitch } from './userswitch';
-import { setuserdata } from 'root/api/userbytokenid';
-import { app } from 'electron';
+import {app} from 'electron';
+
+import {uploadpackfile} from 'root/api/logsender';
+import {setuserdata} from 'root/api/userbytokenid';
+import {LogParser} from 'root/lib/logparser';
+import {asString} from 'root/lib/type_utils';
+import {UserSwitch} from 'root/lib/userswitch';
+import {connectionWaiter, createOverlay, mainWindow, setCreds, store} from 'root/main';
+import {ParseResults} from 'root/models/indicators';
 
 export function beginParsing(logpath?: string, parseOnce?: boolean): LogParser {
   const defaultpath = ['LocalLow', 'Wizards Of The Coast', 'MTGA', 'output_log.txt'];
-  const specialpath = store.get('logpath');
+  const specialpath = asString(store.get('logpath'));
   const logParser = new LogParser(
-    logpath ? logpath : specialpath ? specialpath : defaultpath,
-    specialpath || logpath ? true : false,
+    logpath !== undefined ? logpath : specialpath !== undefined ? specialpath : defaultpath,
+    specialpath !== undefined || logpath !== undefined,
     parseOnce
   );
 
@@ -65,7 +67,7 @@ export function beginParsing(logpath?: string, parseOnce?: boolean): LogParser {
     /*console.log('userchange');
     console.log(msg);*/
 
-    const m = msg as { playerId: string; screenName: string; language: string };
+    const m = msg as {playerId: string; screenName: string; language: string};
 
     mainWindow.webContents.send('show-status', {
       color: '#dbb63d',
@@ -79,7 +81,10 @@ export function beginParsing(logpath?: string, parseOnce?: boolean): LogParser {
     if (newtoken !== '' && newtoken !== 'awaiting') {
       store.set('usertoken', newtoken);
       logParser.setPlayerId(store.get(newtoken, 'playerId'), store.get(newtoken, 'screenName'));
-      setuserdata(m.playerId, m.screenName, m.language, newtoken, app.getVersion());
+      setuserdata(
+        {mtgaId: m.playerId, mtgaNick: m.screenName, language: m.language, token: newtoken},
+        app.getVersion()
+      );
       setCreds('userchange');
     } else {
       mainWindow.webContents.send('new-account');

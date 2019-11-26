@@ -1,40 +1,35 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, {AxiosRequestConfig} from 'axios';
 import zlib from 'zlib';
 
-function makeAxios<T, U>(method: 'post' | 'get', gzip?: boolean) {
-  return async (url: string, data?: T, config?: AxiosRequestConfig): Promise<U> => {
-    let gzipped = '';
-    if (data && gzip) {
-      gzipped = zlib.gzipSync(JSON.stringify(data)).toString('base64');
-    }
-    const configBase: AxiosRequestConfig = {
+export type AxiosResponse = any; // tslint:disable-line:no-any
+type AxiosPost<T> = (url: string, data?: T, config?: AxiosRequestConfig) => Promise<AxiosResponse>;
+
+async function makeAxios(method: 'post' | 'get', path: string, config: AxiosRequestConfig): Promise<AxiosResponse> {
+  return (
+    await axios({
+      ...config,
       withCredentials: false,
-      url: `https://mtgarena.pro/${url}`,
+      url: `https://mtgarena.pro/${path}`,
       method,
-      data: gzip ? gzipped : data,
-    };
-
-    const newConfig = { ...(config || {}), ...configBase };
-    let result: any;
-    try {
-      result = (await axios(newConfig)).data;
-    } catch (e) {
-      result = null;
-    }
-    return result;
-  };
+    })
+  ).data;
 }
 
-interface RequestInterface {
-  get<T>(url: string, config?: AxiosRequestConfig): Promise<T>;
-  post<T, U>(url: string, data?: T, config?: AxiosRequestConfig): Promise<U>;
-  gzip<T, U>(url: string, data?: T, config?: AxiosRequestConfig): Promise<U>;
+async function axiosGet(path: string, config: AxiosRequestConfig = {}): Promise<AxiosResponse> {
+  return makeAxios('get', path, config);
 }
 
-const Request: RequestInterface = {
-  get: makeAxios('get'),
-  post: makeAxios('post'),
-  gzip: makeAxios('post', true),
+async function axiosPost<T>(path: string, data?: T, config?: AxiosRequestConfig): Promise<AxiosResponse> {
+  return makeAxios('post', path, {...(config || {}), data});
+}
+
+async function axiosPostGzip<T>(path: string, data?: T, config?: AxiosRequestConfig): Promise<AxiosResponse> {
+  const gzippedData = data ? zlib.gzipSync(JSON.stringify(data)).toString('base64') : data;
+  return axiosPost(path, gzippedData, config);
+}
+
+export const Request = {
+  get: axiosGet,
+  post: axiosPost,
+  gzip: axiosPostGzip,
 };
-
-export default Request;
