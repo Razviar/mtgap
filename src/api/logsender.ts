@@ -8,5 +8,5 @@ export async function uploadpackfile(results: ParseResults[], version: string): 
   if (resMap === undefined) {
     return false;
   }
-  return asString(resMap.status) === 'ok';
+  return asString(resMap.status, '').toUpperCase() === 'OK';
 }

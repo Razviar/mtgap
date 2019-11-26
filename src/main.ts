@@ -21,7 +21,7 @@ import path from 'path';
 
 import {setuserdata} from 'root/api/userbytokenid';
 import {beginParsing} from 'root/lib/beginParsing';
-import {ConnectionWaiter} from 'root/lib/connectionwaiter';
+import {ConnectionWaiter} from 'root/lib/connection_waiter';
 import {LogParser} from 'root/lib/logparser';
 import {Store} from 'root/lib/storage';
 import {ProcessWatcher} from 'root/lib/watchprocess';
