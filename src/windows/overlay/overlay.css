@@ -56,23 +56,24 @@ a[href^="ftp://"] {
 }
 
 .CCmana {
-  float: right;
-  font-family: 'Titillium Web', sans-serif;
-  font-size: 16px;
-  line-height: 35px;
-  position: relative;
   z-index: 1;
-  height: 35px;
   vertical-align: top;
+  line-height: 15px;
+  font-size: 0.7em;
+  vertical-align: top;
+}
+
+.CNameManaWrap {
+  float: left;
+  height: 35px;
 }
 
 .CName {
   font-family: 'Titillium Web', sans-serif;
   font-weight: 600;
-  line-height: 35px !important;
+  line-height: 22px !important;
   overflow: hidden;
-  width: 176px;
-  height: 35px !important;
+  width: 175px;
   white-space: nowrap;
   text-overflow: ellipsis;
   text-align: left !important;
@@ -114,6 +115,7 @@ a[href^="ftp://"] {
   border-left-width: 5px;
   border-left-style: solid;
   background-size: cover !important;
+  margin-right: 5px;
 }
 
 .Copies {
@@ -125,7 +127,7 @@ a[href^="ftp://"] {
   vertical-align: top;
   font-weight: bold;
   margin-top: 0;
-  float: left;
+  float: right;
   width: 22px;
   height: 35px !important;
   text-align: center;

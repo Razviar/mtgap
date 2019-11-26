@@ -15,11 +15,10 @@ const metaData = new MetadataStore(remote.app.getVersion());
 const makeCard = (cid: number, num: number): string => {
   const badgesnum = 3;
   const BasicLand = 34;
-  const meta = metaData.meta;
-  if (!meta) {
+  if (!metaData.meta) {
     return '';
   }
-  const cardsdb = meta.allcards;
+  const cardsdb = metaData.meta.allcards;
 
   const name = cardsdb[cid]['name'];
   const rarity = cardsdb[cid]['rarity'];
@@ -90,29 +89,29 @@ const makeCard = (cid: number, num: number): string => {
                 sumOfObject(manaj) - (manaj['Colorless'] ? manaj['Colorless'] - 1 : 0) > badgesnum
                   ? ' smallmanagroup'
                   : ''
-              } ms ms-${manafont[clr.toLowerCase()]} ms-cost"
+              } ms ms-${manafont[clr.toLowerCase()]}"
               ></span>`;
         }
       } else {
-        manas += `
-          <span class="ManaGroup${
-            sumOfObject(manaj) - (manaj['Colorless'] ? manaj['Colorless'] - 1 : 0) > badgesnum ? ' smallmanagroup' : ''
-          } ms ms-${manaj[clr]} ms-cost"
-          ></span>
-        `;
+        manas += `<span class="ManaGroup${
+          sumOfObject(manaj) - (manaj['Colorless'] ? manaj['Colorless'] - 1 : 0) > badgesnum ? ' smallmanagroup' : ''
+        } ms ms-${manaj[clr]}"></span>`;
       }
     }
   });
 
-  return `<div class="DcDrow" id="card${cid}">
-          <div class="CardSmallPic" style="border-image:${bgcolor}; background:url('https://mtgarena.pro/mtg/pict/thumb/${thumb}') 50% 50%">
-          </div>
-          <div class="Copies" style="color:#${rarcolor[+rarity]}">${num}</div>
-          <CName>${name}</CName>
-          <div class="CCmana">
-            ${manas}
-          </div>
-        </div>`;
+  return `
+<div class="DcDrow" id="card${cid}">
+<div class="CardSmallPic" style="border-image:${bgcolor}; background:url('https://mtgarena.pro/mtg/pict/thumb/${thumb}') 50% 50%">
+</div>
+<div class="CNameManaWrap">
+<div class="CCmana">
+${manas}
+</div>
+<div class="CName">${name}</div>
+</div>
+<div class="Copies" style="color:#${rarcolor[+rarity]}">${num}</div>
+</div>`;
 };
 
 ipcRenderer.on('draw-deck', (e, arg) => {});
