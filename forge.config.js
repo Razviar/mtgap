@@ -1,8 +1,6 @@
-const path = require('path');
-
 module.exports = {
   packagerConfig: {
-    icon: path.resolve(__dirname, 'statics/icon.ico'),
+    icon: require('path').resolve(__dirname, 'src/statics/icon'),
   },
   publishers: [
     {
