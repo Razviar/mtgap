@@ -34,6 +34,8 @@ const makeCard = (cid: number, num: number): string => {
   const colorindicator = cardsdb[cid]['colorindicator'];
   const slug = cardsdb[cid]['slug'];
   const flavor = cardsdb[cid]['flavor'];
+  const superclasses = ['sorcery', 'creature', 'land'];
+
   let bgcolor = 'linear-gradient(to bottom,';
 
   let clnum = 0;
@@ -106,7 +108,7 @@ const makeCard = (cid: number, num: number): string => {
 </div>
 <div class="CNameManaWrap">
 <div class="CCmana">
-${manas}
+${manas} ${manas !== '' ? '|' : ''} <span class="ms ms-${superclasses[cardsdb[cid]['supercls']]}">
 </div>
 <div class="CName">${name}</div>
 </div>
