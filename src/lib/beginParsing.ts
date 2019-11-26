@@ -1,7 +1,7 @@
 import { LogParser } from './logparser';
 import { uploadpackfile } from '../api/logsender';
 import { ParseResults } from '../models/indicators';
-import { store, mainWindow, setCreds, createOverlay, connectionWaiter } from '../main';
+import { store, mainWindow, setCreds, connectionWaiter, overlayWindow } from '../main';
 import { UserSwitch } from './userswitch';
 import { setuserdata } from 'root/api/userbytokenid';
 import { app } from 'electron';
@@ -89,8 +89,13 @@ export function beginParsing(logpath?: string, parseOnce?: boolean): LogParser {
     }
   });
 
+  if (!parseOnce && store.get('overlay')) {
+    logParser.emitter.on('match-started', msg => {
+      overlayWindow.webContents.send('match-started', { matchId: msg, uid: store.get(store.get('usertoken'), 'uid') });
+    });
+  }
+
   connectionWaiter(1000);
-  //createOverlay();
 
   return logParser;
 }

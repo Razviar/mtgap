@@ -374,11 +374,12 @@ export class LogParser {
           this.currentMatchId = loginNfo.matchId;
           this.newmatch = true;
           this.skiplines += linesread;
-          this.emitter.emit('match-started');
+          this.emitter.emit('match-started', loginNfo.matchId);
           rl.close();
         }
         break;
       case 'DuelScene.EndOfMatchReport':
+        this.emitter.emit('match-over', loginNfo.matchId);
         this.currentMatchId = '';
         break;
     }

@@ -11,7 +11,6 @@ import {
   dialog,
   autoUpdater,
   Notification,
-  screen,
 } from 'electron';
 import { Store } from './lib/storage';
 import { beginParsing } from './lib/beginParsing';
@@ -23,7 +22,6 @@ import { ConnectionWaiter } from './lib/connectionwaiter';
 import isDev from 'electron-is-dev';
 import AutoLaunch from 'auto-launch';
 import { WindowLocator } from './lib/locatewindow';
-import electronIsDev from 'electron-is-dev';
 
 declare var HOME_WINDOW_WEBPACK_ENTRY: any;
 declare var OVERLAY_WINDOW_WEBPACK_ENTRY: any;
@@ -118,7 +116,6 @@ export let MTGApid = -1;
 export const processWatcher: ProcessWatcher = new ProcessWatcher('MTGA.exe');
 export const connWait: ConnectionWaiter = new ConnectionWaiter();
 export const overlayPositioner = new WindowLocator();
-export let scaleFactor = 0;
 
 export const setCreds = (source: string) => {
   //console.log('setCreds:' + source);
@@ -152,7 +149,7 @@ const intervalFunc = () => {
   if (processWatcher) {
     processWatcher.getprocesses().then(res => {
       MTGApid = res;
-      overlayPositioner.findmtga(MTGApid, scaleFactor);
+      overlayPositioner.findmtga(MTGApid);
 
       if (res === -1 && connWait.status) {
         mainWindow.webContents.send('show-status', {
@@ -169,18 +166,23 @@ const intervalFunc = () => {
         if (overlayWindow && store.get('overlay')) {
           if (
             overlayPositioner.bounds.width !== 0 &&
-            scaleFactor !== 0 &&
             (Math.abs(overlayWindow.getBounds().x - overlayPositioner.bounds.x) > MovementSensetivity ||
               Math.abs(overlayWindow.getBounds().y - overlayPositioner.bounds.y) > MovementSensetivity ||
               Math.abs(overlayWindow.getBounds().width - overlayPositioner.bounds.width) > MovementSensetivity ||
               Math.abs(overlayWindow.getBounds().height - overlayPositioner.bounds.height) > MovementSensetivity)
           ) {
-            console.log(overlayPositioner.bounds);
-            console.log(overlayWindow.getBounds());
+            /*console.log(overlayPositioner.bounds);
+            console.log(overlayWindow.getBounds());*/
             if (!overlayWindow.isVisible()) {
               overlayWindow.show();
             }
             overlayWindow.setBounds(overlayPositioner.bounds);
+          } else if (overlayPositioner.bounds.width === 0) {
+            overlayWindow.hide();
+          } else {
+            if (!overlayWindow.isVisible()) {
+              overlayWindow.show();
+            }
           }
         }
       }
@@ -231,10 +233,10 @@ export const createOverlay = () => {
   overlayWindow.loadURL(OVERLAY_WINDOW_WEBPACK_ENTRY);
   overlayWindow.setMenuBarVisibility(false);
   overlayWindow.setIgnoreMouseEvents(true, { forward: true });
+  overlayWindow.openDevTools();
 };
 
 const createWindow = () => {
-  scaleFactor = screen.getPrimaryDisplay().scaleFactor;
   const appIcoImg = nativeImage.createFromPath(path.join(__dirname, AppIcon));
   const appIcon = new Tray(appIcoImg);
   const MenuLinks: MenuItemConstructorOptions[] = [];
@@ -317,7 +319,8 @@ const createWindow = () => {
         UpdatesHunter();
       }
     });
-    setInterval(intervalFunc, 1000);
+    // tslint:disable-next-line: no-magic-numbers
+    setInterval(intervalFunc, 250);
     if (store.get('minimized')) {
       mainWindow.minimize();
     }
