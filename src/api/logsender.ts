@@ -10,9 +10,9 @@ export async function uploadpackfile(results: ParseResults[], version: string): 
     results
   );
   //console.log(res.status);
-  //if (res && res.status && res.status === 'ok') {
-  return true;
-  /*} else {
+  if (res && res.status && res.status === 'ok') {
+    return true;
+  } else {
     return false;
-  }*/
+  }
 }

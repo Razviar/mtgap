@@ -24,7 +24,6 @@ module.exports = {
         name: 'mtgaprotracker',
         certificateFile: './cert/mtgapro.p12',
         certificatePassword: 'Devastator9000',
-        iconUrl: 'https://mtgarena.pro/mtg/icon.ico',
       },
     },
     {

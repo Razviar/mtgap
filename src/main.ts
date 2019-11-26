@@ -10,35 +10,66 @@ import {
   shell,
   dialog,
   autoUpdater,
+  Notification,
+  screen,
 } from 'electron';
 import { Store } from './lib/storage';
 import { beginParsing } from './lib/beginParsing';
 import { LogParser } from './lib/logparser';
 import { ProcessWatcher } from './lib/watchprocess';
-import Icon from 'root/statics/icon.ico';
-import Icon1 from 'root/statics/icon1.ico';
-import Icon2 from 'root/statics/icon2.ico';
-import Icon3 from 'root/statics/icon3.ico';
-import Icon4 from 'root/statics/icon4.ico';
 import path from 'path';
 import { setuserdata } from './api/userbytokenid';
 import { ConnectionWaiter } from './lib/connectionwaiter';
 import isDev from 'electron-is-dev';
 import AutoLaunch from 'auto-launch';
+import { WindowLocator } from './lib/locatewindow';
+import electronIsDev from 'electron-is-dev';
 
 declare var HOME_WINDOW_WEBPACK_ENTRY: any;
 declare var OVERLAY_WINDOW_WEBPACK_ENTRY: any;
 
-const UpdateTimeout = 600000;
+let waitingToUpdate = false;
 
 const UpdatesHunter = () => {
-  //autoUpdater.checkForUpdates();
-  setTimeout(UpdatesHunter, UpdateTimeout);
+  autoUpdater.checkForUpdates();
+  if (!waitingToUpdate) {
+    setTimeout(() => {
+      UpdatesHunter();
+      // tslint:disable-next-line: no-magic-numbers
+    }, 600000);
+  }
 };
+
+export const store = new Store({
+  configName: 'user-preferences',
+  defaults: {},
+});
+
+const ico = store.get('icon');
+let AppIcon: any;
+switch (ico) {
+  case '':
+    // tslint:disable: no-var-requires
+    AppIcon = require('root/statics/icon.ico');
+    break;
+  case '1':
+    AppIcon = require('root/statics/icon1.ico');
+    break;
+  case '2':
+    AppIcon = require('root/statics/icon2.ico');
+    break;
+  case '3':
+    AppIcon = require('root/statics/icon3.ico');
+    break;
+  case '4':
+    AppIcon = require('root/statics/icon4.ico');
+    break;
+}
 
 if (!isDev) {
   const server = 'https://update.electronjs.org';
   const feed = `${server}/Razviar/mtgap/${process.platform}-${process.arch}/${app.getVersion()}`;
+  const manualupdate = store.get('manualupdate');
 
   autoUpdater.setFeedURL({ url: feed });
   autoUpdater.on('update-not-available', () => {
@@ -54,11 +85,21 @@ if (!isDev) {
     mainWindow.webContents.send('showprompt', { message: 'Downloading update...', autoclose: 0 });
   });
   autoUpdater.on('update-downloaded', () => {
-    mainWindow.webContents.send('showprompt', { message: 'Download complete. Restarting app...', autoclose: 0 });
-    autoUpdater.quitAndInstall();
+    mainWindow.webContents.send('show-update-button');
+    mainWindow.webContents.send('showprompt', { message: 'Download complete.', autoclose: 1000 });
+    const updateNotification = new Notification({
+      title: 'MTGA Pro Tracker Update',
+      body:
+        'Updated is downloaded and ready to be applied. Since you have manual updates switched on, you need to click Apply Update button.',
+      icon: path.join(__dirname, AppIcon),
+    });
+    if (!manualupdate) {
+      autoUpdater.quitAndInstall();
+    } else {
+      waitingToUpdate = true;
+      updateNotification.show();
+    }
   });
-
-  UpdatesHunter();
 }
 
 const AutoLauncher = new AutoLaunch({
@@ -70,17 +111,14 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-export const store = new Store({
-  configName: 'user-preferences',
-  defaults: {},
-});
-
 export let mainWindow: any;
 export let overlayWindow: any;
 export let logParser: LogParser | undefined;
 export let MTGApid = -1;
 export const processWatcher: ProcessWatcher = new ProcessWatcher('MTGA.exe');
 export const connWait: ConnectionWaiter = new ConnectionWaiter();
+export const overlayPositioner = new WindowLocator();
+export let scaleFactor = 0;
 
 export const setCreds = (source: string) => {
   //console.log('setCreds:' + source);
@@ -103,67 +141,101 @@ const setAccounts = () => {
     autorun: store.get('autorun'),
     minimized: store.get('minimized'),
     logpath: store.get('logpath'),
+    icon: store.get('icon'),
+    manualupdate: store.get('manualupdate'),
   };
   mainWindow.webContents.send('set-settings', settings);
 };
 
 const intervalFunc = () => {
+  const MovementSensetivity = 5;
   if (processWatcher) {
     processWatcher.getprocesses().then(res => {
       MTGApid = res;
+      overlayPositioner.findmtga(MTGApid, scaleFactor);
+
       if (res === -1 && connWait.status) {
         mainWindow.webContents.send('show-status', {
           color: '#dbb63d',
           message: 'Game is not running!',
         });
+        if (overlayWindow) {
+          overlayWindow.hide();
+        }
+      } else if (res !== -1) {
+        if (!overlayWindow) {
+          createOverlay();
+        }
+        if (overlayWindow && store.get('overlay')) {
+          if (
+            overlayPositioner.bounds.width !== 0 &&
+            scaleFactor !== 0 &&
+            (Math.abs(overlayWindow.getBounds().x - overlayPositioner.bounds.x) > MovementSensetivity ||
+              Math.abs(overlayWindow.getBounds().y - overlayPositioner.bounds.y) > MovementSensetivity ||
+              Math.abs(overlayWindow.getBounds().width - overlayPositioner.bounds.width) > MovementSensetivity ||
+              Math.abs(overlayWindow.getBounds().height - overlayPositioner.bounds.height) > MovementSensetivity)
+          ) {
+            console.log(overlayPositioner.bounds);
+            console.log(overlayWindow.getBounds());
+            if (!overlayWindow.isVisible()) {
+              overlayWindow.show();
+            }
+            overlayWindow.setBounds(overlayPositioner.bounds);
+          }
+        }
       }
     });
   }
 };
 
 export const connectionWaiter = (timeout: number) => {
+  const adder = 1000;
   connWait.pingMtga(app.getVersion()).then(res => {
     if (res && logParser) {
       //console.log('COnnection Restored');
+      if (timeout > 1000) {
+        mainWindow.webContents.send('showprompt', { message: 'Connection established', autoclose: 1000 });
+      }
       logParser.start();
     } else {
       mainWindow.webContents.send('show-status', {
         color: '#cc2d2d',
         message: 'Connection Error',
       });
+      mainWindow.webContents.send('showprompt', { message: 'Awaiting connection!', autoclose: 0 });
       setTimeout(() => {
-        connectionWaiter(timeout + 1000);
-      }, 1000);
+        connectionWaiter(timeout + adder);
+      }, timeout);
     }
   });
 };
 
 export const createOverlay = () => {
   overlayWindow = new BrowserWindow({
-    width: 400,
-    height: 500,
+    width: 300,
+    height: 200,
     webPreferences: {
       nodeIntegration: true,
       devTools: isDev,
     },
     show: false,
     frame: false,
+    hasShadow: false,
     title: 'MTGA Pro Tracker',
     resizable: false,
     transparent: true,
     alwaysOnTop: true,
+    focusable: false,
   });
 
   overlayWindow.loadURL(OVERLAY_WINDOW_WEBPACK_ENTRY);
   overlayWindow.setMenuBarVisibility(false);
-
-  overlayWindow.once('ready-to-show', () => {
-    overlayWindow.show();
-  });
+  overlayWindow.setIgnoreMouseEvents(true, { forward: true });
 };
 
 const createWindow = () => {
-  const appIcoImg = nativeImage.createFromPath(path.join(__dirname, Icon));
+  scaleFactor = screen.getPrimaryDisplay().scaleFactor;
+  const appIcoImg = nativeImage.createFromPath(path.join(__dirname, AppIcon));
   const appIcon = new Tray(appIcoImg);
   const MenuLinks: MenuItemConstructorOptions[] = [];
   const MenuLabels: { [index: string]: string } = {
@@ -222,7 +294,7 @@ const createWindow = () => {
     show: false,
     frame: false,
     title: 'MTGA Pro Tracker',
-    icon: appIcoImg,
+    icon: path.join(__dirname, AppIcon),
     resizable: false,
   });
 
@@ -241,9 +313,12 @@ const createWindow = () => {
       mainWindow.webContents.send('set-version', app.getVersion());
       setCreds('ready-to-show');
       setAccounts();
+      if (!isDev) {
+        UpdatesHunter();
+      }
     });
     setInterval(intervalFunc, 1000);
-    if (store.get(store.get('usertoken'), 'minimized')) {
+    if (store.get('minimized')) {
       mainWindow.minimize();
     }
   });
@@ -308,6 +383,10 @@ ipcMain.on('minimize-me', () => {
   mainWindow.minimize();
 });
 
+ipcMain.on('apply-update', () => {
+  autoUpdater.quitAndInstall();
+});
+
 ipcMain.on('set-setting', (_, arg) => {
   store.set(arg.setting, arg.data);
   switch (arg.setting) {
@@ -317,6 +396,29 @@ ipcMain.on('set-setting', (_, arg) => {
       } else {
         AutoLauncher.disable();
       }
+      break;
+    case 'icon':
+      let Icon: any;
+      switch (arg.data) {
+        case '':
+          Icon = require('root/statics/icon.ico');
+          break;
+        case '1':
+          Icon = require('root/statics/icon1.ico');
+          break;
+        case '2':
+          Icon = require('root/statics/icon2.ico');
+          break;
+        case '3':
+          Icon = require('root/statics/icon3.ico');
+          break;
+        case '4':
+          Icon = require('root/statics/icon4.ico');
+          break;
+      }
+      const newico = nativeImage.createFromPath(path.join(__dirname, Icon));
+      mainWindow.Tray.setImage(newico);
+      mainWindow.setIcon(newico);
       break;
   }
   /*if (arg) {
@@ -341,17 +443,22 @@ ipcMain.on('kill-current-token', () => {
 });
 
 ipcMain.on('set-log-path', (_, arg) => {
-  dialog.showOpenDialog({ properties: ['openFile'] }).then(log => {
-    if (!log.canceled && log.filePaths[0]) {
-      store.set('logpath', log.filePaths[0]);
-      mainWindow.webContents.send('showprompt', { message: 'Log path have been updated!', autoclose: 1000 });
-      if (logParser) {
-        logParser.stop();
-        logParser = beginParsing();
+  dialog
+    .showOpenDialog({
+      properties: ['openFile'],
+      filters: [{ name: 'output_*', extensions: ['txt'] }],
+    })
+    .then(log => {
+      if (!log.canceled && log.filePaths[0]) {
+        store.set('logpath', log.filePaths[0]);
+        mainWindow.webContents.send('showprompt', { message: 'Log path have been updated!', autoclose: 1000 });
+        if (logParser) {
+          logParser.stop();
+          logParser = beginParsing();
+        }
+        setAccounts();
       }
-      setAccounts();
-    }
-  });
+    });
 });
 
 ipcMain.on('default-log-path', (_, arg) => {
@@ -364,23 +471,32 @@ ipcMain.on('default-log-path', (_, arg) => {
   setAccounts();
 });
 
+const ParseOldLogs = (logs: string[], index: number) => {
+  mainWindow.webContents.send('showprompt', {
+    message: `Parsing old log: ${index + 1}/${logs.length}`,
+    autoclose: 0,
+  });
+  const parseOnce = beginParsing(logs[index], true);
+  parseOnce.start();
+  parseOnce.emitter.on('old-log-complete', () => {
+    if (index + 1 === logs.length) {
+      mainWindow.webContents.send('showprompt', { message: 'Parsing complete!', autoclose: 1000 });
+    } else {
+      ParseOldLogs(logs, index + 1);
+    }
+  });
+};
+
 ipcMain.on('old-log', (_, arg) => {
   dialog
     .showOpenDialog({
-      properties: ['openFile'],
+      properties: ['openFile', 'multiSelections'],
       defaultPath: 'C:\\Program Files (x86)\\Wizards of the Coast\\MTGA\\MTGA_Data\\Logs\\Logs',
       filters: [{ name: 'UTC_Log*', extensions: ['log'] }],
     })
     .then(log => {
-      if (!log.canceled && log.filePaths[0]) {
-        mainWindow.webContents.send('showprompt', { message: 'Parsing old log...', autoclose: 0 });
-        if (logParser) {
-          const parseOnce = beginParsing(log.filePaths[0], true);
-          parseOnce.start();
-          parseOnce.emitter.on('old-log-complete', () => {
-            mainWindow.webContents.send('showprompt', { message: 'Parsing complete!', autoclose: 0 });
-          });
-        }
+      if (!log.canceled && log.filePaths.length > 0) {
+        ParseOldLogs(log.filePaths, 0);
       }
     });
 });

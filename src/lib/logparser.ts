@@ -6,13 +6,13 @@ import { Indicators, ParseResults } from 'root/models/indicators';
 import { getindicators } from 'root/api/getindicators';
 import { substrcount, Cut, findLastIndex } from './func';
 import Emittery from 'emittery';
-import { format, parse } from 'date-fns';
+import { format } from 'date-fns';
 
 export class LogParser {
   private path: string;
   private indicators: Indicators[] = [];
-  private dateformats: { [index: string]: string } = {};
-  private userlang = 'English';
+  /*private dateformats: { [index: string]: string } = {};
+  private userlang = 'English';*/
   private loglen: number = 0;
   private loglencheck: number = 0;
   private skiplines: number = 0;
@@ -58,12 +58,12 @@ export class LogParser {
     getindicators((electron.app || electron.remote.app).getVersion()).then(i => {
       /*console.log('!!');
       console.log(i);*/
-      if (!i.indicators || !i.dates) {
+      if (!i.indicators) {
         this.emitter.emit('error', 'Connection Error');
         return;
       }
       this.indicators = i.indicators;
-      this.dateformats = i.dates;
+      //this.dateformats = i.dates;
       this.loglen = 0;
       this.loglencheck = 0;
       if (this.parseOnce) {
@@ -166,7 +166,7 @@ export class LogParser {
 
       if (line.includes('"language": ') && !line.includes('null')) {
         const param = Cut(line, '"language": "', '"');
-        this.userlang = param;
+        //this.userlang = param;
         if (!this.logsdisabled) {
           this.emitter.emit('language', param);
         }
@@ -183,7 +183,8 @@ export class LogParser {
             console.log(this.strdateUnparsed + '!' + this.strdate);
           }*/
           line = line.replace(/(\\r\\n)/gm, '');
-
+          line = line.replace(/^(\[[\d]{1,}\][\s])?\[UnityCrossThreadLogger\]/gm, '');
+          //console.log(line);
           if (!this.doppler[this.strdate]) {
             this.doppler[this.strdate] = {};
           }
@@ -191,10 +192,10 @@ export class LogParser {
             this.doppler[this.strdate][+indicator.marker] = 0;
           }
 
-          if (line.length < 100 && !line.includes('{') && !line.replace('[UnityCrossThreadLogger]', '').includes('[')) {
+          if (line.length < 100 && !line.includes('{') && !line.includes('[')) {
             this.nowWriting = +indicator.marker;
             foundIndicator = true;
-            brackets = this.bracketeer(line.replace('[UnityCrossThreadLogger]', ''), brackets);
+            brackets = this.bracketeer(line, brackets);
             let pusher = '';
             if (line.includes('{')) {
               pusher = '{';
@@ -373,6 +374,7 @@ export class LogParser {
           this.currentMatchId = loginNfo.matchId;
           this.newmatch = true;
           this.skiplines += linesread;
+          this.emitter.emit('match-started');
           rl.close();
         }
         break;
@@ -382,7 +384,7 @@ export class LogParser {
     }
   }
 
-  private parseDate(line: string) {
+  /*private parseDate(line: string) {
     const cutter = line.indexOf(': ');
     const shift = '[UnityCrossThreadLogger]'.length;
     let dt = new Date();
@@ -394,7 +396,7 @@ export class LogParser {
       );
     } catch (e) {}
     return dt.getTime();
-  }
+  }*/
 
   private checkjson(line: string): boolean {
     const brackets = { curly: 0, squared: 0 };
