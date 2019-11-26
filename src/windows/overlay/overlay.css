@@ -1,11 +1,11 @@
 body,
 html {
   font-family: 'titillium web', sans-serif;
-  max-width: 38rem;
   padding: 0;
   margin: 0;
   color: #9f9f9f;
   width: 100%;
+  background-color: rgba(11, 0, 0, 0.5);
 }
 
 div {
@@ -25,5 +25,115 @@ a[href^="ftp://"] {
 .overlay {
   -webkit-app-region: drag;
   /*opacity: 0.5;*/
+}
+
+.bottom {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
   background-color: rgba(11, 0, 0, 0.5);
+  width: 250px;
+  height: 30px;
+}
+
+.hidden {
+  display: none;
+}
+
+#MainOut {
+  display: inline-block;
+  position: absolute;
+  top: 20%;
+  width: 300px;
+  height: 500px;
+  background-color: rgba(11, 0, 0, 0.5);
+}
+
+/*DECK import*/
+.smallmanagroup {
+  position: relative;
+  margin-left: -7px;
+}
+
+.CCmana {
+  z-index: 1;
+  vertical-align: top;
+  line-height: 15px;
+  font-size: 0.7em;
+  vertical-align: top;
+}
+
+.CNameManaWrap {
+  float: left;
+  height: 35px;
+}
+
+.CName {
+  font-family: 'Titillium Web', sans-serif;
+  font-weight: 600;
+  line-height: 22px !important;
+  overflow: hidden;
+  width: 175px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: left !important;
+  color: #c3c3c3 !important;
+}
+
+.DcDrow {
+  line-height: 35px;
+  position: relative;
+  width: auto;
+  height: 35px;
+  margin-bottom: 1px;
+  clear: both;
+  cursor: pointer;
+  transition-duration: 100ms;
+  transition-property: filter;
+  color: #fff !important;
+  border-bottom: solid 1px #36221e;
+  text-shadow: 1px 1px 3px #000;
+  text-align: left !important;
+}
+
+.DcDrow:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  filter: brightness(1.2);
+}
+
+.CardSmallPic {
+  font-family: 'Titillium Web', sans-serif;
+  font-size: 16px;
+  line-height: 35px;
+  position: relative;
+  z-index: 1;
+  vertical-align: top;
+  float: left;
+  width: 45px;
+  height: 35px !important;
+  text-align: center;
+  border-left-width: 5px;
+  border-left-style: solid;
+  background-size: cover !important;
+  margin-right: 5px;
+}
+
+.Copies {
+  font-family: 'Titillium Web', sans-serif;
+  font-size: 16px;
+  line-height: 35px;
+  position: relative;
+  z-index: 1;
+  vertical-align: top;
+  font-weight: bold;
+  margin-top: 0;
+  float: right;
+  width: 22px;
+  height: 35px !important;
+  text-align: center;
+  filter: brightness(1.4);
+}
+
+.ms {
+  text-shadow: none !important;
 }

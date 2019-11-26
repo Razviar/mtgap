@@ -3,9 +3,8 @@ import { ipcRenderer, shell } from 'electron';
 import { tokenrequest, tokencheck, userbytokenid } from 'root/api/userbytokenid';
 // tslint:disable: no-import-side-effect
 import 'root/windows/home/home.css';
+import 'root/windows/home/icons.css';
 //import Choices from 'choices.js';
-
-const EnableOverlay = document.getElementById('EnableOverlay') as HTMLInputElement;
 
 const TokenResponse = document.getElementById('TokenResponse') as HTMLElement;
 const TokenInput = document.getElementById('TokenInput') as HTMLElement;
@@ -24,6 +23,7 @@ const buttons = document.getElementsByClassName('button');
 const tabs = document.getElementsByClassName('tab');
 const controls = document.getElementsByClassName('interfaceButton');
 const settings = document.getElementsByClassName('settings');
+//const selects = document.getElementsByClassName('interfaceSelect');
 
 //const element = document.querySelector('.js-choice') as HTMLSelectElement;
 //const choices = new Choices(element, { searchEnabled: false });
@@ -68,12 +68,23 @@ ipcRenderer.on('set-settings', (e, arg) => {
     sw.checked = arg.minimized;
   }
 
+  if (arg.manualupdate) {
+    const sw = document.querySelector('[data-setting="manualupdate"]') as HTMLInputElement;
+    sw.checked = arg.manualupdate;
+  }
+
   if (arg.logpath) {
     const sw = document.getElementById('CurrentLogPath') as HTMLElement;
-    sw.innerHTML = `Current Log path:<br> <strong>${arg.logpath}</strong>`;
+    sw.innerHTML = `<strong>${arg.logpath}</strong>`;
   } else {
     const sw = document.getElementById('CurrentLogPath') as HTMLElement;
-    sw.innerHTML = 'Current Log path:<br> <strong>Default</strong>';
+    sw.innerHTML = '<strong>Default</strong>';
+  }
+
+  if (arg.icon) {
+    const sw = document.querySelector('[data-setting="icon"]') as HTMLSelectElement;
+    const opts = sw.options;
+    sw.selectedIndex = Array.from(opts).findIndex(opt => opt.value === arg.icon);
   }
 });
 
@@ -124,12 +135,21 @@ ipcRenderer.on('new-account', () => {
   UserControls.classList.add('hidden');
 });
 
+ipcRenderer.on('show-update-button', () => {
+  const sw = document.querySelector('[data-button="apply-update"]') as HTMLElement;
+  sw.classList.remove('hidden');
+});
+
 minimizeButton.addEventListener('click', () => {
   ipcRenderer.send('minimize-me', 'test');
 });
 
 AppVersion.addEventListener('click', () => {
   ipcRenderer.send('check-updates');
+});
+
+PromptWnd.addEventListener('click', () => {
+  PromptWnd.style.display = 'none';
 });
 
 const tabclick = (event: any) => {
@@ -167,7 +187,7 @@ const linkclick = (event: any) => {
 
 const controlClick = (event: any) => {
   const cl: HTMLElement = event.target;
-  const button = cl.getAttribute('data-button');
+  const button = cl.getAttribute('data-button') as string;
   switch (button) {
     case 'skip-acc':
       TokenInput.classList.add('hidden');
@@ -194,20 +214,8 @@ const controlClick = (event: any) => {
     case 'unskip-acc':
       ipcRenderer.send('kill-current-token');
       break;
-    case 'set-log-path':
-      ipcRenderer.send('set-log-path');
-      break;
-    case 'stop-tracker':
-      ipcRenderer.send('stop-tracker');
-      break;
-    case 'default-log-path':
-      ipcRenderer.send('default-log-path');
-      break;
-    case 'wipe-all':
-      ipcRenderer.send('wipe-all');
-      break;
-    case 'old-log':
-      ipcRenderer.send('old-log');
+    default:
+      ipcRenderer.send(button);
       break;
   }
 };
@@ -215,7 +223,14 @@ const controlClick = (event: any) => {
 const settingsChecker = (event: any) => {
   const cl: HTMLInputElement = event.target;
   const setting = cl.getAttribute('data-setting');
-  ipcRenderer.send('set-setting', { setting, data: event.target.checked });
+  const data =
+    event.target.tagName === 'INPUT'
+      ? event.target.checked
+      : event.target.tagName === 'SELECT'
+      ? event.target.value
+      : '';
+  //console.log(event.target.tagName);
+  ipcRenderer.send('set-setting', { setting, data });
 };
 
 const login = (token: string, uid: number, nick: string, source?: string) => {

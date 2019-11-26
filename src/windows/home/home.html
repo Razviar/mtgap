@@ -49,20 +49,28 @@
       <div id="TokenResponse"></div>
       <div id="UserCredentials"></div>
       <div id="StatusMessage">Launching tracker...</div>
-      <div
-        class="interfaceButton hidden"
-        data-button="unskip-acc"
-        title="Set MTGArena.pro Token and start tracking data from this account!"
-      >
-        <img class="imgico" id="uploadIco" width="20" /> Start Tracking
-      </div>
+
       <div id="UserControls" class="hidden">
         <div id="UserButtons" class="settingRow">
+          <div
+            class="interfaceButton hidden"
+            data-button="unskip-acc"
+            title="Set MTGArena.pro Token and start tracking data from this account!"
+          >
+            <img class="imgico" id="uploadIco" width="20" /> Resume Tracking
+          </div>
           <div class="interfaceButton" data-button="stop-tracker">
             <img class="imgico" id="stopIco" width="20" /> Stop Tracker
           </div>
           <div class="interfaceButton" data-button="old-log">
             <img class="imgico" id="refreshIco" width="20" /> Read Old Log
+          </div>
+          <div
+            class="interfaceButton hidden"
+            data-button="apply-update"
+            title="Click to restart the app and apply update"
+          >
+            <img class="imgico" id="updateIco" width="20" /> Apply update!
           </div>
         </div>
         <div id="UserLinks">
@@ -101,6 +109,18 @@
         </div>
       </div>
       <div class="settingRow">
+        <div class="pretty p-switch p-fill">
+          <input class="settings" data-setting="manualupdate" type="checkbox" value="1" />
+          <div class="state p-danger"><label>Disable auto updates</label></div>
+        </div>
+        <br /><small
+          >If you disable auto updates, app will just download them and you'll have to click 'Apply Update' button to
+          get Tracker updated. App will check and download updates at startup and every 10 minutes no mater how this
+          setting is configured.To check updates manually click on version number in bottom right corner.</small
+        >
+      </div>
+      <div class="settingRow">
+        Current Log Path:
         <div id="CurrentLogPath"></div>
         <div class="interfaceButton" data-button="set-log-path">Locate Log</div>
         <div class="interfaceButton" data-button="default-log-path">Default Log Path</div>
@@ -108,14 +128,17 @@
       <div class="settingRow">
         <div class="interfaceButton" data-button="wipe-all">Wipe All Settings</div>
       </div>
-      <div class="select-holder">
-        <!--<select class="js-choice">
-          <option>White</option>
-          <option>Blue</option>
-          <option>Black</option>
-          <option>Red</option>
-          <option>Green</option>
-        </select>-->
+      <div class="settingRow">
+        <div class="select-holder">
+          Tracker Tray Icon:
+          <select class="settings js-choice" data-setting="icon">
+            <option value="">White</option>
+            <option value="2">Blue</option>
+            <option value="3">Black</option>
+            <option value="1">Red</option>
+            <option value="4">Green</option>
+          </select>
+        </div>
       </div>
     </div>
     <div class="tab" id="overlay">
@@ -123,10 +146,14 @@
         <strong>OVERLAY TEMPORARILY DISABLED. It will be implemented in upcoming releases soon.</strong>
       </div>
       <div id="OverlaySwitch" class="pretty p-switch p-fill">
-        <input class="settings" data-setting="" type="checkbox" id="EnableOverlay" value="1" />
+        <input class="settings" data-setting="overlay" type="checkbox" value="1" />
         <div class="state p-danger"><label>Enable Overlay</label></div>
       </div>
       <h2>Combat mode</h2>
+      <select>
+        <option>Card Icon</option>
+        <option>No Card Icon</option>
+      </select>
       [Card name] [mana]
       <select>
         <option>Cards Left In deck</option
