@@ -6,7 +6,7 @@ export async function uploadpackfile(results: ParseResults[], version: string): 
   console.log(results);*/
   //console.log(token);
   const res = await Request.gzip<ParseResults[], { [index: string]: string }>(
-    `/mtg/donew2.php?cmd=cm_uploadpackfile&version=${version}`,
+    `mtg/donew2.php?cmd=cm_uploadpackfile&version=${version}`,
     results
   );
   //console.log(res.status);

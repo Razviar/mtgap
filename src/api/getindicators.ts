@@ -8,9 +8,9 @@ export async function getindicators(
   dates: { [index: string]: string };
 }> {
   //console.log('??');
-  const indicators = await Request.get<Indicators[]>(`/mtg/donew2.php?cmd=cm_getindicators&version=${version}`);
+  const indicators = await Request.get<Indicators[]>(`mtg/donew2.php?cmd=cm_getindicators&version=${version}`);
   const dates = await Request.get<{ [index: string]: string }>(
-    `/mtg/donew2.php?cmd=cm_getdateformats&version=${version}`
+    `mtg/donew2.php?cmd=cm_getdateformats&version=${version}`
   );
   return { indicators, dates };
 }

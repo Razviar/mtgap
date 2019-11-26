@@ -131,3 +131,7 @@ a[href^="ftp://"] {
   text-align: center;
   filter: brightness(1.4);
 }
+
+.ms {
+  text-shadow: none !important;
+}

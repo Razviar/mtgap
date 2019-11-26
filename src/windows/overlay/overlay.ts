@@ -12,12 +12,12 @@ const MainOut = document.getElementById('MainOut') as HTMLElement;
 const currentMatch = new Match();
 const metaData = new MetadataStore(remote.app.getVersion());
 
-const makeCard = (cid: number, num: number) => {
+const makeCard = (cid: number, num: number): string => {
   const badgesnum = 3;
   const BasicLand = 34;
   const meta = metaData.meta;
   if (!meta) {
-    return;
+    return '';
   }
   const cardsdb = meta.allcards;
 
@@ -35,10 +35,6 @@ const makeCard = (cid: number, num: number) => {
   const colorindicator = cardsdb[cid]['colorindicator'];
   const slug = cardsdb[cid]['slug'];
   const flavor = cardsdb[cid]['flavor'];
-  const TraditionalStandardBan = cardsdb[cid]['TraditionalStandardBan'];
-  const TraditionalHistoricBan = cardsdb[cid]['TraditionalHistoricBan'];
-  const StandardBan = cardsdb[cid]['StandardBan'];
-  const HistoricBan = cardsdb[cid]['HistoricBan'];
   let bgcolor = 'linear-gradient(to bottom,';
 
   let clnum = 0;
@@ -90,27 +86,25 @@ const makeCard = (cid: number, num: number) => {
       if (clr !== 'Colorless') {
         for (let i = 0; i < manaj[clr]; i++) {
           manas += `
-              <div class="ManaGroup${
+              <span class="ManaGroup${
                 sumOfObject(manaj) - (manaj['Colorless'] ? manaj['Colorless'] - 1 : 0) > badgesnum
                   ? ' smallmanagroup'
                   : ''
               } ms ms-${manafont[clr.toLowerCase()]} ms-cost"
-              ></div>`;
+              ></span>`;
         }
       } else {
         manas += `
-          <div class="ManaGroup${
+          <span class="ManaGroup${
             sumOfObject(manaj) - (manaj['Colorless'] ? manaj['Colorless'] - 1 : 0) > badgesnum ? ' smallmanagroup' : ''
           } ms ms-${manaj[clr]} ms-cost"
-          ></div>
+          ></span>
         `;
       }
     }
   });
 
-  return `
-    <div>
-        <div class="DcDrow">
+  return `<div class="DcDrow" id="card${cid}">
           <div class="CardSmallPic" style="border-image:${bgcolor}; background:url('https://mtgarena.pro/mtg/pict/thumb/${thumb}') 50% 50%">
           </div>
           <div class="Copies" style="color:#${rarcolor[+rarity]}">${num}</div>
@@ -118,8 +112,7 @@ const makeCard = (cid: number, num: number) => {
           <div class="CCmana">
             ${manas}
           </div>
-        </div>
-    </div>`;
+        </div>`;
 };
 
 ipcRenderer.on('draw-deck', (e, arg) => {});
@@ -131,8 +124,8 @@ ipcRenderer.on('match-started', (e, arg) => {
     let output = `<div class="deckName">${res.humanname}</div>`;
 
     //console.log(cards);
-    Object.keys(res.deckstruct).forEach(card => {
-      output += makeCard(+card, res.deckstruct[+card]);
+    res.deckstruct.forEach(card => {
+      output += makeCard(card.card, card.cardnum);
     });
     MainOut.innerHTML = output;
     MainOut.classList.remove('hidden');
