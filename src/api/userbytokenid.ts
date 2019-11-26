@@ -82,7 +82,7 @@ export async function userbytokenid(cmUserbyTokenid: string, version: string): P
 // setuserdata
 //
 
-interface UserData {
+export interface UserData {
   mtgaId: string;
   mtgaNick: string;
   language: string;

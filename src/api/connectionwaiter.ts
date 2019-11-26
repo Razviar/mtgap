@@ -7,5 +7,5 @@ export async function pingMtga(version: string): Promise<boolean> {
   if (!resMap) {
     return false;
   }
-  return asString(resMap.status) === 'OK';
+  return asString(resMap.status, '').toUpperCase() === 'OK';
 }
