@@ -22,4 +22,5 @@ module.exports = {
     modules: [NODE_MODULES],
     plugins: [TsConfigPathsPlugin],
   },
+  externals: /Debug\/iconv\.node/,
 };
