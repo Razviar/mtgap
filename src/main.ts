@@ -1,30 +1,31 @@
 // tslint:disable: no-any
+import AutoLaunch from 'auto-launch';
 import {
   app,
-  BrowserWindow,
-  ipcMain,
-  Tray,
-  Menu,
-  nativeImage,
-  MenuItemConstructorOptions,
-  shell,
-  dialog,
   autoUpdater,
+  BrowserWindow,
+  dialog,
+  ipcMain,
+  Menu,
+  MenuItemConstructorOptions,
+  nativeImage,
+  shell,
+  Tray,
 } from 'electron';
-import { Store } from './lib/storage';
-import { beginParsing } from './lib/beginParsing';
-import { LogParser } from './lib/logparser';
-import { ProcessWatcher } from './lib/watchprocess';
+import isDev from 'electron-is-dev';
+import path from 'path';
+
+import {setuserdata} from 'root/api/userbytokenid';
+import {beginParsing} from 'root/lib/beginParsing';
+import {ConnectionWaiter} from 'root/lib/connectionwaiter';
+import {LogParser} from 'root/lib/logparser';
+import {Store} from 'root/lib/storage';
+import {ProcessWatcher} from 'root/lib/watchprocess';
 import Icon from 'root/statics/icon.ico';
 import Icon1 from 'root/statics/icon1.ico';
 import Icon2 from 'root/statics/icon2.ico';
 import Icon3 from 'root/statics/icon3.ico';
 import Icon4 from 'root/statics/icon4.ico';
-import path from 'path';
-import { setuserdata } from './api/userbytokenid';
-import { ConnectionWaiter } from './lib/connectionwaiter';
-import isDev from 'electron-is-dev';
-import AutoLaunch from 'auto-launch';
 
 declare var HOME_WINDOW_WEBPACK_ENTRY: any;
 declare var OVERLAY_WINDOW_WEBPACK_ENTRY: any;
@@ -40,21 +41,21 @@ if (!isDev) {
   const server = 'https://update.electronjs.org';
   const feed = `${server}/Razviar/mtgap/${process.platform}-${process.arch}/${app.getVersion()}`;
 
-  autoUpdater.setFeedURL({ url: feed });
+  autoUpdater.setFeedURL({url: feed});
   autoUpdater.on('update-not-available', () => {
-    mainWindow.webContents.send('showprompt', { message: 'You have latest version!', autoclose: 1000 });
+    mainWindow.webContents.send('showprompt', {message: 'You have latest version!', autoclose: 1000});
   });
   autoUpdater.on('error', () => {
-    mainWindow.webContents.send('showprompt', { message: 'Error while checking updates!', autoclose: 1000 });
+    mainWindow.webContents.send('showprompt', {message: 'Error while checking updates!', autoclose: 1000});
   });
   autoUpdater.on('checking-for-update', () => {
-    mainWindow.webContents.send('showprompt', { message: 'Checking updates...', autoclose: 0 });
+    mainWindow.webContents.send('showprompt', {message: 'Checking updates...', autoclose: 0});
   });
   autoUpdater.on('update-available', () => {
-    mainWindow.webContents.send('showprompt', { message: 'Downloading update...', autoclose: 0 });
+    mainWindow.webContents.send('showprompt', {message: 'Downloading update...', autoclose: 0});
   });
   autoUpdater.on('update-downloaded', () => {
-    mainWindow.webContents.send('showprompt', { message: 'Download complete. Restarting app...', autoclose: 0 });
+    mainWindow.webContents.send('showprompt', {message: 'Download complete. Restarting app...', autoclose: 0});
     autoUpdater.quitAndInstall();
   });
 
@@ -89,7 +90,7 @@ export const setCreds = (source: string) => {
     const uid = store.get(token, 'uid');
     const nick = store.get(token, 'nick');
     if (uid && nick) {
-      mainWindow.webContents.send('set-creds', { token, uid, nick, source });
+      mainWindow.webContents.send('set-creds', {token, uid, nick, source});
     }
   }
 };
@@ -166,7 +167,7 @@ const createWindow = () => {
   const appIcoImg = nativeImage.createFromPath(path.join(__dirname, Icon));
   const appIcon = new Tray(appIcoImg);
   const MenuLinks: MenuItemConstructorOptions[] = [];
-  const MenuLabels: { [index: string]: string } = {
+  const MenuLabels: {[index: string]: string} = {
     'My Profile': 'https://mtgarena.pro/u/',
     Deckbuilder: 'https://mtgarena.pro/deckbuilder/',
     'Deck Converter': 'https://mtgarena.pro/converter/',
@@ -195,9 +196,9 @@ const createWindow = () => {
         mainWindow.show();
       },
     },
-    { type: 'separator' },
+    {type: 'separator'},
     ...MenuLinks,
-    { type: 'separator' },
+    {type: 'separator'},
     {
       label: 'Stop Tracker',
       click: () => {
@@ -298,7 +299,10 @@ ipcMain.on('token-input', (_, arg) => {
       store.set(arg.token, awaiting.playerId, 'playerId');
       store.set(arg.token, awaiting.screenName, 'screenName');
       store.set(arg.token, awaiting.language, 'language');
-      setuserdata(awaiting.playerId, awaiting.screenName, awaiting.language, arg.token, app.getVersion());
+      setuserdata(
+        {mtgaId: awaiting.playerId, mtgaNick: awaiting.screenName, language: awaiting.language, token: arg.token},
+        app.getVersion()
+      );
       store.unset('awaiting', 'x', true);
     }
   }
@@ -341,10 +345,10 @@ ipcMain.on('kill-current-token', () => {
 });
 
 ipcMain.on('set-log-path', (_, arg) => {
-  dialog.showOpenDialog({ properties: ['openFile'] }).then(log => {
+  dialog.showOpenDialog({properties: ['openFile']}).then(log => {
     if (!log.canceled && log.filePaths[0]) {
       store.set('logpath', log.filePaths[0]);
-      mainWindow.webContents.send('showprompt', { message: 'Log path have been updated!', autoclose: 1000 });
+      mainWindow.webContents.send('showprompt', {message: 'Log path have been updated!', autoclose: 1000});
       if (logParser) {
         logParser.stop();
         logParser = beginParsing();
@@ -357,7 +361,7 @@ ipcMain.on('set-log-path', (_, arg) => {
 ipcMain.on('default-log-path', (_, arg) => {
   store.unset('logpath');
   if (logParser) {
-    mainWindow.webContents.send('showprompt', { message: 'Log path have been set to default!', autoclose: 1000 });
+    mainWindow.webContents.send('showprompt', {message: 'Log path have been set to default!', autoclose: 1000});
     logParser.stop();
     logParser = beginParsing();
   }
@@ -369,16 +373,16 @@ ipcMain.on('old-log', (_, arg) => {
     .showOpenDialog({
       properties: ['openFile'],
       defaultPath: 'C:\\Program Files (x86)\\Wizards of the Coast\\MTGA\\MTGA_Data\\Logs\\Logs',
-      filters: [{ name: 'UTC_Log*', extensions: ['log'] }],
+      filters: [{name: 'UTC_Log*', extensions: ['log']}],
     })
     .then(log => {
       if (!log.canceled && log.filePaths[0]) {
-        mainWindow.webContents.send('showprompt', { message: 'Parsing old log...', autoclose: 0 });
+        mainWindow.webContents.send('showprompt', {message: 'Parsing old log...', autoclose: 0});
         if (logParser) {
           const parseOnce = beginParsing(log.filePaths[0], true);
           parseOnce.start();
           parseOnce.emitter.on('old-log-complete', () => {
-            mainWindow.webContents.send('showprompt', { message: 'Parsing complete!', autoclose: 0 });
+            mainWindow.webContents.send('showprompt', {message: 'Parsing complete!', autoclose: 0});
           });
         }
       }

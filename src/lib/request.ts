@@ -2,7 +2,6 @@ import axios, {AxiosRequestConfig} from 'axios';
 import zlib from 'zlib';
 
 export type AxiosResponse = any; // tslint:disable-line:no-any
-type AxiosPost<T> = (url: string, data?: T, config?: AxiosRequestConfig) => Promise<AxiosResponse>;
 
 async function makeAxios(method: 'post' | 'get', path: string, config: AxiosRequestConfig): Promise<AxiosResponse> {
   return (
