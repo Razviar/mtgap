@@ -2,10 +2,9 @@ import {App, BrowserWindow, nativeImage, Tray} from 'electron';
 import electronIsDev from 'electron-is-dev';
 import path from 'path';
 
+import {getAppIcon} from 'root/app/app_icon';
 import {createContextMenuForMainWindow} from 'root/app/context_menu';
 import {error} from 'root/lib/logger';
-import {asString} from 'root/lib/type_utils';
-import Icon from 'root/statics/icon.ico';
 
 export type MaybeBrowserWindow = BrowserWindow | undefined;
 let mainWindow: MaybeBrowserWindow;
@@ -21,8 +20,8 @@ export function withMainWindow(fn: (mainWindow: BrowserWindow) => void): void {
   fn(mainWindow);
 }
 
-export function createMainWindow(app: App, onceReadyToShow: (mainWindow: BrowserWindow) => void): void {
-  const appIcoImg = nativeImage.createFromPath(path.join(__dirname, asString(Icon, '')));
+export function createMainWindow(onceReadyToShow: (mainWindow: BrowserWindow) => void): void {
+  const appIcoImg = nativeImage.createFromPath(path.join(__dirname, getAppIcon()));
   const appIcon = new Tray(appIcoImg);
 
   mainWindow = new BrowserWindow({
@@ -40,7 +39,7 @@ export function createMainWindow(app: App, onceReadyToShow: (mainWindow: Browser
   });
   mainWindow.Tray = appIcon;
 
-  appIcon.setContextMenu(createContextMenuForMainWindow(app, mainWindow));
+  appIcon.setContextMenu(createContextMenuForMainWindow(mainWindow));
   appIcon.on('double-click', () => {
     withMainWindow(w => w.show());
     withMainWindow(w => w.focus());

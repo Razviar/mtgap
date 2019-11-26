@@ -1,19 +1,30 @@
-import {app, autoUpdater} from 'electron';
-import electronIsDev from 'electron-is-dev';
+import {app, autoUpdater, Notification} from 'electron';
+import isDev from 'electron-is-dev';
+import path from 'path';
 
-import {getMainWindow, withMainWindow} from 'root/app/main_window';
+import {getAppIcon} from 'root/app/app_icon';
+import {withMainWindow} from 'root/app/main_window';
+import {store} from 'root/main';
+
+let waitingToUpdate = false;
+const UpdateTimeout = 600000;
+
+const UpdatesHunter = () => {
+  autoUpdater.checkForUpdates();
+  setTimeout(UpdatesHunter, UpdateTimeout);
+  if (!waitingToUpdate) {
+    setTimeout(() => {
+      UpdatesHunter();
+      // tslint:disable-next-line: no-magic-numbers
+    }, 600000);
+  }
+};
 
 export function setupAutoUpdater(): void {
-  const UpdateTimeout = 600000;
-
-  const UpdatesHunter = () => {
-    //autoUpdater.checkForUpdates();
-    setTimeout(UpdatesHunter, UpdateTimeout);
-  };
-
-  if (!electronIsDev) {
+  if (!isDev) {
     const server = 'https://update.electronjs.org';
     const feed = `${server}/Razviar/mtgap/${process.platform}-${process.arch}/${app.getVersion()}`;
+    const manualupdate = store.get('manualupdate');
 
     autoUpdater.setFeedURL({url: feed});
     autoUpdater.on('update-not-available', () => {
@@ -35,6 +46,20 @@ export function setupAutoUpdater(): void {
         w.webContents.send('showprompt', {message: 'Download complete. Restarting app...', autoclose: 0})
       );
       autoUpdater.quitAndInstall();
+
+      withMainWindow(w => w.webContents.send('showprompt', {message: 'Download complete.', autoclose: 1000}));
+      const updateNotification = new Notification({
+        title: 'MTGA Pro Tracker Update',
+        body:
+          'Updated is downloaded and ready to be applied. Since you have manual updates switched on, you need to click Apply Update button.',
+        icon: path.join(__dirname, getAppIcon()),
+      });
+      if (!manualupdate) {
+        autoUpdater.quitAndInstall();
+      } else {
+        waitingToUpdate = true;
+        updateNotification.show();
+      }
     });
 
     UpdatesHunter();
@@ -43,4 +68,12 @@ export function setupAutoUpdater(): void {
 
 export function checkForUpdates(): void {
   autoUpdater.checkForUpdates();
+}
+
+export function updateHunter(): void {
+  UpdatesHunter();
+}
+
+export function quitAndInstall(): void {
+  autoUpdater.quitAndInstall();
 }

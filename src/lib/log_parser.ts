@@ -4,11 +4,13 @@ import {uploadpackfile} from 'root/api/logsender';
 import {setuserdata, UserData} from 'root/api/userbytokenid';
 import {setCreds} from 'root/app/auth';
 import {withMainWindow} from 'root/app/main_window';
+import {withOverlayWindow} from 'root/app/overlay_window';
+import {connectionWaiter} from 'root/app/process_watcher';
 import {error} from 'root/lib/logger';
 import {LogParser} from 'root/lib/logparser';
 import {asString} from 'root/lib/type_utils';
 import {UserSwitch} from 'root/lib/userswitch';
-import {connectionWaiter, store} from 'root/main';
+import {store} from 'root/main';
 import {ParseResults} from 'root/models/indicators';
 
 export type MaybeLogParser = LogParser | undefined;
@@ -122,6 +124,14 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
       store.set('awaiting', m.language, 'language');
     }
   });
+
+  if (!parseOnce && store.get('overlay')) {
+    logParser.emitter.on('match-started', msg => {
+      withOverlayWindow(w =>
+        w.webContents.send('match-started', {matchId: msg, uid: store.get(store.get('usertoken'), 'uid')})
+      );
+    });
+  }
 
   connectionWaiter(1000);
   //createOverlay();

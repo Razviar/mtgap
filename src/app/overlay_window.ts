@@ -17,20 +17,22 @@ export function withOverlayWindow(fn: (overlayWindow: BrowserWindow) => void): v
   fn(overlayWindow);
 }
 
-export function createOverlayWindow(): void {
+export function createOverlayWindow(): BrowserWindow {
   overlayWindow = new BrowserWindow({
-    width: 400,
-    height: 500,
+    width: 300,
+    height: 200,
     webPreferences: {
       nodeIntegration: true,
       devTools: electronIsDev,
     },
     show: false,
     frame: false,
+    hasShadow: false,
     title: 'MTGA Pro Tracker',
     resizable: false,
     transparent: true,
     alwaysOnTop: true,
+    focusable: false,
   });
 
   overlayWindow.loadURL(OVERLAY_WINDOW_WEBPACK_ENTRY).catch(err =>
@@ -39,5 +41,7 @@ export function createOverlayWindow(): void {
     })
   );
   overlayWindow.setMenuBarVisibility(false);
-  overlayWindow.once('ready-to-show', () => withOverlayWindow(w => w.show()));
+  overlayWindow.setIgnoreMouseEvents(true, {forward: true});
+  overlayWindow.webContents.openDevTools({mode: 'detach'});
+  return overlayWindow;
 }

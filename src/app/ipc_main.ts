@@ -1,9 +1,11 @@
-import {App, dialog, ipcMain} from 'electron';
+import {App, dialog, ipcMain, nativeImage} from 'electron';
+import path from 'path';
 
 import {setuserdata, UserData} from 'root/api/userbytokenid';
+import {loadAppIcon} from 'root/app/app_icon';
 import {setAccounts} from 'root/app/auth';
 import {disableAutoLauncher, enableAutoLauncher} from 'root/app/auto_launcher';
-import {checkForUpdates} from 'root/app/auto_updater';
+import {checkForUpdates, quitAndInstall} from 'root/app/auto_updater';
 import {withMainWindow} from 'root/app/main_window';
 import {createLogParser, getLogParser, withLogParser} from 'root/lib/log_parser';
 import {error} from 'root/lib/logger';
@@ -52,6 +54,14 @@ export function setupIpcMain(app: App): void {
           disableAutoLauncher();
         }
         break;
+      case 'icon':
+        withMainWindow(w => {
+          const icon = loadAppIcon(arg.data);
+          const newico = nativeImage.createFromPath(path.join(__dirname, icon));
+          w.Tray.setImage(newico);
+          w.setIcon(newico);
+        });
+        break;
     }
     /*if (arg) {
       createOverlay();
@@ -76,7 +86,7 @@ export function setupIpcMain(app: App): void {
 
   ipcMain.on('set-log-path', (_, arg) => {
     dialog
-      .showOpenDialog({properties: ['openFile']})
+      .showOpenDialog({properties: ['openFile'], filters: [{name: 'output_*', extensions: ['txt']}]})
       .then(log => {
         if (!log.canceled && log.filePaths[0]) {
           store.set('logpath', log.filePaths[0]);
@@ -105,23 +115,36 @@ export function setupIpcMain(app: App): void {
     setAccounts();
   });
 
+  const ParseOldLogs = (logs: string[], index: number) => {
+    withMainWindow(w =>
+      w.webContents.send('showprompt', {
+        message: `Parsing old log: ${index + 1}/${logs.length}`,
+        autoclose: 0,
+      })
+    );
+    if (getLogParser() !== undefined) {
+      const parseOnce = createLogParser(logs[index], true);
+      parseOnce.start();
+      parseOnce.emitter.on('old-log-complete', () => {
+        if (index + 1 === logs.length) {
+          withMainWindow(w => w.webContents.send('showprompt', {message: 'Parsing complete!', autoclose: 1000}));
+        } else {
+          ParseOldLogs(logs, index + 1);
+        }
+      });
+    }
+  };
+
   ipcMain.on('old-log', (_, arg) => {
     dialog
       .showOpenDialog({
-        properties: ['openFile'],
+        properties: ['openFile', 'multiSelections'],
         defaultPath: 'C:\\Program Files (x86)\\Wizards of the Coast\\MTGA\\MTGA_Data\\Logs\\Logs',
         filters: [{name: 'UTC_Log*', extensions: ['log']}],
       })
       .then(log => {
         if (!log.canceled && log.filePaths[0]) {
-          withMainWindow(w => w.webContents.send('showprompt', {message: 'Parsing old log...', autoclose: 0}));
-          if (getLogParser() !== undefined) {
-            const parseOnce = createLogParser(log.filePaths[0], true);
-            parseOnce.start();
-            parseOnce.emitter.on('old-log-complete', () => {
-              withMainWindow(w => w.webContents.send('showprompt', {message: 'Parsing complete!', autoclose: 0}));
-            });
-          }
+          ParseOldLogs(log.filePaths, 0);
         }
       })
       .catch(err => error('Error while showing open file dialog during old-log-path event', err));
@@ -148,5 +171,9 @@ export function setupIpcMain(app: App): void {
 
   ipcMain.on('stop-tracker', (_, arg) => {
     app.quit();
+  });
+
+  ipcMain.on('apply-update', () => {
+    quitAndInstall();
   });
 }

@@ -4,11 +4,7 @@ export interface LiveMatchRequest {
 }
 
 export interface LiveMatch {
-<<<<<<< HEAD
   deckstruct: {card: number; cardnum: number}[];
-=======
-  deckstruct: { card: number; cardnum: number }[];
->>>>>>> f50c09694b48994ce41d459833507ce3daa89ed2
   humanname: string;
 }
 

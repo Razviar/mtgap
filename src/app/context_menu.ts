@@ -1,8 +1,8 @@
-import {App, BrowserWindow, Menu, MenuItemConstructorOptions, shell} from 'electron';
+import {App, app, BrowserWindow, Menu, MenuItemConstructorOptions, shell} from 'electron';
 
 import {error} from 'root/lib/logger';
 
-export function createContextMenuForMainWindow(app: App, mainWindow: BrowserWindow): Menu {
+export function createContextMenuForMainWindow(mainWindow: BrowserWindow): Menu {
   const MenuLinks: MenuItemConstructorOptions[] = [];
   const MenuLabels: {[index: string]: string} = {
     'My Profile': 'https://mtgarena.pro/u/',
