@@ -8,7 +8,12 @@ export interface LiveMatch {
   humanname: string;
 }
 
-interface CardMappings {
+export interface CardPlayedResult {
+  affectedcards: number[];
+  myDeck: boolean;
+}
+
+export interface CardMappings {
   me: {[index: number]: number};
   opponent: {[index: number]: number};
 }
@@ -42,7 +47,7 @@ export class Match {
     this.DecisionPlayer = 0;
   }
 
-  public cardplayed(grpId: number, instanceId: number, ownerSeatId: number, zoneId: number): number[] {
+  public cardplayed(grpId: number, instanceId: number, ownerSeatId: number, zoneId: number): CardPlayedResult {
     const ZoneTypeBattlefield = 28;
     const ZoneTypeHandPl1 = 31;
     const ZoneTypeHandPl2 = 35;
@@ -50,7 +55,7 @@ export class Match {
     const cardOperation: 'me' | 'opponent' = ownerSeatId !== this.myTeamId ? 'opponent' : 'me';
     const cardFirstTimeSpotted: boolean = !(this.zones[instanceId] > 0);
     const affectedcards: number[] = [];
-    console.log('----------------');
+    //console.log('----------------');
     this.zones[instanceId] = zoneId;
     if (this.instanceIds[cardOperation][instanceId] !== grpId) {
       this.instanceIds[cardOperation][instanceId] = grpId;
@@ -63,11 +68,11 @@ export class Match {
         }
       }
 
-      console.log(this.decks);
+      /*console.log(this.decks);
       console.log(this.instanceIds);
-      console.log(this.zones);
+      console.log(this.zones);*/
     }
-    console.log(affectedcards);
-    return affectedcards;
+    //console.log(affectedcards);
+    return {affectedcards, myDeck: ownerSeatId === this.myTeamId};
   }
 }

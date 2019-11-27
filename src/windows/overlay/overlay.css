@@ -49,6 +49,16 @@ a[href^="ftp://"] {
   background-color: rgba(11, 0, 0, 0.5);
 }
 
+#OpponentOut {
+  display: inline-block;
+  position: absolute;
+  top: 20%;
+  right: 0px;
+  width: 300px;
+  height: 500px;
+  background-color: rgba(11, 0, 0, 0.5);
+}
+
 /*DECK import*/
 .smallmanagroup {
   position: relative;
@@ -101,7 +111,7 @@ a[href^="ftp://"] {
   filter: brightness(1.2);
 }
 
-.highlighCard {
+.highlightCard {
   background-color: rgba(255, 255, 255, 0.3);
 }
 
