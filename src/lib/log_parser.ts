@@ -135,6 +135,12 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
     logParser.emitter.on('card-played', msg => {
       withOverlayWindow(w => w.webContents.send('card-played', msg));
     });
+
+    logParser.emitter.on('match-over',(()=>{
+      withOverlayWindow(w => w.webContents.send('match-over'));
+    })
+
+    
   }
 
   connectionWaiter(1000);

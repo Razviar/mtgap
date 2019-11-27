@@ -93,9 +93,7 @@ const makeCard = (cid: number, num: number, mode: string): string => {
               ></span>`;
         }
       } else {
-        manas += `<span class="ManaGroup${
-          sumOfObject(manaj) - (manaj['Colorless'] ? manaj['Colorless'] - 1 : 0) > badgesnum ? ' smallmanagroup' : ''
-        } ms ms-${manaj[clr]}"></span>`;
+        manas += `<span class="ManaGroup ms ms-${manaj[clr]}"></span>`;
       }
     }
   });
@@ -144,8 +142,12 @@ ipcRenderer.on('match-started', (e, arg) => {
     });
 });
 
+ipcRenderer.on('match-over', () => {
+  currentMatch.over();
+});
+
 ipcRenderer.on('card-played', (e, arg) => {
-  currentMatch.cardplayed(arg.grpId, arg.instanceId, arg.ownerSeatId);
+  currentMatch.cardplayed(arg.grpId, arg.instanceId, arg.ownerSeatId, arg.zoneId);
   updateDeck();
 });
 
