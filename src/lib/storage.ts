@@ -1,12 +1,12 @@
 // tslint:disable: no-any
 import electron from 'electron';
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
 
 export class Store {
-  private path: string;
-  private data: { [index: string]: any };
-  constructor(opts: { configName: string; defaults: { [index: string]: any } }) {
+  private readonly path: string;
+  private data: {[index: string]: any};
+  constructor(opts: {configName: string; defaults: {[index: string]: any}}) {
     const userDataPath = (electron.app || electron.remote.app).getPath('userData');
     this.path = path.join(userDataPath, `${opts.configName}.json`);
 
@@ -33,7 +33,7 @@ export class Store {
     }
   }
 
-  public getall(): { [index: string]: any } {
+  public getall(): {[index: string]: any} {
     return this.data;
   }
 

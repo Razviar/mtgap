@@ -231,7 +231,6 @@ export class LogParser {
             for (let k = 0; k < occurances; k++) {
               const parsed = this.writingSingleLine(line, indicator.Indicators, position);
               if (
-                !indicator.Needtohave ||
                 indicator.Needtohave === '' ||
                 (indicator.Needtohave !== '' && parsed.result.includes(indicator.Needtohave))
               ) {
@@ -243,6 +242,9 @@ export class LogParser {
                   uid: this.newPlayerData.playerId,
                   matchId: this.currentMatchId,
                 });
+                if (indicator.marker === '5') {
+                  this.checkBattleEvents(parsed.result);
+                }
               }
 
               position = parsed.dopler;
@@ -316,14 +318,7 @@ export class LogParser {
     });
   }
 
-  private checkEvents(LoginIndicator: number, linesread: number, rl: readline.Interface) {
-    /*const maxuploads = 50;
-    if (this.results.length >= maxuploads) {
-      this.newmatch = true;
-      this.skiplines += linesread;
-      rl.close();
-    }*/
-
+  private checkEvents(LoginIndicator: number, linesread: number, rl: readline.Interface): void {
     const switchObject = findLastIndex(this.results, elem => elem.indicator === LoginIndicator);
     /*console.log(this.nowWriting);
       console.log(this.results);
@@ -332,7 +327,7 @@ export class LogParser {
     // tslint:disable-next-line: no-any
     //console.log('???');
 
-    if (!this.results[switchObject]) {
+    if (switchObject === -1) {
       return;
     }
     //console.log(this.results[switchObject].json);
@@ -348,7 +343,7 @@ export class LogParser {
       return;
     }
     const loginNfo = bi.params.payloadObject;
-    if (loginNfo.timestamp) {
+    if (loginNfo.timestamp !== undefined) {
       this.strdate = Date.parse(bi.params.payloadObject.timestamp);
       //this.strdateUnparsed = '';
       //console.log(this.strdate);
@@ -374,7 +369,11 @@ export class LogParser {
           this.currentMatchId = loginNfo.matchId;
           this.newmatch = true;
           this.skiplines += linesread;
-          this.emitter.emit('match-started', loginNfo.matchId);
+          this.emitter.emit('match-started', {
+            matchId: loginNfo.matchId,
+            gameNumber: loginNfo.gameNumber,
+            seatId: loginNfo.seatId,
+          });
           rl.close();
         }
         break;
@@ -383,6 +382,25 @@ export class LogParser {
         this.currentMatchId = '';
         break;
     }
+  }
+
+  private checkBattleEvents(json: string): void {
+    try {
+      const gameObjects: {[index: string]: string}[] = JSON.parse(json);
+      if (gameObjects[0].type !== undefined) {
+        gameObjects.forEach(gobj => {
+          if (gobj.type === 'GameObjectType_Card') {
+            this.emitter.emit('card-played', {
+              instanceId: gobj.instanceId,
+              grpId: gobj.grpId,
+              zoneId: gobj.zoneId,
+              visibility: gobj.visibility,
+              ownerSeatId: gobj.ownerSeatId,
+            });
+          }
+        });
+      }
+    } catch (e) {}
   }
 
   /*private parseDate(line: string) {

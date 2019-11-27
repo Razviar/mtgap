@@ -128,8 +128,12 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
   if (!parseOnce && store.get('overlay')) {
     logParser.emitter.on('match-started', msg => {
       withOverlayWindow(w =>
-        w.webContents.send('match-started', {matchId: msg, uid: store.get(store.get('usertoken'), 'uid')})
+        w.webContents.send('match-started', {...msg, uid: store.get(store.get('usertoken'), 'uid')})
       );
+    });
+
+    logParser.emitter.on('card-played', msg => {
+      withOverlayWindow(w => w.webContents.send('card-played', msg));
     });
   }
 

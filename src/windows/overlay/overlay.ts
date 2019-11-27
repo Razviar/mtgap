@@ -1,18 +1,19 @@
 // tslint:disable-next-line: no-import-side-effect
 import 'root/windows/overlay/overlay.css';
-import { ipcRenderer, remote } from 'electron';
-import { Match } from 'root/models/match';
-import { getlivematch } from 'root/api/overlay';
-import { MetadataStore } from 'root/models/metadata';
-import { hexToRgbA, jsonParse, countOfObject, sumOfObject } from 'root/lib/func';
-import { manafont, typecolorletter, supercls, rarcolor, color } from 'root/lib/utils';
+import {ipcRenderer, remote} from 'electron';
+import {Match} from 'root/models/match';
+import {getlivematch} from 'root/api/overlay';
+import {error} from 'root/lib/logger';
+import {MetadataStore} from 'root/models/metadata';
+import {hexToRgbA, jsonParse, countOfObject, sumOfObject} from 'root/lib/func';
+import {manafont, typecolorletter, supercls, rarcolor, color} from 'root/lib/utils';
 
 const MainOut = document.getElementById('MainOut') as HTMLElement;
 
 const currentMatch = new Match();
 const metaData = new MetadataStore(remote.app.getVersion());
 
-const makeCard = (cid: number, num: number): string => {
+const makeCard = (cid: number, num: number, mode: string): string => {
   const badgesnum = 3;
   const BasicLand = 34;
   if (!metaData.meta) {
@@ -21,16 +22,13 @@ const makeCard = (cid: number, num: number): string => {
   const cardsdb = metaData.meta.allcards;
 
   const name = cardsdb[cid]['name'];
+  const mtgaId = cardsdb[cid]['mtga_id'];
   const rarity = cardsdb[cid]['rarity'];
   const mana = cardsdb[cid]['mana'];
-  const kws: string[] = jsonParse(cardsdb[cid]['kw']);
-  const scls = supercls[cardsdb[cid]['supercls']];
   const thumb = cardsdb[cid]['art'];
   const colorarr = cardsdb[cid]['colorarr'];
   const island = cardsdb[cid]['is_land'];
   const type = cardsdb[cid]['type'];
-  const willbeoutsoon = cardsdb[cid]['willbeoutsoon'];
-  const currentstandard = cardsdb[cid]['currentstandard'];
   const colorindicator = cardsdb[cid]['colorindicator'];
   const slug = cardsdb[cid]['slug'];
   const flavor = cardsdb[cid]['flavor'];
@@ -41,7 +39,7 @@ const makeCard = (cid: number, num: number): string => {
   let clnum = 0;
   let lastcolor = '';
 
-  let manaj: { [index: string]: number } = { '': 0 };
+  let manaj: {[index: string]: number} = {'': 0};
 
   if (colorarr !== '' && colorarr !== '[]') {
     manaj = jsonParse(colorarr);
@@ -112,8 +110,20 @@ ${manas} ${manas !== '' ? '|' : ''} <span class="ms ms-${superclasses[cardsdb[ci
 </div>
 <div class="CName">${name}</div>
 </div>
-<div class="Copies" style="color:#${rarcolor[+rarity]}">${num}</div>
+<div class="Copies" style="color:#${rarcolor[+rarity]}" id="cardnum${cid}">${num} | ${
+    currentMatch.decks.me[mtgaId] > 0 ? num - currentMatch.decks.me[mtgaId] : num
+  }</div>
 </div>`;
+};
+
+const updateDeck = () => {
+  let output = `<div class="deckName">${currentMatch.humanname}</div>`;
+  //console.log(cards);
+  currentMatch.myFullDeck.forEach(card => {
+    output += makeCard(card.card, card.cardnum, 'battle');
+  });
+  MainOut.innerHTML = output;
+  MainOut.classList.remove('hidden');
 };
 
 ipcRenderer.on('draw-deck', (e, arg) => {});
@@ -121,16 +131,22 @@ ipcRenderer.on('draw-deck', (e, arg) => {});
 ipcRenderer.on('match-started', (e, arg) => {
   currentMatch.matchId = arg.matchId;
   currentMatch.ourUid = arg.uid;
-  getlivematch(currentMatch.matchId, currentMatch.ourUid, remote.app.getVersion()).then(res => {
-    let output = `<div class="deckName">${res.humanname}</div>`;
-
-    //console.log(cards);
-    res.deckstruct.forEach(card => {
-      output += makeCard(card.card, card.cardnum);
+  currentMatch.myTeamId = arg.seatId;
+  currentMatch.GameNumber = arg.gameNumber;
+  getlivematch(currentMatch.matchId, currentMatch.ourUid, remote.app.getVersion())
+    .then(res => {
+      currentMatch.myFullDeck = res.deckstruct;
+      currentMatch.humanname = res.humanname;
+      updateDeck();
+    })
+    .catch(err => {
+      error('Failure to load deck', err, {...currentMatch});
     });
-    MainOut.innerHTML = output;
-    MainOut.classList.remove('hidden');
-  });
+});
+
+ipcRenderer.on('card-played', (e, arg) => {
+  currentMatch.cardplayed(arg.grpId, arg.instanceId, arg.ownerSeatId);
+  updateDeck();
 });
 
 MainOut.addEventListener('mouseenter', () => {

@@ -11,12 +11,12 @@ const UpdateTimeout = 600000;
 
 const UpdatesHunter = () => {
   autoUpdater.checkForUpdates();
-  setTimeout(UpdatesHunter, UpdateTimeout);
+  //setTimeout(UpdatesHunter, UpdateTimeout);
   if (!waitingToUpdate) {
     setTimeout(() => {
       UpdatesHunter();
       // tslint:disable-next-line: no-magic-numbers
-    }, 600000);
+    }, UpdateTimeout);
   }
 };
 
