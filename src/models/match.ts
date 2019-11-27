@@ -42,27 +42,32 @@ export class Match {
     this.DecisionPlayer = 0;
   }
 
-  public cardplayed(grpId: number, instanceId: number, ownerSeatId: number, zoneId: number): void {
+  public cardplayed(grpId: number, instanceId: number, ownerSeatId: number, zoneId: number): number[] {
     const ZoneTypeBattlefield = 28;
     const ZoneTypeHandPl1 = 31;
     const ZoneTypeHandPl2 = 35;
     const ZonesOfInterest = [ZoneTypeBattlefield, ZoneTypeHandPl1, ZoneTypeHandPl2];
     const cardOperation: 'me' | 'opponent' = ownerSeatId !== this.myTeamId ? 'opponent' : 'me';
     const cardFirstTimeSpotted: boolean = !(this.zones[instanceId] > 0);
+    const affectedcards: number[] = [];
+    console.log('----------------');
     this.zones[instanceId] = zoneId;
     if (this.instanceIds[cardOperation][instanceId] !== grpId) {
       this.instanceIds[cardOperation][instanceId] = grpId;
       if (ZonesOfInterest.includes(zoneId) && cardFirstTimeSpotted) {
+        affectedcards.push(grpId);
         if (this.decks[cardOperation][grpId] > 0) {
           this.decks[cardOperation][grpId]++;
         } else {
           this.decks[cardOperation][grpId] = 1;
         }
       }
-      console.log('----------------');
+
       console.log(this.decks);
       console.log(this.instanceIds);
       console.log(this.zones);
     }
+    console.log(affectedcards);
+    return affectedcards;
   }
 }

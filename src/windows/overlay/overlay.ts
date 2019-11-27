@@ -6,14 +6,14 @@ import {getlivematch} from 'root/api/overlay';
 import {error} from 'root/lib/logger';
 import {MetadataStore} from 'root/models/metadata';
 import {hexToRgbA, jsonParse, countOfObject, sumOfObject} from 'root/lib/func';
-import {manafont, typecolorletter, supercls, rarcolor, color} from 'root/lib/utils';
+import {manafont, typecolorletter, rarcolor, color} from 'root/lib/utils';
 
 const MainOut = document.getElementById('MainOut') as HTMLElement;
 
 const currentMatch = new Match();
 const metaData = new MetadataStore(remote.app.getVersion());
 
-const makeCard = (cid: number, num: number, mode: string): string => {
+const makeCard = (cid: number, num: number, mode: string, highlight: boolean): string => {
   const badgesnum = 3;
   const BasicLand = 34;
   if (!metaData.meta) {
@@ -99,7 +99,7 @@ const makeCard = (cid: number, num: number, mode: string): string => {
   });
 
   return `
-<div class="DcDrow" id="card${cid}">
+<div class="DcDrow${highlight ? ' highlighCard' : ''}" id="card${cid}">
 <div class="CardSmallPic" style="border-image:${bgcolor}; background:url('https://mtgarena.pro/mtg/pict/thumb/${thumb}') 50% 50%">
 </div>
 <div class="CNameManaWrap">
@@ -114,14 +114,24 @@ ${manas} ${manas !== '' ? '|' : ''} <span class="ms ms-${superclasses[cardsdb[ci
 </div>`;
 };
 
-const updateDeck = () => {
+const updateDeck = (highlight: number[]) => {
   let output = `<div class="deckName">${currentMatch.humanname}</div>`;
   //console.log(cards);
   currentMatch.myFullDeck.forEach(card => {
-    output += makeCard(card.card, card.cardnum, 'battle');
+    output += makeCard(
+      card.card,
+      card.cardnum,
+      'battle',
+      highlight.includes(metaData.meta ? metaData.meta.allcards[card.card].mtga_id : 0)
+    );
   });
   MainOut.innerHTML = output;
   MainOut.classList.remove('hidden');
+  setTimeout(() => {
+    Array.from(document.getElementsByClassName('highlight')).forEach(el => {
+      el.classList.remove('highlight');
+    });
+  });
 };
 
 ipcRenderer.on('draw-deck', (e, arg) => {});
@@ -135,7 +145,7 @@ ipcRenderer.on('match-started', (e, arg) => {
     .then(res => {
       currentMatch.myFullDeck = res.deckstruct;
       currentMatch.humanname = res.humanname;
-      updateDeck();
+      updateDeck([]);
     })
     .catch(err => {
       error('Failure to load deck', err, {...currentMatch});
@@ -147,8 +157,8 @@ ipcRenderer.on('match-over', () => {
 });
 
 ipcRenderer.on('card-played', (e, arg) => {
-  currentMatch.cardplayed(arg.grpId, arg.instanceId, arg.ownerSeatId, arg.zoneId);
-  updateDeck();
+  const highlight = currentMatch.cardplayed(arg.grpId, arg.instanceId, arg.ownerSeatId, arg.zoneId);
+  updateDeck(highlight);
 });
 
 MainOut.addEventListener('mouseenter', () => {
