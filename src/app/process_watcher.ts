@@ -1,4 +1,4 @@
-import {App, app} from 'electron';
+import {app} from 'electron';
 
 import {withMainWindow} from 'root/app/main_window';
 import {createOverlayWindow, getOverlayWindow, withOverlayWindow} from 'root/app/overlay_window';
@@ -6,8 +6,8 @@ import {ConnectionWaiter} from 'root/lib/connection_waiter';
 import {WindowLocator} from 'root/lib/locatewindow';
 import {withLogParser} from 'root/lib/log_parser';
 import {error} from 'root/lib/logger';
+import {settingsStore} from 'root/lib/settings_store';
 import {ProcessWatcher} from 'root/lib/watchprocess';
-import {store} from 'root/main';
 
 let MTGApid = -1;
 const MovementSensetivity = 5;
@@ -25,7 +25,6 @@ export const connectionWaiter = (timeout: number) => {
         if (timeout > 1000) {
           withMainWindow(w => w.webContents.send('showprompt', {message: 'Connection established', autoclose: 1000}));
         }
-        //console.log('COnnection Restored');
         withLogParser(logParser => logParser.start());
       } else {
         withMainWindow(w => {
@@ -63,7 +62,7 @@ export function setupProcessWatcher(): () => void {
           if (!overlayWindow) {
             overlayWindow = createOverlayWindow();
           }
-          if (store.get('overlay')) {
+          if (settingsStore.get().overlay) {
             if (
               overlayPositioner.bounds.width !== 0 &&
               (Math.abs(overlayWindow.getBounds().x - overlayPositioner.bounds.x) > MovementSensetivity ||
@@ -87,7 +86,7 @@ export function setupProcessWatcher(): () => void {
           }
         }
       })
-      .catch(err => error('Process watcher failed while checked for the process', err));
+      .catch(_ => {});
   };
 
   return processWatcherFn;

@@ -1,11 +1,12 @@
 // tslint:disable-next-line: no-import-side-effect
+import {ipcRenderer, remote} from 'electron';
+
+import {getlivematch} from 'root/api/overlay';
+import {countOfObject, hexToRgbA, jsonParse, sumOfObject} from 'root/lib/func';
+import {color, manafont, rarcolor, supercls, typecolorletter} from 'root/lib/utils';
+import {Match} from 'root/models/match';
+import {MetadataStore} from 'root/models/metadata';
 import 'root/windows/overlay/overlay.css';
-import { ipcRenderer, remote } from 'electron';
-import { Match } from 'root/models/match';
-import { getlivematch } from 'root/api/overlay';
-import { MetadataStore } from 'root/models/metadata';
-import { hexToRgbA, jsonParse, countOfObject, sumOfObject } from 'root/lib/func';
-import { manafont, typecolorletter, supercls, rarcolor, color } from 'root/lib/utils';
 
 const MainOut = document.getElementById('MainOut') as HTMLElement;
 
@@ -41,7 +42,7 @@ const makeCard = (cid: number, num: number): string => {
   let clnum = 0;
   let lastcolor = '';
 
-  let manaj: { [index: string]: number } = { '': 0 };
+  let manaj: {[index: string]: number} = {'': 0};
 
   if (colorarr !== '' && colorarr !== '[]') {
     manaj = jsonParse(colorarr);

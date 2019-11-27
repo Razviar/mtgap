@@ -19,5 +19,5 @@ function getStacktrace(err?: unknown): string {
 }
 
 export function error(msg: string, err: unknown, extra: LogProperties = {}): void {
-  console.error({msg, type: 'Error', ...extra, stack: getStacktrace(err)}); // tslint:disable-line:no-console
+  console.error({msg, err: String(err), type: 'Error', ...extra, stack: getStacktrace(err)}); // tslint:disable-line:no-console
 }

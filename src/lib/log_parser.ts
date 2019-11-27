@@ -1,3 +1,4 @@
+import {settings} from 'cluster';
 import {app} from 'electron';
 
 import {uploadpackfile} from 'root/api/logsender';
@@ -8,9 +9,8 @@ import {withOverlayWindow} from 'root/app/overlay_window';
 import {connectionWaiter} from 'root/app/process_watcher';
 import {error} from 'root/lib/logger';
 import {LogParser} from 'root/lib/logparser';
-import {asString} from 'root/lib/type_utils';
-import {UserSwitch} from 'root/lib/userswitch';
-import {store} from 'root/main';
+import {Player, settingsStore} from 'root/lib/settings_store';
+import {getAccountFromScreenName} from 'root/lib/userswitch';
 import {ParseResults} from 'root/models/indicators';
 
 export type MaybeLogParser = LogParser | undefined;
@@ -29,7 +29,7 @@ export function withLogParser(fn: (logParser: LogParser) => void): void {
 
 export function createLogParser(logpath?: string, parseOnce?: boolean): LogParser {
   const defaultpath = ['LocalLow', 'Wizards Of The Coast', 'MTGA', 'output_log.txt'];
-  const specialpath = asString(store.get('logpath'));
+  const specialpath = settingsStore.get().logPath;
   logParser = new LogParser(
     logpath !== undefined ? logpath : specialpath !== undefined ? specialpath : defaultpath,
     specialpath !== undefined || logpath !== undefined,
@@ -39,7 +39,8 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
   logParser.emitter.on('newdata', data => {
     const datasending: ParseResults[] = data as ParseResults[];
     if (datasending.length > 0) {
-      if (store.get('usertoken') && store.get('usertoken').includes('SKIPPING')) {
+      const userToken = settingsStore.get().userToken;
+      if (userToken !== undefined && userToken.includes('SKIPPING')) {
         withMainWindow(w =>
           w.webContents.send('show-status', {
             color: '#dbb63d',
@@ -67,8 +68,10 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
   });
 
   logParser.emitter.on('language', data => {
-    if (store.get('usertoken')) {
-      store.set(store.get('usertoken'), data, 'language');
+    const account = settingsStore.getAccount();
+    if (account !== undefined && account.player) {
+      account.player.language = data as string;
+      settingsStore.save();
     }
   });
 
@@ -97,7 +100,7 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
     /*console.log('userchange');
     console.log(msg);*/
 
-    const m = msg as {playerId: string; screenName: string; language: string};
+    const {playerId, screenName, language} = msg as Player;
 
     withMainWindow(w =>
       w.webContents.send('show-status', {
@@ -105,31 +108,42 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
         message: 'New User Detected!',
       })
     );
-    const newtoken = UserSwitch(m.screenName);
-    //console.log('NT:' + m.screenName + '/' + newtoken);
 
-    withMainWindow(w => w.webContents.send('set-screenname', m.screenName));
+    const settings = settingsStore.get();
+    const account = getAccountFromScreenName(screenName);
 
-    if (newtoken !== '' && newtoken !== 'awaiting') {
-      store.set('usertoken', newtoken);
-      withLogParser(lp => lp.setPlayerId(store.get(newtoken, 'playerId'), store.get(newtoken, 'screenName')));
-      const userData: UserData = {mtgaId: m.playerId, mtgaNick: m.screenName, language: m.language, token: newtoken};
+    withMainWindow(w => w.webContents.send('set-screenname', screenName));
+
+    // If account is defined, it enforces that awaiting is undefined, because account has a screenName
+    if (account !== undefined && account.player) {
+      settings.userToken = account.token;
+      const lp = getLogParser();
+      if (lp) {
+        lp.setPlayerId(account.player.playerId, account.player.screenName);
+      }
+      const userData: UserData = {
+        mtgaId: playerId,
+        mtgaNick: screenName,
+        language,
+        token: account.token,
+      };
       const version = app.getVersion();
       setuserdata(userData, version).catch(err => error('', err, {...userData, version}));
       setCreds('userchange');
     } else {
       withMainWindow(w => w.webContents.send('new-account'));
-      store.set('awaiting', m.playerId, 'playerId');
-      store.set('awaiting', m.screenName, 'screenName');
-      store.set('awaiting', m.language, 'language');
+      settings.awaiting = {playerId, screenName, language};
     }
+
+    settingsStore.save();
   });
 
-  if (!parseOnce && store.get('overlay')) {
+  if (!parseOnce && settingsStore.get().overlay) {
     logParser.emitter.on('match-started', msg => {
-      withOverlayWindow(w =>
-        w.webContents.send('match-started', {matchId: msg, uid: store.get(store.get('usertoken'), 'uid')})
-      );
+      const account = settingsStore.getAccount();
+      if (account) {
+        withOverlayWindow(w => w.webContents.send('match-started', {matchId: msg, uid: account.uid}));
+      }
     });
   }
 

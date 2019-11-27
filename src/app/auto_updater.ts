@@ -4,7 +4,7 @@ import path from 'path';
 
 import {getAppIcon} from 'root/app/app_icon';
 import {withMainWindow} from 'root/app/main_window';
-import {store} from 'root/main';
+import {settingsStore} from 'root/lib/settings_store';
 
 let waitingToUpdate = false;
 const UpdateTimeout = 600000;
@@ -24,7 +24,7 @@ export function setupAutoUpdater(): void {
   if (!isDev) {
     const server = 'https://update.electronjs.org';
     const feed = `${server}/Razviar/mtgap/${process.platform}-${process.arch}/${app.getVersion()}`;
-    const manualupdate = store.get('manualupdate');
+    const manualupdate = settingsStore.get().manualUpdate;
 
     autoUpdater.setFeedURL({url: feed});
     autoUpdater.on('update-not-available', () => {

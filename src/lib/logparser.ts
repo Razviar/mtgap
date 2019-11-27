@@ -4,9 +4,10 @@ import Emittery from 'emittery';
 import fs from 'fs';
 import path from 'path';
 import readline from 'readline';
+import {Cut, findLastIndex, substrcount} from './func';
+
 import {getindicators} from 'root/api/getindicators';
 import {Indicators, ParseResults} from 'root/models/indicators';
-import {Cut, findLastIndex, substrcount} from './func';
 
 export class LogParser {
   private readonly path: string;

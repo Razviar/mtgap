@@ -3,29 +3,33 @@ import path from 'path';
 
 import {setuserdata, UserData} from 'root/api/userbytokenid';
 import {loadAppIcon} from 'root/app/app_icon';
-import {setAccounts} from 'root/app/auth';
+import {sendSettingsToRenderer} from 'root/app/auth';
 import {disableAutoLauncher, enableAutoLauncher} from 'root/app/auto_launcher';
 import {checkForUpdates, quitAndInstall} from 'root/app/auto_updater';
 import {withMainWindow} from 'root/app/main_window';
 import {createLogParser, getLogParser, withLogParser} from 'root/lib/log_parser';
 import {error} from 'root/lib/logger';
-import {store} from 'root/main';
+import {Account, settingsStore} from 'root/lib/settings_store';
 
 export function setupIpcMain(app: App): void {
   ipcMain.on('token-input', (_, arg) => {
-    if (store.get('usertoken') !== arg.token) {
-      store.set('usertoken', arg.token);
-      store.set(arg.token, arg.uid, 'uid');
-      store.set(arg.token, arg.token, 'token');
-      store.set(arg.token, arg.nick, 'nick');
-      store.set(arg.token, false, 'overlay');
+    const settings = settingsStore.get();
+    if (settings.userToken !== arg.token) {
+      // Setting new account
+      settings.userToken = arg.token;
+      settingsStore.removeAccount(arg.token);
+      const newAccount: Account = {
+        uid: arg.uid,
+        token: arg.token,
+        nick: arg.nick,
+        overlay: false,
+      };
+      settings.accounts.push(newAccount);
 
-      const awaiting = store.getsettings('awaiting');
+      const awaiting = settingsStore.get().awaiting;
       if (awaiting) {
         withLogParser(logParser => logParser.setPlayerId(awaiting.playerId, awaiting.screenName));
-        store.set(arg.token, awaiting.playerId, 'playerId');
-        store.set(arg.token, awaiting.screenName, 'screenName');
-        store.set(arg.token, awaiting.language, 'language');
+        newAccount.player = awaiting;
 
         const userData: UserData = {
           mtgaId: awaiting.playerId,
@@ -33,19 +37,25 @@ export function setupIpcMain(app: App): void {
           language: awaiting.language,
           token: arg.token,
         };
+
         const version = app.getVersion();
         setuserdata(userData, version).catch(err => {
           error('Failure to set user data after a token-input event', err, {...userData, version});
         });
-        store.unset('awaiting', 'x', true);
+
+        settings.awaiting = undefined;
       }
+
+      // Don't forget to save on disk
+      settingsStore.save();
     }
   });
 
   ipcMain.on('minimize-me', () => withMainWindow(w => w.minimize()));
 
   ipcMain.on('set-setting', (_, arg) => {
-    store.set(arg.setting, arg.data);
+    settingsStore.set(arg.settings);
+    // store.set(arg.setting, arg.data);
     switch (arg.setting) {
       case 'autorun':
         if (arg.data) {
@@ -71,17 +81,29 @@ export function setupIpcMain(app: App): void {
   });
 
   ipcMain.on('kill-current-token', () => {
-    const awaiting = store.getsettings(store.get('usertoken'));
-    store.set('awaiting', awaiting.playerId, 'playerId');
-    store.set('awaiting', awaiting.screenName, 'screenName');
-    store.set('awaiting', awaiting.language, 'language');
-    store.unset(store.get('usertoken'), 'x', true);
-    store.unset('usertoken');
+    const settings = settingsStore.get();
+    const session = settingsStore.getAccount();
+    if (!session) {
+      return;
+    }
+
+    const player = session.player;
+    if (!player) {
+      return;
+    }
+
+    settings.awaiting = player;
+    settings.userToken = undefined;
+    settingsStore.removeAccount(session.token);
+
+    settingsStore.save();
+
     withLogParser(logParser => {
       logParser.stop();
       withMainWindow(w => w.webContents.send('new-account'));
     });
-    setAccounts();
+
+    sendSettingsToRenderer();
   });
 
   ipcMain.on('set-log-path', (_, arg) => {
@@ -89,7 +111,8 @@ export function setupIpcMain(app: App): void {
       .showOpenDialog({properties: ['openFile'], filters: [{name: 'output_*', extensions: ['txt']}]})
       .then(log => {
         if (!log.canceled && log.filePaths[0]) {
-          store.set('logpath', log.filePaths[0]);
+          settingsStore.get().logPath = log.filePaths[0];
+          settingsStore.save();
           withMainWindow(w =>
             w.webContents.send('showprompt', {message: 'Log path have been updated!', autoclose: 1000})
           );
@@ -97,14 +120,15 @@ export function setupIpcMain(app: App): void {
             logParser.stop();
             createLogParser();
           });
-          setAccounts();
+          sendSettingsToRenderer();
         }
       })
       .catch(err => error('Error while showing open file dialog during set-log-path event', err));
   });
 
   ipcMain.on('default-log-path', (_, arg) => {
-    store.unset('logpath');
+    settingsStore.get().logPath = undefined;
+    settingsStore.save();
     withLogParser(logParser => {
       withMainWindow(w =>
         w.webContents.send('showprompt', {message: 'Log path have been set to default!', autoclose: 1000})
@@ -112,7 +136,7 @@ export function setupIpcMain(app: App): void {
       logParser.stop();
       createLogParser();
     });
-    setAccounts();
+    sendSettingsToRenderer();
   });
 
   const ParseOldLogs = (logs: string[], index: number) => {
@@ -151,7 +175,7 @@ export function setupIpcMain(app: App): void {
   });
 
   ipcMain.on('wipe-all', (_, arg) => {
-    store.wipe();
+    settingsStore.wipe();
     withLogParser(logParser => {
       withMainWindow(w =>
         w.webContents.send('showprompt', {
@@ -162,7 +186,7 @@ export function setupIpcMain(app: App): void {
       logParser.stop();
       logParser = createLogParser();
     });
-    setAccounts();
+    sendSettingsToRenderer();
   });
 
   ipcMain.on('check-updates', (_, arg) => {

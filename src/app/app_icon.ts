@@ -1,8 +1,8 @@
+import {settingsStore} from 'root/lib/settings_store';
 import {asMap, asString} from 'root/lib/type_utils';
-import {store} from 'root/main';
 
 // tslint:disable-next-line:no-any
-function loadAppIconInternal(type: string): any {
+function loadAppIconInternal(type: string | undefined): any {
   // tslint:disable:no-require-imports
   if (type === '') {
     return require('root/statics/icon.ico');
@@ -23,7 +23,7 @@ function loadAppIconInternal(type: string): any {
   // tslint:enable:no-require-imports
 }
 
-export function loadAppIcon(type: string): string {
+export function loadAppIcon(type: string | undefined): string {
   return asString(asMap(loadAppIconInternal(type), {}).default, '');
 }
 
@@ -31,7 +31,7 @@ let appIcon: string | undefined;
 
 export function getAppIcon(): string {
   if (appIcon === undefined) {
-    appIcon = loadAppIcon(store.get('icon'));
+    appIcon = loadAppIcon(settingsStore.get().icon);
   }
   return appIcon;
 }
