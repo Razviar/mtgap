@@ -1,8 +1,8 @@
-import { Card } from './cards';
-import { getMetadata } from 'root/api/overlay';
+import {getMetadata} from 'root/api/overlay';
+import {Card} from 'root/models/cards';
 
 export interface Metadata {
-  exps: { [index: number]: { code: string; currentstandard: number; name: string } };
+  exps: {[index: number]: {code: string; currentstandard: number; name: string}};
   expsorder: number[];
   formats: {
     ClosedTime: number;
@@ -19,17 +19,17 @@ export interface Metadata {
   };
   datefilters: number[];
   datefilterlabels: string[];
-  types: { id: number; is_creature: number; name: string; parent_id: number }[];
-  archetypes: { id: number; name: string; supertype: number }[];
-  allcards: { [index: number]: Card };
-  trackerver: { version: number; date: number };
+  types: {id: number; is_creature: number; name: string; parent_id: number}[];
+  archetypes: {id: number; name: string; supertype: number}[];
+  allcards: {[index: number]: Card};
+  trackerver: {version: number; date: number};
   headerbanners: string[];
 }
 
 export interface UserMetadata {
   user: Userdata;
-  collection: { [index: number]: { [index: string]: string } };
-  usercapabilities: { [index: string]: boolean };
+  collection: {[index: number]: {[index: string]: string}};
+  usercapabilities: {[index: string]: boolean};
 }
 
 export interface Userdata {

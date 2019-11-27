@@ -1,8 +1,8 @@
-import { screen } from 'electron';
 import activeWin from 'active-win';
+import {screen} from 'electron';
 
 export class WindowLocator {
-  public bounds: { x: number; y: number; width: number; height: number } = { x: 0, y: 0, width: 0, height: 0 };
+  public bounds: {x: number; y: number; width: number; height: number} = {x: 0, y: 0, width: 0, height: 0};
 
   public findmtga(pid: number) {
     const scaleFactor = screen.getPrimaryDisplay().scaleFactor;

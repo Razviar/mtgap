@@ -104,7 +104,7 @@ export interface CardRequestFilters {
 
 export interface CardFilterReq {
   direct: number;
-  filter: { [index: string]: string[] | number[] };
+  filter: {[index: string]: string[] | number[]};
   lib: number;
   limit: number;
   page: number;

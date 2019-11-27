@@ -1,15 +1,15 @@
+import {format} from 'date-fns';
 import electron from 'electron';
-import path from 'path';
-import fs from 'fs';
-import readline from 'readline';
-import { Indicators, ParseResults } from 'root/models/indicators';
-import { getindicators } from 'root/api/getindicators';
-import { substrcount, Cut, findLastIndex } from './func';
 import Emittery from 'emittery';
-import { format } from 'date-fns';
+import fs from 'fs';
+import path from 'path';
+import readline from 'readline';
+import {getindicators} from 'root/api/getindicators';
+import {Indicators, ParseResults} from 'root/models/indicators';
+import {Cut, findLastIndex, substrcount} from './func';
 
 export class LogParser {
-  private path: string;
+  private readonly path: string;
   private indicators: Indicators[] = [];
   /*private dateformats: { [index: string]: string } = {};
   private userlang = 'English';*/
@@ -19,7 +19,7 @@ export class LogParser {
   private strdate: number = 0;
   /*private strdateUnparsed: string = '';
   private dateregexp: RegExp = /[\d]{1,2}[:./ ]{1,2}[\d]{1,2}/gm;*/
-  private timestampregexp: RegExp = /"timestamp": "([\d]{18})"/m;
+  private readonly timestampregexp: RegExp = /"timestamp": "([\d]{18})"/m;
   private nowWriting: number = 0;
   private results: ParseResults[] = [];
   private logsdisabled: boolean = false;
@@ -28,14 +28,14 @@ export class LogParser {
   private firstread: boolean = true;
   //private watcher: chokidar.FSWatcher;
   private watcher: NodeJS.Timeout | undefined;
-  private parseOnce: boolean = false;
-  private newPlayerData: {
+  private readonly parseOnce: boolean = false;
+  private readonly newPlayerData: {
     playerId: string;
     screenName: string;
     language: string;
-  } = { playerId: '', screenName: '', language: '' };
+  } = {playerId: '', screenName: '', language: ''};
   private currentMatchId: string = '';
-  private doppler: { [index: number]: { [index: number]: number } } = {};
+  private readonly doppler: {[index: number]: {[index: number]: number}} = {};
 
   public emitter = new Emittery();
 
@@ -105,7 +105,7 @@ export class LogParser {
   public checkLog(pth: string, stats: fs.Stats | undefined, source?: string) {
     //console.log(pth + '///' + this.loglen + '///' + this.skiplines);
     const LoginIndicator = 21;
-    let brackets = { curly: 0, squared: 0 };
+    let brackets = {curly: 0, squared: 0};
     let linesread = 0;
     let skip = this.skiplines;
 
@@ -145,7 +145,7 @@ export class LogParser {
 
       const tstfinder = line.match(this.timestampregexp);
       if (tstfinder) {
-        const epoch: number = 621355968000000000;
+        const epoch = 621355968000000000;
         const ticks = 10000;
         const tst: number = Math.floor((parseInt(tstfinder[1], 10) - epoch) / ticks);
         this.strdate = tst;
@@ -400,7 +400,7 @@ export class LogParser {
   }*/
 
   private checkjson(line: string): boolean {
-    const brackets = { curly: 0, squared: 0 };
+    const brackets = {curly: 0, squared: 0};
     brackets.curly = brackets.curly + substrcount(line, '{') - substrcount(line, '}');
 
     brackets.squared = brackets.squared + substrcount(line, '[') - substrcount(line, ']');
@@ -412,7 +412,7 @@ export class LogParser {
     }
   }
 
-  private bracketeer(line: string, brackets: { curly: number; squared: number }) {
+  private bracketeer(line: string, brackets: {curly: number; squared: number}) {
     brackets.curly = brackets.curly + substrcount(line, '{') - substrcount(line, '}');
 
     brackets.squared = brackets.squared + substrcount(line, '[') - substrcount(line, ']');
@@ -420,7 +420,7 @@ export class LogParser {
     return brackets;
   }
 
-  private writing(line: string, brackets: { curly: number; squared: number }) {
+  private writing(line: string, brackets: {curly: number; squared: number}) {
     if (line.trim() === '') {
       return brackets;
     }
@@ -443,7 +443,7 @@ export class LogParser {
           uid: this.newPlayerData.playerId,
           matchId: this.currentMatchId,
         });
-        return this.bracketeer(line, { curly: 0, squared: 0 });
+        return this.bracketeer(line, {curly: 0, squared: 0});
       }
     } else {
       this.results.push({
@@ -453,14 +453,14 @@ export class LogParser {
         uid: this.newPlayerData.playerId,
         matchId: this.currentMatchId,
       });
-      return this.bracketeer(line, { curly: 0, squared: 0 });
+      return this.bracketeer(line, {curly: 0, squared: 0});
     }
   }
 
   private writingSingleLine(line: string, indicator: string, doppler: number) {
     const pos = line.indexOf(indicator, doppler);
     const workingline = line.substring(pos + indicator.length);
-    const brackets = { curly: 0, squared: 0 };
+    const brackets = {curly: 0, squared: 0};
     let result = '';
     let i = 0;
 
@@ -505,6 +505,6 @@ export class LogParser {
       i++;
     }
 
-    return { result, dopler: line.indexOf(indicator, doppler) + indicator.length + i };
+    return {result, dopler: line.indexOf(indicator, doppler) + indicator.length + i};
   }
 }

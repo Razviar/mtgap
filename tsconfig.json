@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
     "moduleResolution": "Node",
+    "allowSyntheticDefaultImports": true,
+    "downlevelIteration": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
     "lib": ["es6", "dom"],
     "target": "es6",
     "sourceMap": true,
@@ -14,8 +18,6 @@
     "noEmit": true,
     "traceResolution": false,
     "strict": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
     "resolveJsonModule": true,
     "esModuleInterop": true
   },

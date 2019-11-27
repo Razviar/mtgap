@@ -1,6 +1,7 @@
 // tslint:disable: no-any
-import { ipcRenderer, shell } from 'electron';
-import { tokenrequest, tokencheck, userbytokenid } from 'root/api/userbytokenid';
+import {ipcRenderer, shell} from 'electron';
+
+import {tokencheck, tokenrequest, userbytokenid} from 'root/api/userbytokenid';
 // tslint:disable: no-import-side-effect
 import 'root/windows/home/home.css';
 import 'root/windows/home/icons.css';
@@ -38,7 +39,7 @@ const ShowPrompt = (message: string, autohide: number = 0) => {
   }
 };
 
-let currentMtgaNick: string = '';
+let currentMtgaNick = '';
 
 ipcRenderer.on('set-screenname', (e, arg) => {
   UserCredentials.innerHTML = `MTGA nick: <strong>${arg}</strong>`;
@@ -230,7 +231,7 @@ const settingsChecker = (event: any) => {
       ? event.target.value
       : '';
   //console.log(event.target.tagName);
-  ipcRenderer.send('set-setting', { setting, data });
+  ipcRenderer.send('set-setting', {setting, data});
 };
 
 const login = (token: string, uid: number, nick: string, source?: string) => {
