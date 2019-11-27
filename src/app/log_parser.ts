@@ -39,10 +39,7 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
     if (datasending.length > 0) {
       const userToken = settingsStore.get().userToken;
       if (userToken !== undefined && userToken.includes('SKIPPING')) {
-        sendMessageToHomeWindow('show-status', {
-          color: '#dbb63d',
-          message: 'Skipping this account...',
-        });
+        sendMessageToHomeWindow('show-status', {message: 'Skipping this account...', color: '#dbb63d'});
         return;
       }
       const version = app.getVersion();
@@ -51,10 +48,7 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
           if (!res) {
             withLogParser(lp => lp.stop());
             connectionWaiter(1000);
-            sendMessageToHomeWindow('show-status', {
-              color: '#cc2d2d',
-              message: 'Connection Error',
-            });
+            sendMessageToHomeWindow('show-status', {message: 'Connection Error', color: '#cc2d2d'});
           }
         })
         .catch(err => error('Failure to upload parsed log data!', err, {version}));
@@ -73,17 +67,11 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
     if (msg === 'Connection Error') {
       connectionWaiter(1000);
     }
-    sendMessageToHomeWindow('show-status', {
-      color: '#cc2d2d',
-      message: msg as string,
-    });
+    sendMessageToHomeWindow('show-status', {message: msg as string, color: '#cc2d2d'});
   });
 
   logParser.emitter.on('status', msg => {
-    sendMessageToHomeWindow('show-status', {
-      color: '#22a83a',
-      message: msg as string,
-    });
+    sendMessageToHomeWindow('show-status', {message: msg as string, color: '#22a83a'});
   });
 
   logParser.emitter.on('userchange', msg => {
@@ -92,10 +80,7 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
 
     const {playerId, screenName, language} = msg as Player;
 
-    sendMessageToHomeWindow('show-status', {
-      color: '#dbb63d',
-      message: 'New User Detected!',
-    });
+    sendMessageToHomeWindow('show-status', {message: 'New User Detected!', color: '#dbb63d'});
 
     const settings = settingsStore.get();
     const account = getAccountFromScreenName(screenName);

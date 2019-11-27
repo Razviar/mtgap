@@ -46,7 +46,6 @@ class SettingsStore {
 
   public save(): void {
     try {
-      console.log(this.data);
       writeFileSync(this.path, JSON.stringify(this.data));
     } catch (e) {
       error('SettingsStore.set', e);
@@ -130,7 +129,7 @@ function asPlayer(anyMap: AnyMap | undefined): Player | undefined {
   return {playerId, screenName, language};
 }
 
-function asAccount(anyMap: AnyMap): Account[] {
+function asAccountV0(anyMap: AnyMap): Account[] {
   const res: Account[] = [];
 
   for (const key of Object.keys(anyMap)) {
@@ -143,7 +142,11 @@ function asAccount(anyMap: AnyMap): Account[] {
     const token = asString(raw['token']);
     const nick = asString(raw['nick']);
     const overlay = asBoolean(raw['overlay']);
-    const player = asPlayer(asMap(raw['player']));
+    const player = asPlayer({
+      playerId: raw['playerId'],
+      screenName: raw['screenName'],
+      language: raw['language'],
+    });
 
     if (uid === undefined || token === undefined || nick === undefined || overlay === undefined) {
       continue;
@@ -158,7 +161,7 @@ function asAccount(anyMap: AnyMap): Account[] {
 function migrateV0toV1(v0: SettingsV0): SettingsV1 {
   return {
     version: Version.v1,
-    accounts: asAccount(asMap(v0['settings'], {})),
+    accounts: asAccountV0(asMap(v0['settings'], {})),
     userToken: asString(v0['usertoken']),
     icon: asString(v0['icon']),
     autorun: asBoolean(v0['autorun'], false),

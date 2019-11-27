@@ -45,7 +45,7 @@ export function setupIpcMain(app: App): void {
     }
   });
 
-  onMessageFromBrowserWindow('minimize-me', () => withHomeWindow(w => w.minimize()));
+  onMessageFromBrowserWindow('minimize-me', () => withHomeWindow(w => w.hide()));
 
   onMessageFromBrowserWindow('set-setting-autorun', newAutorun => {
     const settings = settingsStore.get();
@@ -57,6 +57,24 @@ export function setupIpcMain(app: App): void {
     } else {
       disableAutoLauncher();
     }
+  });
+
+  onMessageFromBrowserWindow('set-setting-minimized', newMinimized => {
+    const settings = settingsStore.get();
+    settings.minimized = newMinimized;
+    settingsStore.save();
+  });
+
+  onMessageFromBrowserWindow('set-setting-manualupdate', newManualUpdate => {
+    const settings = settingsStore.get();
+    settings.manualUpdate = newManualUpdate;
+    settingsStore.save();
+  });
+
+  onMessageFromBrowserWindow('set-setting-overlay', newOverlay => {
+    const settings = settingsStore.get();
+    settings.overlay = newOverlay;
+    settingsStore.save();
   });
 
   onMessageFromBrowserWindow('set-setting-icon', newIcon => {

@@ -2,19 +2,16 @@
 require('source-map-support').install();
 
 import {app} from 'electron';
-import isDev from 'electron-is-dev';
 
 import {sendSettingsToRenderer, setCreds} from 'root/app/auth';
 import {enableAutoLauncher} from 'root/app/auto_launcher';
-import {setupAutoUpdater, updateHunter} from 'root/app/auto_updater';
+import {setupAutoUpdater} from 'root/app/auto_updater';
 import {setupIpcMain} from 'root/app/ipc_main';
 import {createLogParser} from 'root/app/log_parser';
-import {createMainWindow, getMainWindow, withHomeWindow} from 'root/app/main_window';
+import {createMainWindow, withHomeWindow} from 'root/app/main_window';
 import {sendMessageToHomeWindow} from 'root/app/messages';
 import {setupProcessWatcher} from 'root/app/process_watcher';
 import {settingsStore} from 'root/app/settings_store';
-
-setupAutoUpdater();
 
 // tslint:disable-next-line: no-var-requires no-unsafe-any no-require-imports
 if (require('electron-squirrel-startup')) {
@@ -25,24 +22,22 @@ const processWatcherFn = setupProcessWatcher();
 const processWatcherFnInterval = 250;
 
 function recreateMainWindow(): void {
-  createMainWindow(() => {
-    createLogParser();
-    withHomeWindow(w => {
-      w.show();
-      w.webContents.on('did-finish-load', () => {
-        sendMessageToHomeWindow('set-version', app.getVersion());
-        setCreds('ready-to-show');
-        sendSettingsToRenderer();
-        if (!isDev) {
-          updateHunter();
-        }
-      });
-      if (settingsStore.get().minimized) {
-        w.minimize();
-      }
+  createMainWindow();
+  createLogParser();
+  withHomeWindow(w => {
+    if (settingsStore.get().minimized) {
+      w.hide();
+    } else if (!w.isVisible()) {
+      w.once('ready-to-show', () => w.show());
+    }
+    w.webContents.on('did-finish-load', () => {
+      sendMessageToHomeWindow('set-version', app.getVersion());
+      setCreds('ready-to-show');
+      sendSettingsToRenderer();
     });
-    setInterval(processWatcherFn, processWatcherFnInterval);
+    setupAutoUpdater();
   });
+  setInterval(processWatcherFn, processWatcherFnInterval);
 }
 
 const gotTheLock = app.requestSingleInstanceLock();
@@ -66,11 +61,12 @@ if (!gotTheLock) {
     }
   });
 
-  app.on('activate', () => {
-    if (!getMainWindow()) {
-      recreateMainWindow();
-    }
-  });
+  // ONLY FOR MAC
+  // app.on('activate', () => {
+  //   if (!getMainWindow()) {
+  //     recreateMainWindow();
+  //   }
+  // });
 }
 
 if (settingsStore.get().autorun) {

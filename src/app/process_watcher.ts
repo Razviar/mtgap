@@ -28,8 +28,7 @@ export const connectionWaiter = (timeout: number) => {
         }
         withLogParser(logParser => logParser.start());
       } else {
-        sendMessageToHomeWindow('show-status', {color: '#cc2d2d', message: 'Connection Error'});
-        sendMessageToHomeWindow('show-prompt', {message: 'Awaiting connection!', autoclose: 0});
+        sendMessageToHomeWindow('show-status', {message: 'Connection Error', color: '#cc2d2d'});
         setTimeout(() => {
           connectionWaiter(timeout + adder);
         }, timeout);
@@ -46,7 +45,7 @@ export function setupProcessWatcher(): () => void {
         MTGApid = res;
         overlayPositioner.findmtga(MTGApid);
         if (res === -1 && connWait.status) {
-          sendMessageToHomeWindow('show-status', {color: '#dbb63d', message: 'Game is not running!'});
+          sendMessageToHomeWindow('show-status', {message: 'Game is not running!', color: '#dbb63d'});
           withOverlayWindow(w => w.hide());
         } else if (res !== -1) {
           let overlayWindow = getOverlayWindow();

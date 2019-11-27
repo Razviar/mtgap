@@ -30,7 +30,7 @@ const settings = document.getElementsByClassName('settings');
 //const element = document.querySelector('.js-choice') as HTMLSelectElement;
 //const choices = new Choices(element, { searchEnabled: false });
 
-const ShowPrompt = (message: string, autohide: number = 0) => {
+const showPrompt = (message: string, autohide: number = 0) => {
   PromptWnd.style.display = 'block';
   PromptText.innerHTML = message;
   if (autohide > 0) {
@@ -122,7 +122,7 @@ onMessageFromIpcMain('set-settings', newSettings => {
 });
 
 onMessageFromIpcMain('show-prompt', arg => {
-  ShowPrompt(arg.message, arg.autoclose);
+  showPrompt(arg.message, arg.autoclose);
 });
 
 onMessageFromIpcMain('new-account', () => {
@@ -243,6 +243,15 @@ const settingsChecker = (event: any) => {
   //console.log(event.target.tagName);
   if (setting === 'autorun') {
     sendMessageToIpcMain('set-setting-autorun', event.target.checked);
+  }
+  if (setting === 'minimized') {
+    sendMessageToIpcMain('set-setting-minimized', event.target.checked);
+  }
+  if (setting === 'manualupdate') {
+    sendMessageToIpcMain('set-setting-manualupdate', event.target.checked);
+  }
+  if (setting === 'overlay') {
+    sendMessageToIpcMain('set-setting-overlay', event.target.checked);
   }
   if (setting === 'icon') {
     sendMessageToIpcMain('set-setting-icon', event.target.value);

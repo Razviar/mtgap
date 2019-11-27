@@ -27,5 +27,8 @@ export interface Messages {
   'set-version': string;
   'show-update-button': undefined;
   'set-setting-autorun': boolean;
+  'set-setting-minimized': boolean;
+  'set-setting-manualupdate': boolean;
+  'set-setting-overlay': boolean;
   'set-setting-icon': string;
 }

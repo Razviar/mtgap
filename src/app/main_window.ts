@@ -20,7 +20,7 @@ export function withHomeWindow(fn: (mainWindow: BrowserWindow) => void): void {
   fn(mainWindow);
 }
 
-export function createMainWindow(onceReadyToShow: (mainWindow: BrowserWindow) => void): void {
+export function createMainWindow(): void {
   const appIcoImg = nativeImage.createFromPath(path.join(__dirname, getAppIcon()));
   const appIcon = new Tray(appIcoImg);
 
@@ -45,21 +45,20 @@ export function createMainWindow(onceReadyToShow: (mainWindow: BrowserWindow) =>
     withHomeWindow(w => w.focus());
   });
 
-  mainWindow.loadURL(HOME_WINDOW_WEBPACK_ENTRY).catch(err =>
-    error('Failure to load url in main window', err, {
-      entry: HOME_WINDOW_WEBPACK_ENTRY,
-    })
-  );
   mainWindow.setMenuBarVisibility(false);
 
   mainWindow.on('closed', () => {
     mainWindow = undefined;
   });
 
-  mainWindow.once('ready-to-show', onceReadyToShow);
-
   mainWindow.on('minimize', (event: Electron.Event) => {
     event.preventDefault();
     withHomeWindow(w => w.hide());
   });
+
+  mainWindow.loadURL(HOME_WINDOW_WEBPACK_ENTRY).catch(err =>
+    error('Failure to load url in main window', err, {
+      entry: HOME_WINDOW_WEBPACK_ENTRY,
+    })
+  );
 }
