@@ -90,11 +90,11 @@ export const selectStyles = {
     borderRadius: '0',
     padding: '0',
   }),
-  option: (provided: any, state: any) => ({
-    ...provided,
-    backgroundColor: state.isSelected ? 'rgba(132,52,38,.9)' : state.isFocused ? '#a7695d' : '',
-    color: state.isFocused ? 'white' : '',
-  }),
+  // option: (provided: any, state: any) => ({
+  //   ...provided,
+  //   backgroundColor: state.isSelected ? 'rgba(132,52,38,.9)' : state.isFocused ? '#a7695d' : '',
+  //   color: state.isFocused ? 'white' : '',
+  // }),
   indicatorSeparator: () => ({
     display: 'none',
   }),

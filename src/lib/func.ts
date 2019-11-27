@@ -2,7 +2,7 @@
 // tslint:disable: no-magic-numbers
 // tslint:disable: no-any
 
-import { redgreen } from './utils';
+import {redgreen} from './utils';
 
 // tslint:disable-next-line no-any
 export function countOfObject(obj: any): number {
@@ -95,11 +95,7 @@ export function jsUcfirst(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-export function substrcount(
-  str: string,
-  subString: string,
-  allowOverlapping?: boolean
-) {
+export function substrcount(str: string, subString: string, allowOverlapping?: boolean) {
   str += '';
   subString += '';
   if (subString.length <= 0) {
@@ -122,12 +118,7 @@ export function substrcount(
   return n;
 }
 
-export function Cut(
-  str: string,
-  from: string,
-  to: string,
-  offset?: number
-): string {
+export function Cut(str: string, from: string, to: string, offset?: number): string {
   const startIndex = str.indexOf(from, offset);
   const endIndex = str.indexOf(to, startIndex + from.length);
   if (startIndex !== -1 && endIndex !== -1) {
@@ -138,10 +129,7 @@ export function Cut(
   }
 }
 
-export function findLastIndex<T>(
-  array: T[],
-  predicate: (value: T, index: number, obj: T[]) => boolean
-): number {
+export function findLastIndex<T>(array: T[], predicate: (value: T, index: number, obj: T[]) => boolean): number {
   let l = array.length;
   while (l--) {
     if (predicate(array[l], l, array)) {

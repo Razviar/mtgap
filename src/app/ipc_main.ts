@@ -1,133 +1,161 @@
-import {App, dialog, ipcMain, nativeImage} from 'electron';
-import path from 'path';
+import {App, dialog, nativeImage} from 'electron';
+import {join} from 'path';
 
 import {setuserdata, UserData} from 'root/api/userbytokenid';
 import {loadAppIcon} from 'root/app/app_icon';
-import {setAccounts} from 'root/app/auth';
+import {sendSettingsToRenderer} from 'root/app/auth';
 import {disableAutoLauncher, enableAutoLauncher} from 'root/app/auto_launcher';
 import {checkForUpdates, quitAndInstall} from 'root/app/auto_updater';
-import {withMainWindow} from 'root/app/main_window';
-import {createLogParser, getLogParser, withLogParser} from 'root/lib/log_parser';
+import {createLogParser, getLogParser, withLogParser} from 'root/app/log_parser';
+import {withHomeWindow} from 'root/app/main_window';
+import {onMessageFromBrowserWindow, sendMessageToHomeWindow} from 'root/app/messages';
+import {settingsStore} from 'root/app/settings_store';
 import {error} from 'root/lib/logger';
-import {store} from 'root/main';
 
 export function setupIpcMain(app: App): void {
-  ipcMain.on('token-input', (_, arg) => {
-    if (store.get('usertoken') !== arg.token) {
-      store.set('usertoken', arg.token);
-      store.set(arg.token, arg.uid, 'uid');
-      store.set(arg.token, arg.token, 'token');
-      store.set(arg.token, arg.nick, 'nick');
-      store.set(arg.token, false, 'overlay');
+  onMessageFromBrowserWindow('token-input', newAccount => {
+    const settings = settingsStore.get();
+    if (settings.userToken !== newAccount.token) {
+      settings.userToken = newAccount.token;
+      settingsStore.removeAccount(newAccount.token);
+      settings.accounts.push(newAccount);
 
-      const awaiting = store.getsettings('awaiting');
+      const awaiting = settingsStore.get().awaiting;
       if (awaiting) {
         withLogParser(logParser => logParser.setPlayerId(awaiting.playerId, awaiting.screenName));
-        store.set(arg.token, awaiting.playerId, 'playerId');
-        store.set(arg.token, awaiting.screenName, 'screenName');
-        store.set(arg.token, awaiting.language, 'language');
+        newAccount.player = awaiting;
 
         const userData: UserData = {
           mtgaId: awaiting.playerId,
           mtgaNick: awaiting.screenName,
           language: awaiting.language,
-          token: arg.token,
+          token: newAccount.token,
         };
+
         const version = app.getVersion();
         setuserdata(userData, version).catch(err => {
           error('Failure to set user data after a token-input event', err, {...userData, version});
         });
-        store.unset('awaiting', 'x', true);
+
+        settings.awaiting = undefined;
       }
+
+      // Don't forget to save on disk ;)
+      settingsStore.save();
     }
   });
 
-  ipcMain.on('minimize-me', () => withMainWindow(w => w.minimize()));
+  onMessageFromBrowserWindow('minimize-me', () => withHomeWindow(w => w.hide()));
 
-  ipcMain.on('set-setting', (_, arg) => {
-    store.set(arg.setting, arg.data);
-    switch (arg.setting) {
-      case 'autorun':
-        if (arg.data) {
-          enableAutoLauncher();
-        } else {
-          disableAutoLauncher();
-        }
-        break;
-      case 'icon':
-        withMainWindow(w => {
-          const icon = loadAppIcon(arg.data);
-          const newico = nativeImage.createFromPath(path.join(__dirname, icon));
-          w.Tray.setImage(newico);
-          w.setIcon(newico);
-        });
-        break;
-    }
-    /*if (arg) {
-      createOverlay();
+  onMessageFromBrowserWindow('set-setting-autorun', newAutorun => {
+    const settings = settingsStore.get();
+    settings.autorun = newAutorun;
+    settingsStore.save();
+
+    if (newAutorun) {
+      enableAutoLauncher();
     } else {
-      overlayWindow.hide();
-    }*/
+      disableAutoLauncher();
+    }
   });
 
-  ipcMain.on('kill-current-token', () => {
-    const awaiting = store.getsettings(store.get('usertoken'));
-    store.set('awaiting', awaiting.playerId, 'playerId');
-    store.set('awaiting', awaiting.screenName, 'screenName');
-    store.set('awaiting', awaiting.language, 'language');
-    store.unset(store.get('usertoken'), 'x', true);
-    store.unset('usertoken');
+  onMessageFromBrowserWindow('set-setting-minimized', newMinimized => {
+    const settings = settingsStore.get();
+    settings.minimized = newMinimized;
+    settingsStore.save();
+  });
+
+  onMessageFromBrowserWindow('set-setting-manualupdate', newManualUpdate => {
+    const settings = settingsStore.get();
+    settings.manualUpdate = newManualUpdate;
+    settingsStore.save();
+  });
+
+  onMessageFromBrowserWindow('set-setting-overlay', newOverlay => {
+    const settings = settingsStore.get();
+    settings.overlay = newOverlay;
+    settingsStore.save();
+  });
+
+  onMessageFromBrowserWindow('set-setting-icon', newIcon => {
+    const settings = settingsStore.get();
+    settings.icon = newIcon;
+    settingsStore.save();
+
+    withHomeWindow(w => {
+      const icon = loadAppIcon(newIcon);
+      const newico = nativeImage.createFromPath(join(__dirname, icon));
+      w.Tray.setImage(newico);
+      w.setIcon(newico);
+    });
+  });
+
+  onMessageFromBrowserWindow('kill-current-token', () => {
+    const settings = settingsStore.get();
+    const session = settingsStore.getAccount();
+    if (!session) {
+      return;
+    }
+
+    const player = session.player;
+    if (!player) {
+      return;
+    }
+
+    settings.awaiting = player;
+    settings.userToken = undefined;
+    settingsStore.removeAccount(session.token);
+
+    settingsStore.save();
+
     withLogParser(logParser => {
       logParser.stop();
-      withMainWindow(w => w.webContents.send('new-account'));
+      sendMessageToHomeWindow('new-account', undefined);
     });
-    setAccounts();
+
+    sendSettingsToRenderer();
   });
 
-  ipcMain.on('set-log-path', (_, arg) => {
+  onMessageFromBrowserWindow('set-log-path', () => {
     dialog
       .showOpenDialog({properties: ['openFile'], filters: [{name: 'output_*', extensions: ['txt']}]})
       .then(log => {
         if (!log.canceled && log.filePaths[0]) {
-          store.set('logpath', log.filePaths[0]);
-          withMainWindow(w =>
-            w.webContents.send('showprompt', {message: 'Log path have been updated!', autoclose: 1000})
-          );
+          settingsStore.get().logPath = log.filePaths[0];
+          settingsStore.save();
+          sendMessageToHomeWindow('show-prompt', {message: 'Log path have been updated!', autoclose: 1000});
           withLogParser(logParser => {
             logParser.stop();
             createLogParser();
           });
-          setAccounts();
+          sendSettingsToRenderer();
         }
       })
       .catch(err => error('Error while showing open file dialog during set-log-path event', err));
   });
 
-  ipcMain.on('default-log-path', (_, arg) => {
-    store.unset('logpath');
+  onMessageFromBrowserWindow('default-log-path', () => {
+    settingsStore.get().logPath = undefined;
+    settingsStore.save();
     withLogParser(logParser => {
-      withMainWindow(w =>
-        w.webContents.send('showprompt', {message: 'Log path have been set to default!', autoclose: 1000})
-      );
+      sendMessageToHomeWindow('show-prompt', {message: 'Log path have been set to default!', autoclose: 1000});
       logParser.stop();
       createLogParser();
     });
-    setAccounts();
+    sendSettingsToRenderer();
   });
 
   const ParseOldLogs = (logs: string[], index: number) => {
-    withMainWindow(w =>
-      w.webContents.send('showprompt', {
-        message: `Parsing old log: ${index + 1}/${logs.length}`,
-        autoclose: 0,
-      })
-    );
+    sendMessageToHomeWindow('show-prompt', {
+      message: `Parsing old log: ${index + 1}/${logs.length}`,
+      autoclose: 0,
+    });
     if (getLogParser() !== undefined) {
       const parseOnce = createLogParser(logs[index], true);
       parseOnce.start();
       parseOnce.emitter.on('old-log-complete', () => {
         if (index + 1 === logs.length) {
-          withMainWindow(w => w.webContents.send('showprompt', {message: 'Parsing complete!', autoclose: 1000}));
+          sendMessageToHomeWindow('show-prompt', {message: 'Parsing complete!', autoclose: 1000});
         } else {
           ParseOldLogs(logs, index + 1);
         }
@@ -135,7 +163,7 @@ export function setupIpcMain(app: App): void {
     }
   };
 
-  ipcMain.on('old-log', (_, arg) => {
+  onMessageFromBrowserWindow('old-log', () => {
     dialog
       .showOpenDialog({
         properties: ['openFile', 'multiSelections'],
@@ -150,30 +178,29 @@ export function setupIpcMain(app: App): void {
       .catch(err => error('Error while showing open file dialog during old-log-path event', err));
   });
 
-  ipcMain.on('wipe-all', (_, arg) => {
-    store.wipe();
+  onMessageFromBrowserWindow('wipe-all', () => {
+    settingsStore.wipe();
     withLogParser(logParser => {
-      withMainWindow(w =>
-        w.webContents.send('showprompt', {
-          message: 'All settings have been wiped',
-          autoclose: 1000,
-        })
-      );
+      sendMessageToHomeWindow('show-prompt', {
+        message: 'All settings have been wiped',
+        autoclose: 1000,
+      });
+
       logParser.stop();
       logParser = createLogParser();
     });
-    setAccounts();
+    sendSettingsToRenderer();
   });
 
-  ipcMain.on('check-updates', (_, arg) => {
+  onMessageFromBrowserWindow('check-updates', () => {
     checkForUpdates();
   });
 
-  ipcMain.on('stop-tracker', (_, arg) => {
+  onMessageFromBrowserWindow('stop-tracker', () => {
     app.quit();
   });
 
-  ipcMain.on('apply-update', () => {
+  onMessageFromBrowserWindow('apply-update', () => {
     quitAndInstall();
   });
 }

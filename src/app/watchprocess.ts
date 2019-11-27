@@ -1,7 +1,7 @@
 import psList from 'ps-list';
 
 export class ProcessWatcher {
-  private pname: string;
+  private readonly pname: string;
 
   constructor(processname: string) {
     this.pname = processname;

@@ -1,5 +1,5 @@
+import {AxiosResponse, Request} from 'root/app/request';
 import {error} from 'root/lib/logger';
-import {AxiosResponse, Request} from 'root/lib/request';
 import {asArray, asMap, asString, asStringMap, removeUndefined} from 'root/lib/type_utils';
 import {Indicators} from 'root/models/indicators';
 

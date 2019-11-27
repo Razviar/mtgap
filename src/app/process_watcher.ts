@@ -1,13 +1,14 @@
-import {App, app} from 'electron';
+import {app} from 'electron';
 
-import {withMainWindow} from 'root/app/main_window';
+import {ConnectionWaiter} from 'root/app/connection_waiter';
+import {WindowLocator} from 'root/app/locatewindow';
+import {withLogParser} from 'root/app/log_parser';
+import {withHomeWindow} from 'root/app/main_window';
+import {sendMessageToHomeWindow} from 'root/app/messages';
 import {createOverlayWindow, getOverlayWindow, withOverlayWindow} from 'root/app/overlay_window';
-import {ConnectionWaiter} from 'root/lib/connection_waiter';
-import {WindowLocator} from 'root/lib/locatewindow';
-import {withLogParser} from 'root/lib/log_parser';
+import {settingsStore} from 'root/app/settings_store';
+import {ProcessWatcher} from 'root/app/watchprocess';
 import {error} from 'root/lib/logger';
-import {ProcessWatcher} from 'root/lib/watchprocess';
-import {store} from 'root/main';
 
 let MTGApid = -1;
 const MovementSensetivity = 5;
@@ -23,18 +24,11 @@ export const connectionWaiter = (timeout: number) => {
     .then(res => {
       if (res) {
         if (timeout > 1000) {
-          withMainWindow(w => w.webContents.send('showprompt', {message: 'Connection established', autoclose: 1000}));
+          sendMessageToHomeWindow('show-prompt', {message: 'Connection established', autoclose: 1000});
         }
-        //console.log('COnnection Restored');
         withLogParser(logParser => logParser.start());
       } else {
-        withMainWindow(w => {
-          w.webContents.send('show-status', {
-            color: '#cc2d2d',
-            message: 'Connection Error',
-          });
-          w.webContents.send('showprompt', {message: 'Awaiting connection!', autoclose: 0});
-        });
+        sendMessageToHomeWindow('show-status', {message: 'Connection Error', color: '#cc2d2d'});
         setTimeout(() => {
           connectionWaiter(timeout + adder);
         }, timeout);
@@ -51,19 +45,14 @@ export function setupProcessWatcher(): () => void {
         MTGApid = res;
         overlayPositioner.findmtga(MTGApid);
         if (res === -1 && connWait.status) {
-          withMainWindow(w =>
-            w.webContents.send('show-status', {
-              color: '#dbb63d',
-              message: 'Game is not running!',
-            })
-          );
+          sendMessageToHomeWindow('show-status', {message: 'Game is not running!', color: '#dbb63d'});
           withOverlayWindow(w => w.hide());
         } else if (res !== -1) {
           let overlayWindow = getOverlayWindow();
           if (!overlayWindow) {
             overlayWindow = createOverlayWindow();
           }
-          if (store.get('overlay')) {
+          if (settingsStore.get().overlay) {
             if (
               overlayPositioner.bounds.width !== 0 &&
               (Math.abs(overlayWindow.getBounds().x - overlayPositioner.bounds.x) > MovementSensetivity ||
@@ -87,7 +76,7 @@ export function setupProcessWatcher(): () => void {
           }
         }
       })
-      .catch(err => error('Process watcher failed while checked for the process', err));
+      .catch(_ => {});
   };
 
   return processWatcherFn;

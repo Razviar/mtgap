@@ -1,4 +1,4 @@
-import {App, BrowserWindow, nativeImage, Tray} from 'electron';
+import {BrowserWindow, nativeImage, Tray} from 'electron';
 import electronIsDev from 'electron-is-dev';
 import path from 'path';
 
@@ -13,14 +13,14 @@ export function getMainWindow(): BrowserWindow | undefined {
   return mainWindow;
 }
 
-export function withMainWindow(fn: (mainWindow: BrowserWindow) => void): void {
+export function withHomeWindow(fn: (mainWindow: BrowserWindow) => void): void {
   if (mainWindow === undefined) {
     return;
   }
   fn(mainWindow);
 }
 
-export function createMainWindow(onceReadyToShow: (mainWindow: BrowserWindow) => void): void {
+export function createMainWindow(): void {
   const appIcoImg = nativeImage.createFromPath(path.join(__dirname, getAppIcon()));
   const appIcon = new Tray(appIcoImg);
 
@@ -41,8 +41,19 @@ export function createMainWindow(onceReadyToShow: (mainWindow: BrowserWindow) =>
 
   appIcon.setContextMenu(createContextMenuForMainWindow(mainWindow));
   appIcon.on('double-click', () => {
-    withMainWindow(w => w.show());
-    withMainWindow(w => w.focus());
+    withHomeWindow(w => w.show());
+    withHomeWindow(w => w.focus());
+  });
+
+  mainWindow.setMenuBarVisibility(false);
+
+  mainWindow.on('closed', () => {
+    mainWindow = undefined;
+  });
+
+  mainWindow.on('minimize', (event: Electron.Event) => {
+    event.preventDefault();
+    withHomeWindow(w => w.hide());
   });
 
   mainWindow.loadURL(HOME_WINDOW_WEBPACK_ENTRY).catch(err =>
@@ -50,16 +61,4 @@ export function createMainWindow(onceReadyToShow: (mainWindow: BrowserWindow) =>
       entry: HOME_WINDOW_WEBPACK_ENTRY,
     })
   );
-  mainWindow.setMenuBarVisibility(false);
-
-  mainWindow.on('closed', () => {
-    mainWindow = undefined;
-  });
-
-  mainWindow.once('ready-to-show', onceReadyToShow);
-
-  mainWindow.on('minimize', function(event: any) {
-    event.preventDefault();
-    withMainWindow(w => w.hide());
-  });
 }

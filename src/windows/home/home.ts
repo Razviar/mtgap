@@ -1,10 +1,11 @@
 // tslint:disable: no-any
-import {ipcRenderer, shell} from 'electron';
+import {shell} from 'electron';
 
 import {tokencheck, tokenrequest, userbytokenid} from 'root/api/userbytokenid';
 // tslint:disable: no-import-side-effect
 import 'root/windows/home/home.css';
 import 'root/windows/home/icons.css';
+import {onMessageFromIpcMain, sendMessageToIpcMain} from 'root/windows/messages';
 //import Choices from 'choices.js';
 
 const TokenResponse = document.getElementById('TokenResponse') as HTMLElement;
@@ -29,7 +30,7 @@ const settings = document.getElementsByClassName('settings');
 //const element = document.querySelector('.js-choice') as HTMLSelectElement;
 //const choices = new Choices(element, { searchEnabled: false });
 
-const ShowPrompt = (message: string, autohide: number = 0) => {
+const showPrompt = (message: string, autohide: number = 0) => {
   PromptWnd.style.display = 'block';
   PromptText.innerHTML = message;
   if (autohide > 0) {
@@ -41,64 +42,64 @@ const ShowPrompt = (message: string, autohide: number = 0) => {
 
 let currentMtgaNick = '';
 
-ipcRenderer.on('set-screenname', (e, arg) => {
-  UserCredentials.innerHTML = `MTGA nick: <strong>${arg}</strong>`;
-  currentMtgaNick = arg;
+onMessageFromIpcMain('set-screenname', screenName => {
+  UserCredentials.innerHTML = `MTGA nick: <strong>${screenName}</strong>`;
+  currentMtgaNick = screenName;
 });
 
-ipcRenderer.on('set-creds', (e, arg) => {
+onMessageFromIpcMain('set-creds', creds => {
   //console.log(arg.source);
   const unhide = document.querySelector('[data-button="unskip-acc"]') as HTMLElement;
-  if (arg.nick !== 'Skipping') {
-    login(arg.token, arg.uid, arg.nick, 'set-creds');
+  if (creds.account.nick !== 'Skipping') {
+    login(creds.account.token, creds.account.uid, creds.account.nick, 'set-creds');
     unhide.classList.add('hidden');
   } else {
     unhide.classList.remove('hidden');
   }
 });
 
-ipcRenderer.on('set-settings', (e, arg) => {
+onMessageFromIpcMain('set-settings', newSettings => {
   //const setters = ['autorun', 'minimized', 'logpath'];
-  if (arg.autorun) {
+  if (newSettings.autorun) {
     const sw = document.querySelector('[data-setting="autorun"]') as HTMLInputElement;
-    sw.checked = arg.autorun;
+    sw.checked = newSettings.autorun;
   }
 
-  if (arg.minimized) {
+  if (newSettings.minimized) {
     const sw = document.querySelector('[data-setting="minimized"]') as HTMLInputElement;
-    sw.checked = arg.minimized;
+    sw.checked = newSettings.minimized;
   }
 
-  if (arg.manualupdate) {
+  if (newSettings.manualUpdate) {
     const sw = document.querySelector('[data-setting="manualupdate"]') as HTMLInputElement;
-    sw.checked = arg.manualupdate;
+    sw.checked = newSettings.manualUpdate;
   }
 
-  if (arg.logpath) {
+  if (newSettings.logPath !== undefined) {
     const sw = document.getElementById('CurrentLogPath') as HTMLElement;
-    sw.innerHTML = `<strong>${arg.logpath}</strong>`;
+    sw.innerHTML = `<strong>${newSettings.logPath}</strong>`;
   } else {
     const sw = document.getElementById('CurrentLogPath') as HTMLElement;
     sw.innerHTML = '<strong>Default</strong>';
   }
 
-  if (arg.icon) {
+  if (newSettings.icon !== undefined) {
     const sw = document.querySelector('[data-setting="icon"]') as HTMLSelectElement;
     const opts = sw.options;
-    sw.selectedIndex = Array.from(opts).findIndex(opt => opt.value === arg.icon);
+    sw.selectedIndex = Array.from(opts).findIndex(opt => opt.value === newSettings.icon);
   }
 });
 
-ipcRenderer.on('set-version', (e, arg) => {
-  AppVersion.innerHTML = arg;
+onMessageFromIpcMain('set-version', version => {
+  AppVersion.innerHTML = version;
 });
 
-ipcRenderer.on('show-status', (e, arg) => {
+onMessageFromIpcMain('show-status', arg => {
   StatusMessage.innerHTML = arg.message;
   StatusMessage.style.color = arg.color;
 });
 
-ipcRenderer.on('set-accounts', (e, arg) => {
+onMessageFromIpcMain('set-settings', newSettings => {
   let output = `<div class="table"><div class='row'>
     <div class='cell header white'><strong>Nick</strong></div>
     <div class='cell header white'><strong>MTGA nick</strong></div>
@@ -106,13 +107,12 @@ ipcRenderer.on('set-accounts', (e, arg) => {
     <div class='cell header white'><strong>Token</strong></div>
     <div class='cell header white'><strong>Actions</strong></div>
     </div>`;
-  Object.keys(arg).forEach(val => {
-    const settingsData = arg[val];
+  newSettings.accounts.forEach(account => {
     output += `<div class='row'>
-      <div class='cell'><strong class="white">${settingsData.nick}</strong></div>
-      <div class='cell'>${settingsData.screenName}</div>
-      <div class='cell'>${settingsData.language}</div>
-      <div class='cell'>${settingsData.token}</div>
+      <div class='cell'><strong class="white">${account.nick}</strong></div>
+      <div class='cell'>${account.player ? account.player.screenName : ''}</div>
+      <div class='cell'>${account.player ? account.player.language : ''}</div>
+      <div class='cell'>${account.token}</div>
       <div class='cell'><span class="link" data-link="https://mtgarena.pro/sync/">Unlink</span></div>
       </div>`;
   });
@@ -121,11 +121,11 @@ ipcRenderer.on('set-accounts', (e, arg) => {
   updatelinks();
 });
 
-ipcRenderer.on('showprompt', (e, arg) => {
-  ShowPrompt(arg.message, arg.autoclose);
+onMessageFromIpcMain('show-prompt', arg => {
+  showPrompt(arg.message, arg.autoclose);
 });
 
-ipcRenderer.on('new-account', () => {
+onMessageFromIpcMain('new-account', () => {
   //console.log('new-account');
   const unhide = document.querySelector('[data-button="unskip-acc"]') as HTMLElement;
   unhide.classList.add('hidden');
@@ -136,17 +136,17 @@ ipcRenderer.on('new-account', () => {
   UserControls.classList.add('hidden');
 });
 
-ipcRenderer.on('show-update-button', () => {
+onMessageFromIpcMain('show-update-button', () => {
   const sw = document.querySelector('[data-button="apply-update"]') as HTMLElement;
   sw.classList.remove('hidden');
 });
 
 minimizeButton.addEventListener('click', () => {
-  ipcRenderer.send('minimize-me', 'test');
+  sendMessageToIpcMain('minimize-me', undefined);
 });
 
 AppVersion.addEventListener('click', () => {
-  ipcRenderer.send('check-updates');
+  sendMessageToIpcMain('check-updates', undefined);
 });
 
 PromptWnd.addEventListener('click', () => {
@@ -194,10 +194,11 @@ const controlClick = (event: any) => {
       TokenInput.classList.add('hidden');
       const unhide = document.querySelector('[data-button="unskip-acc"]') as HTMLElement;
       unhide.classList.remove('hidden');
-      ipcRenderer.send('token-input', {
+      sendMessageToIpcMain('token-input', {
         token: `SKIPPING${Math.floor(1000 * Math.random())}`,
-        uid: 0,
+        uid: '',
         nick: 'Skipping',
+        overlay: false,
       });
       break;
     case 'connect-acc':
@@ -207,16 +208,25 @@ const controlClick = (event: any) => {
           shell.openExternal(`https://mtgarena.pro/sync/?request=${res.request}`);
           tokenWaiter(res.request);
         } else if (res.mode === 'hasauth') {
-          login(res.token, +res.uid, res.nick, 'connect-acc');
+          login(res.token, res.uid, res.nick, 'connect-acc');
         }
       });
 
       break;
     case 'unskip-acc':
-      ipcRenderer.send('kill-current-token');
+      sendMessageToIpcMain('kill-current-token', undefined);
+      break;
+    case 'wipe-all':
+    case 'stop-tracker':
+    case 'old-log':
+    case 'apply-update':
+    case 'set-log-path':
+    case 'default-log-path':
+      sendMessageToIpcMain(button, undefined);
       break;
     default:
-      ipcRenderer.send(button);
+      // tslint:disable-next-line: no-console
+      console.error('Event not implemented!');
       break;
   }
 };
@@ -231,25 +241,40 @@ const settingsChecker = (event: any) => {
       ? event.target.value
       : '';
   //console.log(event.target.tagName);
-  ipcRenderer.send('set-setting', {setting, data});
+  if (setting === 'autorun') {
+    sendMessageToIpcMain('set-setting-autorun', event.target.checked);
+  }
+  if (setting === 'minimized') {
+    sendMessageToIpcMain('set-setting-minimized', event.target.checked);
+  }
+  if (setting === 'manualupdate') {
+    sendMessageToIpcMain('set-setting-manualupdate', event.target.checked);
+  }
+  if (setting === 'overlay') {
+    sendMessageToIpcMain('set-setting-overlay', event.target.checked);
+  }
+  if (setting === 'icon') {
+    sendMessageToIpcMain('set-setting-icon', event.target.value);
+  }
 };
 
-const login = (token: string, uid: number, nick: string, source?: string) => {
+const login = (token: string, uid: string, nick: string, source?: string) => {
   //console.log('login!' + token + '/' + nick + '/' + source);
 
   TokenInput.classList.add('hidden');
   TokenResponse.innerHTML = `Current user: <strong>${nick}</strong>`;
   OverlaySwitch.classList.remove('hidden');
   UserControls.classList.remove('hidden');
-  ipcRenderer.send('token-input', {
+  sendMessageToIpcMain('token-input', {
     token,
     uid,
     nick,
+    overlay: false,
   });
 
   userbytokenid(token, AppVersion.innerHTML).then(res => {
     if (res.status === 'UNSET_USER') {
-      ipcRenderer.send('kill-current-token');
+      sendMessageToIpcMain('kill-current-token', undefined);
     }
   });
 

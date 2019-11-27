@@ -42,9 +42,6 @@ export interface Userdata {
 export class MetadataStore {
   public meta: Metadata | undefined;
   constructor(version: string) {
-    getMetadata(version).then(res => {
-      console.log(res);
-      this.meta = res;
-    });
+    getMetadata(version).then(res => (this.meta = res));
   }
 }
