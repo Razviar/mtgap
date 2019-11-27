@@ -1,11 +1,13 @@
 // tslint:disable-next-line: no-import-side-effect
-import {ipcRenderer, remote} from 'electron';
+import {remote} from 'electron';
 
 import {getlivematch} from 'root/api/overlay';
 import {countOfObject, hexToRgbA, jsonParse, sumOfObject} from 'root/lib/func';
 import {color, manafont, rarcolor, supercls, typecolorletter} from 'root/lib/utils';
 import {Match} from 'root/models/match';
 import {MetadataStore} from 'root/models/metadata';
+import {onMessageFromIpcMain} from 'root/windows/messages';
+// tslint:disable-next-line: no-import-side-effect
 import 'root/windows/overlay/overlay.css';
 
 const MainOut = document.getElementById('MainOut') as HTMLElement;
@@ -117,23 +119,23 @@ ${manas} ${manas !== '' ? '|' : ''} <span class="ms ms-${superclasses[cardsdb[ci
 </div>`;
 };
 
-ipcRenderer.on('draw-deck', (e, arg) => {});
-
-ipcRenderer.on('match-started', (e, arg) => {
-  currentMatch.matchId = arg.matchId;
-  currentMatch.ourUid = arg.uid;
-  getlivematch(currentMatch.matchId, currentMatch.ourUid, remote.app.getVersion()).then(res => {
-    let output = `<div class="deckName">${res.humanname}</div>`;
-
-    //console.log(cards);
-    res.deckstruct.forEach(card => {
-      output += makeCard(card.card, card.cardnum);
-    });
-    MainOut.innerHTML = output;
-    MainOut.classList.remove('hidden');
-  });
+onMessageFromIpcMain('match-started', newMatch => {
+  currentMatch.matchId = newMatch.matchId;
+  currentMatch.ourUid = newMatch.uid;
+  getlivematch(currentMatch.matchId, currentMatch.ourUid, remote.app.getVersion())
+    .then(res => {
+      let output = `<div class="deckName">${res.humanname}</div>`;
+      res.deckstruct.forEach(card => {
+        output += makeCard(card.card, card.cardnum);
+      });
+      MainOut.innerHTML = output;
+      MainOut.classList.remove('hidden');
+    })
+    // tslint:disable-next-line: no-console
+    .catch(console.error);
 });
 
 MainOut.addEventListener('mouseenter', () => {
+  // tslint:disable-next-line: no-console
   console.log('!!!');
 });

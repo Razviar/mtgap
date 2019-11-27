@@ -1,16 +1,14 @@
-import {settings} from 'cluster';
 import {app} from 'electron';
 
 import {uploadpackfile} from 'root/api/logsender';
 import {setuserdata, UserData} from 'root/api/userbytokenid';
 import {setCreds} from 'root/app/auth';
-import {withMainWindow} from 'root/app/main_window';
-import {withOverlayWindow} from 'root/app/overlay_window';
+import {LogParser} from 'root/app/logparser';
+import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
 import {connectionWaiter} from 'root/app/process_watcher';
+import {Player, settingsStore} from 'root/app/settings_store';
+import {getAccountFromScreenName} from 'root/app/userswitch';
 import {error} from 'root/lib/logger';
-import {LogParser} from 'root/lib/logparser';
-import {Player, settingsStore} from 'root/lib/settings_store';
-import {getAccountFromScreenName} from 'root/lib/userswitch';
 import {ParseResults} from 'root/models/indicators';
 
 export type MaybeLogParser = LogParser | undefined;
@@ -41,12 +39,10 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
     if (datasending.length > 0) {
       const userToken = settingsStore.get().userToken;
       if (userToken !== undefined && userToken.includes('SKIPPING')) {
-        withMainWindow(w =>
-          w.webContents.send('show-status', {
-            color: '#dbb63d',
-            message: 'Skipping this account...',
-          })
-        );
+        sendMessageToHomeWindow('show-status', {
+          color: '#dbb63d',
+          message: 'Skipping this account...',
+        });
         return;
       }
       const version = app.getVersion();
@@ -55,12 +51,10 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
           if (!res) {
             withLogParser(lp => lp.stop());
             connectionWaiter(1000);
-            withMainWindow(w =>
-              w.webContents.send('show-status', {
-                color: '#cc2d2d',
-                message: 'Connection Error',
-              })
-            );
+            sendMessageToHomeWindow('show-status', {
+              color: '#cc2d2d',
+              message: 'Connection Error',
+            });
           }
         })
         .catch(err => error('Failure to upload parsed log data!', err, {version}));
@@ -79,21 +73,17 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
     if (msg === 'Connection Error') {
       connectionWaiter(1000);
     }
-    withMainWindow(w =>
-      w.webContents.send('show-status', {
-        color: '#cc2d2d',
-        message: msg,
-      })
-    );
+    sendMessageToHomeWindow('show-status', {
+      color: '#cc2d2d',
+      message: msg as string,
+    });
   });
 
   logParser.emitter.on('status', msg => {
-    withMainWindow(w =>
-      w.webContents.send('show-status', {
-        color: '#22a83a',
-        message: msg,
-      })
-    );
+    sendMessageToHomeWindow('show-status', {
+      color: '#22a83a',
+      message: msg as string,
+    });
   });
 
   logParser.emitter.on('userchange', msg => {
@@ -102,17 +92,15 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
 
     const {playerId, screenName, language} = msg as Player;
 
-    withMainWindow(w =>
-      w.webContents.send('show-status', {
-        color: '#dbb63d',
-        message: 'New User Detected!',
-      })
-    );
+    sendMessageToHomeWindow('show-status', {
+      color: '#dbb63d',
+      message: 'New User Detected!',
+    });
 
     const settings = settingsStore.get();
     const account = getAccountFromScreenName(screenName);
 
-    withMainWindow(w => w.webContents.send('set-screenname', screenName));
+    sendMessageToHomeWindow('set-screenname', screenName);
 
     // If account is defined, it enforces that awaiting is undefined, because account has a screenName
     if (account !== undefined && account.player) {
@@ -131,7 +119,7 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
       setuserdata(userData, version).catch(err => error('', err, {...userData, version}));
       setCreds('userchange');
     } else {
-      withMainWindow(w => w.webContents.send('new-account'));
+      sendMessageToHomeWindow('new-account', undefined);
       settings.awaiting = {playerId, screenName, language};
     }
 
@@ -142,7 +130,7 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
     logParser.emitter.on('match-started', msg => {
       const account = settingsStore.getAccount();
       if (account) {
-        withOverlayWindow(w => w.webContents.send('match-started', {matchId: msg, uid: account.uid}));
+        sendMessageToOverlayWindow('match-started', {matchId: msg as string, uid: account.uid});
       }
     });
   }

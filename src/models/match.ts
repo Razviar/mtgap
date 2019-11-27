@@ -1,6 +1,6 @@
 export interface LiveMatchRequest {
   matchid: string;
-  uid: number;
+  uid: string;
 }
 
 export interface LiveMatch {
@@ -11,7 +11,7 @@ export interface LiveMatch {
 export class Match {
   public matchId: string = '';
   public mtgaUid: string = '';
-  public ourUid: number = 0;
+  public ourUid: string = '';
 
   public over() {}
 

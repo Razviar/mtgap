@@ -72,7 +72,7 @@ class SettingsStore {
   }
 }
 
-type LatestSettings = SettingsV1;
+export type LatestSettings = SettingsV1;
 type AllSettings = SettingsV0 | LatestSettings;
 
 enum Version {

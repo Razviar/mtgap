@@ -1,5 +1,5 @@
+import {AxiosResponse, Request} from 'root/app/request';
 import {error} from 'root/lib/logger';
-import {AxiosResponse, Request} from 'root/lib/request';
 import {asArray, asMap, asNumber, asString, removeUndefined} from 'root/lib/type_utils';
 import {LiveMatch, LiveMatchRequest} from 'root/models/match';
 import {Metadata, UserMetadata} from 'root/models/metadata';
@@ -41,7 +41,7 @@ function parseMetadata(data: AxiosResponse): Metadata {
   return data as Metadata;
 }
 
-export async function getlivematch(matchid: string, uid: number, version: string): Promise<LiveMatch> {
+export async function getlivematch(matchid: string, uid: string, version: string): Promise<LiveMatch> {
   return parseLiveMatch(
     await Request.post<LiveMatchRequest>(`mtg/donew2.php?cmd=cm_getlivematch&version=${version}`, {
       matchid,

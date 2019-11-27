@@ -1,4 +1,4 @@
-import {settingsStore} from 'root/lib/settings_store';
+import {settingsStore} from 'root/app/settings_store';
 import {asMap, asString} from 'root/lib/type_utils';
 
 // tslint:disable-next-line:no-any

@@ -3,8 +3,9 @@ import isDev from 'electron-is-dev';
 import path from 'path';
 
 import {getAppIcon} from 'root/app/app_icon';
-import {withMainWindow} from 'root/app/main_window';
-import {settingsStore} from 'root/lib/settings_store';
+import {withHomeWindow} from 'root/app/main_window';
+import {sendMessageToHomeWindow} from 'root/app/messages';
+import {settingsStore} from 'root/app/settings_store';
 
 let waitingToUpdate = false;
 const UpdateTimeout = 600000;
@@ -28,26 +29,24 @@ export function setupAutoUpdater(): void {
 
     autoUpdater.setFeedURL({url: feed});
     autoUpdater.on('update-not-available', () => {
-      withMainWindow(w => w.webContents.send('showprompt', {message: 'You have latest version!', autoclose: 1000}));
+      sendMessageToHomeWindow('show-prompt', {message: 'You have latest version!', autoclose: 1000});
     });
     autoUpdater.on('error', () => {
-      withMainWindow(w =>
-        w.webContents.send('showprompt', {message: 'Error while checking updates!', autoclose: 1000})
-      );
+      sendMessageToHomeWindow('show-prompt', {message: 'Error while checking updates!', autoclose: 1000});
     });
     autoUpdater.on('checking-for-update', () => {
-      withMainWindow(w => w.webContents.send('showprompt', {message: 'Checking updates...', autoclose: 0}));
+      sendMessageToHomeWindow('show-prompt', {message: 'Checking updates...', autoclose: 0});
     });
     autoUpdater.on('update-available', () => {
-      withMainWindow(w => w.webContents.send('showprompt', {message: 'Downloading update...', autoclose: 0}));
+      sendMessageToHomeWindow('show-prompt', {message: 'Downloading update...', autoclose: 0});
     });
     autoUpdater.on('update-downloaded', () => {
-      withMainWindow(w =>
-        w.webContents.send('showprompt', {message: 'Download complete. Restarting app...', autoclose: 0})
-      );
+      sendMessageToHomeWindow('show-update-button', undefined);
+      sendMessageToHomeWindow('show-prompt', {message: 'Download complete. Restarting app...', autoclose: 0});
+
       autoUpdater.quitAndInstall();
 
-      withMainWindow(w => w.webContents.send('showprompt', {message: 'Download complete.', autoclose: 1000}));
+      sendMessageToHomeWindow('show-prompt', {message: 'Download complete.', autoclose: 1000});
       const updateNotification = new Notification({
         title: 'MTGA Pro Tracker Update',
         body:

@@ -1,4 +1,4 @@
-import {AxiosResponse, Request} from 'root/lib/request';
+import {AxiosResponse, Request} from 'root/app/request';
 import {asMap, asString} from 'root/lib/type_utils';
 import {UserRequest, UserResult} from 'root/models/userbytokenid';
 
@@ -7,7 +7,7 @@ import {UserRequest, UserResult} from 'root/models/userbytokenid';
 //
 
 interface TokenCheckRes {
-  uid: number;
+  uid: string;
   token: string;
   nick: string;
 }

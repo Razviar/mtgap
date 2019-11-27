@@ -8,10 +8,11 @@ import {sendSettingsToRenderer, setCreds} from 'root/app/auth';
 import {enableAutoLauncher} from 'root/app/auto_launcher';
 import {setupAutoUpdater, updateHunter} from 'root/app/auto_updater';
 import {setupIpcMain} from 'root/app/ipc_main';
-import {createMainWindow, getMainWindow, withMainWindow} from 'root/app/main_window';
+import {createLogParser} from 'root/app/log_parser';
+import {createMainWindow, getMainWindow, withHomeWindow} from 'root/app/main_window';
+import {sendMessageToHomeWindow} from 'root/app/messages';
 import {setupProcessWatcher} from 'root/app/process_watcher';
-import {createLogParser} from 'root/lib/log_parser';
-import {settingsStore} from 'root/lib/settings_store';
+import {settingsStore} from 'root/app/settings_store';
 
 setupAutoUpdater();
 
@@ -26,10 +27,10 @@ const processWatcherFnInterval = 250;
 function recreateMainWindow(): void {
   createMainWindow(() => {
     createLogParser();
-    withMainWindow(w => {
+    withHomeWindow(w => {
       w.show();
       w.webContents.on('did-finish-load', () => {
-        withMainWindow(_ => _.webContents.send('set-version', app.getVersion()));
+        sendMessageToHomeWindow('set-version', app.getVersion());
         setCreds('ready-to-show');
         sendSettingsToRenderer();
         if (!isDev) {
@@ -49,7 +50,7 @@ if (!gotTheLock) {
   app.quit();
 } else {
   app.on('second-instance', () => {
-    withMainWindow(w => {
+    withHomeWindow(w => {
       if (w.isMinimized()) {
         w.restore();
       }

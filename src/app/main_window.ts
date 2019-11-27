@@ -13,7 +13,7 @@ export function getMainWindow(): BrowserWindow | undefined {
   return mainWindow;
 }
 
-export function withMainWindow(fn: (mainWindow: BrowserWindow) => void): void {
+export function withHomeWindow(fn: (mainWindow: BrowserWindow) => void): void {
   if (mainWindow === undefined) {
     return;
   }
@@ -41,8 +41,8 @@ export function createMainWindow(onceReadyToShow: (mainWindow: BrowserWindow) =>
 
   appIcon.setContextMenu(createContextMenuForMainWindow(mainWindow));
   appIcon.on('double-click', () => {
-    withMainWindow(w => w.show());
-    withMainWindow(w => w.focus());
+    withHomeWindow(w => w.show());
+    withHomeWindow(w => w.focus());
   });
 
   mainWindow.loadURL(HOME_WINDOW_WEBPACK_ENTRY).catch(err =>
@@ -60,6 +60,6 @@ export function createMainWindow(onceReadyToShow: (mainWindow: BrowserWindow) =>
 
   mainWindow.on('minimize', function(event: any) {
     event.preventDefault();
-    withMainWindow(w => w.hide());
+    withHomeWindow(w => w.hide());
   });
 }
