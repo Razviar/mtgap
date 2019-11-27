@@ -8,13 +8,12 @@ import {disableAutoLauncher, enableAutoLauncher} from 'root/app/auto_launcher';
 import {checkForUpdates, quitAndInstall} from 'root/app/auto_updater';
 import {createLogParser, getLogParser, withLogParser} from 'root/app/log_parser';
 import {withHomeWindow} from 'root/app/main_window';
-import {sendMessageToHomeWindow} from 'root/app/messages';
+import {onMessageFromBrowserWindow, sendMessageToHomeWindow} from 'root/app/messages';
 import {settingsStore} from 'root/app/settings_store';
 import {error} from 'root/lib/logger';
-import {onMessageFromIpcMain} from 'root/windows/messages';
 
 export function setupIpcMain(app: App): void {
-  onMessageFromIpcMain('token-input', newAccount => {
+  onMessageFromBrowserWindow('token-input', newAccount => {
     const settings = settingsStore.get();
     if (settings.userToken !== newAccount.token) {
       settings.userToken = newAccount.token;
@@ -46,9 +45,9 @@ export function setupIpcMain(app: App): void {
     }
   });
 
-  onMessageFromIpcMain('minimize-me', () => withHomeWindow(w => w.minimize()));
+  onMessageFromBrowserWindow('minimize-me', () => withHomeWindow(w => w.minimize()));
 
-  onMessageFromIpcMain('set-setting-autorun', newAutorun => {
+  onMessageFromBrowserWindow('set-setting-autorun', newAutorun => {
     const settings = settingsStore.get();
     settings.autorun = newAutorun;
     settingsStore.save();
@@ -60,7 +59,7 @@ export function setupIpcMain(app: App): void {
     }
   });
 
-  onMessageFromIpcMain('set-setting-icon', newIcon => {
+  onMessageFromBrowserWindow('set-setting-icon', newIcon => {
     const settings = settingsStore.get();
     settings.icon = newIcon;
     settingsStore.save();
@@ -73,7 +72,7 @@ export function setupIpcMain(app: App): void {
     });
   });
 
-  onMessageFromIpcMain('kill-current-token', () => {
+  onMessageFromBrowserWindow('kill-current-token', () => {
     const settings = settingsStore.get();
     const session = settingsStore.getAccount();
     if (!session) {
@@ -99,7 +98,7 @@ export function setupIpcMain(app: App): void {
     sendSettingsToRenderer();
   });
 
-  onMessageFromIpcMain('set-log-path', () => {
+  onMessageFromBrowserWindow('set-log-path', () => {
     dialog
       .showOpenDialog({properties: ['openFile'], filters: [{name: 'output_*', extensions: ['txt']}]})
       .then(log => {
@@ -117,7 +116,7 @@ export function setupIpcMain(app: App): void {
       .catch(err => error('Error while showing open file dialog during set-log-path event', err));
   });
 
-  onMessageFromIpcMain('default-log-path', () => {
+  onMessageFromBrowserWindow('default-log-path', () => {
     settingsStore.get().logPath = undefined;
     settingsStore.save();
     withLogParser(logParser => {
@@ -146,7 +145,7 @@ export function setupIpcMain(app: App): void {
     }
   };
 
-  onMessageFromIpcMain('old-log', () => {
+  onMessageFromBrowserWindow('old-log', () => {
     dialog
       .showOpenDialog({
         properties: ['openFile', 'multiSelections'],
@@ -161,7 +160,7 @@ export function setupIpcMain(app: App): void {
       .catch(err => error('Error while showing open file dialog during old-log-path event', err));
   });
 
-  onMessageFromIpcMain('wipe-all', () => {
+  onMessageFromBrowserWindow('wipe-all', () => {
     settingsStore.wipe();
     withLogParser(logParser => {
       sendMessageToHomeWindow('show-prompt', {
@@ -175,15 +174,15 @@ export function setupIpcMain(app: App): void {
     sendSettingsToRenderer();
   });
 
-  onMessageFromIpcMain('check-updates', () => {
+  onMessageFromBrowserWindow('check-updates', () => {
     checkForUpdates();
   });
 
-  onMessageFromIpcMain('stop-tracker', () => {
+  onMessageFromBrowserWindow('stop-tracker', () => {
     app.quit();
   });
 
-  onMessageFromIpcMain('apply-update', () => {
+  onMessageFromBrowserWindow('apply-update', () => {
     quitAndInstall();
   });
 }

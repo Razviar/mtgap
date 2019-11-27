@@ -1,4 +1,4 @@
-import {App, BrowserWindow, nativeImage, Tray} from 'electron';
+import {BrowserWindow, nativeImage, Tray} from 'electron';
 import electronIsDev from 'electron-is-dev';
 import path from 'path';
 
@@ -58,7 +58,7 @@ export function createMainWindow(onceReadyToShow: (mainWindow: BrowserWindow) =>
 
   mainWindow.once('ready-to-show', onceReadyToShow);
 
-  mainWindow.on('minimize', function(event: any) {
+  mainWindow.on('minimize', (event: Electron.Event) => {
     event.preventDefault();
     withHomeWindow(w => w.hide());
   });

@@ -13,10 +13,7 @@ class SettingsStore {
 
   constructor() {
     this.path = join(app.getPath('userData'), 'user-preferences.json') as StorePath;
-    this.data = this.initSettings();
-  }
 
-  private initSettings(): LatestSettings {
     try {
       const raw = JSON.parse(readFileSync(this.path, 'utf8'));
       const rawMap = asMap(raw);
@@ -25,13 +22,12 @@ class SettingsStore {
       }
       const version = asNumber(rawMap.version, Version.v0);
       // tslint:disable-next-line: no-object-literal-type-assertion
-      return parseSettings({...rawMap, version} as AllSettings);
+      this.data = parseSettings({...rawMap, version} as AllSettings);
     } catch (e) {
       error('SettingsStore.initSettings', e);
-      const defaultSettings = createDefault();
-      this.save();
-      return defaultSettings;
+      this.data = createDefault();
     }
+    this.save();
   }
 
   public get(): LatestSettings {
@@ -50,6 +46,7 @@ class SettingsStore {
 
   public save(): void {
     try {
+      console.log(this.data);
       writeFileSync(this.path, JSON.stringify(this.data));
     } catch (e) {
       error('SettingsStore.set', e);

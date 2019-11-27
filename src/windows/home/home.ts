@@ -58,35 +58,35 @@ onMessageFromIpcMain('set-creds', creds => {
   }
 });
 
-onMessageFromIpcMain('set-settings', settings => {
+onMessageFromIpcMain('set-settings', newSettings => {
   //const setters = ['autorun', 'minimized', 'logpath'];
-  if (settings.autorun) {
+  if (newSettings.autorun) {
     const sw = document.querySelector('[data-setting="autorun"]') as HTMLInputElement;
-    sw.checked = settings.autorun;
+    sw.checked = newSettings.autorun;
   }
 
-  if (settings.minimized) {
+  if (newSettings.minimized) {
     const sw = document.querySelector('[data-setting="minimized"]') as HTMLInputElement;
-    sw.checked = settings.minimized;
+    sw.checked = newSettings.minimized;
   }
 
-  if (settings.manualUpdate) {
+  if (newSettings.manualUpdate) {
     const sw = document.querySelector('[data-setting="manualupdate"]') as HTMLInputElement;
-    sw.checked = settings.manualUpdate;
+    sw.checked = newSettings.manualUpdate;
   }
 
-  if (settings.logPath !== undefined) {
+  if (newSettings.logPath !== undefined) {
     const sw = document.getElementById('CurrentLogPath') as HTMLElement;
-    sw.innerHTML = `<strong>${settings.logPath}</strong>`;
+    sw.innerHTML = `<strong>${newSettings.logPath}</strong>`;
   } else {
     const sw = document.getElementById('CurrentLogPath') as HTMLElement;
     sw.innerHTML = '<strong>Default</strong>';
   }
 
-  if (settings.icon !== undefined) {
+  if (newSettings.icon !== undefined) {
     const sw = document.querySelector('[data-setting="icon"]') as HTMLSelectElement;
     const opts = sw.options;
-    sw.selectedIndex = Array.from(opts).findIndex(opt => opt.value === settings.icon);
+    sw.selectedIndex = Array.from(opts).findIndex(opt => opt.value === newSettings.icon);
   }
 });
 

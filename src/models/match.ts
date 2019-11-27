@@ -13,7 +13,7 @@ export class Match {
   public mtgaUid: string = '';
   public ourUid: string = '';
 
-  public over() {}
+  public over(): void {}
 
-  public mycard() {}
+  public mycard(): void {}
 }
