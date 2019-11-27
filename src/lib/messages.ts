@@ -1,4 +1,5 @@
 import {Account, LatestSettings} from 'root/app/settings_store';
+import {CardPlayed} from 'root/models/cards';
 
 export interface Messages {
   'token-input': Account;
@@ -34,10 +35,5 @@ export interface Messages {
   'set-setting-overlay': boolean;
   'set-setting-icon': string;
   'match-over': undefined;
-  'card-played': {
-    grpId: number;
-    instanceId: number;
-    ownerSeatId: number;
-    zoneId: number;
-  };
+  'card-played': CardPlayed;
 }

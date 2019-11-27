@@ -1,6 +1,6 @@
 import {AxiosResponse, Request} from 'root/app/request';
 import {error} from 'root/lib/logger';
-import {asArray, asMap, asString, asStringMap, removeUndefined} from 'root/lib/type_utils';
+import {asArray, asMap, asNumber, asString, asStringMap, removeUndefined} from 'root/lib/type_utils';
 import {Indicators} from 'root/models/indicators';
 
 function parseIndicators(data: AxiosResponse): Indicators[] {
@@ -17,7 +17,12 @@ function parseIndicators(data: AxiosResponse): Indicators[] {
       error('Error while parsing an Indicators: value is not an object', undefined, {item});
       return undefined;
     }
-    const marker = asString(itemMap.marker, '');
+    const marker = asNumber(itemMap.marker);
+    if (marker === undefined) {
+      error('Error while parsing an Indicators: marker is not a valid number', undefined, {marker: itemMap.marker});
+      return undefined;
+    }
+
     const theIndicators = asString(itemMap.Indicators, '');
     const Send = asString(itemMap.Send, '');
     const Needrunning = asString(itemMap.Needrunning, '');
