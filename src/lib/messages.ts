@@ -23,6 +23,8 @@ export interface Messages {
   'match-started': {
     matchId: string;
     uid: string;
+    seatId: number;
+    gameNumber: number;
   };
   'set-version': string;
   'show-update-button': undefined;
@@ -31,4 +33,11 @@ export interface Messages {
   'set-setting-manualupdate': boolean;
   'set-setting-overlay': boolean;
   'set-setting-icon': string;
+  'match-over': undefined;
+  'card-played': {
+    grpId: number;
+    instanceId: number;
+    ownerSeatId: number;
+    zoneId: number;
+  };
 }

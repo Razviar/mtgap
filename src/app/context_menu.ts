@@ -1,4 +1,4 @@
-import {App, app, BrowserWindow, Menu, MenuItemConstructorOptions, shell} from 'electron';
+import {app, BrowserWindow, Menu, MenuItemConstructorOptions, shell} from 'electron';
 
 import {error} from 'root/lib/logger';
 

@@ -49,6 +49,16 @@ a[href^="ftp://"] {
   background-color: rgba(11, 0, 0, 0.5);
 }
 
+#OpponentOut {
+  display: inline-block;
+  position: absolute;
+  top: 20%;
+  right: 0px;
+  width: 300px;
+  height: 500px;
+  background-color: rgba(11, 0, 0, 0.5);
+}
+
 /*DECK import*/
 .smallmanagroup {
   position: relative;
@@ -89,7 +99,7 @@ a[href^="ftp://"] {
   clear: both;
   cursor: pointer;
   transition-duration: 100ms;
-  transition-property: filter;
+  transition-property: all;
   color: #fff !important;
   border-bottom: solid 1px #36221e;
   text-shadow: 1px 1px 3px #000;
@@ -99,6 +109,10 @@ a[href^="ftp://"] {
 .DcDrow:hover {
   background-color: rgba(255, 255, 255, 0.1);
   filter: brightness(1.2);
+}
+
+.highlightCard {
+  background-color: rgba(255, 255, 255, 0.3);
 }
 
 .CardSmallPic {
@@ -128,7 +142,7 @@ a[href^="ftp://"] {
   font-weight: bold;
   margin-top: 0;
   float: right;
-  width: 22px;
+  width: 50px;
   height: 35px !important;
   text-align: center;
   filter: brightness(1.4);

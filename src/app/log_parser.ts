@@ -5,6 +5,7 @@ import {setuserdata, UserData} from 'root/api/userbytokenid';
 import {setCreds} from 'root/app/auth';
 import {LogParser} from 'root/app/logparser';
 import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
+import {withOverlayWindow} from 'root/app/overlay_window';
 import {connectionWaiter} from 'root/app/process_watcher';
 import {Player, settingsStore} from 'root/app/settings_store';
 import {getAccountFromScreenName} from 'root/app/userswitch';
@@ -112,12 +113,14 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
   });
 
   if (!parseOnce && settingsStore.get().overlay) {
-    logParser.emitter.on('match-started', msg => {
+    logParser.emitter.on('match-started', (msg: any) => {
       const account = settingsStore.getAccount();
       if (account) {
-        sendMessageToOverlayWindow('match-started', {matchId: msg as string, uid: account.uid});
+        sendMessageToOverlayWindow('match-started', {...msg, uid: account.uid});
       }
     });
+    logParser.emitter.on('card-played', (msg: any) => sendMessageToOverlayWindow('card-played', msg));
+    logParser.emitter.on('match-over', () => sendMessageToOverlayWindow('match-over', undefined));
   }
 
   connectionWaiter(1000);

@@ -11,11 +11,12 @@ import {onMessageFromIpcMain} from 'root/windows/messages';
 import 'root/windows/overlay/overlay.css';
 
 const MainOut = document.getElementById('MainOut') as HTMLElement;
+const OpponentOut = document.getElementById('OpponentOut') as HTMLElement;
 
 const currentMatch = new Match();
 const metaData = new MetadataStore(remote.app.getVersion());
 
-const makeCard = (cid: number, num: number): string => {
+const makeCard = (cid: number, num: number, mode: string): string => {
   const badgesnum = 3;
   const BasicLand = 34;
   if (!metaData.meta) {
@@ -24,16 +25,13 @@ const makeCard = (cid: number, num: number): string => {
   const cardsdb = metaData.meta.allcards;
 
   const name = cardsdb[cid]['name'];
+  const mtgaId = cardsdb[cid]['mtga_id'];
   const rarity = cardsdb[cid]['rarity'];
   const mana = cardsdb[cid]['mana'];
-  const kws: string[] = jsonParse(cardsdb[cid]['kw']);
-  const scls = supercls[cardsdb[cid]['supercls']];
   const thumb = cardsdb[cid]['art'];
   const colorarr = cardsdb[cid]['colorarr'];
   const island = cardsdb[cid]['is_land'];
   const type = cardsdb[cid]['type'];
-  const willbeoutsoon = cardsdb[cid]['willbeoutsoon'];
-  const currentstandard = cardsdb[cid]['currentstandard'];
   const colorindicator = cardsdb[cid]['colorindicator'];
   const slug = cardsdb[cid]['slug'];
   const flavor = cardsdb[cid]['flavor'];
@@ -70,6 +68,8 @@ const makeCard = (cid: number, num: number): string => {
             });
           }
         }
+      } else if (clr === 'Colorless' && +sumOfObject(manaj) === +manaj['Colorless']) {
+        bgcolor += `${hexToRgbA('#ababab')},${hexToRgbA('#ababab')}`;
       }
     });
 
@@ -98,15 +98,13 @@ const makeCard = (cid: number, num: number): string => {
               ></span>`;
         }
       } else {
-        manas += `<span class="ManaGroup${
-          sumOfObject(manaj) - (manaj['Colorless'] ? manaj['Colorless'] - 1 : 0) > badgesnum ? ' smallmanagroup' : ''
-        } ms ms-${manaj[clr]}"></span>`;
+        manas += `<span class="ManaGroup ms ms-${manaj[clr]}"></span>`;
       }
     }
   });
 
   return `
-<div class="DcDrow" id="card${cid}">
+<div class="DcDrow" id="card${mtgaId}">
 <div class="CardSmallPic" style="border-image:${bgcolor}; background:url('https://mtgarena.pro/mtg/pict/thumb/${thumb}') 50% 50%">
 </div>
 <div class="CNameManaWrap">
@@ -115,24 +113,75 @@ ${manas} ${manas !== '' ? '|' : ''} <span class="ms ms-${superclasses[cardsdb[ci
 </div>
 <div class="CName">${name}</div>
 </div>
-<div class="Copies" style="color:#${rarcolor[+rarity]}">${num}</div>
+<div class="Copies" style="color:#${rarcolor[+rarity]}" id="cardnum${cid}">${num} | ${
+    currentMatch.decks.me[mtgaId] > 0 ? num - currentMatch.decks.me[mtgaId] : num
+  }</div>
 </div>`;
+};
+
+const updateOppDeck = (highlight: number[]) => {
+  if (!metaData.meta) {
+    return '';
+  }
+  const cardsdb = metaData.meta.allcards;
+  let output = '';
+  console.log(currentMatch.decks.opponent);
+  Object.keys(currentMatch.decks.opponent).forEach(OppMtgaCid => {
+    output += makeCard(cardsdb[+OppMtgaCid].id, currentMatch.decks.opponent[+OppMtgaCid], 'battle');
+  });
+
+  OpponentOut.innerHTML = output;
+  OpponentOut.classList.remove('hidden');
+};
+
+const updateDeck = (highlight: number[]) => {
+  let output = `<div class="deckName">${currentMatch.humanname}</div>`;
+  currentMatch.myFullDeck.forEach(card => {
+    output += makeCard(card.card, card.cardnum, 'battle');
+  });
+  MainOut.innerHTML = output;
+  MainOut.classList.remove('hidden');
+
+  highlight.forEach(cid => {
+    const crdEl: HTMLElement | null = document.getElementById(`card${cid}`);
+    if (crdEl) {
+      crdEl.classList.add('highlightCard');
+    }
+  });
+  const highlightTimeout = 1500;
+  setTimeout(() => {
+    Array.from(document.getElementsByClassName('highlightCard')).forEach(el => {
+      el.classList.remove('highlightCard');
+    });
+  }, highlightTimeout);
 };
 
 onMessageFromIpcMain('match-started', newMatch => {
   currentMatch.matchId = newMatch.matchId;
   currentMatch.ourUid = newMatch.uid;
+  currentMatch.myTeamId = newMatch.seatId;
+  currentMatch.GameNumber = newMatch.gameNumber;
   getlivematch(currentMatch.matchId, currentMatch.ourUid, remote.app.getVersion())
     .then(res => {
-      let output = `<div class="deckName">${res.humanname}</div>`;
-      res.deckstruct.forEach(card => {
-        output += makeCard(card.card, card.cardnum);
-      });
-      MainOut.innerHTML = output;
-      MainOut.classList.remove('hidden');
+      currentMatch.myFullDeck = res.deckstruct;
+      currentMatch.humanname = res.humanname;
+      updateDeck([]);
     })
     // tslint:disable-next-line: no-console
     .catch(console.error);
+});
+
+onMessageFromIpcMain('match-over', () => currentMatch.over());
+
+onMessageFromIpcMain('card-played', arg => {
+  const res = currentMatch.cardplayed(arg.grpId, arg.instanceId, arg.ownerSeatId, arg.zoneId);
+  if (res.myDeck) {
+    if (res.affectedcards.length > 0) {
+      updateDeck(res.affectedcards);
+    }
+  } else {
+    updateOppDeck(res.affectedcards);
+  }
 });
 
 MainOut.addEventListener('mouseenter', () => {
