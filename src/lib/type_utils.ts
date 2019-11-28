@@ -1,5 +1,3 @@
-import {stringify} from 'querystring';
-
 // tslint:disable:no-any
 
 type AnyMapOrEmpty =
@@ -64,6 +62,12 @@ export function asString(value: any): string | undefined;
 export function asString(value: any, defaultValue: string): string;
 export function asString(value: any, defaultValue?: string): string | undefined {
   return typeof value === 'string' ? value : defaultValue;
+}
+
+export function asNumberString(value: any): string | undefined;
+export function asNumberString(value: any, defaultValue: string): string;
+export function asNumberString(value: any, defaultValue?: string): string | undefined {
+  return typeof value === 'string' ? value : typeof value === 'number' ? String(value) : defaultValue;
 }
 
 export function asFunction(value: any): Function | undefined;

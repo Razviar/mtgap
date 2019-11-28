@@ -12,6 +12,7 @@ import {createMainWindow, withHomeWindow} from 'root/app/main_window';
 import {sendMessageToHomeWindow} from 'root/app/messages';
 import {setupProcessWatcher} from 'root/app/process_watcher';
 import {settingsStore} from 'root/app/settings_store';
+import {asString, asNumberString} from 'root/lib/type_utils';
 
 // tslint:disable-next-line: no-var-requires no-unsafe-any no-require-imports
 if (require('electron-squirrel-startup')) {
