@@ -5,12 +5,10 @@ import {setuserdata, UserData} from 'root/api/userbytokenid';
 import {setCreds} from 'root/app/auth';
 import {LogParser} from 'root/app/logparser';
 import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
-import {withOverlayWindow} from 'root/app/overlay_window';
 import {connectionWaiter} from 'root/app/process_watcher';
-import {Player, settingsStore} from 'root/app/settings_store';
+import {settingsStore} from 'root/app/settings_store';
 import {getAccountFromScreenName} from 'root/app/userswitch';
 import {error} from 'root/lib/logger';
-import {ParseResults} from 'root/models/indicators';
 
 export type MaybeLogParser = LogParser | undefined;
 let logParser: MaybeLogParser;
@@ -36,15 +34,14 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
   );
 
   logParser.emitter.on('newdata', data => {
-    const datasending: ParseResults[] = data as ParseResults[];
-    if (datasending.length > 0) {
+    if (data.length > 0) {
       const userToken = settingsStore.get().userToken;
       if (userToken !== undefined && userToken.includes('SKIPPING')) {
         sendMessageToHomeWindow('show-status', {message: 'Skipping this account...', color: '#dbb63d'});
         return;
       }
       const version = app.getVersion();
-      uploadpackfile(datasending, version)
+      uploadpackfile(data, version)
         .then(res => {
           if (!res) {
             withLogParser(lp => lp.stop());
@@ -59,7 +56,7 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
   logParser.emitter.on('language', data => {
     const account = settingsStore.getAccount();
     if (account !== undefined && account.player) {
-      account.player.language = data as string;
+      account.player.language = data;
       settingsStore.save();
     }
   });
@@ -68,18 +65,18 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
     if (msg === 'Connection Error') {
       connectionWaiter(1000);
     }
-    sendMessageToHomeWindow('show-status', {message: msg as string, color: '#cc2d2d'});
+    sendMessageToHomeWindow('show-status', {message: msg, color: '#cc2d2d'});
   });
 
   logParser.emitter.on('status', msg => {
-    sendMessageToHomeWindow('show-status', {message: msg as string, color: '#22a83a'});
+    sendMessageToHomeWindow('show-status', {message: msg, color: '#22a83a'});
   });
 
   logParser.emitter.on('userchange', msg => {
     /*console.log('userchange');
     console.log(msg);*/
 
-    const {playerId, screenName, language} = msg as Player;
+    const {playerId, screenName, language} = msg;
 
     sendMessageToHomeWindow('show-status', {message: 'New User Detected!', color: '#dbb63d'});
 
@@ -113,13 +110,13 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
   });
 
   if (!parseOnce && settingsStore.get().overlay) {
-    logParser.emitter.on('match-started', (msg: any) => {
+    logParser.emitter.on('match-started', msg => {
       const account = settingsStore.getAccount();
       if (account) {
         sendMessageToOverlayWindow('match-started', {...msg, uid: account.uid});
       }
     });
-    logParser.emitter.on('card-played', (msg: any) => sendMessageToOverlayWindow('card-played', msg));
+    logParser.emitter.on('card-played', msg => sendMessageToOverlayWindow('card-played', msg));
     logParser.emitter.on('match-over', () => sendMessageToOverlayWindow('match-over', undefined));
   }
 

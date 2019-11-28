@@ -29,7 +29,6 @@
     "date-fns": "2.8.1",
     "electron-is-dev": "1.1.0",
     "electron-squirrel-startup": "1.0.0",
-    "emittery": "0.5.1",
     "ps-list": "6.3.0",
     "source-map-support": "0.5.16",
     "update-electron-app": "1.5.0"
