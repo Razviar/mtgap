@@ -1,12 +1,14 @@
 import {format} from 'date-fns';
-import electron from 'electron';
-import Emittery from 'emittery';
+import {app} from 'electron';
 import fs from 'fs';
 import path from 'path';
 import readline from 'readline';
+
 import {getindicators} from 'root/api/getindicators';
+import {LogParserEventEmitter, PlayerData} from 'root/app/log_parser_events';
+import {Cut, findLastIndex, substrcount} from 'root/lib/func';
+import {error} from 'root/lib/logger';
 import {Indicators, ParseResults} from 'root/models/indicators';
-import {Cut, findLastIndex, substrcount} from './func';
 
 export class LogParser {
   private readonly path: string;
@@ -29,19 +31,15 @@ export class LogParser {
   //private watcher: chokidar.FSWatcher;
   private watcher: NodeJS.Timeout | undefined;
   private readonly parseOnce: boolean = false;
-  private readonly newPlayerData: {
-    playerId: string;
-    screenName: string;
-    language: string;
-  } = {playerId: '', screenName: '', language: ''};
+  private readonly newPlayerData: PlayerData = {playerId: '', screenName: '', language: ''};
   private currentMatchId: string = '';
-  private readonly doppler: {[index: number]: {[index: number]: number}} = {};
+  private readonly doppler = new Map<number, Map<number, number>>();
 
-  public emitter = new Emittery();
+  public emitter = new LogParserEventEmitter();
 
   constructor(targetname: string[] | string, pathset?: boolean, parseOnce?: boolean) {
     if (!pathset) {
-      const appDataPath = (electron.app || electron.remote.app).getPath('appData');
+      const appDataPath = app.getPath('appData');
       this.path = path.join(appDataPath, ...targetname).replace('Roaming\\', '');
     } else {
       this.path = targetname as string;
@@ -52,33 +50,34 @@ export class LogParser {
     }
   }
 
-  public start() {
+  public start(): void {
     const Interval = 250;
-    //console.log('starting!');
-    getindicators((electron.app || electron.remote.app).getVersion()).then(i => {
-      /*console.log('!!');
-      console.log(i);*/
-      if (!i.indicators) {
-        this.emitter.emit('error', 'Connection Error');
-        return;
-      }
-      this.indicators = i.indicators;
-      //this.dateformats = i.dates;
-      this.loglen = 0;
-      this.loglencheck = 0;
-      if (this.parseOnce) {
-        this.checkLog(this.path, fs.statSync(this.path), 'parseOnce');
-      } else {
-        this.watcher = setInterval(this.watch.bind(this), Interval);
-      }
+    getindicators(app.getVersion())
+      .then(i => {
+        if (i.indicators.length === 0) {
+          throw new Error('Missing indicators');
+        }
+        this.indicators = i.indicators;
+        //this.dateformats = i.dates;
+        this.loglen = 0;
+        this.loglencheck = 0;
+        if (this.parseOnce) {
+          this.checkLog(this.path, fs.statSync(this.path), 'parseOnce');
+        } else {
+          this.watcher = setInterval(this.watch.bind(this), Interval);
+        }
 
-      if (!fs.existsSync(this.path)) {
-        this.emitter.emit('error', 'No log file found');
-      }
-    });
+        if (!fs.existsSync(this.path)) {
+          this.emitter.emit('error', 'No log file found');
+        }
+      })
+      .catch(e => {
+        error('start.getindicators', e);
+        this.emitter.emit('error', String(e));
+      });
   }
 
-  public watch() {
+  public watch(): void {
     if (fs.existsSync(this.path)) {
       const stats = fs.statSync(this.path);
       if (stats.size !== this.loglencheck) {
@@ -88,21 +87,21 @@ export class LogParser {
     }
   }
 
-  public stop() {
+  public stop(): void {
     this.logsdisabled = false;
     if (this.watcher) {
       clearInterval(this.watcher);
     }
   }
 
-  public setPlayerId(plid: string, pname: string) {
+  public setPlayerId(plid: string, pname: string): void {
     if (this.newPlayerData.playerId === plid && this.newPlayerData.screenName === pname) {
       this.userswitched = false;
       this.checkLog(this.path, fs.statSync(this.path), 'setPlayerId');
     }
   }
 
-  public checkLog(pth: string, stats: fs.Stats | undefined, source?: string) {
+  public checkLog(pth: string, stats: fs.Stats | undefined, source?: string): void {
     //console.log(pth + '///' + this.loglen + '///' + this.skiplines);
     const LoginIndicator = 21;
     let brackets = {curly: 0, squared: 0};
@@ -185,11 +184,17 @@ export class LogParser {
           line = line.replace(/(\\r\\n)/gm, '');
           line = line.replace(/^(\[[\d]{1,}\][\s])?\[UnityCrossThreadLogger\]/gm, '');
           //console.log(line);
-          if (!this.doppler[this.strdate]) {
-            this.doppler[this.strdate] = {};
+
+          let currentDoppler = this.doppler.get(this.strdate);
+          if (!currentDoppler) {
+            currentDoppler = new Map<number, number>();
+            this.doppler.set(this.strdate, currentDoppler);
           }
-          if (!this.doppler[this.strdate][+indicator.marker]) {
-            this.doppler[this.strdate][+indicator.marker] = 0;
+
+          const oldCurrentDopplerMarker = currentDoppler.get(indicator.marker);
+          let newCurrentDopplerMarker = oldCurrentDopplerMarker === undefined ? 0 : oldCurrentDopplerMarker;
+          if (oldCurrentDopplerMarker !== newCurrentDopplerMarker) {
+            currentDoppler.set(indicator.marker, newCurrentDopplerMarker);
           }
 
           if (line.length < 100 && !line.includes('{') && !line.includes('[')) {
@@ -206,19 +211,18 @@ export class LogParser {
 
             if (pusher !== '') {
               const append = this.results.findIndex(
-                elem =>
-                  +elem.indicator === +this.nowWriting &&
-                  +elem.time === this.strdate + this.doppler[this.strdate][+indicator.marker]
+                elem => +elem.indicator === +this.nowWriting && +elem.time === this.strdate + newCurrentDopplerMarker
               );
 
               if (append !== -1) {
                 if (this.checkjson(this.results[append].json)) {
-                  this.doppler[this.strdate][+indicator.marker]++;
+                  newCurrentDopplerMarker++;
+                  currentDoppler.set(indicator.marker, newCurrentDopplerMarker);
                 }
               }
 
               this.results.push({
-                time: this.strdate + this.doppler[this.strdate][+indicator.marker],
+                time: this.strdate + newCurrentDopplerMarker,
                 indicator: +indicator.marker,
                 json: pusher,
                 uid: this.newPlayerData.playerId,
@@ -236,19 +240,21 @@ export class LogParser {
               ) {
                 //console.log(indicator.Needtohave);
                 this.results.push({
-                  time: this.strdate + this.doppler[this.strdate][+indicator.marker],
+                  // TODO - Should this be `newCurrentDopplerMarker + 1` instead?
+                  time: this.strdate + newCurrentDopplerMarker,
                   indicator: +indicator.marker,
                   json: parsed.result,
                   uid: this.newPlayerData.playerId,
                   matchId: this.currentMatchId,
                 });
-                if (indicator.marker === '5') {
+                const CHECK_BATTLE_EVENT_MARKER = 5;
+                if (indicator.marker === CHECK_BATTLE_EVENT_MARKER) {
                   this.checkBattleEvents(parsed.result);
                 }
               }
 
               position = parsed.dopler;
-              this.doppler[this.strdate][+indicator.marker]++;
+              currentDoppler.set(indicator.marker, newCurrentDopplerMarker + 1);
             }
             if (+indicator.marker === LoginIndicator) {
               this.checkEvents(LoginIndicator, linesread, rl);
@@ -304,7 +310,7 @@ export class LogParser {
         this.loglen = newloglen;
         this.skiplines = 0;
         if (this.parseOnce) {
-          this.emitter.emit('old-log-complete');
+          this.emitter.emit('old-log-complete', undefined);
         }
       }
       //console.log(this.results);
@@ -391,11 +397,11 @@ export class LogParser {
         gameObjects.forEach(gobj => {
           if (gobj.type === 'GameObjectType_Card') {
             this.emitter.emit('card-played', {
-              instanceId: gobj.instanceId,
-              grpId: gobj.grpId,
-              zoneId: gobj.zoneId,
+              instanceId: parseFloat(gobj.instanceId),
+              grpId: parseFloat(gobj.grpId),
+              zoneId: parseFloat(gobj.zoneId),
               visibility: gobj.visibility,
-              ownerSeatId: gobj.ownerSeatId,
+              ownerSeatId: parseFloat(gobj.ownerSeatId),
             });
           }
         });
@@ -430,7 +436,7 @@ export class LogParser {
     }
   }
 
-  private bracketeer(line: string, brackets: {curly: number; squared: number}) {
+  private bracketeer(line: string, brackets: {curly: number; squared: number}): {curly: number; squared: number} {
     brackets.curly = brackets.curly + substrcount(line, '{') - substrcount(line, '}');
 
     brackets.squared = brackets.squared + substrcount(line, '[') - substrcount(line, ']');
@@ -438,14 +444,18 @@ export class LogParser {
     return brackets;
   }
 
-  private writing(line: string, brackets: {curly: number; squared: number}) {
+  private writing(line: string, brackets: {curly: number; squared: number}): {curly: number; squared: number} {
     if (line.trim() === '') {
       return brackets;
     }
+
+    const indicatorMarker = this.indicators[this.nowWriting].marker;
+    const currentDoppler = this.doppler.get(this.strdate);
+    const dopplerFromMarker = currentDoppler && currentDoppler.get(indicatorMarker);
+    let safeDopplerFromMarker = dopplerFromMarker === undefined ? 0 : dopplerFromMarker;
+
     const append = this.results.findIndex(
-      elem =>
-        +elem.indicator === +this.nowWriting &&
-        +elem.time === this.strdate + this.doppler[this.strdate][+this.indicators[this.nowWriting].marker]
+      elem => +elem.indicator === +this.nowWriting && +elem.time === this.strdate + safeDopplerFromMarker
     );
 
     if (append !== -1) {
@@ -453,9 +463,18 @@ export class LogParser {
         this.results[append].json += line.trim();
         return this.bracketeer(line, brackets);
       } else {
-        this.doppler[this.strdate][+this.indicators[this.nowWriting].marker]++;
+        safeDopplerFromMarker++;
+
+        if (currentDoppler) {
+          currentDoppler.set(indicatorMarker, safeDopplerFromMarker);
+        } else {
+          this.doppler.set(
+            this.strdate,
+            new Map<number, number>([[indicatorMarker, safeDopplerFromMarker]])
+          );
+        }
         this.results.push({
-          time: this.strdate + this.doppler[this.strdate][+this.indicators[this.nowWriting].marker],
+          time: this.strdate + safeDopplerFromMarker,
           indicator: this.nowWriting,
           json: line.trim(),
           uid: this.newPlayerData.playerId,
@@ -465,7 +484,7 @@ export class LogParser {
       }
     } else {
       this.results.push({
-        time: this.strdate + this.doppler[this.strdate][+this.indicators[this.nowWriting].marker],
+        time: this.strdate + safeDopplerFromMarker,
         indicator: this.nowWriting,
         json: line.trim(),
         uid: this.newPlayerData.playerId,
@@ -475,7 +494,7 @@ export class LogParser {
     }
   }
 
-  private writingSingleLine(line: string, indicator: string, doppler: number) {
+  private writingSingleLine(line: string, indicator: string, doppler: number): {result: string; dopler: number} {
     const pos = line.indexOf(indicator, doppler);
     const workingline = line.substring(pos + indicator.length);
     const brackets = {curly: 0, squared: 0};

@@ -1,5 +1,5 @@
 export class Optional<T> {
-  private value?: T;
+  private readonly value?: T;
 
   constructor(value?: T) {
     this.value = value;

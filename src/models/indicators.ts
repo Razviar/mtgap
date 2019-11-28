@@ -1,5 +1,5 @@
 export interface Indicators {
-  marker: string;
+  marker: number;
   Indicators: string;
   Send: string;
   Needrunning: string;

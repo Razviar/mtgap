@@ -1,4 +1,4 @@
-import {Request} from 'root/lib/request';
+import {Request} from 'root/app/request';
 import {asMap, asString} from 'root/lib/type_utils';
 import {ParseResults} from 'root/models/indicators';
 

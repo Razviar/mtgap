@@ -1,12 +1,13 @@
 // tslint:disable-next-line: no-import-side-effect
-import {ipcRenderer, remote} from 'electron';
+import {remote} from 'electron';
 
 import {getlivematch} from 'root/api/overlay';
 import {countOfObject, hexToRgbA, jsonParse, sumOfObject} from 'root/lib/func';
-import {error} from 'root/lib/logger';
-import {color, manafont, rarcolor, typecolorletter} from 'root/lib/utils';
+import {color, manafont, rarcolor, supercls, typecolorletter} from 'root/lib/utils';
 import {Match} from 'root/models/match';
 import {MetadataStore} from 'root/models/metadata';
+import {onMessageFromIpcMain} from 'root/windows/messages';
+// tslint:disable-next-line: no-import-side-effect
 import 'root/windows/overlay/overlay.css';
 
 const MainOut = document.getElementById('MainOut') as HTMLElement;
@@ -160,39 +161,33 @@ const updateDeck = (highlight: number[]) => {
       crdEl.classList.add('highlightCard');
     }
   });
+  const highlightTimeout = 1500;
   setTimeout(() => {
     Array.from(document.getElementsByClassName('highlightCard')).forEach(el => {
       el.classList.remove('highlightCard');
     });
-  }, 3000);
+  }, highlightTimeout);
 };
 
-ipcRenderer.on('draw-deck', (e, arg) => {});
-
-ipcRenderer.on('match-started', (e, arg) => {
-  currentMatch.matchId = arg.matchId;
-  currentMatch.ourUid = arg.uid;
-  currentMatch.myTeamId = arg.seatId;
-  currentMatch.GameNumber = arg.gameNumber;
+onMessageFromIpcMain('match-started', newMatch => {
+  currentMatch.matchId = newMatch.matchId;
+  currentMatch.ourUid = newMatch.uid;
+  currentMatch.myTeamId = newMatch.seatId;
+  currentMatch.GameNumber = newMatch.gameNumber;
   getlivematch(currentMatch.matchId, currentMatch.ourUid, remote.app.getVersion())
     .then(res => {
       currentMatch.myFullDeck = res.deckstruct;
       currentMatch.humanname = res.humanname;
       updateDeck([]);
     })
-    .catch(err => {
-      error('Failure to load deck', err, {...currentMatch});
-    });
+    // tslint:disable-next-line: no-console
+    .catch(console.error);
 });
 
-ipcRenderer.on('match-over', () => {
-  currentMatch.over();
-});
+onMessageFromIpcMain('match-over', () => currentMatch.over());
 
-ipcRenderer.on('card-played', (e, arg) => {
+onMessageFromIpcMain('card-played', arg => {
   const res = currentMatch.cardplayed(arg.grpId, arg.instanceId, arg.ownerSeatId, arg.zoneId);
-  //console.log('!!!');
-  //console.log(currentMatch.decks.opponent);
   if (res.myDeck) {
     if (res.affectedcards.length > 0) {
       updateDeck(res.affectedcards);
@@ -203,5 +198,6 @@ ipcRenderer.on('card-played', (e, arg) => {
 });
 
 MainOut.addEventListener('mouseenter', () => {
+  // tslint:disable-next-line: no-console
   console.log('!!!');
 });

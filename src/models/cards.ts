@@ -117,3 +117,11 @@ export interface CardPriceData {
   ask: number;
   market: number;
 }
+
+export interface CardPlayed {
+  grpId: number;
+  instanceId: number;
+  ownerSeatId: number;
+  visibility: string;
+  zoneId: number;
+}

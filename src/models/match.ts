@@ -1,6 +1,6 @@
 export interface LiveMatchRequest {
   matchid: string;
-  uid: number;
+  uid: string;
 }
 
 export interface LiveMatch {
@@ -21,7 +21,7 @@ export interface CardMappings {
 export class Match {
   public matchId: string = '';
   public mtgaUid: string = '';
-  public ourUid: number = 0;
+  public ourUid: string = '';
   public zones: {[index: number]: number} = {};
   public instanceIds: CardMappings = {me: {}, opponent: {}};
   public decks: CardMappings = {me: {}, opponent: {}};
@@ -35,7 +35,7 @@ export class Match {
   public over(): void {
     this.matchId = '';
     this.mtgaUid = '';
-    this.ourUid = 0;
+    this.ourUid = '';
     this.zones = {};
     this.instanceIds = {me: {}, opponent: {}};
     this.decks = {me: {}, opponent: {}};
