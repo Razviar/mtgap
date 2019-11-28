@@ -90,6 +90,67 @@ export function setupIpcMain(app: App): void {
     });
   });
 
+  /*OVERLAY SETTINGS*/
+
+  onMessageFromBrowserWindow('set-setting-o-hidezero', newOverlaySetting => {
+    const session = settingsStore.getAccount();
+    if (!session) {
+      return;
+    }
+    session.overlaySettings.hidezero = newOverlaySetting;
+    settingsStore.save();
+  });
+  onMessageFromBrowserWindow('set-setting-o-showcardicon', newOverlaySetting => {
+    const session = settingsStore.getAccount();
+    if (!session) {
+      return;
+    }
+    session.overlaySettings.showcardicon = newOverlaySetting;
+    settingsStore.save();
+  });
+  onMessageFromBrowserWindow('set-setting-o-leftdigit', newOverlaySetting => {
+    const session = settingsStore.getAccount();
+    if (!session) {
+      return;
+    }
+    session.overlaySettings.leftdigit = newOverlaySetting;
+    settingsStore.save();
+  });
+  onMessageFromBrowserWindow('set-setting-o-rightdigit', newOverlaySetting => {
+    const session = settingsStore.getAccount();
+    if (!session) {
+      return;
+    }
+    session.overlaySettings.rightdigit = newOverlaySetting;
+    settingsStore.save();
+  });
+  onMessageFromBrowserWindow('set-setting-o-bottomdigit', newOverlaySetting => {
+    const session = settingsStore.getAccount();
+    if (!session) {
+      return;
+    }
+    session.overlaySettings.bottomdigit = newOverlaySetting;
+    settingsStore.save();
+  });
+  onMessageFromBrowserWindow('set-setting-o-hidemy', newOverlaySetting => {
+    const session = settingsStore.getAccount();
+    if (!session) {
+      return;
+    }
+    session.overlaySettings.hidemy = newOverlaySetting;
+    settingsStore.save();
+  });
+  onMessageFromBrowserWindow('set-setting-o-hideopp', newOverlaySetting => {
+    const session = settingsStore.getAccount();
+    if (!session) {
+      return;
+    }
+    session.overlaySettings.hideopp = newOverlaySetting;
+    settingsStore.save();
+  });
+
+  /*OVERLAY SETTINGS END*/
+
   onMessageFromBrowserWindow('kill-current-token', () => {
     const settings = settingsStore.get();
     const session = settingsStore.getAccount();

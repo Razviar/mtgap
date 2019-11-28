@@ -36,4 +36,11 @@ export interface Messages {
   'set-setting-icon': string;
   'match-over': undefined;
   'card-played': CardPlayed;
+  'set-setting-o-hidezero': boolean;
+  'set-setting-o-hidemy': boolean;
+  'set-setting-o-hideopp': boolean;
+  'set-setting-o-showcardicon': boolean;
+  'set-setting-o-leftdigit': number;
+  'set-setting-o-rightdigit': number;
+  'set-setting-o-bottomdigit': number;
 }

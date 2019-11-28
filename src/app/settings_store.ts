@@ -111,6 +111,45 @@ export interface Account {
   nick: string;
   overlay: boolean;
   player?: Player;
+  overlaySettings: OverlaySettings;
+}
+
+export interface OverlaySettings {
+  leftdigit: number;
+  rightdigit: number;
+  bottomdigit: number;
+  hidemy: boolean;
+  hideopp: boolean;
+  hidezero: boolean;
+  showcardicon: boolean;
+}
+
+function asOverlaySettings(anyMap: AnyMap | undefined): OverlaySettings | undefined {
+  if (!anyMap) {
+    return undefined;
+  }
+
+  const leftdigit = asNumber(anyMap['leftdigit']);
+  const rightdigit = asNumber(anyMap['rightdigit']);
+  const bottomdigit = asNumber(anyMap['bottomdigit']);
+  const hidemy = asBoolean(anyMap['hidemy']);
+  const hideopp = asBoolean(anyMap['hideopp']);
+  const hidezero = asBoolean(anyMap['hidezero']);
+  const showcardicon = asBoolean(anyMap['showcardicon']);
+
+  if (
+    leftdigit === undefined ||
+    rightdigit === undefined ||
+    bottomdigit === undefined ||
+    hidemy === undefined ||
+    hideopp === undefined ||
+    showcardicon === undefined ||
+    hidezero === undefined
+  ) {
+    return undefined;
+  }
+
+  return {leftdigit, rightdigit, bottomdigit, hidemy, hideopp, hidezero, showcardicon};
 }
 
 function asPlayer(anyMap: AnyMap | undefined): Player | undefined {
@@ -147,12 +186,27 @@ function asAccountV0(anyMap: AnyMap): Account[] {
       screenName: raw['screenName'],
       language: raw['language'],
     });
+    const overlaySettings = asOverlaySettings({
+      leftdigit: raw['leftdigit'],
+      rightdigit: raw['rightdigit'],
+      bottomdigit: raw['bottomdigit'],
+      hidemy: raw['hidemy'],
+      hideopp: raw['hideopp'],
+      hidezero: raw['hidezero'],
+      showcardicon: raw['showcardicon'],
+    });
 
-    if (uid === undefined || token === undefined || nick === undefined || overlay === undefined) {
+    if (
+      uid === undefined ||
+      token === undefined ||
+      nick === undefined ||
+      overlay === undefined ||
+      overlaySettings === undefined
+    ) {
       continue;
     }
 
-    res.push({uid, token, nick, overlay, player});
+    res.push({uid, token, nick, overlay, player, overlaySettings});
   }
 
   return res;

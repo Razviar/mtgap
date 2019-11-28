@@ -241,20 +241,44 @@ const settingsChecker = (event: any) => {
       ? event.target.value
       : '';
   //console.log(event.target.tagName);
-  if (setting === 'autorun') {
-    sendMessageToIpcMain('set-setting-autorun', event.target.checked);
-  }
-  if (setting === 'minimized') {
-    sendMessageToIpcMain('set-setting-minimized', event.target.checked);
-  }
-  if (setting === 'manualupdate') {
-    sendMessageToIpcMain('set-setting-manualupdate', event.target.checked);
-  }
-  if (setting === 'overlay') {
-    sendMessageToIpcMain('set-setting-overlay', event.target.checked);
-  }
-  if (setting === 'icon') {
-    sendMessageToIpcMain('set-setting-icon', event.target.value);
+  switch (setting) {
+    case 'autorun':
+      sendMessageToIpcMain('set-setting-autorun', event.target.checked);
+      break;
+    case 'minimized':
+      sendMessageToIpcMain('set-setting-minimized', event.target.checked);
+      break;
+    case 'manualupdate':
+      sendMessageToIpcMain('set-setting-manualupdate', event.target.checked);
+      break;
+    case 'overlay':
+      sendMessageToIpcMain('set-setting-overlay', event.target.checked);
+      break;
+    case 'icon':
+      sendMessageToIpcMain('set-setting-icon', event.target.value);
+      break;
+
+    case 'o-hidezero':
+      sendMessageToIpcMain('set-setting-o-hidezero', event.target.checked);
+      break;
+    case 'o-showcardicon':
+      sendMessageToIpcMain('set-setting-o-showcardicon', event.target.value);
+      break;
+    case 'o-leftdigit':
+      sendMessageToIpcMain('set-setting-o-leftdigit', event.target.value);
+      break;
+    case 'o-rightdigit':
+      sendMessageToIpcMain('set-setting-o-rightdigit', event.target.value);
+      break;
+    case 'o-bottomdigit':
+      sendMessageToIpcMain('set-setting-o-bottomdigit', event.target.value);
+      break;
+    case 'o-hidemy':
+      sendMessageToIpcMain('set-setting-o-hidemy', event.target.value);
+      break;
+    case 'o-hideopp':
+      sendMessageToIpcMain('set-setting-o-hideopp', event.target.value);
+      break;
   }
 };
 
