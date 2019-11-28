@@ -3,22 +3,23 @@ import {remote} from 'electron';
 
 import {getlivematch} from 'root/api/overlay';
 import {countOfObject, hexToRgbA, jsonParse, sumOfObject} from 'root/lib/func';
-import {color, manafont, rarcolor, supercls, typecolorletter} from 'root/lib/utils';
+import {sortcards} from 'root/lib/sortcards';
+import {color, manafont, rarcolor, typecolorletter} from 'root/lib/utils';
+import {Card} from 'root/models/cards';
 import {Match} from 'root/models/match';
 import {MetadataStore} from 'root/models/metadata';
 import {onMessageFromIpcMain} from 'root/windows/messages';
 // tslint:disable-next-line: no-import-side-effect
 import 'root/windows/overlay/overlay.css';
-import {Card} from 'root/models/cards';
-import {sortcards} from 'root/lib/sortcards';
 
 const MainOut = document.getElementById('MainOut') as HTMLElement;
 const OpponentOut = document.getElementById('OpponentOut') as HTMLElement;
+const highlightTimeout = 4000;
 
 const currentMatch = new Match();
 const metaData = new MetadataStore(remote.app.getVersion());
 
-const makeCard = (cid: number, num: number, mode: string): string => {
+const makeCard = (cid: number, num: number, mode: string, side: boolean): string => {
   const badgesnum = 3;
   const BasicLand = 34;
   if (!metaData.meta) {
@@ -105,8 +106,12 @@ const makeCard = (cid: number, num: number, mode: string): string => {
     }
   });
 
+  const numbers = side
+    ? `${num} | ${currentMatch.decks.me[mtgaId] > 0 ? num - currentMatch.decks.me[mtgaId] : num}`
+    : `${num}`;
+
   return `
-<div class="DcDrow" id="card${mtgaId}">
+<div class="DcDrow" id="card${mtgaId}${side ? 'me' : 'opp'}">
 <div class="CardSmallPic" style="border-image:${bgcolor}; background:url('https://mtgarena.pro/mtg/pict/thumb/${thumb}') 50% 50%">
 </div>
 <div class="CNameManaWrap">
@@ -115,9 +120,8 @@ ${manas} ${manas !== '' ? '|' : ''} <span class="ms ms-${superclasses[cardsdb[ci
 </div>
 <div class="CName">${name}</div>
 </div>
-<div class="Copies" style="color:#${rarcolor[+rarity]}" id="cardnum${cid}">${num} | ${
-    currentMatch.decks.me[mtgaId] > 0 ? num - currentMatch.decks.me[mtgaId] : num
-  }</div>
+<div class="Copies" style="color:#${rarcolor[+rarity]}" id="cardnum${mtgaId}${side ? 'me' : 'opp'}">
+${numbers}</div>
 </div>`;
 };
 
@@ -138,36 +142,63 @@ const updateOppDeck = (highlight: number[]) => {
     oppDeck[+cid] = currentMatch.decks.opponent[+OppMtgaCid];
     forsort[+cid] = meta.allcards[+cid];
   });
-  console.log('----');
-  console.log(oppDeck);
   sortcards(forsort, true, SortLikeMTGA).forEach(cid => {
-    output += makeCard(+cid[0], oppDeck[+cid[0]], 'battle');
+    output += makeCard(+cid[0], oppDeck[+cid[0]], 'battle', false);
   });
 
   OpponentOut.innerHTML = output;
   OpponentOut.classList.remove('hidden');
-};
 
-const updateDeck = (highlight: number[]) => {
-  let output = `<div class="deckName">${currentMatch.humanname}</div>`;
-  currentMatch.myFullDeck.forEach(card => {
-    output += makeCard(card.card, card.cardnum, 'battle');
-  });
-  MainOut.innerHTML = output;
-  MainOut.classList.remove('hidden');
-
-  highlight.forEach(cid => {
-    const crdEl: HTMLElement | null = document.getElementById(`card${cid}`);
+  highlight.forEach(mtgaid => {
+    const crdEl: HTMLElement | null = document.getElementById(`card${mtgaid}opp`);
     if (crdEl) {
       crdEl.classList.add('highlightCard');
     }
   });
-  const highlightTimeout = 1500;
+
   setTimeout(() => {
     Array.from(document.getElementsByClassName('highlightCard')).forEach(el => {
       el.classList.remove('highlightCard');
     });
   }, highlightTimeout);
+};
+
+const updateDeck = (highlight: number[]) => {
+  if (!metaData.meta) {
+    return '';
+  }
+  const meta = metaData.meta;
+
+  highlight.forEach(mtgaid => {
+    const crdEl: HTMLElement | null = document.getElementById(`card${mtgaid}me`);
+    const crdTxtEl: HTMLElement | null = document.getElementById(`cardnum${mtgaid}me`);
+    const cid = meta.mtgatoinnerid[+mtgaid];
+    if (crdEl && crdTxtEl) {
+      crdEl.classList.add('highlightCard');
+      const num = currentMatch.myFullDeck.find(fd => fd.card === +cid);
+      if (!num) {
+        return;
+      }
+      const numbers = `${num.cardnum} | ${
+        currentMatch.decks.me[+mtgaid] > 0 ? num.cardnum - currentMatch.decks.me[+mtgaid] : num.cardnum
+      }`;
+      crdTxtEl.innerHTML = numbers;
+      setTimeout(() => {
+        Array.from(document.getElementsByClassName('highlightCard')).forEach(el => {
+          el.classList.remove('highlightCard');
+        });
+      }, highlightTimeout);
+    }
+  });
+};
+
+const drawDeck = () => {
+  let output = `<div class="deckName">${currentMatch.humanname}</div>`;
+  currentMatch.myFullDeck.forEach(card => {
+    output += makeCard(card.card, card.cardnum, 'battle', true);
+  });
+  MainOut.innerHTML = output;
+  MainOut.classList.remove('hidden');
 };
 
 onMessageFromIpcMain('match-started', newMatch => {
@@ -179,7 +210,7 @@ onMessageFromIpcMain('match-started', newMatch => {
     .then(res => {
       currentMatch.myFullDeck = res.deckstruct;
       currentMatch.humanname = res.humanname;
-      updateDeck([]);
+      drawDeck();
     })
     // tslint:disable-next-line: no-console
     .catch(console.error);

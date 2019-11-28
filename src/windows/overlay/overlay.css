@@ -100,7 +100,6 @@ a[href^="ftp://"] {
   cursor: pointer;
   transition-duration: 100ms;
   transition-property: all;
-  color: #fff !important;
   border-bottom: solid 1px #36221e;
   text-shadow: 1px 1px 3px #000;
   text-align: left !important;
@@ -150,4 +149,5 @@ a[href^="ftp://"] {
 
 .ms {
   text-shadow: none !important;
+  color: #c3c3c3 !important;
 }
