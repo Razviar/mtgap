@@ -34,6 +34,7 @@ export class LogParser {
   private readonly newPlayerData: PlayerData = {playerId: '', screenName: '', language: ''};
   private currentMatchId: string = '';
   private readonly doppler = new Map<number, Map<number, number>>();
+  private catchingUp = true;
 
   public emitter = new LogParserEventEmitter();
 
@@ -248,7 +249,7 @@ export class LogParser {
                   matchId: this.currentMatchId,
                 });
                 const CHECK_BATTLE_EVENT_MARKER = 5;
-                if (indicator.marker === CHECK_BATTLE_EVENT_MARKER) {
+                if (indicator.marker === CHECK_BATTLE_EVENT_MARKER && !this.catchingUp) {
                   this.checkBattleEvents(parsed.result);
                 }
               }
@@ -312,6 +313,7 @@ export class LogParser {
         if (this.parseOnce) {
           this.emitter.emit('old-log-complete', undefined);
         }
+        this.catchingUp = false;
       }
       //console.log(this.results);
       this.results = [];

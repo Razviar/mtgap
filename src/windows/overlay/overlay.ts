@@ -126,18 +126,14 @@ const updateOppDeck = (highlight: number[]) => {
   const ids = metaData.meta.mtgatoinnerid;
   let output = '';
   const oppDeck: {[index: number]: number} = {};
-  //console.log('???');
-  //console.log(currentMatch.decks.opponent);
+  /*console.log('???');
+  console.log(currentMatch.decks.opponent);*/
   Object.keys(currentMatch.decks.opponent).forEach(OppMtgaCid => {
     //console.log(OppMtgaCid);
-    if (oppDeck[ids[+OppMtgaCid]] > 0) {
-      oppDeck[ids[+OppMtgaCid]]++;
-    } else {
-      oppDeck[ids[+OppMtgaCid]] = 1;
-    }
+    oppDeck[ids[+OppMtgaCid]] = currentMatch.decks.opponent[+OppMtgaCid];
   });
 
-  //console.log(oppDeck);
+  console.log(oppDeck);
 
   Object.keys(oppDeck).forEach(cid => {
     output += makeCard(+cid, oppDeck[+cid], 'battle');
@@ -187,7 +183,12 @@ onMessageFromIpcMain('match-started', newMatch => {
 onMessageFromIpcMain('match-over', () => currentMatch.over());
 
 onMessageFromIpcMain('card-played', arg => {
-  const res = currentMatch.cardplayed(arg.grpId, arg.instanceId, arg.ownerSeatId, arg.zoneId);
+  const res = currentMatch.cardplayed({
+    grpId: arg.grpId,
+    instanceId: arg.instanceId,
+    ownerSeatId: arg.ownerSeatId,
+    zoneId: arg.zoneId,
+  });
   if (res.myDeck) {
     if (res.affectedcards.length > 0) {
       updateDeck(res.affectedcards);
