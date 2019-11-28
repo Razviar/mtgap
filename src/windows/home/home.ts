@@ -279,6 +279,18 @@ const settingsChecker = (event: any) => {
     case 'o-hideopp':
       sendMessageToIpcMain('set-setting-o-hideopp', event.target.value);
       break;
+    case 'o-neverhide':
+      sendMessageToIpcMain('set-setting-o-neverhide', event.target.value);
+      break;
+    case 'o-mydecks':
+      sendMessageToIpcMain('set-setting-o-mydecks', event.target.value);
+      break;
+    case 'o-cardhover':
+      sendMessageToIpcMain('set-setting-o-cardhover', event.target.value);
+      break;
+    case 'o-timers':
+      sendMessageToIpcMain('set-setting-o-timers', event.target.value);
+      break;
   }
 };
 

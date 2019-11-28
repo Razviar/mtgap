@@ -111,17 +111,21 @@ export interface Account {
   nick: string;
   overlay: boolean;
   player?: Player;
-  overlaySettings: OverlaySettings;
+  overlaySettings?: OverlaySettings;
 }
 
 export interface OverlaySettings {
-  leftdigit: number;
-  rightdigit: number;
-  bottomdigit: number;
-  hidemy: boolean;
-  hideopp: boolean;
-  hidezero: boolean;
-  showcardicon: boolean;
+  leftdigit?: number;
+  rightdigit?: number;
+  bottomdigit?: number;
+  hidemy?: boolean;
+  hideopp?: boolean;
+  hidezero?: boolean;
+  showcardicon?: boolean;
+  neverhide?: boolean;
+  mydecks?: boolean;
+  cardhover?: boolean;
+  timers?: boolean;
 }
 
 function asOverlaySettings(anyMap: AnyMap | undefined): OverlaySettings | undefined {
@@ -136,6 +140,10 @@ function asOverlaySettings(anyMap: AnyMap | undefined): OverlaySettings | undefi
   const hideopp = asBoolean(anyMap['hideopp']);
   const hidezero = asBoolean(anyMap['hidezero']);
   const showcardicon = asBoolean(anyMap['showcardicon']);
+  const timers = asBoolean(anyMap['timers']);
+  const neverhide = asBoolean(anyMap['neverhide']);
+  const mydecks = asBoolean(anyMap['mydecks']);
+  const cardhover = asBoolean(anyMap['cardhover']);
 
   if (
     leftdigit === undefined ||
@@ -144,12 +152,28 @@ function asOverlaySettings(anyMap: AnyMap | undefined): OverlaySettings | undefi
     hidemy === undefined ||
     hideopp === undefined ||
     showcardicon === undefined ||
+    timers === undefined ||
+    neverhide === undefined ||
+    cardhover === undefined ||
+    mydecks === undefined ||
     hidezero === undefined
   ) {
     return undefined;
   }
 
-  return {leftdigit, rightdigit, bottomdigit, hidemy, hideopp, hidezero, showcardicon};
+  return {
+    leftdigit,
+    rightdigit,
+    bottomdigit,
+    hidemy,
+    hideopp,
+    hidezero,
+    showcardicon,
+    timers,
+    neverhide,
+    mydecks,
+    cardhover,
+  };
 }
 
 function asPlayer(anyMap: AnyMap | undefined): Player | undefined {

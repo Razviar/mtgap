@@ -43,4 +43,8 @@ export interface Messages {
   'set-setting-o-leftdigit': number;
   'set-setting-o-rightdigit': number;
   'set-setting-o-bottomdigit': number;
+  'set-setting-o-neverhide': boolean;
+  'set-setting-o-mydecks': boolean;
+  'set-setting-o-cardhover': boolean;
+  'set-setting-o-timers': boolean;
 }

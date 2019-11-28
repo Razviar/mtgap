@@ -97,6 +97,9 @@ export function setupIpcMain(app: App): void {
     if (!session) {
       return;
     }
+    if (!session.overlaySettings) {
+      session.overlaySettings = {};
+    }
     session.overlaySettings.hidezero = newOverlaySetting;
     settingsStore.save();
   });
@@ -104,6 +107,9 @@ export function setupIpcMain(app: App): void {
     const session = settingsStore.getAccount();
     if (!session) {
       return;
+    }
+    if (!session.overlaySettings) {
+      session.overlaySettings = {};
     }
     session.overlaySettings.showcardicon = newOverlaySetting;
     settingsStore.save();
@@ -113,6 +119,9 @@ export function setupIpcMain(app: App): void {
     if (!session) {
       return;
     }
+    if (!session.overlaySettings) {
+      session.overlaySettings = {};
+    }
     session.overlaySettings.leftdigit = newOverlaySetting;
     settingsStore.save();
   });
@@ -120,6 +129,9 @@ export function setupIpcMain(app: App): void {
     const session = settingsStore.getAccount();
     if (!session) {
       return;
+    }
+    if (!session.overlaySettings) {
+      session.overlaySettings = {};
     }
     session.overlaySettings.rightdigit = newOverlaySetting;
     settingsStore.save();
@@ -129,6 +141,9 @@ export function setupIpcMain(app: App): void {
     if (!session) {
       return;
     }
+    if (!session.overlaySettings) {
+      session.overlaySettings = {};
+    }
     session.overlaySettings.bottomdigit = newOverlaySetting;
     settingsStore.save();
   });
@@ -136,6 +151,9 @@ export function setupIpcMain(app: App): void {
     const session = settingsStore.getAccount();
     if (!session) {
       return;
+    }
+    if (!session.overlaySettings) {
+      session.overlaySettings = {};
     }
     session.overlaySettings.hidemy = newOverlaySetting;
     settingsStore.save();
@@ -145,7 +163,54 @@ export function setupIpcMain(app: App): void {
     if (!session) {
       return;
     }
+    if (!session.overlaySettings) {
+      session.overlaySettings = {};
+    }
     session.overlaySettings.hideopp = newOverlaySetting;
+    settingsStore.save();
+  });
+  onMessageFromBrowserWindow('set-setting-o-timers', newOverlaySetting => {
+    const session = settingsStore.getAccount();
+    if (!session) {
+      return;
+    }
+    if (!session.overlaySettings) {
+      session.overlaySettings = {};
+    }
+    session.overlaySettings.timers = newOverlaySetting;
+    settingsStore.save();
+  });
+  onMessageFromBrowserWindow('set-setting-o-neverhide', newOverlaySetting => {
+    const session = settingsStore.getAccount();
+    if (!session) {
+      return;
+    }
+    if (!session.overlaySettings) {
+      session.overlaySettings = {};
+    }
+    session.overlaySettings.neverhide = newOverlaySetting;
+    settingsStore.save();
+  });
+  onMessageFromBrowserWindow('set-setting-o-mydecks', newOverlaySetting => {
+    const session = settingsStore.getAccount();
+    if (!session) {
+      return;
+    }
+    if (!session.overlaySettings) {
+      session.overlaySettings = {};
+    }
+    session.overlaySettings.mydecks = newOverlaySetting;
+    settingsStore.save();
+  });
+  onMessageFromBrowserWindow('set-setting-o-cardhover', newOverlaySetting => {
+    const session = settingsStore.getAccount();
+    if (!session) {
+      return;
+    }
+    if (!session.overlaySettings) {
+      session.overlaySettings = {};
+    }
+    session.overlaySettings.cardhover = newOverlaySetting;
     settingsStore.save();
   });
 
