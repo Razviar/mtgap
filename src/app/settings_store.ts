@@ -3,7 +3,7 @@ import {readFileSync, writeFileSync} from 'fs';
 import {join} from 'path';
 
 import {error} from 'root/lib/logger';
-import {AnyMap, asBoolean, asMap, asNumber, asString} from 'root/lib/type_utils';
+import {AnyMap, asBoolean, asMap, asNumber, asNumberString, asString} from 'root/lib/type_utils';
 
 type StorePath = string & {_: 'StorePath'};
 
@@ -138,7 +138,7 @@ function asAccountV0(anyMap: AnyMap): Account[] {
       continue;
     }
 
-    const uid = asString(raw['uid']);
+    const uid = asNumberString(raw['uid']);
     const token = asString(raw['token']);
     const nick = asString(raw['nick']);
     const overlay = asBoolean(raw['overlay']);
