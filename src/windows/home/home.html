@@ -142,27 +142,36 @@
       </div>
     </div>
     <div class="tab" id="overlay">
-      <div style="color:brown">
-        <strong>OVERLAY TEMPORARILY DISABLED. It will be implemented in upcoming releases soon.</strong>
-      </div>
       <div id="OverlaySwitch" class="pretty p-switch p-fill">
         <input class="settings" data-setting="overlay" type="checkbox" value="1" />
         <div class="state p-danger"><label>Enable Overlay</label></div>
       </div>
       <h2>Combat mode</h2>
-      <select>
-        <option>Card Icon</option>
-        <option>No Card Icon</option>
+      <select class="settings" data-setting="o-showcardicon">
+        <option value="true">Card Icon</option>
+        <option value="false">No Card Icon</option>
       </select>
-      [Card name] [mana]
-      <select>
-        <option>Cards Left In deck</option
-        ><option>Cards Total In deck</option
-        ><option>Draw Chance</option
-        ><option>Disable</option>
+      [mana] | [supertype] [Card name]
+      <select class="settings" data-setting="o-leftdigit">
+        <option value="1">Cards Left In deck</option>
+        <option value="2">Cards Total In deck</option>
+        <option value="3">Draw Chance</option>
+        <option value="4">Disable</option>
       </select>
       |
-      <select></select>
+      <select class="settings" data-setting="o-rightdigit">
+        <option value="1">Cards Left In deck</option>
+        <option value="2">Cards Total In deck</option>
+        <option value="3">Draw Chance</option>
+        <option value="4">Disable</option>
+      </select>
+      |
+      <select class="settings" data-setting="o-bottomdigit">
+        <option value="1">Cards Left In deck</option>
+        <option value="2">Cards Total In deck</option>
+        <option value="3">Draw Chance</option>
+        <option value="4">Disable</option>
+      </select>
       <h2>Draft Mode</h2>
       [Card name] [mana]
       <select>

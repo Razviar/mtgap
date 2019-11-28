@@ -59,7 +59,6 @@ export class LogParser {
           throw new Error('Missing indicators');
         }
         this.indicators = i.indicators;
-        //this.dateformats = i.dates;
         this.loglen = 0;
         this.loglencheck = 0;
         if (this.parseOnce) {
