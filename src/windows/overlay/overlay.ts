@@ -122,11 +122,24 @@ const updateOppDeck = (highlight: number[]) => {
   if (!metaData.meta) {
     return '';
   }
-  const cardsdb = metaData.meta.allcards;
+  const ids = metaData.meta.mtgatoinnerid;
   let output = '';
-  console.log(currentMatch.decks.opponent);
+  const oppDeck: {[index: number]: number} = {};
+  //console.log('???');
+  //console.log(currentMatch.decks.opponent);
   Object.keys(currentMatch.decks.opponent).forEach(OppMtgaCid => {
-    output += makeCard(cardsdb[+OppMtgaCid].id, currentMatch.decks.opponent[+OppMtgaCid], 'battle');
+    //console.log(OppMtgaCid);
+    if (oppDeck[ids[+OppMtgaCid]] > 0) {
+      oppDeck[ids[+OppMtgaCid]]++;
+    } else {
+      oppDeck[ids[+OppMtgaCid]] = 1;
+    }
+  });
+
+  //console.log(oppDeck);
+
+  Object.keys(oppDeck).forEach(cid => {
+    output += makeCard(+cid, oppDeck[+cid], 'battle');
   });
 
   OpponentOut.innerHTML = output;
@@ -151,7 +164,7 @@ const updateDeck = (highlight: number[]) => {
     Array.from(document.getElementsByClassName('highlightCard')).forEach(el => {
       el.classList.remove('highlightCard');
     });
-  }, 1500);
+  }, 3000);
 };
 
 ipcRenderer.on('draw-deck', (e, arg) => {});
@@ -178,7 +191,8 @@ ipcRenderer.on('match-over', () => {
 
 ipcRenderer.on('card-played', (e, arg) => {
   const res = currentMatch.cardplayed(arg.grpId, arg.instanceId, arg.ownerSeatId, arg.zoneId);
-  console.log(res);
+  //console.log('!!!');
+  //console.log(currentMatch.decks.opponent);
   if (res.myDeck) {
     if (res.affectedcards.length > 0) {
       updateDeck(res.affectedcards);
