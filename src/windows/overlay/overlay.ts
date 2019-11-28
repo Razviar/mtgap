@@ -9,6 +9,8 @@ import {MetadataStore} from 'root/models/metadata';
 import {onMessageFromIpcMain} from 'root/windows/messages';
 // tslint:disable-next-line: no-import-side-effect
 import 'root/windows/overlay/overlay.css';
+import {Card} from 'root/models/cards';
+import {sortcards} from 'root/lib/sortcards';
 
 const MainOut = document.getElementById('MainOut') as HTMLElement;
 const OpponentOut = document.getElementById('OpponentOut') as HTMLElement;
@@ -123,20 +125,23 @@ const updateOppDeck = (highlight: number[]) => {
   if (!metaData.meta) {
     return '';
   }
-  const ids = metaData.meta.mtgatoinnerid;
+  const SortLikeMTGA = 11;
+  const meta = metaData.meta;
   let output = '';
   const oppDeck: {[index: number]: number} = {};
+  const forsort: {[index: number]: Card} = {};
   /*console.log('???');
   console.log(currentMatch.decks.opponent);*/
   Object.keys(currentMatch.decks.opponent).forEach(OppMtgaCid => {
     //console.log(OppMtgaCid);
-    oppDeck[ids[+OppMtgaCid]] = currentMatch.decks.opponent[+OppMtgaCid];
+    const cid = meta.mtgatoinnerid[+OppMtgaCid];
+    oppDeck[+cid] = currentMatch.decks.opponent[+OppMtgaCid];
+    forsort[+cid] = meta.allcards[+cid];
   });
-
+  console.log('----');
   console.log(oppDeck);
-
-  Object.keys(oppDeck).forEach(cid => {
-    output += makeCard(+cid, oppDeck[+cid], 'battle');
+  sortcards(forsort, true, SortLikeMTGA).forEach(cid => {
+    output += makeCard(+cid[0], oppDeck[+cid[0]], 'battle');
   });
 
   OpponentOut.innerHTML = output;
