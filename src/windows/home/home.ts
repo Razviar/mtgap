@@ -2,6 +2,7 @@
 import {shell} from 'electron';
 
 import {tokencheck, tokenrequest, userbytokenid} from 'root/api/userbytokenid';
+import {error} from 'root/lib/logger';
 // tslint:disable: no-import-side-effect
 import 'root/windows/home/home.css';
 import 'root/windows/home/icons.css';
@@ -59,7 +60,11 @@ onMessageFromIpcMain('set-creds', creds => {
 });
 
 onMessageFromIpcMain('set-settings', newSettings => {
-  //const setters = ['autorun', 'minimized', 'logpath'];
+  if (newSettings.overlay) {
+    const sw = document.querySelector('[data-setting="overlay"]') as HTMLInputElement;
+    sw.checked = newSettings.overlay;
+  }
+
   if (newSettings.autorun) {
     const sw = document.querySelector('[data-setting="autorun"]') as HTMLInputElement;
     sw.checked = newSettings.autorun;
@@ -153,8 +158,8 @@ PromptWnd.addEventListener('click', () => {
   PromptWnd.style.display = 'none';
 });
 
-const tabclick = (event: any) => {
-  const cl: HTMLElement = event.target;
+const tabclick = (event: Event) => {
+  const cl: HTMLElement = event.target as HTMLElement;
   const activate = cl.getAttribute('data-activate');
 
   Array.from(buttons).forEach(el => {
@@ -178,16 +183,18 @@ const tabclick = (event: any) => {
   });
 };
 
-const linkclick = (event: any) => {
-  const cl: HTMLElement = event.target;
+const linkclick = (event: Event) => {
+  const cl: HTMLElement = event.target as HTMLElement;
   const link = cl.getAttribute('data-link');
-  if (link) {
-    shell.openExternal(link);
+  if (link !== null) {
+    shell.openExternal(link).catch(err => {
+      error('Failure to open link', err, {link});
+    });
   }
 };
 
-const controlClick = (event: any) => {
-  const cl: HTMLElement = event.target;
+const controlClick = (event: Event) => {
+  const cl: HTMLElement = event.target as HTMLElement;
   const button = cl.getAttribute('data-button') as string;
   switch (button) {
     case 'skip-acc':
@@ -203,14 +210,20 @@ const controlClick = (event: any) => {
       break;
     case 'connect-acc':
       cl.innerHTML = 'Awaiting...';
-      tokenrequest(currentMtgaNick, AppVersion.innerHTML).then(res => {
-        if (res.mode === 'needauth') {
-          shell.openExternal(`https://mtgarena.pro/sync/?request=${res.request}`);
-          tokenWaiter(res.request);
-        } else if (res.mode === 'hasauth') {
-          login(res.token, res.uid, res.nick, 'connect-acc');
-        }
-      });
+      tokenrequest(currentMtgaNick, AppVersion.innerHTML)
+        .then(res => {
+          if (res.mode === 'needauth') {
+            shell.openExternal(`https://mtgarena.pro/sync/?request=${res.request}`).catch(err => {
+              error('Failure to open link', err, {res});
+            });
+            tokenWaiter(res.request);
+          } else if (res.mode === 'hasauth') {
+            login(res.token, res.uid, res.nick, 'connect-acc');
+          }
+        })
+        .catch(err => {
+          error('Failure to perfporm tokenrequest', err, {currentMtgaNick});
+        });
 
       break;
     case 'unskip-acc':
@@ -231,65 +244,58 @@ const controlClick = (event: any) => {
   }
 };
 
-const settingsChecker = (event: any) => {
-  const cl: HTMLInputElement = event.target;
+const settingsChecker = (event: Event) => {
+  const cl: HTMLInputElement = event.target as HTMLInputElement;
   const setting = cl.getAttribute('data-setting');
-  const data =
-    event.target.tagName === 'INPUT'
-      ? event.target.checked
-      : event.target.tagName === 'SELECT'
-      ? event.target.value
-      : '';
-  //console.log(event.target.tagName);
+
   switch (setting) {
     case 'autorun':
-      sendMessageToIpcMain('set-setting-autorun', event.target.checked);
+      sendMessageToIpcMain('set-setting-autorun', cl.checked);
       break;
     case 'minimized':
-      sendMessageToIpcMain('set-setting-minimized', event.target.checked);
+      sendMessageToIpcMain('set-setting-minimized', cl.checked);
       break;
     case 'manualupdate':
-      sendMessageToIpcMain('set-setting-manualupdate', event.target.checked);
+      sendMessageToIpcMain('set-setting-manualupdate', cl.checked);
       break;
     case 'overlay':
-      sendMessageToIpcMain('set-setting-overlay', event.target.checked);
+      sendMessageToIpcMain('set-setting-overlay', cl.checked);
       break;
     case 'icon':
-      sendMessageToIpcMain('set-setting-icon', event.target.value);
+      sendMessageToIpcMain('set-setting-icon', cl.value);
       break;
-
     case 'o-hidezero':
-      sendMessageToIpcMain('set-setting-o-hidezero', event.target.checked);
+      sendMessageToIpcMain('set-setting-o-hidezero', cl.checked);
       break;
     case 'o-showcardicon':
-      sendMessageToIpcMain('set-setting-o-showcardicon', event.target.value);
+      sendMessageToIpcMain('set-setting-o-showcardicon', cl.checked);
       break;
     case 'o-leftdigit':
-      sendMessageToIpcMain('set-setting-o-leftdigit', event.target.value);
+      sendMessageToIpcMain('set-setting-o-leftdigit', +cl.value);
       break;
     case 'o-rightdigit':
-      sendMessageToIpcMain('set-setting-o-rightdigit', event.target.value);
+      sendMessageToIpcMain('set-setting-o-rightdigit', +cl.value);
       break;
     case 'o-bottomdigit':
-      sendMessageToIpcMain('set-setting-o-bottomdigit', event.target.value);
+      sendMessageToIpcMain('set-setting-o-bottomdigit', +cl.value);
       break;
     case 'o-hidemy':
-      sendMessageToIpcMain('set-setting-o-hidemy', event.target.value);
+      sendMessageToIpcMain('set-setting-o-hidemy', cl.checked);
       break;
     case 'o-hideopp':
-      sendMessageToIpcMain('set-setting-o-hideopp', event.target.value);
+      sendMessageToIpcMain('set-setting-o-hideopp', cl.checked);
       break;
     case 'o-neverhide':
-      sendMessageToIpcMain('set-setting-o-neverhide', event.target.value);
+      sendMessageToIpcMain('set-setting-o-neverhide', cl.checked);
       break;
     case 'o-mydecks':
-      sendMessageToIpcMain('set-setting-o-mydecks', event.target.value);
+      sendMessageToIpcMain('set-setting-o-mydecks', cl.checked);
       break;
     case 'o-cardhover':
-      sendMessageToIpcMain('set-setting-o-cardhover', event.target.value);
+      sendMessageToIpcMain('set-setting-o-cardhover', cl.checked);
       break;
     case 'o-timers':
-      sendMessageToIpcMain('set-setting-o-timers', event.target.value);
+      sendMessageToIpcMain('set-setting-o-timers', cl.checked);
       break;
   }
 };
@@ -308,25 +314,33 @@ const login = (token: string, uid: string, nick: string, source?: string) => {
     overlay: false,
   });
 
-  userbytokenid(token, AppVersion.innerHTML).then(res => {
-    if (res.status === 'UNSET_USER') {
-      sendMessageToIpcMain('kill-current-token', undefined);
-    }
-  });
+  userbytokenid(token, AppVersion.innerHTML)
+    .then(res => {
+      if (res.status === 'UNSET_USER') {
+        sendMessageToIpcMain('kill-current-token', undefined);
+      }
+    })
+    .catch(err => {
+      error('Failure to perfporm userbytokenid', err, {token});
+    });
 
   BrightButton.innerHTML = '<img class="imgico" id="uploadIco" width="20" /> Sync Account';
 };
 
 const tokenWaiter = (request: string) => {
-  tokencheck(request, AppVersion.innerHTML).then(res => {
-    if (res && res.token) {
-      login(res.token, res.uid, res.nick);
-    } else {
-      setTimeout(() => {
-        tokenWaiter(request);
-      }, 1000);
-    }
-  });
+  tokencheck(request, AppVersion.innerHTML)
+    .then(res => {
+      if (res && res.token) {
+        login(res.token, res.uid, res.nick);
+      } else {
+        setTimeout(() => {
+          tokenWaiter(request);
+        }, 1000);
+      }
+    })
+    .catch(err => {
+      error('Failure to perfporm tokencheck', err, {request});
+    });
 };
 
 Array.from(buttons).forEach(el => {
