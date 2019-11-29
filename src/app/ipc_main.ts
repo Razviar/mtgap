@@ -91,127 +91,92 @@ export function setupIpcMain(app: App): void {
   });
 
   /*OVERLAY SETTINGS*/
+  const overlaySettingsBoolean = [
+    'hidezero',
+    'showcardicon',
+    'hidemy',
+    'hideopp',
+    'timers',
+    'neverhide',
+    'mydecks',
+    'cardhover',
+  ];
 
-  onMessageFromBrowserWindow('set-setting-o-hidezero', newOverlaySetting => {
-    const session = settingsStore.getAccount();
-    if (!session) {
-      return;
-    }
-    if (!session.overlaySettings) {
-      session.overlaySettings = {};
-    }
-    session.overlaySettings.hidezero = newOverlaySetting;
-    settingsStore.save();
+  overlaySettingsBoolean.forEach(setting => {
+    const settingType = setting as
+      | 'hidezero'
+      | 'showcardicon'
+      | 'hidemy'
+      | 'hideopp'
+      | 'timers'
+      | 'neverhide'
+      | 'mydecks'
+      | 'cardhover';
+    const settingName = `set-setting-o-${settingType}` as
+      | 'set-setting-o-hidezero'
+      | 'set-setting-o-hidemy'
+      | 'set-setting-o-hideopp'
+      | 'set-setting-o-showcardicon'
+      | 'set-setting-o-neverhide'
+      | 'set-setting-o-mydecks'
+      | 'set-setting-o-cardhover'
+      | 'set-setting-o-timers';
+    onMessageFromBrowserWindow(settingName, newOverlaySetting => {
+      const session = settingsStore.getAccount();
+      if (!session) {
+        return;
+      }
+      if (!session.overlaySettings) {
+        session.overlaySettings = {
+          leftdigit: 2,
+          rightdigit: 1,
+          bottomdigit: 3,
+          hidemy: false,
+          hideopp: false,
+          hidezero: false,
+          showcardicon: true,
+          neverhide: false,
+          mydecks: false,
+          cardhover: false,
+          timers: false,
+        };
+      }
+      session.overlaySettings[settingType] = newOverlaySetting;
+      settingsStore.save();
+    });
   });
-  onMessageFromBrowserWindow('set-setting-o-showcardicon', newOverlaySetting => {
-    const session = settingsStore.getAccount();
-    if (!session) {
-      return;
-    }
-    if (!session.overlaySettings) {
-      session.overlaySettings = {};
-    }
-    session.overlaySettings.showcardicon = newOverlaySetting;
-    settingsStore.save();
-  });
-  onMessageFromBrowserWindow('set-setting-o-leftdigit', newOverlaySetting => {
-    const session = settingsStore.getAccount();
-    if (!session) {
-      return;
-    }
-    if (!session.overlaySettings) {
-      session.overlaySettings = {};
-    }
-    session.overlaySettings.leftdigit = newOverlaySetting;
-    settingsStore.save();
-  });
-  onMessageFromBrowserWindow('set-setting-o-rightdigit', newOverlaySetting => {
-    const session = settingsStore.getAccount();
-    if (!session) {
-      return;
-    }
-    if (!session.overlaySettings) {
-      session.overlaySettings = {};
-    }
-    session.overlaySettings.rightdigit = newOverlaySetting;
-    settingsStore.save();
-  });
-  onMessageFromBrowserWindow('set-setting-o-bottomdigit', newOverlaySetting => {
-    const session = settingsStore.getAccount();
-    if (!session) {
-      return;
-    }
-    if (!session.overlaySettings) {
-      session.overlaySettings = {};
-    }
-    session.overlaySettings.bottomdigit = newOverlaySetting;
-    settingsStore.save();
-  });
-  onMessageFromBrowserWindow('set-setting-o-hidemy', newOverlaySetting => {
-    const session = settingsStore.getAccount();
-    if (!session) {
-      return;
-    }
-    if (!session.overlaySettings) {
-      session.overlaySettings = {};
-    }
-    session.overlaySettings.hidemy = newOverlaySetting;
-    settingsStore.save();
-  });
-  onMessageFromBrowserWindow('set-setting-o-hideopp', newOverlaySetting => {
-    const session = settingsStore.getAccount();
-    if (!session) {
-      return;
-    }
-    if (!session.overlaySettings) {
-      session.overlaySettings = {};
-    }
-    session.overlaySettings.hideopp = newOverlaySetting;
-    settingsStore.save();
-  });
-  onMessageFromBrowserWindow('set-setting-o-timers', newOverlaySetting => {
-    const session = settingsStore.getAccount();
-    if (!session) {
-      return;
-    }
-    if (!session.overlaySettings) {
-      session.overlaySettings = {};
-    }
-    session.overlaySettings.timers = newOverlaySetting;
-    settingsStore.save();
-  });
-  onMessageFromBrowserWindow('set-setting-o-neverhide', newOverlaySetting => {
-    const session = settingsStore.getAccount();
-    if (!session) {
-      return;
-    }
-    if (!session.overlaySettings) {
-      session.overlaySettings = {};
-    }
-    session.overlaySettings.neverhide = newOverlaySetting;
-    settingsStore.save();
-  });
-  onMessageFromBrowserWindow('set-setting-o-mydecks', newOverlaySetting => {
-    const session = settingsStore.getAccount();
-    if (!session) {
-      return;
-    }
-    if (!session.overlaySettings) {
-      session.overlaySettings = {};
-    }
-    session.overlaySettings.mydecks = newOverlaySetting;
-    settingsStore.save();
-  });
-  onMessageFromBrowserWindow('set-setting-o-cardhover', newOverlaySetting => {
-    const session = settingsStore.getAccount();
-    if (!session) {
-      return;
-    }
-    if (!session.overlaySettings) {
-      session.overlaySettings = {};
-    }
-    session.overlaySettings.cardhover = newOverlaySetting;
-    settingsStore.save();
+
+  const overlaySettingsNumber = ['leftdigit', 'rightdigit', 'bottomdigit'];
+
+  overlaySettingsNumber.forEach(setting => {
+    const settingType = setting as 'leftdigit' | 'rightdigit' | 'bottomdigit';
+    const settingName = `set-setting-o-${settingType}` as
+      | 'set-setting-o-leftdigit'
+      | 'set-setting-o-rightdigit'
+      | 'set-setting-o-bottomdigit';
+    onMessageFromBrowserWindow(settingName, newOverlaySetting => {
+      const session = settingsStore.getAccount();
+      if (!session) {
+        return;
+      }
+      if (!session.overlaySettings) {
+        session.overlaySettings = {
+          leftdigit: 2,
+          rightdigit: 1,
+          bottomdigit: 3,
+          hidemy: false,
+          hideopp: false,
+          hidezero: false,
+          showcardicon: true,
+          neverhide: false,
+          mydecks: false,
+          cardhover: false,
+          timers: false,
+        };
+      }
+      session.overlaySettings[settingType] = newOverlaySetting;
+      settingsStore.save();
+    });
   });
 
   /*OVERLAY SETTINGS END*/

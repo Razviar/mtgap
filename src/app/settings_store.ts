@@ -115,17 +115,17 @@ export interface Account {
 }
 
 export interface OverlaySettings {
-  leftdigit?: number;
-  rightdigit?: number;
-  bottomdigit?: number;
-  hidemy?: boolean;
-  hideopp?: boolean;
-  hidezero?: boolean;
-  showcardicon?: boolean;
-  neverhide?: boolean;
-  mydecks?: boolean;
-  cardhover?: boolean;
-  timers?: boolean;
+  leftdigit: number;
+  rightdigit: number;
+  bottomdigit: number;
+  hidemy: boolean;
+  hideopp: boolean;
+  hidezero: boolean;
+  showcardicon: boolean;
+  neverhide: boolean;
+  mydecks: boolean;
+  cardhover: boolean;
+  timers: boolean;
 }
 
 function asOverlaySettings(anyMap: AnyMap | undefined): OverlaySettings | undefined {
