@@ -98,11 +98,7 @@ function makeCard(cid: number, num: number, mode: string, side: boolean): string
       if (clr !== 'Colorless') {
         for (let i = 0; i < manaj[clr]; i++) {
           manas += `
-              <span class="ManaGroup${
-                sumOfObject(manaj) - (manaj['Colorless'] ? manaj['Colorless'] - 1 : 0) > badgesnum
-                  ? ' smallmanagroup'
-                  : ''
-              } ms ms-${manafont[clr.toLowerCase()]}"
+              <span class="ManaGroup ms ms-${manafont[clr.toLowerCase()]}"
               ></span>`;
         }
       } else {
