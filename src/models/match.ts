@@ -38,8 +38,12 @@ export class Match {
   public TurnNumber: number = 0;
   public GameNumber: number = 0;
   public DecisionPlayer: number = 0;
+  public totalCards: number = 0;
+  public cardsBySuperclass: {[index: number]: number} = {};
+  public cardsBySuperclassLeft: {[index: number]: number} = {};
 
   public mulligan(): void {
+    console.log('Mulligan!');
     this.instanceIds.me = {};
     this.decks.me = {};
   }

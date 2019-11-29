@@ -166,6 +166,11 @@ input#token {
   color: #fff;
 }
 
+.pretty {
+  width: 47%;
+  margin-bottom: 7px;
+}
+
 .fab {
   font-size: 1.5em;
   filter: opacity(0.8);
