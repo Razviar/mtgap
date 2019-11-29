@@ -247,9 +247,10 @@ export class LogParser {
                   uid: this.newPlayerData.playerId,
                   matchId: this.currentMatchId,
                 });
-                const CHECK_BATTLE_EVENT_MARKER = 5;
-                if (indicator.marker === CHECK_BATTLE_EVENT_MARKER && !this.catchingUp) {
-                  this.checkBattleEvents(parsed.result);
+                // tslint:disable-next-line: no-magic-numbers
+                const CHECK_BATTLE_EVENT_MARKER = [5, 16];
+                if (CHECK_BATTLE_EVENT_MARKER.includes(+indicator.marker) && !this.catchingUp) {
+                  this.checkBattleEvents(parsed.result, +indicator.marker);
                 }
               }
 
@@ -391,23 +392,37 @@ export class LogParser {
     }
   }
 
-  private checkBattleEvents(json: string): void {
-    try {
-      const gameObjects: {[index: string]: string}[] = JSON.parse(json);
-      if (gameObjects[0].type !== undefined) {
-        gameObjects.forEach(gobj => {
-          if (gobj.type === 'GameObjectType_Card') {
-            this.emitter.emit('card-played', {
-              instanceId: parseFloat(gobj.instanceId),
-              grpId: parseFloat(gobj.grpId),
-              zoneId: parseFloat(gobj.zoneId),
-              visibility: gobj.visibility,
-              ownerSeatId: parseFloat(gobj.ownerSeatId),
+  private checkBattleEvents(json: string, marker: number): void {
+    const gameObj = 5;
+    const mulliganResp = 16;
+    switch (marker) {
+      case gameObj:
+        try {
+          const gameObjects: {[index: string]: string}[] = JSON.parse(json);
+          if (gameObjects[0].type) {
+            gameObjects.forEach(gobj => {
+              if (gobj.type === 'GameObjectType_Card') {
+                this.emitter.emit('card-played', {
+                  instanceId: parseFloat(gobj.instanceId),
+                  grpId: parseFloat(gobj.grpId),
+                  zoneId: parseFloat(gobj.zoneId),
+                  visibility: gobj.visibility,
+                  ownerSeatId: parseFloat(gobj.ownerSeatId),
+                });
+              }
             });
           }
-        });
-      }
-    } catch (e) {}
+        } catch (e) {}
+        break;
+      case mulliganResp:
+        try {
+          const mulliganResponce: {[index: string]: string} = JSON.parse(json);
+          if (mulliganResponce.mulliganCount && +mulliganResponce.mulliganCount > 0) {
+            this.emitter.emit('mulligan', true);
+          }
+        } catch (e) {}
+        break;
+    }
   }
 
   /*private parseDate(line: string) {

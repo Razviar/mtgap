@@ -21,6 +21,7 @@ interface LogParserEvents {
   'match-over': string;
   'card-played': CardPlayed;
   newdata: ParseResults[];
+  mulligan: boolean;
 }
 
 type LogParserListener<Event extends keyof LogParserEvents> = (data: LogParserEvents[Event]) => void;

@@ -27,6 +27,7 @@ export interface Messages {
     seatId: number;
     gameNumber: number;
   };
+  mulligan: boolean;
   'set-version': string;
   'show-update-button': undefined;
   'set-setting-autorun': boolean;

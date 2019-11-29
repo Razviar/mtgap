@@ -117,6 +117,7 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
       }
     });
     logParser.emitter.on('card-played', msg => sendMessageToOverlayWindow('card-played', msg));
+    logParser.emitter.on('mulligan', msg => sendMessageToOverlayWindow('mulligan', msg));
     logParser.emitter.on('match-over', () => sendMessageToOverlayWindow('match-over', undefined));
   }
 

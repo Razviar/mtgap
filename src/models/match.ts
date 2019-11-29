@@ -39,6 +39,11 @@ export class Match {
   public GameNumber: number = 0;
   public DecisionPlayer: number = 0;
 
+  public mulligan(): void {
+    this.instanceIds.me = {};
+    this.decks.me = {};
+  }
+
   public over(): void {
     this.matchId = '';
     this.mtgaUid = '';

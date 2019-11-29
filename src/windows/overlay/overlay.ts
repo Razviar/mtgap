@@ -216,6 +216,12 @@ onMessageFromIpcMain('match-started', newMatch => {
     .catch(console.error);
 });
 
+onMessageFromIpcMain('mulligan', res => {
+  if (res) {
+    currentMatch.mulligan();
+  }
+});
+
 onMessageFromIpcMain('match-over', () => currentMatch.over());
 
 onMessageFromIpcMain('card-played', arg => {
