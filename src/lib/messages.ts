@@ -1,10 +1,11 @@
-import {Account, LatestSettings} from 'root/app/settings_store';
+import {Account, LatestSettings, OverlaySettings} from 'root/app/settings_store';
 import {CardPlayed} from 'root/models/cards';
 
 export interface Messages {
   'token-input': Account;
   'minimize-me': undefined;
   'set-settings': LatestSettings;
+  'set-o-settings': OverlaySettings;
   'kill-current-token': undefined;
   'set-log-path': undefined;
   'default-log-path': undefined;

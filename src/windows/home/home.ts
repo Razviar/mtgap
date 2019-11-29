@@ -59,6 +59,43 @@ onMessageFromIpcMain('set-creds', creds => {
   }
 });
 
+onMessageFromIpcMain('set-o-settings', newOSettings => {
+  const overlaySettingsBoolean = [
+    'hidezero',
+    'showcardicon',
+    'hidemy',
+    'hideopp',
+    'timers',
+    'neverhide',
+    'mydecks',
+    'cardhover',
+  ];
+  const overlaySettingsNumber = ['leftdigit', 'rightdigit', 'bottomdigit'];
+
+  overlaySettingsBoolean.forEach(setting => {
+    const settingType = setting as
+      | 'hidezero'
+      | 'showcardicon'
+      | 'hidemy'
+      | 'hideopp'
+      | 'timers'
+      | 'neverhide'
+      | 'mydecks'
+      | 'cardhover';
+
+    const sw = document.querySelector(`[data-setting="o-${settingType}"]`) as HTMLInputElement;
+    sw.checked = newOSettings[settingType];
+  });
+
+  overlaySettingsNumber.forEach(setting => {
+    const settingType = setting as 'leftdigit' | 'rightdigit' | 'bottomdigit';
+
+    const sw = document.querySelector(`[data-setting="o-${settingType}"]`) as HTMLSelectElement;
+    const opts = sw.options;
+    sw.selectedIndex = Array.from(opts).findIndex(opt => +opt.value === +newOSettings[settingType]);
+  });
+});
+
 onMessageFromIpcMain('set-settings', newSettings => {
   if (newSettings.overlay) {
     const sw = document.querySelector('[data-setting="overlay"]') as HTMLInputElement;
