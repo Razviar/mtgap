@@ -46,7 +46,7 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
         .then(res => {
           if (!res) {
             withLogParser(lp => lp.stop());
-            connectionWaiter(1000);
+            connectionWaiter(30000);
             sendMessageToHomeWindow('show-status', {message: 'Connection Error', color: '#cc2d2d'});
           }
         })
@@ -64,7 +64,7 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
 
   logParser.emitter.on('error', msg => {
     if (msg === 'Connection Error') {
-      connectionWaiter(1000);
+      connectionWaiter(30000);
     }
     sendMessageToHomeWindow('show-status', {message: msg, color: '#cc2d2d'});
   });
@@ -127,7 +127,7 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
     logParser.emitter.on('match-over', () => sendMessageToOverlayWindow('match-over', undefined));
   }
 
-  connectionWaiter(1000);
+  connectionWaiter(30000);
   //createOverlay();
 
   return logParser;

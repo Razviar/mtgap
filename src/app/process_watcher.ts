@@ -1,15 +1,12 @@
-import {app} from 'electron';
-
+import {getMetadata} from 'root/api/overlay';
 import {ConnectionWaiter} from 'root/app/connection_waiter';
 import {WindowLocator} from 'root/app/locatewindow';
 import {withLogParser} from 'root/app/log_parser';
-import {withHomeWindow} from 'root/app/main_window';
 import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
 import {createOverlayWindow, getOverlayWindow, withOverlayWindow} from 'root/app/overlay_window';
 import {settingsStore} from 'root/app/settings_store';
 import {ProcessWatcher} from 'root/app/watchprocess';
 import {error} from 'root/lib/logger';
-import {getMetadata} from 'root/api/overlay';
 
 let MTGApid = -1;
 const MovementSensetivity = 5;
@@ -19,12 +16,12 @@ const processWatcher = new ProcessWatcher('MTGA.exe');
 const connWait = new ConnectionWaiter();
 
 export const connectionWaiter = (timeout: number) => {
-  const adder = 1000;
+  const adder = 10000;
   connWait
     .pingMtga()
     .then(res => {
       if (res) {
-        if (timeout > 1000) {
+        if (timeout > adder) {
           sendMessageToHomeWindow('show-prompt', {message: 'Connection established', autoclose: 1000});
         }
         withLogParser(logParser => logParser.start());
