@@ -27,6 +27,12 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 6. Check if antiviruses or firewalls are blocking app traffic, add app to exception.
 
 ## Changelog
+v.2.0.15 released 30/11/2019
+* Huge code quality improvements for better stability and debugging
+* Better updates settings: you can now enable manual updates to avoid intrusive auto-update
+* Improved stability
+* Implemented experimental overlay. It's still in very early alpha quality, so don't freak out. If you can't stand unfinished stuff, it's better to disable overlay for you. 
+
 v.2.0.11 released 25/11/2019
 * Fixed bugs with parsing: increased speed, improved stability
 * Settings tab implemented
