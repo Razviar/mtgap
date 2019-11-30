@@ -10,6 +10,7 @@ import 'root/windows/overlay/overlay.css';
 
 const MainOut = document.getElementById('MainOut') as HTMLElement;
 const OpponentOut = document.getElementById('OpponentOut') as HTMLElement;
+const CardHint = document.getElementById('CardHint') as HTMLElement;
 const highlightTimeout = 3000;
 
 const currentMatch = new Match();
@@ -103,7 +104,7 @@ function makeCard(cid: number, num: number, mode: string, side: boolean): string
   });
 
   return `
-<div class="DcDrow" id="card${mtgaId}${side ? 'me' : 'opp'}">
+<div class="DcDrow" data-cid="${cid}" id="card${mtgaId}${side ? 'me' : 'opp'}">
 <div class="CardSmallPic" style="border-image:${bgcolor}; background:url('https://mtgarena.pro/mtg/pict/thumb/${thumb}') 50% 50%">
 </div>
 <div class="CNameManaWrap">
@@ -228,6 +229,11 @@ const updateDeck = (highlight: number[]) => {
 };
 
 const drawDeck = () => {
+  if (!metaData) {
+    return '';
+  }
+  const cardsdb = metaData.allcards;
+
   let output = `<div class="deckName">${currentMatch.humanname}</div>`;
   currentMatch.myFullDeck.forEach(card => {
     output += makeCard(card.card, card.cardnum, 'battle', true);
@@ -239,6 +245,33 @@ const drawDeck = () => {
   output += '</div>';
   MainOut.innerHTML = output;
   MainOut.classList.remove('hidden');
+
+  const AllCards = document.getElementsByClassName('DcDrow');
+  Array.from(AllCards).forEach(theCard => {
+    theCard.addEventListener('mouseenter', (event: Event) => {
+      const cl: HTMLElement = event.target as HTMLElement;
+      const cid = cl.getAttribute('data-cid') as string;
+      const src = `https://mtgarena.pro/mtg/pict/${
+        cardsdb[+cid].has_hiresimg === 1 ? `mtga/card_${cardsdb[+cid].mtga_id}_EN.png` : cardsdb[+cid].pict
+      }`;
+      CardHint.innerHTML = `<img src="${src}" class="CardClass" />`;
+
+      const pos = cl.getBoundingClientRect();
+      const moPos = MainOut.getBoundingClientRect();
+      const cardPosHeight = 268;
+      const maxTop = moPos.top + moPos.height;
+      const hintTop = pos.top + cardPosHeight < maxTop ? pos.top : pos.bottom - cardPosHeight;
+
+      CardHint.style.left = `${pos.left + pos.width}px`;
+
+      CardHint.style.top = `${hintTop}px`;
+
+      CardHint.classList.remove('hidden');
+    });
+    theCard.addEventListener('mouseleave', () => {
+      CardHint.classList.add('hidden');
+    });
+  });
 };
 
 onMessageFromIpcMain('set-metadata', meta => {
@@ -258,6 +291,8 @@ onMessageFromIpcMain('match-started', newMatch => {
 onMessageFromIpcMain('mulligan', res => {
   if (res) {
     currentMatch.mulligan();
+    const AllCards = document.getElementsByClassName('DcDrow');
+    Array.from(AllCards).forEach(theCard => theCard.classList.remove('outCard'));
     updateDeck([]);
   }
 });

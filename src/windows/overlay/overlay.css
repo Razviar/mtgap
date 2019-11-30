@@ -171,3 +171,13 @@ a[href^="ftp://"] {
   font-size: 0.8em;
   opacity: 0.8;
 }
+
+#CardHint {
+  position: absolute;
+}
+
+.CardClass {
+  opacity: 0.7;
+  border-radius: 4%;
+  width: 200px;
+}
