@@ -1,3 +1,5 @@
+import {app} from 'electron';
+
 import {AxiosResponse, Request} from 'root/app/request';
 import {asMap, asString} from 'root/lib/type_utils';
 import {UserRequest, UserResult} from 'root/models/userbytokenid';
@@ -6,7 +8,7 @@ import {UserRequest, UserResult} from 'root/models/userbytokenid';
 // tokencheck
 //
 
-interface TokenCheckRes {
+export interface TokenCheckRes {
   uid: string;
   token: string;
   nick: string;
@@ -17,9 +19,9 @@ function parseTokenCheckRes(data: AxiosResponse): TokenCheckRes {
   return data as TokenCheckRes;
 }
 
-export async function tokencheck(request: string, version: string): Promise<TokenCheckRes> {
+export async function tokencheck(request: string): Promise<TokenCheckRes> {
   return parseTokenCheckRes(
-    await Request.post<{request: string}>(`mtg/donew2.php?cmd=cm_tokencheck&version=${version}`, {
+    await Request.post<{request: string}>(`mtg/donew2.php?cmd=cm_tokencheck&version=${app.getVersion()}`, {
       request,
     })
   );
@@ -29,7 +31,7 @@ export async function tokencheck(request: string, version: string): Promise<Toke
 // tokenrequest
 //
 
-interface TokenRequestRes {
+export interface TokenRequestRes {
   [index: string]: string;
 }
 
@@ -38,9 +40,9 @@ function parseTokenRequestRes(data: AxiosResponse): TokenRequestRes {
   return data as TokenRequestRes;
 }
 
-export async function tokenrequest(mtgaid: string, version: string): Promise<TokenRequestRes> {
+export async function tokenrequest(mtgaid: string): Promise<TokenRequestRes> {
   return parseTokenRequestRes(
-    await Request.post<{mtgaid: string}>(`mtg/donew2.php?cmd=cm_tokenrequest&version=${version}`, {
+    await Request.post<{mtgaid: string}>(`mtg/donew2.php?cmd=cm_tokenrequest&version=${app.getVersion()}`, {
       mtgaid,
     })
   );
@@ -69,11 +71,10 @@ function parseUserResult(data: AxiosResponse): UserResult {
   return {status, data: dataString};
 }
 
-export async function userbytokenid(cmUserbyTokenid: string, version: string): Promise<UserResult> {
+export async function userbytokenid(cmUserbyTokenid: string): Promise<UserResult> {
   return parseUserResult(
-    await Request.post<UserRequest>(`mtg/donew2.php?cmd=cm_userbytokenid&version=${version}`, {
+    await Request.post<UserRequest>(`mtg/donew2.php?cmd=cm_userbytokenid&version=${app.getVersion()}`, {
       cm_userbytokenid: cmUserbyTokenid,
-      version,
     })
   );
 }
@@ -89,10 +90,10 @@ export interface UserData {
   token: string;
 }
 
-export async function setuserdata(userData: UserData, version: string): Promise<UserResult> {
+export async function setuserdata(userData: UserData): Promise<UserResult> {
   const usertime = ((-1 * new Date().getTimezoneOffset()) / 60).toString();
   return parseUserResult(
-    await Request.post<UserData & {usertime: string}>(`mtg/donew2.php?cmd=cm_setuserdata&version=${version}`, {
+    await Request.post<UserData & {usertime: string}>(`mtg/donew2.php?cmd=cm_setuserdata&version=${app.getVersion()}`, {
       ...userData,
       usertime,
     })

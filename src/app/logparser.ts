@@ -53,7 +53,7 @@ export class LogParser {
 
   public start(): void {
     const Interval = 250;
-    getindicators(app.getVersion())
+    getindicators()
       .then(i => {
         if (i.indicators.length === 0) {
           throw new Error('Missing indicators');

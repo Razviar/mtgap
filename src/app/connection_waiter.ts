@@ -7,8 +7,8 @@ export class ConnectionWaiter {
     this.status = false;
   }
 
-  public async pingMtga(version: string): Promise<boolean> {
-    const statusOk = await pingMtga(version);
+  public async pingMtga(): Promise<boolean> {
+    const statusOk = await pingMtga();
     this.status = statusOk;
     return statusOk;
   }

@@ -1,3 +1,5 @@
+import {app} from 'electron';
+
 import {AxiosResponse, Request} from 'root/app/request';
 import {error} from 'root/lib/logger';
 import {asArray, asMap, asNumber, asString, asStringMap, removeUndefined} from 'root/lib/type_utils';
@@ -55,13 +57,13 @@ function parseDates(data: AxiosResponse): Map<string, string> {
   return stringMap;
 }
 
-export async function getindicators(
-  version: string
-): Promise<{
+export async function getindicators(): Promise<{
   indicators: Indicators[];
   dates: Map<string, string>;
 }> {
-  const indicators = parseIndicators(await Request.get(`mtg/donew2.php?cmd=cm_getindicators&version=${version}`));
-  const dates = parseDates(await Request.get(`mtg/donew2.php?cmd=cm_getdateformats&version=${version}`));
+  const indicators = parseIndicators(
+    await Request.get(`mtg/donew2.php?cmd=cm_getindicators&version=${app.getVersion()}`)
+  );
+  const dates = parseDates(await Request.get(`mtg/donew2.php?cmd=cm_getdateformats&version=${app.getVersion()}`));
   return {indicators, dates};
 }

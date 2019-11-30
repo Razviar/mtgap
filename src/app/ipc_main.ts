@@ -1,7 +1,7 @@
 import {App, dialog, nativeImage} from 'electron';
 import {join} from 'path';
 
-import {setuserdata, UserData} from 'root/api/userbytokenid';
+import {setuserdata, UserData, tokenrequest, tokencheck, userbytokenid} from 'root/api/userbytokenid';
 import {loadAppIcon} from 'root/app/app_icon';
 import {sendSettingsToRenderer} from 'root/app/auth';
 import {disableAutoLauncher, enableAutoLauncher} from 'root/app/auto_launcher';
@@ -32,9 +32,8 @@ export function setupIpcMain(app: App): void {
           token: newAccount.token,
         };
 
-        const version = app.getVersion();
-        setuserdata(userData, version).catch(err => {
-          error('Failure to set user data after a token-input event', err, {...userData, version});
+        setuserdata(userData).catch(err => {
+          error('Failure to set user data after a token-input event', err, {...userData});
         });
 
         settings.awaiting = undefined;
@@ -43,6 +42,36 @@ export function setupIpcMain(app: App): void {
       // Don't forget to save on disk ;)
       settingsStore.save();
     }
+  });
+
+  onMessageFromBrowserWindow('start-sync', currentMtgaNick => {
+    tokenrequest(currentMtgaNick)
+      .then(res => {
+        sendMessageToHomeWindow('sync-process', res);
+      })
+      .catch(err => {
+        error('Failure to perfporm tokenrequest', err, {currentMtgaNick});
+      });
+  });
+
+  onMessageFromBrowserWindow('token-waiter', request => {
+    tokencheck(request)
+      .then(res => {
+        sendMessageToHomeWindow('token-waiter-responce', {res, request});
+      })
+      .catch(err => {
+        error('Failure to perfporm tokencheck', err, {request});
+      });
+  });
+
+  onMessageFromBrowserWindow('get-userbytokenid', token => {
+    userbytokenid(token)
+      .then(res => {
+        sendMessageToHomeWindow('userbytokenid-responce', res);
+      })
+      .catch(err => {
+        error('Failure to perfporm userbytokenid', err, {token});
+      });
   });
 
   onMessageFromBrowserWindow('minimize-me', () => withHomeWindow(w => w.hide()));

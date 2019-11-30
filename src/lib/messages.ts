@@ -1,7 +1,16 @@
+import {TokenCheckRes, TokenRequestRes} from 'root/api/userbytokenid';
 import {Account, LatestSettings, OverlaySettings} from 'root/app/settings_store';
 import {CardPlayed} from 'root/models/cards';
+import {Metadata} from 'root/models/metadata';
+import {UserResult} from 'root/models/userbytokenid';
 
 export interface Messages {
+  'start-sync': string;
+  'sync-process': TokenRequestRes;
+  'token-waiter': string;
+  'token-waiter-responce': {res: TokenCheckRes; request: string};
+  'get-userbytokenid': string;
+  'userbytokenid-responce': UserResult;
   'token-input': Account;
   'minimize-me': undefined;
   'set-settings': LatestSettings;
@@ -27,7 +36,10 @@ export interface Messages {
     uid: string;
     seatId: number;
     gameNumber: number;
+    deckstruct: {card: number; cardnum: number}[];
+    humanname: string;
   };
+  'set-metadata': Metadata;
   mulligan: boolean;
   'set-version': string;
   'show-update-button': undefined;

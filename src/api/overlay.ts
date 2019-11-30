@@ -1,3 +1,5 @@
+import {app} from 'electron';
+
 import {AxiosResponse, Request} from 'root/app/request';
 import {error} from 'root/lib/logger';
 import {asArray, asMap, asNumber, asString, removeUndefined} from 'root/lib/type_utils';
@@ -41,19 +43,19 @@ function parseMetadata(data: AxiosResponse): Metadata {
   return data as Metadata;
 }
 
-export async function getlivematch(matchid: string, uid: string, version: string): Promise<LiveMatch> {
+export async function getlivematch(matchid: string, uid: string): Promise<LiveMatch> {
   return parseLiveMatch(
-    await Request.post<LiveMatchRequest>(`mtg/donew2.php?cmd=cm_getlivematch&version=${version}`, {
+    await Request.post<LiveMatchRequest>(`mtg/donew2.php?cmd=cm_getlivematch&version=${app.getVersion()}`, {
       matchid,
       uid,
     })
   );
 }
 
-export async function getUserMetadata(uid: number, version: string): Promise<UserMetadata> {
-  return parseUserMetadata(await Request.get(`mtg/donew2.php?cmd=getuserdata&version=${version}&uid=${uid}`));
+export async function getUserMetadata(uid: number): Promise<UserMetadata> {
+  return parseUserMetadata(await Request.get(`mtg/donew2.php?cmd=getuserdata&version=${app.getVersion()}&uid=${uid}`));
 }
 
-export async function getMetadata(version: string): Promise<Metadata> {
-  return parseMetadata(await Request.get(`mtg/donew2.php?cmd=getmetadata&version=${version}`));
+export async function getMetadata(): Promise<Metadata> {
+  return parseMetadata(await Request.get(`mtg/donew2.php?cmd=getmetadata&version=${app.getVersion()}`));
 }

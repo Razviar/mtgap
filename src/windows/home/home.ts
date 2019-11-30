@@ -1,13 +1,11 @@
 // tslint:disable: no-any
 import {shell} from 'electron';
 
-import {tokencheck, tokenrequest, userbytokenid} from 'root/api/userbytokenid';
 import {error} from 'root/lib/logger';
 // tslint:disable: no-import-side-effect
 import 'root/windows/home/home.css';
 import 'root/windows/home/icons.css';
 import {onMessageFromIpcMain, sendMessageToIpcMain} from 'root/windows/messages';
-//import Choices from 'choices.js';
 
 const TokenResponse = document.getElementById('TokenResponse') as HTMLElement;
 const TokenInput = document.getElementById('TokenInput') as HTMLElement;
@@ -183,6 +181,33 @@ onMessageFromIpcMain('show-update-button', () => {
   sw.classList.remove('hidden');
 });
 
+onMessageFromIpcMain('sync-process', res => {
+  if (res.mode === 'needauth') {
+    shell.openExternal(`https://mtgarena.pro/sync/?request=${res.request}`).catch(err => {
+      error('Failure to open link', err, {res});
+    });
+    tokenWaiter(res.request);
+  } else if (res.mode === 'hasauth') {
+    login(res.token, res.uid, res.nick, 'connect-acc');
+  }
+});
+
+onMessageFromIpcMain('token-waiter-responce', responce => {
+  if (responce && responce.res && responce.res.token) {
+    login(responce.res.token, responce.res.uid, responce.res.nick);
+  } else {
+    setTimeout(() => {
+      tokenWaiter(responce.request);
+    }, 1000);
+  }
+});
+
+onMessageFromIpcMain('userbytokenid-responce', res => {
+  if (res.status === 'UNSET_USER') {
+    sendMessageToIpcMain('kill-current-token', undefined);
+  }
+});
+
 minimizeButton.addEventListener('click', () => {
   sendMessageToIpcMain('minimize-me', undefined);
 });
@@ -247,21 +272,7 @@ const controlClick = (event: Event) => {
       break;
     case 'connect-acc':
       cl.innerHTML = 'Awaiting...';
-      tokenrequest(currentMtgaNick, AppVersion.innerHTML)
-        .then(res => {
-          if (res.mode === 'needauth') {
-            shell.openExternal(`https://mtgarena.pro/sync/?request=${res.request}`).catch(err => {
-              error('Failure to open link', err, {res});
-            });
-            tokenWaiter(res.request);
-          } else if (res.mode === 'hasauth') {
-            login(res.token, res.uid, res.nick, 'connect-acc');
-          }
-        })
-        .catch(err => {
-          error('Failure to perfporm tokenrequest', err, {currentMtgaNick});
-        });
-
+      sendMessageToIpcMain('start-sync', currentMtgaNick);
       break;
     case 'unskip-acc':
       sendMessageToIpcMain('kill-current-token', undefined);
@@ -351,33 +362,12 @@ const login = (token: string, uid: string, nick: string, source?: string) => {
     overlay: false,
   });
 
-  userbytokenid(token, AppVersion.innerHTML)
-    .then(res => {
-      if (res.status === 'UNSET_USER') {
-        sendMessageToIpcMain('kill-current-token', undefined);
-      }
-    })
-    .catch(err => {
-      error('Failure to perfporm userbytokenid', err, {token});
-    });
-
+  sendMessageToIpcMain('get-userbytokenid', token);
   BrightButton.innerHTML = '<img class="imgico" id="uploadIco" width="20" /> Sync Account';
 };
 
 const tokenWaiter = (request: string) => {
-  tokencheck(request, AppVersion.innerHTML)
-    .then(res => {
-      if (res && res.token) {
-        login(res.token, res.uid, res.nick);
-      } else {
-        setTimeout(() => {
-          tokenWaiter(request);
-        }, 1000);
-      }
-    })
-    .catch(err => {
-      error('Failure to perfporm tokencheck', err, {request});
-    });
+  sendMessageToIpcMain('token-waiter', request);
 };
 
 Array.from(buttons).forEach(el => {

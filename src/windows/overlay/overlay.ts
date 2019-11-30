@@ -1,32 +1,27 @@
-// tslint:disable-next-line: no-import-side-effect
-import {remote} from 'electron';
-
-import {getlivematch} from 'root/api/overlay';
 import {countOfObject, hexToRgbA, jsonParse, sumOfObject} from 'root/lib/func';
 import {sortcards} from 'root/lib/sortcards';
 import {color, manafont, typecolorletter} from 'root/lib/utils';
 import {Card} from 'root/models/cards';
 import {Match} from 'root/models/match';
-import {MetadataStore} from 'root/models/metadata';
+import {Metadata} from 'root/models/metadata';
 import {onMessageFromIpcMain} from 'root/windows/messages';
 // tslint:disable-next-line: no-import-side-effect
 import 'root/windows/overlay/overlay.css';
 
 const MainOut = document.getElementById('MainOut') as HTMLElement;
 const OpponentOut = document.getElementById('OpponentOut') as HTMLElement;
-const highlightTimeout = 4000;
+const highlightTimeout = 3000;
 
 const currentMatch = new Match();
-const metaData = new MetadataStore(remote.app.getVersion());
+let metaData: Metadata | undefined;
 const superclasses = ['sorcery', 'creature', 'land'];
 
 function makeCard(cid: number, num: number, mode: string, side: boolean): string {
-  const badgesnum = 3;
   const BasicLand = 34;
-  if (!metaData.meta) {
+  if (!metaData) {
     return '';
   }
-  const cardsdb = metaData.meta.allcards;
+  const cardsdb = metaData.allcards;
 
   const name = cardsdb[cid]['name'];
   const mtgaId = cardsdb[cid]['mtga_id'];
@@ -123,11 +118,11 @@ ${side ? `${num} | ${num}` : num}</div>
 }
 
 const updateOppDeck = (highlight: number[]) => {
-  if (!metaData.meta) {
+  if (!metaData) {
     return '';
   }
   const SortLikeMTGA = 11;
-  const meta = metaData.meta;
+  const meta = metaData;
   let output = '';
   const oppDeck: {[index: number]: number} = {};
   const forsort: {[index: number]: Card} = {};
@@ -164,12 +159,11 @@ const genBattleCardNum = (mtgaid: number) => {
   /*console.log(currentMatch.totalCards);
   console.log(currentMatch.cardsBySuperclass);*/
 
-  if (!metaData.meta) {
+  if (!metaData) {
     return '';
   }
 
-  const meta = metaData.meta;
-  const cid = meta.mtgatoinnerid[+mtgaid];
+  const cid = metaData.mtgatoinnerid[+mtgaid];
   const num = currentMatch.myFullDeck.find(fd => fd.card === +cid);
   if (!num) {
     return '';
@@ -190,10 +184,10 @@ const genBattleCardNum = (mtgaid: number) => {
 };
 
 const updateDeck = (highlight: number[]) => {
-  if (!metaData.meta) {
+  if (!metaData) {
     return '';
   }
-  const meta = metaData.meta;
+  const meta = metaData;
 
   currentMatch.myFullDeck.forEach(card => {
     const mtgaid = meta.allcards[+card.card].mtga_id;
@@ -247,24 +241,24 @@ const drawDeck = () => {
   MainOut.classList.remove('hidden');
 };
 
+onMessageFromIpcMain('set-metadata', meta => {
+  metaData = meta;
+});
+
 onMessageFromIpcMain('match-started', newMatch => {
   currentMatch.matchId = newMatch.matchId;
   currentMatch.ourUid = newMatch.uid;
   currentMatch.myTeamId = newMatch.seatId;
   currentMatch.GameNumber = newMatch.gameNumber;
-  getlivematch(currentMatch.matchId, currentMatch.ourUid, remote.app.getVersion())
-    .then(res => {
-      currentMatch.myFullDeck = res.deckstruct;
-      currentMatch.humanname = res.humanname;
-      drawDeck();
-    })
-    // tslint:disable-next-line: no-console
-    .catch(console.error);
+  currentMatch.myFullDeck = newMatch.deckstruct;
+  currentMatch.humanname = newMatch.humanname;
+  drawDeck();
 });
 
 onMessageFromIpcMain('mulligan', res => {
   if (res) {
     currentMatch.mulligan();
+    updateDeck([]);
   }
 });
 

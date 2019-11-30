@@ -1,4 +1,3 @@
-import {getMetadata} from 'root/api/overlay';
 import {Card} from 'root/models/cards';
 
 export interface Metadata {
@@ -38,11 +37,4 @@ export interface Userdata {
   lang: string;
   cardimagestype: number;
   pledge: number;
-}
-
-export class MetadataStore {
-  public meta: Metadata | undefined;
-  constructor(version: string) {
-    getMetadata(version).then(res => (this.meta = res));
-  }
 }

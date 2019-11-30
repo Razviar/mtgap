@@ -9,6 +9,7 @@ import {connectionWaiter} from 'root/app/process_watcher';
 import {settingsStore} from 'root/app/settings_store';
 import {getAccountFromScreenName} from 'root/app/userswitch';
 import {error} from 'root/lib/logger';
+import {getlivematch} from 'root/api/overlay';
 
 export type MaybeLogParser = LogParser | undefined;
 let logParser: MaybeLogParser;
@@ -41,7 +42,7 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
         return;
       }
       const version = app.getVersion();
-      uploadpackfile(data, version)
+      uploadpackfile(data)
         .then(res => {
           if (!res) {
             withLogParser(lp => lp.stop());
@@ -98,8 +99,7 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
         language,
         token: account.token,
       };
-      const version = app.getVersion();
-      setuserdata(userData, version).catch(err => error('', err, {...userData, version}));
+      setuserdata(userData).catch(err => error('', err, {...userData}));
       setCreds('userchange');
     } else {
       sendMessageToHomeWindow('new-account', undefined);
@@ -113,7 +113,13 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
     logParser.emitter.on('match-started', msg => {
       const account = settingsStore.getAccount();
       if (account) {
-        sendMessageToOverlayWindow('match-started', {...msg, uid: account.uid});
+        getlivematch(msg.matchId, account.uid)
+          .then(res => {
+            sendMessageToOverlayWindow('match-started', {...msg, ...res, uid: account.uid});
+          })
+          .catch(err => {
+            error('Failure to getlivematch', err, {...msg});
+          });
       }
     });
     logParser.emitter.on('card-played', msg => sendMessageToOverlayWindow('card-played', msg));
