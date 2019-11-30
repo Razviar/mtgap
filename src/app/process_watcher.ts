@@ -14,9 +14,11 @@ const MovementSensetivity = 5;
 const overlayPositioner = new WindowLocator();
 const processWatcher = new ProcessWatcher('MTGA.exe');
 const connWait = new ConnectionWaiter();
+let connectionTimeOut: NodeJS.Timeout;
 
 export const connectionWaiter = (timeout: number) => {
-  const adder = 10000;
+  const adder = 30000;
+  clearTimeout(connectionTimeOut);
   connWait
     .pingMtga()
     .then(res => {
@@ -27,12 +29,18 @@ export const connectionWaiter = (timeout: number) => {
         withLogParser(logParser => logParser.start());
       } else {
         sendMessageToHomeWindow('show-status', {message: 'Connection Error', color: '#cc2d2d'});
-        setTimeout(() => {
+        connectionTimeOut = setTimeout(() => {
           connectionWaiter(timeout + adder);
         }, timeout);
       }
     })
-    .catch(err => error('Connection waiter failed while pinging the server', err));
+    .catch(err => {
+      error('Connection waiter failed while pinging the server', err);
+      sendMessageToHomeWindow('show-status', {message: 'Connection Error', color: '#cc2d2d'});
+      connectionTimeOut = setTimeout(() => {
+        connectionWaiter(timeout + adder);
+      }, timeout);
+    });
 };
 
 export function setupProcessWatcher(): () => void {

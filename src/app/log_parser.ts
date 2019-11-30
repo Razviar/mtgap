@@ -50,7 +50,12 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
             sendMessageToHomeWindow('show-status', {message: 'Connection Error', color: '#cc2d2d'});
           }
         })
-        .catch(err => error('Failure to upload parsed log data!', err, {version}));
+        .catch(err => {
+          error('Failure to upload parsed log data!', err, {version});
+          withLogParser(lp => lp.stop());
+          connectionWaiter(30000);
+          sendMessageToHomeWindow('show-status', {message: 'Connection Error', color: '#cc2d2d'});
+        });
     }
   });
 
@@ -127,7 +132,7 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
     logParser.emitter.on('match-over', () => sendMessageToOverlayWindow('match-over', undefined));
   }
 
-  connectionWaiter(30000);
+  connectionWaiter(1000);
   //createOverlay();
 
   return logParser;

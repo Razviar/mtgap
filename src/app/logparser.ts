@@ -73,7 +73,7 @@ export class LogParser {
       })
       .catch(e => {
         error('start.getindicators', e);
-        this.emitter.emit('error', String(e));
+        this.emitter.emit('error', 'Connection Error');
       });
   }
 
