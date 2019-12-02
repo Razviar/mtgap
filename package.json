@@ -10,7 +10,8 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "tslint -c tslint.json -p tsconfig.json --fix --format verbose",
-    "compile": "tsc"
+    "compile": "tsc",
+    "watch": "tsc -w"
   },
   "keywords": [],
   "author": {
