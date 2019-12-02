@@ -40,6 +40,11 @@ export async function getEvents(
           currentEvent += res[0];
           chunkCursor += res[0].length;
           parseEvent(currentEvent, state, options).forEach(e => allEvents.push(e));
+          if (allEvents.length > options.maxBatchSize) {
+            fileStream.close();
+            resolve([allEvents, {...state, bytesRead: bytesRead - res[1].length}]);
+            return;
+          }
           currentEvent = undefined;
         }
       }
@@ -84,6 +89,11 @@ export async function getEvents(
             .split(/\r?\n/, 2)
             .join('');
           parseEvent(eventString, state, options).forEach(e => allEvents.push(e));
+          if (allEvents.length > options.maxBatchSize) {
+            fileStream.close();
+            resolve([allEvents, {...state, bytesRead: bytesRead - chunk.length + lineBreakAfter}]);
+            return;
+          }
           chunkCursor = lineBreakAfter;
         } else {
           // If the line break had a carriage return, we go back one character
@@ -92,6 +102,11 @@ export async function getEvents(
           }
           const eventString = chunk.slice(nextPrefixIndex + eventPrefix.length, nextLineBreakIndex);
           parseEvent(eventString, state, options).forEach(e => allEvents.push(e));
+          if (allEvents.length > options.maxBatchSize) {
+            fileStream.close();
+            resolve([allEvents, {...state, bytesRead: bytesRead - chunk.length + nextLineBreakIndex}]);
+            return;
+          }
           chunkCursor = nextLineBreakIndex;
         }
       }
