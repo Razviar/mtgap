@@ -1,25 +1,26 @@
-import fs from 'fs';
-import {checkDetailedLogEnabled} from './detailed_log';
-import {getEvents} from './events';
-import {getFileId} from './file_id';
-import {parsingMetadata} from './model';
+import {checkDetailedLogEnabled} from 'root/app/log-parser/detailed_log';
+import {getEvents} from 'root/app/log-parser/events';
+import {getFileId} from 'root/app/log-parser/file_id';
+import {parsingMetadata} from 'root/app/log-parser/model';
+import {removeUndefined} from 'root/lib/type_utils';
+import {ParseResults} from 'root/models/indicators';
 
-export function main(logPath: string): void {
-  console.log('Parsing file', logPath);
-  if (fs.existsSync(logPath)) {
-    parseLogFileContent(logPath).catch(console.error);
-  } else {
-    console.log('does not exists');
-  }
-}
-
-async function parseLogFileContent(logPath: string): Promise<void> {
-  const [detailedLogEnabled, cursor1] = await checkDetailedLogEnabled(logPath, parsingMetadata);
-  console.log(detailedLogEnabled, cursor1);
-  const [fileId, cursor2] = await getFileId(logPath, cursor1, parsingMetadata);
-  console.log(fileId, cursor2);
-  const [events, cursor3] = await getEvents(logPath, cursor2, parsingMetadata);
-  events.forEach(e => {
-    console.log(e.event, (JSON.stringify(e.data) || '').slice(0, 100));
-  });
+export async function parseLogFile(logPath: string): Promise<ParseResults[]> {
+  const start = Date.now();
+  const [detailedLogEnabled, state1] = await checkDetailedLogEnabled(logPath, parsingMetadata);
+  const [fileId, state2] = await getFileId(logPath, state1, parsingMetadata);
+  const [events, state3] = await getEvents(logPath, state2, parsingMetadata);
+  return removeUndefined(
+    events.map(e =>
+      e.indicator === undefined
+        ? undefined
+        : {
+            time: e.timestamp === undefined ? 1 : e.timestamp,
+            indicator: e.indicator,
+            json: JSON.stringify(e.rawData),
+            uid: e.userId === undefined ? '' : e.userId,
+            matchId: e.matchId === undefined ? '' : e.matchId,
+          }
+    )
+  );
 }

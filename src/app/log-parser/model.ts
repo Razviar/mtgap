@@ -1,41 +1,38 @@
-export type LogFileOperationResult<T> = [T, number];
+export type LogFileOperationResult<T> = [T, LogFileParsingState];
 
-export interface RawLogEvent {
-  event: string;
-  rawData: any;
-  data: any;
+export interface LogFileParsingState {
+  bytesRead: number;
+  timestamp?: number;
+  userId?: string;
+  matchId?: string;
 }
 
-// '<== PlayerInventory.GetPlayerInventory', // marker 0
-// '<== PlayerInventory.GetPlayerCardsV3', // marker 1
-// '<== Deck.GetDeckListsV3', // marker 2
-// '<== Event.DeckSubmitV3', // marker 3
-// '<== PlayerInventory.CrackBoostersV3', // marker 6 ???
-// '<== Draft.DraftStatus', // marker 7 ???
-// '==> Draft.MakePick', // marker 8 ???
-// '<== Draft.MakePick', // marker 9 ???
-// '<== Event.GetPlayerCourseV2', // marker 10 ???
-// '==> DirectGame.Challenge', // marker 11 ???
-// '==> Event.MatchCreated', // marker 12
-// '<== Event.GetCombinedRankInfo', // marker 14
-// '<== Event.GetActiveEventsV2', // marker 15 XXX
-// '==> Inventory.Updated', // marker 17 ???
-// '<== Quest.GetPlayerQuests', // marker 19
-// '==> PostMatch.Update', // marker 20
-// '==> Log.BI', // marker 21 XXX
-// '<== PlayerInventory.GetFormats', // marker 22
-// 'MatchGameRoomStateChangedEvent /// matchGameRoomStateChangedEvent', // marker 4
-// 'GreToClientEvent /// gameObjects', // marker 5
-// 'GreToClientEvent /// gameInfo', // marker 13
-// 'GreToClientEvent /// mulliganReq', // marker 16
-// 'GreToClientEvent /// turnInfo', // marker 18
+export interface RawLogEvent {
+  name: string;
+  rawData: any; // tslint:disable-line:no-any
+  data: any; // tslint:disable-line:no-any
+}
+
+export interface LogEvent extends RawLogEvent {
+  indicator?: number;
+}
+
+export interface StatefulLogEvent extends LogEvent {
+  timestamp?: number;
+  userId?: string;
+  matchId?: string;
+}
 
 export interface ParsingMetadata {
   batchInterval: number;
+  maxBatchSize: number;
   detailedLogInfo: DetailedLogParsingMetadata;
   fileId: FileIdParsingMetadata;
   events: EventParsingMetadata[];
   eventPrefix: string; // '[UnityCrossThreadLogger]'
+  userChangeEvent: string;
+  matchStartEvent: string;
+  matchEndEvent: string;
 }
 
 export interface DetailedLogParsingMetadata {
@@ -49,12 +46,34 @@ export interface FileIdParsingMetadata {
   attributesPathToId: string[]; // ['params', 'ticket']
 }
 
+// Describe how to extract a new sub event from a parent event
+export interface SplitEventParsingMetadata {
+  subEventName: string; // name of the sub event
+  attributesPath: string[]; // path of attributes describing where to find the data of the sub event in the parent event
+}
+
+export interface MultiEventParsingMetadata {
+  subEventName: string; // name each sub events once split
+  attributesPath: string[]; // path of attributes to an array of sub events
+}
+
+export interface EventConstraint {
+  attributesPath: (number | string)[];
+  value: any; // tslint:disable-line:no-any
+}
+
 export interface EventParsingMetadata {
   name: string; // '<== PlayerInventory.GetPlayerInventory'
+  indicator?: number; // If defined, indicate we need to send this event to the server with the sepcified indicator
+  renamer?: string[]; // If defined, describe the path of attributes to find the real name of the event
+  multiEvents?: MultiEventParsingMetadata; // If defined, indicate that the event is actually an array of sub events
+  subEvents?: SplitEventParsingMetadata[]; // If defined, describe how to split the data of the event in sub events
+  constraint?: EventConstraint; // If defined, check the value of an attribute of the event before saving it
 }
 
 export const parsingMetadata: ParsingMetadata = {
   batchInterval: 2000,
+  maxBatchSize: 50,
   detailedLogInfo: {
     prefix: 'DETAILED LOGS:',
     enabledValue: 'ENABLED',
@@ -64,29 +83,55 @@ export const parsingMetadata: ParsingMetadata = {
     eventName: '==> Authenticate',
     attributesPathToId: ['params', 'ticket'],
   },
-  events: [],
+  userChangeEvent: 'Client.Connected',
+  matchStartEvent: 'DuelScene.GameStart',
+  matchEndEvent: 'DuelScene.EndOfMatchReport',
+  events: [
+    {name: '==> Log.BI', renamer: ['params', 'messageName']},
+    {
+      name: 'GreToClientEvent',
+      multiEvents: {attributesPath: ['greToClientMessages'], subEventName: 'GreToClientEventMessage'},
+    },
+    {
+      name: 'GreToClientEventMessage',
+      subEvents: [
+        {attributesPath: ['gameStateMessage', 'gameObjects'], subEventName: 'GameObjects'},
+        {attributesPath: ['gameStateMessage', 'gameInfo'], subEventName: 'GameInfo'},
+        {attributesPath: ['mulliganReq'], subEventName: 'MulliganReq'},
+        {attributesPath: ['gameStateMessage', 'turnInfo'], subEventName: 'TurnInfo'},
+      ],
+    },
+    {
+      name: 'MatchGameRoomStateChangedEvent',
+      subEvents: [
+        {attributesPath: ['matchGameRoomStateChangedEvent'], subEventName: 'MatchGameRoomStateChangedEventSubInfo'},
+      ],
+    },
+    {name: '<== PlayerInventory.GetPlayerInventory', indicator: 0},
+    {name: '<== PlayerInventory.GetPlayerCardsV3', indicator: 1},
+    {name: '<== Deck.GetDeckListsV3', indicator: 2},
+    {name: '<== Event.DeckSubmitV3', indicator: 3},
+    {name: 'MatchGameRoomStateChangedEventSubInfo', indicator: 4},
+    {name: 'GameObjects', indicator: 5, constraint: {attributesPath: [0, 'type'], value: 'GameObjectType_Card'}},
+    {name: '<== PlayerInventory.CrackBoostersV3'}, // Useless?
+    {name: '<== Draft.DraftStatus', indicator: 7},
+    {name: '==> Draft.MakePick', indicator: 8},
+    {name: '<== Draft.MakePick', indicator: 9},
+    {name: '<== Event.GetPlayerCourseV2', indicator: 10},
+    {name: '==> DirectGame.Challenge', indicator: 11},
+    {name: '==> Event.MatchCreated', indicator: 12},
+    {name: 'GameInfo', indicator: 13},
+    {name: '<== Event.GetCombinedRankInfo', indicator: 14},
+    {name: '<== Event.GetActiveEventsV2'}, // Useless?
+    {name: 'MulliganReq', indicator: 16},
+    {name: '==> Inventory.Updated', indicator: 17},
+    {name: 'TurnInfo', indicator: 18, constraint: {attributesPath: ['turnNumber'], value: 1}},
+    {name: '<== Quest.GetPlayerQuests', indicator: 19},
+    {name: '==> PostMatch.Update', indicator: 20},
+    {name: '<== PlayerInventory.GetFormats', indicator: 22},
+    {name: 'Client.Connected'},
+    {name: 'DuelScene.GameStart'},
+    {name: 'DuelScene.EndOfMatchReport'},
+  ],
   eventPrefix: '[UnityCrossThreadLogger]',
 };
-
-const eventWhitelist = [
-  '<== PlayerInventory.GetPlayerInventory',
-  '<== PlayerInventory.GetPlayerCardsV3',
-  '<== Deck.GetDeckListsV3',
-  '<== Event.DeckSubmitV3',
-  '<== PlayerInventory.CrackBoostersV3',
-  '<== Draft.DraftStatus',
-  '==> Draft.MakePick',
-  '<== Draft.MakePick',
-  '<== Event.GetPlayerCourseV2',
-  '==> DirectGame.Challenge',
-  '==> Event.MatchCreated',
-  '<== Event.GetCombinedRankInfo',
-  '<== Event.GetActiveEventsV2',
-  '==> Inventory.Updated',
-  '<== Quest.GetPlayerQuests',
-  '==> PostMatch.Update',
-  '==> Log.BI',
-  '<== PlayerInventory.GetFormats',
-  'MatchGameRoomStateChangedEvent',
-  'GreToClientEvents',
-];

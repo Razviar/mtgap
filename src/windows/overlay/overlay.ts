@@ -1,6 +1,6 @@
 import {countOfObject, hexToRgbA, jsonParse, sumOfObject} from 'root/lib/func';
 import {sortcards} from 'root/lib/sortcards';
-import {color, manafont, typecolorletter} from 'root/lib/utils';
+import {color, manafont, rarcolor, supercls, typecolorletter} from 'root/lib/utils';
 import {Card} from 'root/models/cards';
 import {Match} from 'root/models/match';
 import {Metadata} from 'root/models/metadata';

@@ -1,7 +1,7 @@
 import fs from 'fs';
 
 type DataHandler = (data: string, byteRead: number) => void;
-type ErrorHandler = (err: any, byteRead: number) => void;
+type ErrorHandler = (err: any, byteRead: number) => void; // tslint:disable-line:no-any
 type EndHandler = (byteRead: number) => void;
 
 interface SimpleReadStream {

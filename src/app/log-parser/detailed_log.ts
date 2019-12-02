@@ -1,5 +1,5 @@
-import {createChunkReader} from './chunk_reader';
-import {LogFileOperationResult, ParsingMetadata} from './model';
+import {createChunkReader} from 'root/app/log-parser/chunk_reader';
+import {LogFileOperationResult, ParsingMetadata} from 'root/app/log-parser/model';
 
 export async function checkDetailedLogEnabled(
   path: string,
@@ -27,9 +27,9 @@ export async function checkDetailedLogEnabled(
       // (we are doing case-insensitive comparison)
       const normalizedString = detailedLogString.trim().toUpperCase();
       if (normalizedString === options.detailedLogInfo.enabledValue.toUpperCase()) {
-        resolve([true, bytesRead + additionalByteRead]);
+        resolve([true, {bytesRead: bytesRead + additionalByteRead}]);
       } else if (normalizedString === options.detailedLogInfo.disabledValue.toUpperCase()) {
-        resolve([false, bytesRead + additionalByteRead]);
+        resolve([false, {bytesRead: bytesRead + additionalByteRead}]);
       } else {
         reject(new Error(`Unknown value for detailed log info: "${detailedLogString}"`));
       }

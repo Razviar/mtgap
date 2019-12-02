@@ -1,17 +1,18 @@
 import fs from 'fs';
-import {asMap, asString} from '../../lib/type_utils';
-import {createChunkReader} from './chunk_reader';
-import {extractEventData} from './events';
-import {LogFileOperationResult, ParsingMetadata} from './model';
+
+import {createChunkReader} from 'root/app/log-parser/chunk_reader';
+import {LogFileOperationResult, LogFileParsingState, ParsingMetadata} from 'root/app/log-parser/model';
+import {extractEventData, extractValue} from 'root/app/log-parser/parsing';
+import {asMap, asString} from 'root/lib/type_utils';
 
 export async function getFileId(
   path: string,
-  cursor: number,
+  state: LogFileParsingState,
   options: ParsingMetadata
 ): Promise<LogFileOperationResult<string>> {
   return new Promise<LogFileOperationResult<string>>((resolve, reject) => {
-    const chunkStream = createChunkReader(path, cursor);
-    chunkStream.onData((chunk: string, byteRead: number) => {
+    const chunkStream = createChunkReader(path, state.bytesRead);
+    chunkStream.onData((chunk: string, bytesRead: number) => {
       // Parse each event on the chunk until we find the one we use to identify the log file
       let chunkCursor = 0;
       while (true) {
@@ -52,16 +53,13 @@ export async function getFileId(
             chunkStream.close();
             return;
           }
-          let value = data;
           // Go down the chain of attributes to find the id
-          for (const attribute of options.fileId.attributesPathToId) {
-            value = asMap(value, {})[attribute];
-          }
-          const id = asString(value);
+          const rawId = extractValue(data, options.fileId.attributesPathToId);
+          const id = asString(rawId);
           if (id === undefined) {
             reject(new Error(`Could not find a valid id for the log file in the event data: ${data}`));
           } else {
-            resolve([id, byteRead + jsonStart + json.length + 1]);
+            resolve([id, {...state, bytesRead: bytesRead + jsonStart + json.length + 1}]);
           }
         } catch (err) {
           reject(new Error('Failure to file id event'));
