@@ -1,6 +1,6 @@
 import {app} from 'electron';
 
-import {LogFileParsingState} from 'root/app/log-parser/model';
+import {LogFileParsingState, LogSenderParsingMetadata} from 'root/app/log-parser/model';
 import {sendMessageToHomeWindow} from 'root/app/messages';
 import {Request} from 'root/app/request';
 import {error} from 'root/lib/logger';
@@ -8,13 +8,25 @@ import {asMap, asString} from 'root/lib/type_utils';
 import {sleep} from 'root/lib/utils';
 import {ParseResults} from 'root/models/indicators';
 
+// Constants
+let logSenderParsingMetadata: LogSenderParsingMetadata = {
+  fastTimeout: 1000,
+  slowTimeout: 5000,
+  batchSize: 50,
+};
+
 // Public function to send events to server, non-blocking
-export function sendEventsToServer(events: ParseResults[], state?: LogFileParsingState): void {
+export function sendEventsToServer(
+  events: ParseResults[],
+  parsingMetadata: LogSenderParsingMetadata,
+  state?: LogFileParsingState
+): void {
+  logSenderParsingMetadata = parsingMetadata;
   if (events.length === 0) {
     return;
   }
   internalBuffer.push({events, state});
-  setTimeout(sendNextBatch, fastTimeout);
+  setTimeout(sendNextBatch, logSenderParsingMetadata.fastTimeout);
 }
 
 // API call to server
@@ -36,11 +48,6 @@ interface EventsWithCursor {
   state?: LogFileParsingState;
 }
 
-// Constants
-const batchSize = 50;
-const slowTimeout = 5000; // Sending every 5s by default or when error
-const fastTimeout = 1000; // Sending every 1s if buffer > batchSize
-
 // Global variables
 let isCurrentlySending = false;
 let currentNumberOfEvents = 0;
@@ -61,7 +68,7 @@ async function sendNextBatch(): Promise<void> {
 
   // Iterate buffer and take batchSize number of events
   for (const part of internalBuffer) {
-    if (events.length === 0 || events.length + part.events.length <= batchSize) {
+    if (events.length === 0 || events.length + part.events.length <= logSenderParsingMetadata.batchSize) {
       for (const event of part.events) {
         events.push(event);
       }
@@ -102,7 +109,10 @@ async function sendNextBatch(): Promise<void> {
     // If error => slow
     // If buffer not empty => fast
     // Default => slow
-    const timeout = internalBuffer.length > 0 && !hasErrored ? fastTimeout : slowTimeout;
+    const timeout =
+      internalBuffer.length > 0 && !hasErrored
+        ? logSenderParsingMetadata.fastTimeout
+        : logSenderParsingMetadata.slowTimeout;
     await sleep(timeout);
 
     // Unlocking sending

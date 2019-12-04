@@ -24,8 +24,8 @@ export interface StatefulLogEvent extends LogEvent {
 }
 
 export interface ParsingMetadata {
-  batchInterval: number;
-  maxBatchSize: number;
+  logSender: LogSenderParsingMetadata;
+  logParser: LogParserParsingMetadata;
   detailedLogInfo: DetailedLogParsingMetadata;
   fileId: FileIdParsingMetadata;
   events: EventParsingMetadata[];
@@ -34,6 +34,17 @@ export interface ParsingMetadata {
   matchStartEvent: string;
   matchEndEvent: string;
   cardPlayedEvent: string;
+}
+
+export interface LogSenderParsingMetadata {
+  fastTimeout: number;
+  slowTimeout: number;
+  batchSize: number;
+}
+
+export interface LogParserParsingMetadata {
+  readTimeout: number;
+  batchSize: number;
 }
 
 export interface DetailedLogParsingMetadata {
@@ -74,8 +85,15 @@ export interface EventParsingMetadata {
 }
 
 export const parsingMetadata: ParsingMetadata = {
-  batchInterval: 2000,
-  maxBatchSize: 50,
+  logSender: {
+    fastTimeout: 1000,
+    slowTimeout: 5000,
+    batchSize: 50,
+  },
+  logParser: {
+    readTimeout: 500,
+    batchSize: 50,
+  },
   detailedLogInfo: {
     prefix: 'DETAILED LOGS:',
     enabledValue: 'ENABLED',

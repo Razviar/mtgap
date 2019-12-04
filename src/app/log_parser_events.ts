@@ -1,4 +1,4 @@
-import {LogFileParsingState} from 'root/app/log-parser/model';
+import {LogFileParsingState, ParsingMetadata} from 'root/app/log-parser/model';
 import {CardPlayed} from 'root/models/cards';
 import {ParseResults} from 'root/models/indicators';
 
@@ -13,7 +13,6 @@ interface LogParserEvents {
   language: string;
   status: string;
   'old-log-complete': undefined;
-  userchange: PlayerData;
   'match-started': {
     matchId: string;
     seatId: number;
@@ -24,6 +23,7 @@ interface LogParserEvents {
   mulligan: boolean;
   newdata: {
     events: ParseResults[];
+    parsingMetadata: ParsingMetadata;
     state?: LogFileParsingState;
   };
 }
@@ -55,16 +55,7 @@ export class LogParserEventEmitter {
     listeners.splice(index, 1);
   }
 
-  public emit<Event extends keyof LogParserEvents>(event: Event, data: any): void {
-    if (event === 'newdata') {
-      console.log('EMIT', event);
-      console.log(data.events.length, data.state);
-      console.log(data);
-    }
-    // else if (event !== 'card-played') {
-    //   console.log('EMIT', event);
-    //   console.log(data);
-    // }
+  public emit<Event extends keyof LogParserEvents>(event: Event, data: LogParserEvents[Event]): void {
     const listeners = this.listeners.get(event);
     if (listeners === undefined) {
       return;

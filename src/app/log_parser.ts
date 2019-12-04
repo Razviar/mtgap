@@ -1,14 +1,10 @@
-import {app} from 'electron';
-
 import {sendEventsToServer} from 'root/api/logsender';
 import {getlivematch} from 'root/api/overlay';
 import {setuserdata, UserData} from 'root/api/userbytokenid';
 import {setCreds} from 'root/app/auth';
 import {LogParser2} from 'root/app/log-parser/logparser2';
 import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
-import {connectionWaiter} from 'root/app/process_watcher';
 import {settingsStore} from 'root/app/settings_store';
-import {getAccountFromScreenName} from 'root/app/userswitch';
 import {error} from 'root/lib/logger';
 
 export type MaybeLogParser2 = LogParser2 | undefined;
@@ -41,17 +37,7 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
         sendMessageToHomeWindow('show-status', {message: 'Skipping this account...', color: '#dbb63d'});
         return;
       }
-      sendEventsToServer(data.events, data.state);
-      // const version = app.getVersion();
-      // uploadpackfile(data, version)
-      //   .then(res => {
-      //     if (!res) {
-      //       withLogParser(lp => lp.stop());
-      //       connectionWaiter(1000);
-      //       sendMessageToHomeWindow('show-status', {message: 'Connection Error', color: '#cc2d2d'});
-      //     }
-      //   })
-      //   .catch(err => error('Failure to upload parsed log data!', err, {version}));
+      sendEventsToServer(data.events, data.parsingMetadata.logSender, data.state);
     }
   });
 
@@ -64,50 +50,11 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
   });
 
   logParser.emitter.on('error', msg => {
-    if (msg === 'Connection Error') {
-      connectionWaiter(30000);
-    }
     sendMessageToHomeWindow('show-status', {message: msg, color: '#cc2d2d'});
   });
 
   logParser.emitter.on('status', msg => {
     sendMessageToHomeWindow('show-status', {message: msg, color: '#22a83a'});
-  });
-
-  logParser.emitter.on('userchange', msg => {
-    /*console.log('userchange');
-    console.log(msg);*/
-
-    const {playerId, screenName, language} = msg;
-
-    sendMessageToHomeWindow('show-status', {message: 'New User Detected!', color: '#dbb63d'});
-
-    const settings = settingsStore.get();
-    const account = getAccountFromScreenName(screenName);
-
-    sendMessageToHomeWindow('set-screenname', screenName);
-
-    // If account is defined, it enforces that awaiting is undefined, because account has a screenName
-    if (account !== undefined && account.player) {
-      settings.userToken = account.token;
-      const lp = getLogParser();
-      if (lp) {
-        lp.setPlayerId(account.player.playerId, account.player.screenName);
-      }
-      const userData: UserData = {
-        mtgaId: playerId,
-        mtgaNick: screenName,
-        language,
-        token: account.token,
-      };
-      setuserdata(userData).catch(err => error('', err, {...userData}));
-      setCreds('userchange');
-    } else {
-      sendMessageToHomeWindow('new-account', undefined);
-      settings.awaiting = {playerId, screenName, language};
-    }
-
-    settingsStore.save();
   });
 
   if (!parseOnce && settingsStore.get().overlay) {
@@ -127,8 +74,6 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
     logParser.emitter.on('mulligan', msg => sendMessageToOverlayWindow('mulligan', msg));
     logParser.emitter.on('match-over', () => sendMessageToOverlayWindow('match-over', undefined));
   }
-
-  connectionWaiter(1000);
 
   return logParser;
 }

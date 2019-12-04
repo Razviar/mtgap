@@ -4,7 +4,6 @@ import {existsSync} from 'fs';
 import {join} from 'path';
 
 import {getParsingMetadata} from 'root/api/getindicators';
-import {sendEventsToServer} from 'root/api/logsender';
 import {setuserdata, UserData} from 'root/api/userbytokenid';
 import {setCreds} from 'root/app/auth';
 import {checkDetailedLogEnabled} from 'root/app/log-parser/detailed_log';
@@ -17,7 +16,7 @@ import {sendMessageToHomeWindow} from 'root/app/messages';
 import {settingsStore} from 'root/app/settings_store';
 import {getAccountFromScreenName} from 'root/app/userswitch';
 import {error} from 'root/lib/logger';
-import {asNumber, asString, removeUndefined, asMap} from 'root/lib/type_utils';
+import {asMap, asNumber, asString, removeUndefined} from 'root/lib/type_utils';
 
 const defaultTimeout = 500;
 
@@ -30,7 +29,6 @@ export class LogParser2 {
   public emitter = new LogParserEventEmitter();
 
   constructor(targetname: string[] | string, pathset?: boolean, parseOnce?: boolean) {
-    console.log('LogParser2', 'constructor');
     if (!pathset) {
       const appDataPath = app.getPath('appData');
       this.path = join(appDataPath, ...targetname).replace('Roaming\\', '');
@@ -48,7 +46,6 @@ export class LogParser2 {
       return;
     }
     this.isRunning = true;
-    console.log('LogParser2', 'start');
     try {
       if (!existsSync(this.path)) {
         this.emitter.emit('error', 'No log file found');
@@ -62,9 +59,6 @@ export class LogParser2 {
         this.emitter.emit('error', 'Enable Detailed Logs!');
         return;
       }
-
-      // TODO - Detect language
-      // this.emitter.emit('language', 'INSERT LANGUAGE HERE');
 
       const [fileId, fileIdState] = await getFileId(this.path, detailedLogState, parsingMetadata);
 
@@ -94,8 +88,7 @@ export class LogParser2 {
 
     // Fetching batch of events
     getFileId(this.path, {bytesRead: 0}, parsingMetadata)
-      .then(([fileId, fileIdState]) => {
-        // console.log(fileId);
+      .then(async ([fileId, fileIdState]) => {
         const isDifferentFileId = false;
         const newCurrentState = isDifferentFileId ? fileIdState : currentState;
         return getEvents(logPath, newCurrentState, parsingMetadata).then(([events, newState]) => {
@@ -143,7 +136,7 @@ export class LogParser2 {
 
           // Forwarding new data for server sending
           if (eventsToSend.length > 0) {
-            this.emitter.emit('newdata', {events: eventsToSend, state: newState});
+            this.emitter.emit('newdata', {events: eventsToSend, parsingMetadata, state: newState});
           }
 
           // End of parsing for old log
@@ -174,6 +167,9 @@ export class LogParser2 {
       extractValue(event.data, ['params', 'payloadObject', 'settings', 'language', 'language'])
     );
     const screenName = asString(extractValue(event.data, ['params', 'payloadObject', 'screenName']));
+    if (language !== undefined) {
+      this.emitter.emit('language', language);
+    }
     if (newPlayerId === undefined || language === undefined || screenName === undefined) {
       error('Encountered invalid user change event', undefined, {...event});
       return;
@@ -198,7 +194,7 @@ export class LogParser2 {
         token: newAccount.token,
       };
       const version = app.getVersion();
-      setuserdata(userData, version).catch(err =>
+      setuserdata(userData).catch(err =>
         error('Failure to set user data during a user change event', err, {...userData, version})
       );
       setCreds('userchange');

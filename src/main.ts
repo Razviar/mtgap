@@ -19,7 +19,7 @@ if (require('electron-squirrel-startup')) {
 }
 
 const processWatcherFn = setupProcessWatcher();
-const processWatcherFnInterval = 250;
+const processWatcherFnInterval = 500;
 
 function recreateMainWindow(): void {
   createMainWindow();

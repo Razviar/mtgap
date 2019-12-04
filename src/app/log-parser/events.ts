@@ -12,7 +12,7 @@ function shouldStopParsing(allEvents: StatefulLogEvent[], options: ParsingMetada
   if (allEvents.length === 0) {
     return false;
   }
-  if (allEvents.length > options.maxBatchSize) {
+  if (allEvents.length > options.logParser.batchSize) {
     return true;
   }
   const lastEvent = allEvents[allEvents.length - 1];
