@@ -8,7 +8,10 @@ export interface Messages {
   'start-sync': string;
   'sync-process': TokenRequestRes;
   'token-waiter': string;
-  'token-waiter-responce': {res: TokenCheckRes; request: string};
+  'token-waiter-responce': {
+    res: TokenCheckRes | undefined;
+    request: string;
+  };
   'get-userbytokenid': string;
   'userbytokenid-responce': UserResult;
   'token-input': Account;

@@ -272,7 +272,7 @@ export function setupIpcMain(app: App): void {
     });
     if (getLogParser() !== undefined) {
       const parseOnce = createLogParser(logs[index], true);
-      parseOnce.start();
+      parseOnce.start().catch(err => error('parseOnce.start', err));
       parseOnce.emitter.on('old-log-complete', () => {
         if (index + 1 === logs.length) {
           sendMessageToHomeWindow('show-prompt', {message: 'Parsing complete!', autoclose: 1000});

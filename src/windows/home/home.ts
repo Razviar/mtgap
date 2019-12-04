@@ -1,6 +1,7 @@
-// tslint:disable: no-any
+// tslint:disable: no-any no-unsafe-any
 import {shell} from 'electron';
 
+import {tokencheck, tokenrequest, userbytokenid} from 'root/api/userbytokenid';
 import {error} from 'root/lib/logger';
 // tslint:disable: no-import-side-effect
 import 'root/windows/home/home.css';
@@ -192,12 +193,12 @@ onMessageFromIpcMain('sync-process', res => {
   }
 });
 
-onMessageFromIpcMain('token-waiter-responce', responce => {
-  if (responce && responce.res && responce.res.token) {
-    login(responce.res.token, responce.res.uid, responce.res.nick);
+onMessageFromIpcMain('token-waiter-responce', response => {
+  if (response.res && response.res.token) {
+    login(response.res.token, response.res.uid, response.res.nick);
   } else {
     setTimeout(() => {
-      tokenWaiter(responce.request);
+      tokenWaiter(response.request);
     }, 1000);
   }
 });
@@ -248,10 +249,8 @@ const tabclick = (event: Event) => {
 const linkclick = (event: Event) => {
   const cl: HTMLElement = event.target as HTMLElement;
   const link = cl.getAttribute('data-link');
-  if (link !== null) {
-    shell.openExternal(link).catch(err => {
-      error('Failure to open link', err, {link});
-    });
+  if (link !== null && link.length > 0) {
+    shell.openExternal(link).catch(err => error('linkclick openExternal', err));
   }
 };
 
@@ -349,8 +348,6 @@ const settingsChecker = (event: Event) => {
 };
 
 const login = (token: string, uid: string, nick: string, source?: string) => {
-  //console.log('login!' + token + '/' + nick + '/' + source);
-
   TokenInput.classList.add('hidden');
   TokenResponse.innerHTML = `Current user: <strong>${nick}</strong>`;
   OverlaySwitch.classList.remove('hidden');

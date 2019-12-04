@@ -14,12 +14,16 @@ export interface TokenCheckRes {
   nick: string;
 }
 
-function parseTokenCheckRes(data: AxiosResponse): TokenCheckRes {
+function parseTokenCheckRes(data: AxiosResponse): TokenCheckRes | undefined {
   // TODO - Safely parse this instead of casting
-  return data as TokenCheckRes;
+  try {
+    return data as TokenCheckRes;
+  } catch (_) {
+    return undefined;
+  }
 }
 
-export async function tokencheck(request: string): Promise<TokenCheckRes> {
+export async function tokencheck(request: string): Promise<TokenCheckRes | undefined> {
   return parseTokenCheckRes(
     await Request.post<{request: string}>(`mtg/donew2.php?cmd=cm_tokencheck&version=${app.getVersion()}`, {
       request,

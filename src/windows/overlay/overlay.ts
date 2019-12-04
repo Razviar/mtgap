@@ -1,3 +1,7 @@
+// tslint:disable: no-unsafe-any
+import {remote} from 'electron';
+
+import {getlivematch} from 'root/api/overlay';
 import {countOfObject, hexToRgbA, jsonParse, sumOfObject} from 'root/lib/func';
 import {sortcards} from 'root/lib/sortcards';
 import {color, manafont, rarcolor, supercls, typecolorletter} from 'root/lib/utils';

@@ -1,10 +1,9 @@
 // Welcome to the kingdom of chaos
 // tslint:disable: no-magic-numbers
-// tslint:disable: no-any
+// tslint:disable: no-any no-unsafe-any
 
-import {redgreen} from './utils';
+import {redgreen} from 'root/lib/utils';
 
-// tslint:disable-next-line no-any
 export function countOfObject(obj: any): number {
   const t = typeof obj;
   if (t !== 'object' || obj === null) {
@@ -12,7 +11,7 @@ export function countOfObject(obj: any): number {
   }
   return Object.keys(obj).length;
 }
-// tslint:disable-next-line no-any
+
 export function sumOfObject(obj: any): number {
   const t = typeof obj;
   let i = 0;
@@ -22,7 +21,7 @@ export function sumOfObject(obj: any): number {
   Object.keys(obj).forEach(key => (i += parseInt(obj[key], 10)));
   return i;
 }
-// tslint:disable-next-line no-any
+
 export function jsonParse(input: any): any {
   if (typeof input === 'string') {
     try {
@@ -49,7 +48,7 @@ export function hexToRgbA(hex: string): string {
 export function LZ(time: number): string {
   return time >= 10 ? time.toString() : `0${time.toString()}`;
 }
-export function shuffle(a: number[] | string[]) {
+export function shuffle(a: number[] | string[]): number[] | string[] {
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [a[i], a[j]] = [a[j], a[i]];
@@ -76,11 +75,11 @@ export function CountSteps(wrpercent: number): number {
   }
   return clrange;
 }
-export function getRandomInt(max: number) {
+export function getRandomInt(max: number): number {
   return Math.floor(Math.random() * Math.floor(max));
 }
 
-export function slugify(text: string) {
+export function slugify(text: string): string {
   return text
     .toString()
     .toLowerCase()
@@ -91,11 +90,11 @@ export function slugify(text: string) {
     .replace(/-+$/, ''); // Trim - from end of text
 }
 
-export function jsUcfirst(str: string) {
+export function jsUcfirst(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-export function substrcount(str: string, subString: string, allowOverlapping?: boolean) {
+export function substrcount(str: string, subString: string, allowOverlapping?: boolean): number {
   str += '';
   subString += '';
   if (subString.length <= 0) {
@@ -127,14 +126,4 @@ export function Cut(str: string, from: string, to: string, offset?: number): str
   } else {
     return '';
   }
-}
-
-export function findLastIndex<T>(array: T[], predicate: (value: T, index: number, obj: T[]) => boolean): number {
-  let l = array.length;
-  while (l--) {
-    if (predicate(array[l], l, array)) {
-      return l;
-    }
-  }
-  return -1;
 }
