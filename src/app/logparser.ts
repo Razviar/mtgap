@@ -13,14 +13,10 @@ import {Indicators, ParseResults} from 'root/models/indicators';
 export class LogParser {
   private readonly path: string;
   private indicators: Indicators[] = [];
-  /*private dateformats: { [index: string]: string } = {};
-  private userlang = 'English';*/
   private loglen: number = 0;
   private loglencheck: number = 0;
   private skiplines: number = 0;
   private strdate: number = 0;
-  /*private strdateUnparsed: string = '';
-  private dateregexp: RegExp = /[\d]{1,2}[:./ ]{1,2}[\d]{1,2}/gm;*/
   private readonly timestampregexp: RegExp = /"timestamp": "([\d]{18})"/m;
   private nowWriting: number = 0;
   private results: ParseResults[] = [];
@@ -28,7 +24,6 @@ export class LogParser {
   private userswitched: boolean = false;
   private newmatch: boolean = false;
   private firstread: boolean = true;
-  //private watcher: chokidar.FSWatcher;
   private watcher: NodeJS.Timeout | undefined;
   private readonly parseOnce: boolean = false;
   private readonly newPlayerData: PlayerData = {playerId: '', screenName: '', language: ''};
@@ -47,7 +42,6 @@ export class LogParser {
     }
     if (parseOnce) {
       this.parseOnce = true;
-      //console.log('ParsingOnce' + this.path);
     }
   }
 
@@ -299,10 +293,9 @@ export class LogParser {
         this.firstread = false;
       }
       if (!this.userswitched) {
-        this.emitter.emit(
-          'newdata',
-          this.results.filter(result => this.indicators[result.indicator].Send === 'true' && result.time !== 0)
-        );
+        this.emitter.emit('newdata', {
+          events: this.results.filter(result => this.indicators[result.indicator].Send === 'true' && result.time !== 0),
+        });
         /*console.log('EMITTER!');
         console.log(this.loglen + '/' + this.skiplines);*/
       }

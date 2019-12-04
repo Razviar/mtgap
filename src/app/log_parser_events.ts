@@ -1,3 +1,4 @@
+import {LogFileParsingState} from 'root/app/log-parser/model';
 import {CardPlayed} from 'root/models/cards';
 import {ParseResults} from 'root/models/indicators';
 
@@ -20,8 +21,11 @@ interface LogParserEvents {
   };
   'match-over': string;
   'card-played': CardPlayed;
-  newdata: ParseResults[];
   mulligan: boolean;
+  newdata: {
+    events: ParseResults[];
+    state?: LogFileParsingState;
+  };
 }
 
 type LogParserListener<Event extends keyof LogParserEvents> = (data: LogParserEvents[Event]) => void;

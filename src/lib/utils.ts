@@ -158,3 +158,7 @@ export const possibemodes = [
   'my-precon',
   'my-draft',
 ];
+
+export async function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}

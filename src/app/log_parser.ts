@@ -1,61 +1,57 @@
 import {app} from 'electron';
 
-import {uploadpackfile} from 'root/api/logsender';
+import {sendEventsToServer} from 'root/api/logsender';
+import {getlivematch} from 'root/api/overlay';
 import {setuserdata, UserData} from 'root/api/userbytokenid';
 import {setCreds} from 'root/app/auth';
-import {LogParser} from 'root/app/logparser';
+import {LogParser2} from 'root/app/log-parser/main';
 import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
 import {connectionWaiter} from 'root/app/process_watcher';
 import {settingsStore} from 'root/app/settings_store';
 import {getAccountFromScreenName} from 'root/app/userswitch';
 import {error} from 'root/lib/logger';
-import {getlivematch} from 'root/api/overlay';
 
-export type MaybeLogParser = LogParser | undefined;
-let logParser: MaybeLogParser;
+export type MaybeLogParser2 = LogParser2 | undefined;
+let logParser: MaybeLogParser2;
 
-export function getLogParser(): LogParser | undefined {
+export function getLogParser(): LogParser2 | undefined {
   return logParser;
 }
 
-export function withLogParser(fn: (logParser: LogParser) => void): void {
+export function withLogParser(fn: (logParser: LogParser2) => void): void {
   if (logParser === undefined) {
     return;
   }
   fn(logParser);
 }
 
-export function createLogParser(logpath?: string, parseOnce?: boolean): LogParser {
+export function createLogParser(logpath?: string, parseOnce?: boolean): LogParser2 {
   const defaultpath = ['LocalLow', 'Wizards Of The Coast', 'MTGA', 'output_log.txt'];
   const specialpath = settingsStore.get().logPath;
-  logParser = new LogParser(
+  logParser = new LogParser2(
     logpath !== undefined ? logpath : specialpath !== undefined ? specialpath : defaultpath,
     specialpath !== undefined || logpath !== undefined,
     parseOnce
   );
 
   logParser.emitter.on('newdata', data => {
-    if (data.length > 0) {
+    if (data.events.length > 0) {
       const userToken = settingsStore.get().userToken;
       if (userToken !== undefined && userToken.includes('SKIPPING')) {
         sendMessageToHomeWindow('show-status', {message: 'Skipping this account...', color: '#dbb63d'});
         return;
       }
-      const version = app.getVersion();
-      uploadpackfile(data)
-        .then(res => {
-          if (!res) {
-            withLogParser(lp => lp.stop());
-            connectionWaiter(30000);
-            sendMessageToHomeWindow('show-status', {message: 'Connection Error', color: '#cc2d2d'});
-          }
-        })
-        .catch(err => {
-          error('Failure to upload parsed log data!', err, {version});
-          withLogParser(lp => lp.stop());
-          connectionWaiter(30000);
-          sendMessageToHomeWindow('show-status', {message: 'Connection Error', color: '#cc2d2d'});
-        });
+      sendEventsToServer(data.events, data.state);
+      // const version = app.getVersion();
+      // uploadpackfile(data, version)
+      //   .then(res => {
+      //     if (!res) {
+      //       withLogParser(lp => lp.stop());
+      //       connectionWaiter(1000);
+      //       sendMessageToHomeWindow('show-status', {message: 'Connection Error', color: '#cc2d2d'});
+      //     }
+      //   })
+      //   .catch(err => error('Failure to upload parsed log data!', err, {version}));
     }
   });
 
@@ -133,7 +129,6 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
   }
 
   connectionWaiter(1000);
-  //createOverlay();
 
   return logParser;
 }
