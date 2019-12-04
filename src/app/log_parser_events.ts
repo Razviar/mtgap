@@ -55,7 +55,16 @@ export class LogParserEventEmitter {
     listeners.splice(index, 1);
   }
 
-  public emit<Event extends keyof LogParserEvents>(event: Event, data: LogParserEvents[Event]): void {
+  public emit<Event extends keyof LogParserEvents>(event: Event, data: any): void {
+    if (event === 'newdata') {
+      console.log('EMIT', event);
+      console.log(data.events.length, data.state);
+      console.log(data);
+    }
+    // else if (event !== 'card-played') {
+    //   console.log('EMIT', event);
+    //   console.log(data);
+    // }
     const listeners = this.listeners.get(event);
     if (listeners === undefined) {
       return;

@@ -33,6 +33,7 @@ export interface ParsingMetadata {
   userChangeEvent: string;
   matchStartEvent: string;
   matchEndEvent: string;
+  cardPlayedEvent: string;
 }
 
 export interface DetailedLogParsingMetadata {
@@ -63,7 +64,8 @@ export interface EventConstraint {
 }
 
 export interface EventParsingMetadata {
-  name: string; // '<== PlayerInventory.GetPlayerInventory'
+  name: string; // Name of the event in the logs
+  newName?: string; // If defined, rename the event
   indicator?: number; // If defined, indicate we need to send this event to the server with the sepcified indicator
   renamer?: string[]; // If defined, describe the path of attributes to find the real name of the event
   multiEvents?: MultiEventParsingMetadata; // If defined, indicate that the event is actually an array of sub events
@@ -86,6 +88,7 @@ export const parsingMetadata: ParsingMetadata = {
   userChangeEvent: 'Client.Connected',
   matchStartEvent: 'DuelScene.GameStart',
   matchEndEvent: 'DuelScene.EndOfMatchReport',
+  cardPlayedEvent: 'CardPlayed',
   events: [
     {name: '==> Log.BI', renamer: ['params', 'messageName']},
     {
@@ -103,16 +106,20 @@ export const parsingMetadata: ParsingMetadata = {
     },
     {
       name: 'MatchGameRoomStateChangedEvent',
-      subEvents: [
-        {attributesPath: ['matchGameRoomStateChangedEvent'], subEventName: 'MatchGameRoomStateChangedEventSubInfo'},
-      ],
+      subEvents: [{attributesPath: [], subEventName: 'MatchGameRoomStateChangedEventSubInfo'}],
+    },
+    {
+      name: 'GameObjects',
+      constraint: {attributesPath: [0, 'type'], value: 'GameObjectType_Card'},
+      multiEvents: {attributesPath: [], subEventName: 'CardPlayed'},
+      indicator: 5,
     },
     {name: '<== PlayerInventory.GetPlayerInventory', indicator: 0},
     {name: '<== PlayerInventory.GetPlayerCardsV3', indicator: 1},
     {name: '<== Deck.GetDeckListsV3', indicator: 2},
     {name: '<== Event.DeckSubmitV3', indicator: 3},
     {name: 'MatchGameRoomStateChangedEventSubInfo', indicator: 4},
-    {name: 'GameObjects', indicator: 5, constraint: {attributesPath: [0, 'type'], value: 'GameObjectType_Card'}},
+    {name: 'CardPlayed'},
     {name: '<== PlayerInventory.CrackBoostersV3'}, // Useless?
     {name: '<== Draft.DraftStatus', indicator: 7},
     {name: '==> Draft.MakePick', indicator: 8},

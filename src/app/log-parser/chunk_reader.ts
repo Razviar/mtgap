@@ -28,7 +28,14 @@ export function createChunkReader(path: string, start: number): SimpleReadStream
   let byteRead = 0;
   let buffer = '';
   stream.on('data', (chunk: string) => {
-    const lastLineBreak = chunk.lastIndexOf('\n');
+    let lastLineBreak = chunk.lastIndexOf('\n');
+
+    // If we are at the end of the file or if the next line starts with a '{', then
+    // we don't include the last line since we are potentially splitting an event in half
+    if (lastLineBreak > 0 && (chunk.length <= lastLineBreak + 1 || chunk[lastLineBreak + 1] === '{')) {
+      lastLineBreak = chunk.lastIndexOf('\n', lastLineBreak - 1);
+    }
+
     if (lastLineBreak === -1) {
       // No line break, we keep the chunk in the buffer
       byteRead += chunk.length;

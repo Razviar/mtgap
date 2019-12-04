@@ -67,6 +67,12 @@ export function postProcessEvent(rawEvent: RawLogEvent, options: ParsingMetadata
   if (parsingOptions === undefined) {
     return [];
   }
+  if (parsingOptions.constraint !== undefined) {
+    const value = extractValue(rawEvent.data, parsingOptions.constraint.attributesPath);
+    if (value !== parsingOptions.constraint.value) {
+      return [];
+    }
+  }
   if (parsingOptions.multiEvents !== undefined) {
     const subEventsData = asArray(extractValue(rawEvent.data, parsingOptions.multiEvents.attributesPath));
     if (subEventsData !== undefined) {
@@ -107,13 +113,9 @@ export function postProcessEvent(rawEvent: RawLogEvent, options: ParsingMetadata
     });
     return subEvents;
   }
-  if (parsingOptions.constraint !== undefined) {
-    const value = extractValue(rawEvent.data, parsingOptions.constraint.attributesPath);
-    if (value !== parsingOptions.constraint.value) {
-      return [];
-    }
-  }
-  return [{...rawEvent, indicator: parsingOptions.indicator}];
+
+  const name = parsingOptions.newName !== undefined ? parsingOptions.newName : rawEvent.name;
+  return [{...rawEvent, name, indicator: parsingOptions.indicator}];
 }
 
 export function parseAsRawEvent(value: string): RawLogEvent | undefined {

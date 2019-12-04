@@ -4,7 +4,7 @@ import {sendEventsToServer} from 'root/api/logsender';
 import {getlivematch} from 'root/api/overlay';
 import {setuserdata, UserData} from 'root/api/userbytokenid';
 import {setCreds} from 'root/app/auth';
-import {LogParser2} from 'root/app/log-parser/main';
+import {LogParser2} from 'root/app/log-parser/logparser2';
 import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
 import {connectionWaiter} from 'root/app/process_watcher';
 import {settingsStore} from 'root/app/settings_store';

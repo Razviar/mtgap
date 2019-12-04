@@ -61,4 +61,5 @@ export function createMainWindow(): void {
       entry: HOME_WINDOW_WEBPACK_ENTRY,
     })
   );
+  mainWindow.webContents.openDevTools({mode: 'detach'});
 }

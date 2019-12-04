@@ -8,6 +8,17 @@ import {
 } from 'root/app/log-parser/model';
 import {parseEvent} from 'root/app/log-parser/parsing';
 
+function shouldStopParsing(allEvents: StatefulLogEvent[], options: ParsingMetadata): boolean {
+  if (allEvents.length === 0) {
+    return false;
+  }
+  if (allEvents.length > options.maxBatchSize) {
+    return true;
+  }
+  const lastEvent = allEvents[allEvents.length - 1];
+  return lastEvent.name === options.userChangeEvent;
+}
+
 export async function getEvents(
   path: string,
   state: LogFileParsingState,
@@ -40,7 +51,7 @@ export async function getEvents(
           currentEvent += res[0];
           chunkCursor += res[0].length;
           parseEvent(currentEvent, state, options).forEach(e => allEvents.push(e));
-          if (allEvents.length > options.maxBatchSize) {
+          if (shouldStopParsing(allEvents, options)) {
             fileStream.close();
             resolve([allEvents, {...state, bytesRead: bytesRead - res[1].length}]);
             return;
@@ -89,7 +100,7 @@ export async function getEvents(
             .split(/\r?\n/, 2)
             .join('');
           parseEvent(eventString, state, options).forEach(e => allEvents.push(e));
-          if (allEvents.length > options.maxBatchSize) {
+          if (shouldStopParsing(allEvents, options)) {
             fileStream.close();
             resolve([allEvents, {...state, bytesRead: bytesRead - chunk.length + lineBreakAfter}]);
             return;
@@ -102,7 +113,7 @@ export async function getEvents(
           }
           const eventString = chunk.slice(nextPrefixIndex + eventPrefix.length, nextLineBreakIndex);
           parseEvent(eventString, state, options).forEach(e => allEvents.push(e));
-          if (allEvents.length > options.maxBatchSize) {
+          if (shouldStopParsing(allEvents, options)) {
             fileStream.close();
             resolve([allEvents, {...state, bytesRead: bytesRead - chunk.length + nextLineBreakIndex}]);
             return;
