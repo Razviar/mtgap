@@ -49,11 +49,17 @@ module.exports = {
             {
               html: './src/windows/home/home.html',
               js: './src/windows/home/home.ts',
+              preload: {
+                js: './src/windows/preload.js',
+              },
               name: 'home_window',
             },
             {
               html: './src/windows/overlay/overlay.html',
               js: './src/windows/overlay/overlay.ts',
+              preload: {
+                js: './src/windows/preload.js',
+              },
               name: 'overlay_window',
             },
           ],

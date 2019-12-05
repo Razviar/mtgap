@@ -43,7 +43,6 @@ export class Match {
   public cardsBySuperclassLeft: {[index: number]: number} = {};
 
   public mulligan(): void {
-    console.log('Mulligan!');
     this.instanceIds.me = {};
     this.decks.me = {};
   }
