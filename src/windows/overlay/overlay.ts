@@ -119,7 +119,7 @@ function makeCard(cid: number, num: number, side: boolean): string {
   });
 
   return `
-<div class="DcDrow" data-cid="${cid}" id="card${mtgaId}${side ? 'me' : 'opp'}">
+<div class="DcDrow" data-cid="${cid}" data-side="${side ? 'me' : 'opp'}" id="card${mtgaId}${side ? 'me' : 'opp'}">
 <div class="CardSmallPic" id="cardthumb${mtgaId}${side ? 'me' : 'opp'}">
 </div>
 <div class="CNameManaWrap">
@@ -139,7 +139,6 @@ const updateOppDeck = (highlight: number[]) => {
   }
   const SortLikeMTGA = 11;
   const meta = metaData;
-  let output = '';
   const oppDeck: {[index: number]: number} = {};
   const forsort: {[index: number]: Card} = {};
   /*console.log('???');
@@ -170,6 +169,11 @@ const updateOppDeck = (highlight: number[]) => {
       el.classList.remove('highlightCard');
     });
   }, highlightTimeout);
+
+  const AllCards = document.getElementsByClassName('DcDrow');
+  Array.from(AllCards).forEach(theCard => {
+    HoverEventListener(theCard);
+  });
 };
 
 const genBattleCardNum = (mtgaid: number) => {
@@ -245,11 +249,6 @@ const updateDeck = (highlight: number[]) => {
 };
 
 const drawDeck = () => {
-  if (!metaData) {
-    return '';
-  }
-  const cardsdb = metaData.allcards;
-
   MainOut.innerHTML = `<div class="deckName">${currentMatch.humanname}</div>`;
   currentMatch.myFullDeck.forEach(card => {
     MainOut.innerHTML += makeCard(card.card, card.cardnum, true);
@@ -265,29 +264,51 @@ const drawDeck = () => {
 
   const AllCards = document.getElementsByClassName('DcDrow');
   Array.from(AllCards).forEach(theCard => {
-    theCard.addEventListener('mouseenter', (event: Event) => {
-      const cl: HTMLElement = event.target as HTMLElement;
-      const cid = cl.getAttribute('data-cid') as string;
-      const src = `https://mtgarena.pro/mtg/pict/${
-        cardsdb[+cid].has_hiresimg === 1 ? `mtga/card_${cardsdb[+cid].mtga_id}_EN.png` : cardsdb[+cid].pict
-      }`;
-      CardHint.innerHTML = `<img src="${src}" class="CardClass" />`;
+    HoverEventListener(theCard);
+  });
+};
 
-      const pos = cl.getBoundingClientRect();
-      const moPos = MainOut.getBoundingClientRect();
-      const cardPosHeight = 268;
-      const maxTop = moPos.top + moPos.height;
-      const hintTop = pos.top + cardPosHeight < maxTop ? pos.top : pos.bottom - cardPosHeight;
+const HoverEventListener = (theCard: Element) => {
+  if (!metaData) {
+    return '';
+  }
+  const cardsdb = metaData.allcards;
+  theCard.addEventListener('mouseenter', (event: Event) => {
+    const cl: HTMLElement = event.target as HTMLElement;
+    const cid = cl.getAttribute('data-cid') as string;
+    const side = cl.getAttribute('data-side') as string;
+    const src = `https://mtgarena.pro/mtg/pict/${
+      cardsdb[+cid].has_hiresimg === 1 ? `mtga/card_${cardsdb[+cid].mtga_id}_EN.png` : cardsdb[+cid].pict
+    }`;
+    CardHint.innerHTML = `<img src="${src}" class="CardClass" />`;
 
-      CardHint.style.left = `${pos.left + pos.width}px`;
+    const positioner: {
+      pos: ClientRect | DOMRect;
+      moPos: ClientRect | DOMRect;
+      cardPosHeight: number;
+      maxTop: number;
+      hintTop: number;
+    } = {
+      pos: cl.getBoundingClientRect(),
+      moPos: side === 'me' ? MainOut.getBoundingClientRect() : OpponentOut.getBoundingClientRect(),
+      cardPosHeight: 268,
+      maxTop: 0,
+      hintTop: 0,
+    };
 
-      CardHint.style.top = `${hintTop}px`;
+    positioner.maxTop =
+      positioner.moPos.top + positioner.moPos.height > 500 ? positioner.moPos.top + positioner.moPos.height : 500;
+    positioner.hintTop =
+      positioner.pos.top + positioner.cardPosHeight < positioner.maxTop
+        ? positioner.pos.top
+        : positioner.pos.bottom - positioner.cardPosHeight;
 
-      CardHint.classList.remove('hidden');
-    });
-    theCard.addEventListener('mouseleave', () => {
-      CardHint.classList.add('hidden');
-    });
+    CardHint.style.left = `${side === 'me' ? positioner.pos.left + positioner.pos.width : positioner.pos.left - 200}px`;
+    CardHint.style.top = `${positioner.hintTop}px`;
+    CardHint.classList.remove('hidden');
+  });
+  theCard.addEventListener('mouseleave', () => {
+    CardHint.classList.add('hidden');
   });
 };
 
