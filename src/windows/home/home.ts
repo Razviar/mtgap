@@ -1,8 +1,4 @@
 // tslint:disable: no-any no-unsafe-any no-import-side-effect
-// import {shell} from 'electron';
-
-// import {tokencheck, tokenrequest, userbytokenid} from 'root/api/userbytokenid';
-import {error} from 'root/lib/logger';
 import 'root/windows/css.css';
 import 'root/windows/home/choices.min.css';
 import 'root/windows/home/home.css';
@@ -354,6 +350,8 @@ const settingsChecker = (event: Event) => {
 const login = (token: string, uid: string, nick: string, source?: string) => {
   TokenInput.classList.add('hidden');
   TokenResponse.innerHTML = `Current user: <strong>${nick}</strong>`;
+  StatusMessage.innerHTML = 'Awaiting updates...';
+  StatusMessage.style.color = '#22a83a';
   OverlaySwitch.classList.remove('hidden');
   UserControls.classList.remove('hidden');
   sendMessageToIpcMain('token-input', {

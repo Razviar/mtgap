@@ -77,8 +77,6 @@ export class LogParser2 {
     this.isRunning = false;
   }
 
-  public setPlayerId(plid: string, pname: string): void {}
-
   private parseEvents(logPath: string, currentState: LogFileParsingState, parsingMetadata: ParsingMetadata): void {
     // Stop parsing when parser manually stopped
     if (this.shouldStop) {
@@ -174,13 +172,13 @@ export class LogParser2 {
       error('Encountered invalid user change event', undefined, {...event});
       return;
     }
+    sendMessageToHomeWindow('set-screenname', screenName);
     if (account && account.player && account.player.playerId === newPlayerId) {
       return;
     }
     // this.emitter.emit('userchange', {language, playerId: newPlayerId, screenName});
 
     sendMessageToHomeWindow('show-status', {message: 'New User Detected!', color: '#dbb63d'});
-    sendMessageToHomeWindow('set-screenname', screenName);
 
     // If account is defined, it enforces that awaiting is undefined, because account has a screenName
     const settings = settingsStore.get();

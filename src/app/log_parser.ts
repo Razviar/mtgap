@@ -75,5 +75,9 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
     logParser.emitter.on('match-over', () => sendMessageToOverlayWindow('match-over', undefined));
   }
 
+  logParser.start().catch(err => {
+    error('Failure to start parser', err);
+  });
+
   return logParser;
 }

@@ -22,7 +22,6 @@ export function setupIpcMain(app: App): void {
 
       const awaiting = settingsStore.get().awaiting;
       if (awaiting) {
-        withLogParser(logParser => logParser.setPlayerId(awaiting.playerId, awaiting.screenName));
         newAccount.player = awaiting;
 
         const userData: UserData = {
@@ -37,6 +36,11 @@ export function setupIpcMain(app: App): void {
         });
 
         settings.awaiting = undefined;
+        withLogParser(logParser => {
+          logParser.start().catch(err => {
+            error('Failure to start log parser', err);
+          });
+        });
       }
 
       // Don't forget to save on disk ;)
