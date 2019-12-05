@@ -35,7 +35,8 @@ function applyStyles(cid: number, side: boolean): void {
   const mana = cardsdb[cid]['mana'];
   const thumb = cardsdb[cid]['art'];
   let bgcolor = 'linear-gradient(to bottom,';
-  const manaj: {[index: string]: number} = colorarr !== '' && colorarr !== '[]' ? jsonParse(colorarr) : jsonParse(mana);
+  const manaj: {[index: string]: number} | undefined =
+    colorarr !== '' && colorarr !== '[]' ? jsonParse(colorarr) : jsonParse(mana);
   let clnum = 0;
   let lastcolor = '';
 
@@ -269,10 +270,14 @@ const drawDeck = () => {
 };
 
 const HoverEventListener = (theCard: Element) => {
+  const minHeight = 500;
+  const imgWidth = 200;
+
   if (!metaData) {
     return '';
   }
   const cardsdb = metaData.allcards;
+
   theCard.addEventListener('mouseenter', (event: Event) => {
     const cl: HTMLElement = event.target as HTMLElement;
     const cid = cl.getAttribute('data-cid') as string;
@@ -297,13 +302,17 @@ const HoverEventListener = (theCard: Element) => {
     };
 
     positioner.maxTop =
-      positioner.moPos.top + positioner.moPos.height > 500 ? positioner.moPos.top + positioner.moPos.height : 500;
+      positioner.moPos.top + positioner.moPos.height > minHeight
+        ? positioner.moPos.top + positioner.moPos.height
+        : minHeight;
     positioner.hintTop =
       positioner.pos.top + positioner.cardPosHeight < positioner.maxTop
         ? positioner.pos.top
         : positioner.pos.bottom - positioner.cardPosHeight;
 
-    CardHint.style.left = `${side === 'me' ? positioner.pos.left + positioner.pos.width : positioner.pos.left - 200}px`;
+    CardHint.style.left = `${
+      side === 'me' ? positioner.pos.left + positioner.pos.width : positioner.pos.left - imgWidth
+    }px`;
     CardHint.style.top = `${positioner.hintTop}px`;
     CardHint.classList.remove('hidden');
   });
