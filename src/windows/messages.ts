@@ -1,31 +1,15 @@
-import {MessagePayload, Messages} from 'root/lib/messages';
+import {Message, MessageCallback, Messages, onBridgeMessageGeneric, onMessageGeneric} from 'root/lib/messages';
 
-export function sendMessageToIpcMain<Message extends keyof Messages>(message: Message, data: Messages[Message]): void {
+export function sendMessageToIpcMain(message: Message, data: Messages[Message]): void {
   window.postMessage({message, data}, '*');
 }
 
-type MessageCallback = (data: Messages[keyof Messages]) => void;
-type MessageCallbackList = {
-  [Message in keyof Messages]?: MessageCallback[];
-};
+const allCallbacks = new Map<Message, MessageCallback<Message>[]>();
 
-const allCallbacks: MessageCallbackList = {};
-
-window.addEventListener('message', function(this: Window, ev: MessageEvent): void {
-  const payload = ev.data as MessagePayload;
-  const callbacks = allCallbacks[payload.message];
-  if (callbacks !== undefined) {
-    for (const cb of callbacks) {
-      cb(payload.data);
-    }
-  }
+window.addEventListener('message', (ev: MessageEvent) => {
+  onBridgeMessageGeneric(allCallbacks, ev.data);
 });
 
-export function onMessageFromIpcMain(message: keyof Messages, cb: MessageCallback): void {
-  const callbacks = allCallbacks[message];
-  if (callbacks !== undefined) {
-    callbacks.push(cb);
-  } else {
-    allCallbacks[message] = [cb];
-  }
+export function onMessageFromIpcMain<M extends Message>(message: M, cb: MessageCallback<M>): void {
+  onMessageGeneric(allCallbacks, message, cb);
 }

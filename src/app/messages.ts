@@ -1,36 +1,32 @@
-import {BrowserWindow, ipcMain} from 'electron';
+import {BrowserWindow, ipcMain, IpcMainEvent} from 'electron';
 
 import {withHomeWindow} from 'root/app/main_window';
 import {withOverlayWindow} from 'root/app/overlay_window';
-import {Messages} from 'root/lib/messages';
+import {Message, MessageCallback, Messages, onBridgeMessageGeneric, onMessageGeneric} from 'root/lib/messages';
 
-export function sendMessageToHomeWindow<Message extends keyof Messages>(
-  message: Message,
-  data: Messages[Message]
-): void {
+export function sendMessageToHomeWindow<M extends Message>(message: M, data: Messages[M]): void {
   withHomeWindow(_ => sendMessageToBrowserWindow(_, message, data));
 }
 
-export function sendMessageToOverlayWindow<Message extends keyof Messages>(
-  message: Message,
-  data: Messages[Message]
-): void {
+export function sendMessageToOverlayWindow<M extends Message>(message: M, data: Messages[M]): void {
   withOverlayWindow(_ => sendMessageToBrowserWindow(_, message, data));
 }
 
-function sendMessageToBrowserWindow<Message extends keyof Messages>(
+function sendMessageToBrowserWindow<M extends Message>(
   browserWindow: BrowserWindow,
-  message: Message,
-  data: Messages[Message]
+  message: M,
+  data: Messages[M]
 ): void {
-  browserWindow.webContents.send(message, data);
+  browserWindow.webContents.send('bridge-message', {message, data});
 }
 
-export function onMessageFromBrowserWindow<Message extends keyof Messages>(
-  message: Message,
-  cb: (data: Messages[Message]) => void
-): void {
-  ipcMain.on(message, (_, args) => {
-    cb(args as Messages[Message]);
-  });
+const allCallbacks = new Map<Message, MessageCallback<Message>[]>();
+
+// tslint:disable-next-line: no-any
+ipcMain.on('bridge-message', function<M extends Message>(_: IpcMainEvent, data: any): void {
+  onBridgeMessageGeneric(allCallbacks, data);
+});
+
+export function onMessageFromBrowserWindow<M extends Message>(message: M, cb: MessageCallback<M>): void {
+  onMessageGeneric(allCallbacks, message, cb);
 }

@@ -27,7 +27,7 @@ const PromptText = document.getElementById('PromptText') as HTMLElement;
 
 const buttons = document.getElementsByClassName('button');
 const tabs = document.getElementsByClassName('tab');
-const controls = document.getElementsByClassName('interfaceButton');
+const controls = document.getElementsByClassName('controlButton');
 const settings = document.getElementsByClassName('settings');
 //const selects = document.getElementsByClassName('interfaceSelect');
 

@@ -66,7 +66,36 @@ export interface Messages {
   'set-setting-o-timers': boolean;
 }
 
-export interface MessagePayload {
-  message: keyof Messages;
-  data: Messages[keyof Messages];
+export type Message = keyof Messages;
+export type MessageCallback<M extends Message> = (data: Messages[M]) => void;
+
+export interface MessagePayload<M extends Message> {
+  message: M;
+  data: Messages[M];
+}
+
+export function onMessageGeneric<M extends Message>(
+  allCallbacks: Map<Message, MessageCallback<Message>[]>,
+  message: M,
+  cb: MessageCallback<M>
+): void {
+  if (!allCallbacks.has(message)) {
+    allCallbacks.set(message, []);
+  }
+  const callbacks = allCallbacks.get(message) as MessageCallback<M>[];
+  callbacks.push(cb);
+}
+
+export function onBridgeMessageGeneric<M extends Message>(
+  allCallbacks: Map<Message, MessageCallback<Message>[]>,
+  // tslint:disable-next-line: no-any
+  data: any
+): void {
+  const payload = data as MessagePayload<M>;
+  const callbacks = allCallbacks.get(payload.message);
+  if (callbacks !== undefined) {
+    for (const cb of callbacks) {
+      cb(payload.data);
+    }
+  }
 }
