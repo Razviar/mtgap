@@ -64,6 +64,10 @@ export class Match {
   }
 
   public cardplayed({grpId, instanceId, ownerSeatId, zoneId}: CardPlayedNfo): CardPlayedResult {
+    if (ownerSeatId === 0) {
+      return {affectedcards: [], myDeck: false};
+    }
+
     const ZoneTypeBattlefield = 28;
     const ZoneTypeHandPl1 = 31;
     const ZoneTypeHandPl2 = 35;
