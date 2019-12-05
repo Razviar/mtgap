@@ -80,11 +80,11 @@ export function setupIpcMain(app: App): void {
 
   onMessageFromBrowserWindow('minimize-me', () => withHomeWindow(w => w.hide()));
 
-  onMessageFromBrowserWindow('open-link',link=>{
+  onMessageFromBrowserWindow('open-link', link => {
     shell.openExternal(link).catch(err => {
-    //   error('Failure to open link', err, {res});
-    // });
-  })
+      error('Failure to open link', err, {link});
+    });
+  });
 
   onMessageFromBrowserWindow('set-setting-autorun', newAutorun => {
     const settings = settingsStore.get();
