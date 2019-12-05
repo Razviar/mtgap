@@ -22,8 +22,16 @@ export function createOverlayWindow(): BrowserWindow {
     width: 300,
     height: 200,
     webPreferences: {
-      nodeIntegration: true,
       devTools: electronIsDev,
+      allowRunningInsecureContent: false,
+      contextIsolation: true,
+      enableRemoteModule: false,
+      nodeIntegration: false,
+      nodeIntegrationInSubFrames: false,
+      nodeIntegrationInWorker: false,
+      sandbox: true,
+      webSecurity: true,
+      preload: OVERLAY_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
     show: false,
     frame: false,
@@ -37,7 +45,7 @@ export function createOverlayWindow(): BrowserWindow {
 
   overlayWindow.loadURL(OVERLAY_WINDOW_WEBPACK_ENTRY).catch(err =>
     error('Failure to load url in overlay window', err, {
-      entry: HOME_WINDOW_WEBPACK_ENTRY,
+      entry: OVERLAY_WINDOW_WEBPACK_ENTRY,
     })
   );
   overlayWindow.setMenuBarVisibility(false);

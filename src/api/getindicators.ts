@@ -1,5 +1,6 @@
 import {app} from 'electron';
 
+import {ParsingMetadata, parsingMetadata} from 'root/app/log-parser/model';
 import {AxiosResponse, Request} from 'root/app/request';
 import {error} from 'root/lib/logger';
 import {asArray, asMap, asNumber, asString, asStringMap, removeUndefined} from 'root/lib/type_utils';
@@ -66,4 +67,8 @@ export async function getindicators(): Promise<{
   );
   const dates = parseDates(await Request.get(`mtg/donew2.php?cmd=cm_getdateformats&version=${app.getVersion()}`));
   return {indicators, dates};
+}
+
+export async function getParsingMetadata(version: string): Promise<ParsingMetadata> {
+  return parsingMetadata;
 }

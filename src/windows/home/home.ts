@@ -1,11 +1,16 @@
-// tslint:disable: no-any
-import {shell} from 'electron';
+// tslint:disable: no-any no-unsafe-any no-import-side-effect
+// import {shell} from 'electron';
 
+// import {tokencheck, tokenrequest, userbytokenid} from 'root/api/userbytokenid';
 import {error} from 'root/lib/logger';
-// tslint:disable: no-import-side-effect
+import 'root/windows/css.css';
+import 'root/windows/home/choices.min.css';
 import 'root/windows/home/home.css';
 import 'root/windows/home/icons.css';
+import 'root/windows/home/pretty-checkbox.min.css';
 import {onMessageFromIpcMain, sendMessageToIpcMain} from 'root/windows/messages';
+import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdM3mDbRS.woff2';
+import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdMPmDQ.woff2';
 
 const TokenResponse = document.getElementById('TokenResponse') as HTMLElement;
 const TokenInput = document.getElementById('TokenInput') as HTMLElement;
@@ -22,7 +27,7 @@ const PromptText = document.getElementById('PromptText') as HTMLElement;
 
 const buttons = document.getElementsByClassName('button');
 const tabs = document.getElementsByClassName('tab');
-const controls = document.getElementsByClassName('interfaceButton');
+const controls = document.getElementsByClassName('controlButton');
 const settings = document.getElementsByClassName('settings');
 //const selects = document.getElementsByClassName('interfaceSelect');
 
@@ -183,21 +188,21 @@ onMessageFromIpcMain('show-update-button', () => {
 
 onMessageFromIpcMain('sync-process', res => {
   if (res.mode === 'needauth') {
-    shell.openExternal(`https://mtgarena.pro/sync/?request=${res.request}`).catch(err => {
-      error('Failure to open link', err, {res});
-    });
+    // shell.openExternal(`https://mtgarena.pro/sync/?request=${res.request}`).catch(err => {
+    //   error('Failure to open link', err, {res});
+    // });
     tokenWaiter(res.request);
   } else if (res.mode === 'hasauth') {
     login(res.token, res.uid, res.nick, 'connect-acc');
   }
 });
 
-onMessageFromIpcMain('token-waiter-responce', responce => {
-  if (responce && responce.res && responce.res.token) {
-    login(responce.res.token, responce.res.uid, responce.res.nick);
+onMessageFromIpcMain('token-waiter-responce', response => {
+  if (response.res && response.res.token) {
+    login(response.res.token, response.res.uid, response.res.nick);
   } else {
     setTimeout(() => {
-      tokenWaiter(responce.request);
+      tokenWaiter(response.request);
     }, 1000);
   }
 });
@@ -248,10 +253,8 @@ const tabclick = (event: Event) => {
 const linkclick = (event: Event) => {
   const cl: HTMLElement = event.target as HTMLElement;
   const link = cl.getAttribute('data-link');
-  if (link !== null) {
-    shell.openExternal(link).catch(err => {
-      error('Failure to open link', err, {link});
-    });
+  if (link !== null && link.length > 0) {
+    // shell.openExternal(link).catch(err => error('linkclick openExternal', err));
   }
 };
 
@@ -349,8 +352,6 @@ const settingsChecker = (event: Event) => {
 };
 
 const login = (token: string, uid: string, nick: string, source?: string) => {
-  //console.log('login!' + token + '/' + nick + '/' + source);
-
   TokenInput.classList.add('hidden');
   TokenResponse.innerHTML = `Current user: <strong>${nick}</strong>`;
   OverlaySwitch.classList.remove('hidden');

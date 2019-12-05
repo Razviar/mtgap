@@ -87,6 +87,7 @@ typings/
 
 # Electron-Forge
 out/
+dist/
 conf/conf.env
 cert/
 package.json

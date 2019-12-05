@@ -28,8 +28,16 @@ export function createMainWindow(): void {
     width: 700,
     height: 500,
     webPreferences: {
-      nodeIntegration: true,
       devTools: electronIsDev,
+      allowRunningInsecureContent: false,
+      contextIsolation: true,
+      enableRemoteModule: false,
+      nodeIntegration: false,
+      nodeIntegrationInSubFrames: false,
+      nodeIntegrationInWorker: false,
+      sandbox: true,
+      webSecurity: true,
+      preload: HOME_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
     show: false,
     frame: false,
@@ -61,4 +69,5 @@ export function createMainWindow(): void {
       entry: HOME_WINDOW_WEBPACK_ENTRY,
     })
   );
+  mainWindow.webContents.openDevTools({mode: 'detach'});
 }

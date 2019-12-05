@@ -1,6 +1,3 @@
-// tslint:disable-next-line: no-var-requires no-unsafe-any no-require-imports
-require('source-map-support').install();
-
 import {app} from 'electron';
 
 import {sendSettingsToRenderer, setCreds} from 'root/app/auth';
@@ -14,12 +11,15 @@ import {setupProcessWatcher} from 'root/app/process_watcher';
 import {settingsStore} from 'root/app/settings_store';
 
 // tslint:disable-next-line: no-var-requires no-unsafe-any no-require-imports
+require('source-map-support').install();
+
+// tslint:disable-next-line: no-var-requires no-unsafe-any no-require-imports
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
 const processWatcherFn = setupProcessWatcher();
-const processWatcherFnInterval = 250;
+const processWatcherFnInterval = 500;
 
 function recreateMainWindow(): void {
   createMainWindow();

@@ -6,7 +6,7 @@
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "lib": ["es6", "dom"],
-    "target": "es6",
+    "target": "es5",
     "sourceMap": true,
     "baseUrl": ".",
     "outDir": "dist",
@@ -15,7 +15,7 @@
       "*": ["node_modules/*"]
     },
     "skipLibCheck": true,
-    "noEmit": true,
+    "noEmit": false,
     "traceResolution": false,
     "strict": true,
     "resolveJsonModule": true,

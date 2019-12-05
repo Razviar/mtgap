@@ -1,16 +1,15 @@
-import {ipcRenderer} from 'electron';
+import {Message, MessageCallback, Messages, onBridgeMessageGeneric, onMessageGeneric} from 'root/lib/messages';
 
-import {Messages} from 'root/lib/messages';
-
-export function sendMessageToIpcMain<Message extends keyof Messages>(message: Message, data: Messages[Message]): void {
-  ipcRenderer.send(message, data);
+export function sendMessageToIpcMain(message: Message, data: Messages[Message]): void {
+  window.postMessage({message, data}, '*');
 }
 
-export function onMessageFromIpcMain<Message extends keyof Messages>(
-  message: Message,
-  cb: (data: Messages[Message]) => void
-): void {
-  ipcRenderer.on(message, (_, args) => {
-    cb(args as Messages[Message]);
-  });
+const allCallbacks = new Map<Message, MessageCallback<Message>[]>();
+
+window.addEventListener('message', (ev: MessageEvent) => {
+  onBridgeMessageGeneric(allCallbacks, ev.data);
+});
+
+export function onMessageFromIpcMain<M extends Message>(message: M, cb: MessageCallback<M>): void {
+  onMessageGeneric(allCallbacks, message, cb);
 }
