@@ -1,16 +1,31 @@
-import {ipcRenderer} from 'electron';
-
-import {Messages} from 'root/lib/messages';
+import {MessagePayload, Messages} from 'root/lib/messages';
 
 export function sendMessageToIpcMain<Message extends keyof Messages>(message: Message, data: Messages[Message]): void {
-  ipcRenderer.send(message, data);
+  window.postMessage({message, data}, '*');
 }
 
-export function onMessageFromIpcMain<Message extends keyof Messages>(
-  message: Message,
-  cb: (data: Messages[Message]) => void
-): void {
-  ipcRenderer.on(message, (_, args) => {
-    cb(args as Messages[Message]);
-  });
+type MessageCallback = (data: Messages[keyof Messages]) => void;
+type MessageCallbackList = {
+  [Message in keyof Messages]?: MessageCallback[];
+};
+
+const allCallbacks: MessageCallbackList = {};
+
+window.addEventListener('message', function(this: Window, ev: MessageEvent): void {
+  const payload = ev.data as MessagePayload;
+  const callbacks = allCallbacks[payload.message];
+  if (callbacks !== undefined) {
+    for (const cb of callbacks) {
+      cb(payload.data);
+    }
+  }
+});
+
+export function onMessageFromIpcMain(message: keyof Messages, cb: MessageCallback): void {
+  const callbacks = allCallbacks[message];
+  if (callbacks !== undefined) {
+    callbacks.push(cb);
+  } else {
+    allCallbacks[message] = [cb];
+  }
 }

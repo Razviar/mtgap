@@ -65,3 +65,8 @@ export interface Messages {
   'set-setting-o-cardhover': boolean;
   'set-setting-o-timers': boolean;
 }
+
+export interface MessagePayload {
+  message: keyof Messages;
+  data: Messages[keyof Messages];
+}

@@ -1,11 +1,15 @@
-// tslint:disable: no-any no-unsafe-any
-import {shell} from 'electron';
+// tslint:disable: no-any no-unsafe-any no-import-side-effect
+// import {shell} from 'electron';
 
-import {tokencheck, tokenrequest, userbytokenid} from 'root/api/userbytokenid';
+// import {tokencheck, tokenrequest, userbytokenid} from 'root/api/userbytokenid';
 import {error} from 'root/lib/logger';
-// tslint:disable: no-import-side-effect
+import 'root/windows/home/choices.min.css';
+import 'root/windows/home/css.css';
 import 'root/windows/home/home.css';
 import 'root/windows/home/icons.css';
+import 'root/windows/home/NaPecZTIAOhVxoMyOr9n_E7fdM3mDbRS.woff2';
+import 'root/windows/home/NaPecZTIAOhVxoMyOr9n_E7fdMPmDQ.woff2';
+import 'root/windows/home/pretty-checkbox.min.css';
 import {onMessageFromIpcMain, sendMessageToIpcMain} from 'root/windows/messages';
 
 const TokenResponse = document.getElementById('TokenResponse') as HTMLElement;
@@ -250,7 +254,7 @@ const linkclick = (event: Event) => {
   const cl: HTMLElement = event.target as HTMLElement;
   const link = cl.getAttribute('data-link');
   if (link !== null && link.length > 0) {
-    shell.openExternal(link).catch(err => error('linkclick openExternal', err));
+    // shell.openExternal(link).catch(err => error('linkclick openExternal', err));
   }
 };
 
