@@ -3,14 +3,14 @@
 
 // import {tokencheck, tokenrequest, userbytokenid} from 'root/api/userbytokenid';
 import {error} from 'root/lib/logger';
+import 'root/windows/css.css';
 import 'root/windows/home/choices.min.css';
-import 'root/windows/home/css.css';
 import 'root/windows/home/home.css';
 import 'root/windows/home/icons.css';
-import 'root/windows/home/NaPecZTIAOhVxoMyOr9n_E7fdM3mDbRS.woff2';
-import 'root/windows/home/NaPecZTIAOhVxoMyOr9n_E7fdMPmDQ.woff2';
 import 'root/windows/home/pretty-checkbox.min.css';
 import {onMessageFromIpcMain, sendMessageToIpcMain} from 'root/windows/messages';
+import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdM3mDbRS.woff2';
+import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdMPmDQ.woff2';
 
 const TokenResponse = document.getElementById('TokenResponse') as HTMLElement;
 const TokenInput = document.getElementById('TokenInput') as HTMLElement;
@@ -188,9 +188,9 @@ onMessageFromIpcMain('show-update-button', () => {
 
 onMessageFromIpcMain('sync-process', res => {
   if (res.mode === 'needauth') {
-    shell.openExternal(`https://mtgarena.pro/sync/?request=${res.request}`).catch(err => {
-      error('Failure to open link', err, {res});
-    });
+    // shell.openExternal(`https://mtgarena.pro/sync/?request=${res.request}`).catch(err => {
+    //   error('Failure to open link', err, {res});
+    // });
     tokenWaiter(res.request);
   } else if (res.mode === 'hasauth') {
     login(res.token, res.uid, res.nick, 'connect-acc');

@@ -1,7 +1,7 @@
 import {App, dialog, nativeImage} from 'electron';
 import {join} from 'path';
 
-import {setuserdata, UserData, tokenrequest, tokencheck, userbytokenid} from 'root/api/userbytokenid';
+import {setuserdata, tokencheck, tokenrequest, userbytokenid, UserData} from 'root/api/userbytokenid';
 import {loadAppIcon} from 'root/app/app_icon';
 import {sendSettingsToRenderer} from 'root/app/auth';
 import {disableAutoLauncher, enableAutoLauncher} from 'root/app/auto_launcher';

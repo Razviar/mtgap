@@ -1,15 +1,19 @@
-// tslint:disable: no-unsafe-any
-import {remote} from 'electron';
-
-import {getlivematch} from 'root/api/overlay';
+// tslint:disable: no-unsafe-any no-import-side-effect
 import {countOfObject, hexToRgbA, jsonParse, sumOfObject} from 'root/lib/func';
 import {sortcards} from 'root/lib/sortcards';
-import {color, manafont, rarcolor, supercls, typecolorletter} from 'root/lib/utils';
+import {color, manafont, typecolorletter} from 'root/lib/utils';
 import {Card} from 'root/models/cards';
 import {Match} from 'root/models/match';
 import {Metadata} from 'root/models/metadata';
+import 'root/windows/css.css';
 import {onMessageFromIpcMain} from 'root/windows/messages';
-// tslint:disable-next-line: no-import-side-effect
+import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdM3mDbRS.woff2';
+import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdMPmDQ.woff2';
+import 'root/windows/overlay/keyrune.css';
+import 'root/windows/overlay/keyrune.eot';
+import 'root/windows/overlay/mana.css';
+import 'root/windows/overlay/mana.eot';
+import 'root/windows/overlay/mplantin.eot';
 import 'root/windows/overlay/overlay.css';
 
 const MainOut = document.getElementById('MainOut') as HTMLElement;
@@ -21,8 +25,7 @@ const currentMatch = new Match();
 let metaData: Metadata | undefined;
 const superclasses = ['sorcery', 'creature', 'land'];
 
-function makeCard(cid: number, num: number, mode: string, side: boolean): string {
-  const BasicLand = 34;
+function makeCard(cid: number, num: number, side: boolean): string {
   if (!metaData) {
     return '';
   }
@@ -30,15 +33,11 @@ function makeCard(cid: number, num: number, mode: string, side: boolean): string
 
   const name = cardsdb[cid]['name'];
   const mtgaId = cardsdb[cid]['mtga_id'];
-  const rarity = cardsdb[cid]['rarity'];
   const mana = cardsdb[cid]['mana'];
   const thumb = cardsdb[cid]['art'];
   const colorarr = cardsdb[cid]['colorarr'];
   const island = cardsdb[cid]['is_land'];
   const supercls = cardsdb[cid]['supercls'];
-  const colorindicator = cardsdb[cid]['colorindicator'];
-  const slug = cardsdb[cid]['slug'];
-  const flavor = cardsdb[cid]['flavor'];
 
   let bgcolor = 'linear-gradient(to bottom,';
 
@@ -47,7 +46,7 @@ function makeCard(cid: number, num: number, mode: string, side: boolean): string
 
   if (side) {
     currentMatch.totalCards += num;
-    if (!currentMatch.cardsBySuperclass[supercls]) {
+    if (currentMatch.cardsBySuperclass[supercls] === 0) {
       currentMatch.cardsBySuperclass[supercls] = num;
     } else {
       currentMatch.cardsBySuperclass[supercls] += num;
@@ -58,6 +57,7 @@ function makeCard(cid: number, num: number, mode: string, side: boolean): string
 
   const manaj: {[index: string]: number} = colorarr !== '' && colorarr !== '[]' ? jsonParse(colorarr) : jsonParse(mana);
 
+  // tslint:disable-next-line: strict-boolean-expressions
   if (manaj) {
     const allcol = countOfObject(manaj);
     Object.keys(manaj).forEach((clr: string) => {
@@ -94,6 +94,7 @@ function makeCard(cid: number, num: number, mode: string, side: boolean): string
   let manas = '';
 
   color.forEach(clr => {
+    // tslint:disable-next-line: strict-boolean-expressions
     if (manaj && manaj[clr] > 0 && +island === 0) {
       if (clr !== 'Colorless') {
         for (let i = 0; i < manaj[clr]; i++) {
@@ -140,7 +141,7 @@ const updateOppDeck = (highlight: number[]) => {
     forsort[+cid] = meta.allcards[+cid];
   });
   sortcards(forsort, true, SortLikeMTGA).forEach(cid => {
-    output += makeCard(+cid[0], oppDeck[+cid[0]], 'battle', false);
+    output += makeCard(+cid[0], oppDeck[+cid[0]], false);
   });
 
   OpponentOut.innerHTML = output;
@@ -204,7 +205,7 @@ const updateDeck = (highlight: number[]) => {
   highlight.forEach(mtgaid => {
     const cid = meta.mtgatoinnerid[+mtgaid];
     const scls = meta.allcards[+cid].supercls;
-    if (!currentMatch.cardsBySuperclassLeft[scls]) {
+    if (currentMatch.cardsBySuperclassLeft[scls] === 0) {
       currentMatch.cardsBySuperclassLeft[scls] = 1;
     } else {
       currentMatch.cardsBySuperclassLeft[scls]++;
@@ -240,7 +241,7 @@ const drawDeck = () => {
 
   let output = `<div class="deckName">${currentMatch.humanname}</div>`;
   currentMatch.myFullDeck.forEach(card => {
-    output += makeCard(card.card, card.cardnum, 'battle', true);
+    output += makeCard(card.card, card.cardnum, true);
   });
   output += '<div class="deckBottom">';
   for (let scls = 0; scls <= 2; scls++) {
