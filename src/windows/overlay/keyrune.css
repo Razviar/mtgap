@@ -2,7 +2,7 @@
  * Global */
 @font-face {
   font-family: 'Keyrune';
-  src: url('keyrune.eot?v=3.6.3');
+  src: url('keyrune.woff2');
   font-weight: normal;
   font-style: normal;
 }
@@ -13,7 +13,6 @@
   line-height: 1em;
   text-rendering: auto;
   transform: translate(0, 0);
-  speak: none;
   text-transform: none;
   vertical-align: middle;
   -webkit-font-smoothing: antialiased;

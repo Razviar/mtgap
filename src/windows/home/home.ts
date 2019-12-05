@@ -348,7 +348,7 @@ const settingsChecker = (event: Event) => {
 const login = (token: string, uid: string, nick: string, source?: string) => {
   TokenInput.classList.add('hidden');
   TokenResponse.innerHTML = `Current user: <strong>${nick}</strong>`;
-  StatusMessage.innerHTML = 'Awaiting updates...';
+  StatusMessage.innerHTML = 'Logged in...';
   StatusMessage.style.color = '#22a83a';
   OverlaySwitch.classList.remove('hidden');
   UserControls.classList.remove('hidden');

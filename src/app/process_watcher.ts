@@ -19,6 +19,7 @@ export function setupProcessWatcher(): () => void {
     processWatcher
       .getprocesses()
       .then(res => {
+        //console.log(res);
         MTGApid = res;
         overlayPositioner.findmtga(MTGApid);
         if (res === -1) {

@@ -2,13 +2,13 @@
  * Global */
 @font-face {
   font-family: 'Mana';
-  src: url('mana.eot?v=1.4.1');
+  src: url('mana.woff2');
   font-weight: normal;
   font-style: normal;
 }
 @font-face {
   font-family: 'MPlantin';
-  src: url('mplantin.eot?v=1.4.1');
+  src: url('mplantin.woff');
   font-weight: normal;
   font-style: normal;
 }

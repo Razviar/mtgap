@@ -10,10 +10,9 @@ import {onMessageFromIpcMain} from 'root/windows/messages';
 import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdM3mDbRS.woff2';
 import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdMPmDQ.woff2';
 import 'root/windows/overlay/keyrune.css';
-import 'root/windows/overlay/keyrune.eot';
+import 'root/windows/overlay/keyrune.woff2';
 import 'root/windows/overlay/mana.css';
-import 'root/windows/overlay/mana.eot';
-import 'root/windows/overlay/mplantin.eot';
+import 'root/windows/overlay/mana.woff2';
 import 'root/windows/overlay/overlay.css';
 
 const MainOut = document.getElementById('MainOut') as HTMLElement;
@@ -25,39 +24,21 @@ const currentMatch = new Match();
 let metaData: Metadata | undefined;
 const superclasses = ['sorcery', 'creature', 'land'];
 
-function makeCard(cid: number, num: number, side: boolean): string {
+function applyStyles(cid: number, side: boolean): void {
+  //style="border-image:${bgcolor}; background:url('https://mtgarena.pro/mtg/pict/thumb/${thumb}') 50% 50%"
   if (!metaData) {
-    return '';
+    return;
   }
   const cardsdb = metaData.allcards;
-
-  const name = cardsdb[cid]['name'];
+  const colorarr = cardsdb[cid]['colorarr'];
   const mtgaId = cardsdb[cid]['mtga_id'];
   const mana = cardsdb[cid]['mana'];
   const thumb = cardsdb[cid]['art'];
-  const colorarr = cardsdb[cid]['colorarr'];
-  const island = cardsdb[cid]['is_land'];
-  const supercls = cardsdb[cid]['supercls'];
-
   let bgcolor = 'linear-gradient(to bottom,';
-
+  const manaj: {[index: string]: number} = colorarr !== '' && colorarr !== '[]' ? jsonParse(colorarr) : jsonParse(mana);
   let clnum = 0;
   let lastcolor = '';
 
-  if (side) {
-    currentMatch.totalCards += num;
-    if (currentMatch.cardsBySuperclass[supercls] === 0) {
-      currentMatch.cardsBySuperclass[supercls] = num;
-    } else {
-      currentMatch.cardsBySuperclass[supercls] += num;
-    }
-  }
-
-  //let manaj: {[index: string]: number} = {'': 0};
-
-  const manaj: {[index: string]: number} = colorarr !== '' && colorarr !== '[]' ? jsonParse(colorarr) : jsonParse(mana);
-
-  // tslint:disable-next-line: strict-boolean-expressions
   if (manaj) {
     const allcol = countOfObject(manaj);
     Object.keys(manaj).forEach((clr: string) => {
@@ -91,6 +72,35 @@ function makeCard(cid: number, num: number, side: boolean): string {
   }
   bgcolor += ') 1 100%';
 
+  const cardThumb = document.getElementById(`cardthumb${mtgaId}${side ? 'me' : 'opp'}`) as HTMLElement;
+  //console.log(cardThumb);
+  cardThumb.style.background = `url('https://mtgarena.pro/mtg/pict/thumb/${thumb}') 50% 50%`;
+  cardThumb.style.borderImage = bgcolor;
+}
+
+function makeCard(cid: number, num: number, side: boolean): string {
+  if (!metaData) {
+    return '';
+  }
+  const cardsdb = metaData.allcards;
+
+  const name = cardsdb[cid]['name'];
+  const mtgaId = cardsdb[cid]['mtga_id'];
+  const mana = cardsdb[cid]['mana'];
+  const colorarr = cardsdb[cid]['colorarr'];
+  const island = cardsdb[cid]['is_land'];
+  const supercls = cardsdb[cid]['supercls'];
+
+  if (side) {
+    currentMatch.totalCards += num;
+    if (currentMatch.cardsBySuperclass[supercls] === 0) {
+      currentMatch.cardsBySuperclass[supercls] = num;
+    } else {
+      currentMatch.cardsBySuperclass[supercls] += num;
+    }
+  }
+
+  const manaj: {[index: string]: number} = colorarr !== '' && colorarr !== '[]' ? jsonParse(colorarr) : jsonParse(mana);
   let manas = '';
 
   color.forEach(clr => {
@@ -110,7 +120,7 @@ function makeCard(cid: number, num: number, side: boolean): string {
 
   return `
 <div class="DcDrow" data-cid="${cid}" id="card${mtgaId}${side ? 'me' : 'opp'}">
-<div class="CardSmallPic" style="border-image:${bgcolor}; background:url('https://mtgarena.pro/mtg/pict/thumb/${thumb}') 50% 50%">
+<div class="CardSmallPic" id="cardthumb${mtgaId}${side ? 'me' : 'opp'}">
 </div>
 <div class="CNameManaWrap">
 <div class="CCmana">
@@ -140,11 +150,12 @@ const updateOppDeck = (highlight: number[]) => {
     oppDeck[+cid] = currentMatch.decks.opponent[+OppMtgaCid];
     forsort[+cid] = meta.allcards[+cid];
   });
+  OpponentOut.innerHTML = '';
   sortcards(forsort, true, SortLikeMTGA).forEach(cid => {
-    output += makeCard(+cid[0], oppDeck[+cid[0]], false);
+    OpponentOut.innerHTML += makeCard(+cid[0], oppDeck[+cid[0]], false);
+    applyStyles(+cid[0], false);
   });
 
-  OpponentOut.innerHTML = output;
   OpponentOut.classList.remove('hidden');
 
   highlight.forEach(mtgaid => {
@@ -239,16 +250,17 @@ const drawDeck = () => {
   }
   const cardsdb = metaData.allcards;
 
-  let output = `<div class="deckName">${currentMatch.humanname}</div>`;
+  MainOut.innerHTML = `<div class="deckName">${currentMatch.humanname}</div>`;
   currentMatch.myFullDeck.forEach(card => {
-    output += makeCard(card.card, card.cardnum, true);
+    MainOut.innerHTML += makeCard(card.card, card.cardnum, true);
+    applyStyles(+card.card, true);
   });
-  output += '<div class="deckBottom">';
+  let bottom = '<div class="deckBottom">';
   for (let scls = 0; scls <= 2; scls++) {
-    output += `<div id="scls${scls}" class="scls"></div>`;
+    bottom += `<div id="scls${scls}" class="scls"></div>`;
   }
-  output += '</div>';
-  MainOut.innerHTML = output;
+  bottom += '</div>';
+  MainOut.innerHTML += bottom;
   MainOut.classList.remove('hidden');
 
   const AllCards = document.getElementsByClassName('DcDrow');
@@ -305,6 +317,7 @@ onMessageFromIpcMain('mulligan', res => {
 onMessageFromIpcMain('match-over', () => currentMatch.over());
 
 onMessageFromIpcMain('card-played', arg => {
+  //console.log(arg);
   const res = currentMatch.cardplayed({
     grpId: arg.grpId,
     instanceId: arg.instanceId,
