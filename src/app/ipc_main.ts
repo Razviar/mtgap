@@ -1,4 +1,4 @@
-import {App, dialog, nativeImage} from 'electron';
+import {App, dialog, nativeImage, shell} from 'electron';
 import {join} from 'path';
 
 import {setuserdata, tokencheck, tokenrequest, userbytokenid, UserData} from 'root/api/userbytokenid';
@@ -79,6 +79,12 @@ export function setupIpcMain(app: App): void {
   });
 
   onMessageFromBrowserWindow('minimize-me', () => withHomeWindow(w => w.hide()));
+
+  onMessageFromBrowserWindow('open-link',link=>{
+    shell.openExternal(link).catch(err => {
+    //   error('Failure to open link', err, {res});
+    // });
+  })
 
   onMessageFromBrowserWindow('set-setting-autorun', newAutorun => {
     const settings = settingsStore.get();

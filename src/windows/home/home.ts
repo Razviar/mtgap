@@ -184,9 +184,7 @@ onMessageFromIpcMain('show-update-button', () => {
 
 onMessageFromIpcMain('sync-process', res => {
   if (res.mode === 'needauth') {
-    // shell.openExternal(`https://mtgarena.pro/sync/?request=${res.request}`).catch(err => {
-    //   error('Failure to open link', err, {res});
-    // });
+    sendMessageToIpcMain('open-link', `https://mtgarena.pro/sync/?request=${res.request}`);
     tokenWaiter(res.request);
   } else if (res.mode === 'hasauth') {
     login(res.token, res.uid, res.nick, 'connect-acc');
@@ -250,7 +248,7 @@ const linkclick = (event: Event) => {
   const cl: HTMLElement = event.target as HTMLElement;
   const link = cl.getAttribute('data-link');
   if (link !== null && link.length > 0) {
-    // shell.openExternal(link).catch(err => error('linkclick openExternal', err));
+    sendMessageToIpcMain('open-link', link);
   }
 };
 

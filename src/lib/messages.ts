@@ -14,6 +14,7 @@ export interface Messages {
   };
   'get-userbytokenid': string;
   'userbytokenid-responce': UserResult;
+  'open-link': string;
   'token-input': Account;
   'minimize-me': undefined;
   'set-settings': LatestSettings;
