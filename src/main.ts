@@ -3,13 +3,13 @@ import {app} from 'electron';
 import {sendSettingsToRenderer, setCreds} from 'root/app/auth';
 import {enableAutoLauncher} from 'root/app/auto_launcher';
 import {setupAutoUpdater} from 'root/app/auto_updater';
+import {setupRequestIntercept} from 'root/app/intercepter';
 import {setupIpcMain} from 'root/app/ipc_main';
 import {createLogParser} from 'root/app/log_parser';
 import {createMainWindow, withHomeWindow} from 'root/app/main_window';
 import {sendMessageToHomeWindow} from 'root/app/messages';
 import {setupProcessWatcher} from 'root/app/process_watcher';
 import {settingsStore} from 'root/app/settings_store';
-import {setupRequestIntercept} from './app/intercepter';
 
 // tslint:disable-next-line: no-var-requires no-unsafe-any no-require-imports
 require('source-map-support').install();
