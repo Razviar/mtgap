@@ -34,6 +34,7 @@ export interface ParsingMetadata {
   matchStartEvent: string;
   matchEndEvent: string;
   cardPlayedEvent: string;
+  deckSubmittedEvent: string;
 }
 
 export interface LogSenderParsingMetadata {
@@ -104,6 +105,7 @@ export const parsingMetadata: ParsingMetadata = {
     attributesPathToId: ['params', 'ticket'],
   },
   userChangeEvent: 'Client.Connected',
+  deckSubmittedEvent: 'DuelScene.GameStart',
   matchStartEvent: 'DuelScene.GameStart',
   matchEndEvent: 'DuelScene.EndOfMatchReport',
   cardPlayedEvent: 'CardPlayed',

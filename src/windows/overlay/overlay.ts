@@ -282,7 +282,7 @@ const HoverEventListener = (theCard: Element) => {
     const cl: HTMLElement = event.target as HTMLElement;
     const cid = cl.getAttribute('data-cid') as string;
     const side = cl.getAttribute('data-side') as string;
-    const src = `https://mtgarena.pro/mtg/pict/${
+    const src = `/card-image/mtg/pict/${
       cardsdb[+cid].has_hiresimg === 1 ? `mtga/card_${cardsdb[+cid].mtga_id}_EN.png` : cardsdb[+cid].pict
     }`;
     CardHint.innerHTML = `<img src="${src}" class="CardClass" />`;
