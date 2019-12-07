@@ -26,20 +26,20 @@ module.exports = [
       },
     ],
   },
-  // {
-  //   test: /\.tsx?$/,
-  //   exclude: /(node_modules|.webpack)/,
-  //   loaders: [
-  //     {
-  //       loader: 'tslint-loader',
-  //       options: {
-  //         tsConfigFile: 'tsconfig.json',
-  //         typeCheck: true,
-  //         formatter: 'verbose',
-  //       },
-  //     },
-  //   ],
-  // },
+  {
+    test: /\.tsx?$/,
+    exclude: /(node_modules|.webpack)/,
+    loaders: [
+      {
+        loader: 'tslint-loader',
+        options: {
+          tsConfigFile: 'tsconfig.json',
+          typeCheck: true,
+          formatter: 'verbose',
+        },
+      },
+    ],
+  },
   {
     test: /\.(png|ico|svg|jpg|gif)$/,
     use: [
