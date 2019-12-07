@@ -113,6 +113,8 @@ export class LogParser2 {
               this.handleMatchEndEvent(event);
             } else if (event.name === parsingMetadata.cardPlayedEvent) {
               this.handleCardPlayedEvent(event);
+            } else if (event.name === parsingMetadata.deckSubmissionEvent) {
+              this.handleDeckSubmissionEvent(event);
             }
           }
 
@@ -244,5 +246,15 @@ export class LogParser2 {
       return;
     }
     this.emitter.emit('card-played', {instanceId, grpId, zoneId, visibility, ownerSeatId});
+  }
+
+  private handleDeckSubmissionEvent(event: StatefulLogEvent): void {
+    const courseDeck = asMap(extractValue(event.data, ['CourseDeck']));
+    if (courseDeck === undefined) {
+      error('Encountered invalid deck submission event', undefined, {...event});
+      return;
+    }
+    // TODO - parse & validate `courseDeck` + emit 'deck-submission' event
+    // this.emitter.emit('deck-submission', {stuff});
   }
 }
