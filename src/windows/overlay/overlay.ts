@@ -324,6 +324,17 @@ onMessageFromIpcMain('set-metadata', meta => {
   metaData = meta;
 });
 
+onMessageFromIpcMain('set-userdata', umeta => {
+  console.log(umeta);
+  Object.keys(umeta.coursedecks).forEach(eventName => {
+    playerDecks[eventName] = {
+      mainDeck: umeta.coursedecks[eventName].deckstruct,
+      deckId: umeta.coursedecks[eventName].udeck,
+      deckName: umeta.coursedecks[eventName].humanname,
+    };
+  });
+});
+
 onMessageFromIpcMain('match-started', newMatch => {
   if (playerDecks[newMatch.eventId] === undefined) {
     return;

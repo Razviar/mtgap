@@ -37,7 +37,7 @@ export function setupProcessWatcher(): () => void {
                   error('Failure to load Metadata', err);
                 });
               getUserMetadata(+account.uid)
-                .then(umd => {})
+                .then(umd => sendMessageToOverlayWindow('set-userdata', umd))
                 .catch(err => {
                   error('Failure to load User Metadata', err);
                 });

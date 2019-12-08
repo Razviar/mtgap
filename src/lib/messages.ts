@@ -1,7 +1,7 @@
 import {TokenCheckRes, TokenRequestRes} from 'root/api/userbytokenid';
 import {Account, LatestSettings, OverlaySettings} from 'root/app/settings_store';
 import {CardPlayed} from 'root/models/cards';
-import {Metadata} from 'root/models/metadata';
+import {Metadata, UserMetadata} from 'root/models/metadata';
 import {UserResult} from 'root/models/userbytokenid';
 
 export interface Messages {
@@ -50,6 +50,7 @@ export interface Messages {
     InternalEventName: string;
   };
   'set-metadata': Metadata;
+  'set-userdata': UserMetadata;
   mulligan: boolean;
   'set-version': string;
   'show-update-button': undefined;
