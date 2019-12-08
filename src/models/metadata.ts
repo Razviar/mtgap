@@ -30,6 +30,7 @@ export interface UserMetadata {
   user: Userdata;
   collection: {[index: number]: {[index: string]: string}};
   usercapabilities: {[index: string]: boolean};
+  coursedecks: {[index: string]: {udeck: number; humanname: string; deckstruct: {card: number; cardnum: number}[]}};
 }
 
 export interface Userdata {

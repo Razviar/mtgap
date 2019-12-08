@@ -1,4 +1,4 @@
-import {getMetadata} from 'root/api/overlay';
+import {getMetadata, getUserMetadata} from 'root/api/overlay';
 import {ConnectionWaiter} from 'root/app/connection_waiter';
 import {WindowLocator} from 'root/app/locatewindow';
 import {withLogParser} from 'root/app/log_parser';
@@ -29,11 +29,19 @@ export function setupProcessWatcher(): () => void {
           let overlayWindow = getOverlayWindow();
           if (!overlayWindow) {
             overlayWindow = createOverlayWindow();
-            getMetadata()
-              .then(md => sendMessageToOverlayWindow('set-metadata', md))
-              .catch(err => {
-                error('Failure to load Metadata', err);
-              });
+            const account = settingsStore.getAccount();
+            if (account) {
+              getMetadata()
+                .then(md => sendMessageToOverlayWindow('set-metadata', md))
+                .catch(err => {
+                  error('Failure to load Metadata', err);
+                });
+              getUserMetadata(+account.uid)
+                .then(umd => {})
+                .catch(err => {
+                  error('Failure to load User Metadata', err);
+                });
+            }
           }
           if (settingsStore.get().overlay) {
             if (
