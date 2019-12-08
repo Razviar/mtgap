@@ -17,6 +17,7 @@ interface LogParserEvents {
     matchId: string;
     seatId: number;
     gameNumber: number;
+    eventId: string;
   };
   'match-over': string;
   'card-played': CardPlayed;
@@ -25,6 +26,13 @@ interface LogParserEvents {
     events: ParseResults[];
     parsingMetadata: ParsingMetadata;
     state?: LogFileParsingState;
+  };
+  'deck-submission': {
+    commandZoneGRPIds: number[];
+    mainDeck: {[index: number]: number};
+    deckName: string;
+    deckId: string;
+    InternalEventName: string;
   };
 }
 

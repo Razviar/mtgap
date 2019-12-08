@@ -1,3 +1,14 @@
+export interface DeckStrorage {
+  [index: string]: CourseDeck;
+}
+
+export interface CourseDeck {
+  commandZoneGRPIds?: number[];
+  mainDeck: {card: number; cardnum: number}[];
+  deckName: string;
+  deckId: string;
+}
+
 export interface LiveMatchRequest {
   matchid: string;
   uid: string;
@@ -34,6 +45,7 @@ export class Match {
   public decks: CardMappings = {me: {}, opponent: {}};
   public myFullDeck: {card: number; cardnum: number}[] = [];
   public humanname: string = '';
+  public eventId: string = '';
   public myTeamId: number = 0;
   public TurnNumber: number = 0;
   public GameNumber: number = 0;
@@ -51,6 +63,7 @@ export class Match {
     this.matchId = '';
     this.mtgaUid = '';
     this.ourUid = '';
+    this.eventId = '';
     this.zones = {};
     this.instanceIds = {me: {}, opponent: {}};
     this.decks = {me: {}, opponent: {}};

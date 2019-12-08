@@ -16,7 +16,7 @@ import {sendMessageToHomeWindow} from 'root/app/messages';
 import {settingsStore} from 'root/app/settings_store';
 import {getAccountFromScreenName} from 'root/app/userswitch';
 import {error} from 'root/lib/logger';
-import {asMap, asNumber, asString, removeUndefined} from 'root/lib/type_utils';
+import {asArray, asMap, asNumber, asString, removeUndefined} from 'root/lib/type_utils';
 
 const defaultTimeout = 500;
 
@@ -200,6 +200,7 @@ export class LogParser2 {
       setCreds('userchange');
     } else {
       sendMessageToHomeWindow('new-account', undefined);
+      sendMessageToHomeWindow('show-prompt', {message: 'New MTGA account detected!', autoclose: 1000});
       settings.awaiting = {playerId: newPlayerId, screenName, language};
       this.stop();
     }
@@ -211,11 +212,12 @@ export class LogParser2 {
     const matchId = asString(extractValue(event.data, ['params', 'payloadObject', 'matchId']));
     const gameNumber = asNumber(extractValue(event.data, ['params', 'payloadObject', 'gameNumber']));
     const seatId = asNumber(extractValue(event.data, ['params', 'payloadObject', 'seatId']));
-    if (matchId === undefined || gameNumber === undefined || seatId === undefined) {
+    const eventId = asString(extractValue(event.data, ['params', 'payloadObject', 'eventId']));
+    if (matchId === undefined || gameNumber === undefined || seatId === undefined || eventId === undefined) {
       error('Encountered invalid match start event', undefined, {...event});
       return;
     }
-    this.emitter.emit('match-started', {matchId, gameNumber, seatId});
+    this.emitter.emit('match-started', {matchId, gameNumber, seatId, eventId});
   }
 
   private handleMatchEndEvent(event: StatefulLogEvent): void {
@@ -247,12 +249,31 @@ export class LogParser2 {
   }
 
   private handleDeckSubmissionEvent(event: StatefulLogEvent): void {
-    const courseDeck = asMap(extractValue(event.data, ['CourseDeck']));
-    if (courseDeck === undefined) {
+    const mainDeckRaw = asArray<number>(extractValue(event.data, ['CourseDeck', 'mainDeck']));
+    const commandZoneGRPIds = asArray<number>(extractValue(event.data, ['CourseDeck', 'commandZoneGRPIds']));
+    const deckName = asString(extractValue(event.data, ['CourseDeck', 'name']));
+    const deckId = asString(extractValue(event.data, ['CourseDeck', 'id']));
+    const InternalEventName = asString(extractValue(event.data, ['InternalEventName']));
+    if (
+      mainDeckRaw === undefined ||
+      commandZoneGRPIds === undefined ||
+      deckName === undefined ||
+      deckId === undefined ||
+      InternalEventName === undefined
+    ) {
       error('Encountered invalid deck submission event', undefined, {...event});
       return;
     }
-    // TODO - parse & validate `courseDeck` + emit 'deck-submission' event
-    // this.emitter.emit('deck-submission', {stuff});
+    const mainDeck: {[index: number]: number} = {};
+    let cid = 0;
+    mainDeckRaw.forEach(deckEl => {
+      if (+deckEl > 100) {
+        cid = +deckEl;
+      } else if (cid !== 0) {
+        mainDeck[+cid] = +deckEl;
+      }
+    });
+
+    this.emitter.emit('deck-submission', {mainDeck, commandZoneGRPIds, deckName, deckId, InternalEventName});
   }
 }

@@ -39,9 +39,15 @@ export interface Messages {
     matchId: string;
     uid: string;
     seatId: number;
+    eventId: string;
     gameNumber: number;
-    deckstruct: {card: number; cardnum: number}[];
-    humanname: string;
+  };
+  'deck-submission': {
+    commandZoneGRPIds: number[];
+    mainDeck: {[index: number]: number};
+    deckName: string;
+    deckId: string;
+    InternalEventName: string;
   };
   'set-metadata': Metadata;
   mulligan: boolean;

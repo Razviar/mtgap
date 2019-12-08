@@ -1,7 +1,4 @@
 import {sendEventsToServer} from 'root/api/logsender';
-import {getlivematch} from 'root/api/overlay';
-import {setuserdata, UserData} from 'root/api/userbytokenid';
-import {setCreds} from 'root/app/auth';
 import {LogParser2} from 'root/app/log-parser/logparser2';
 import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
 import {settingsStore} from 'root/app/settings_store';
@@ -58,16 +55,11 @@ export function createLogParser(logpath?: string, parseOnce?: boolean): LogParse
   });
 
   if (!parseOnce && settingsStore.get().overlay) {
+    logParser.emitter.on('deck-submission', msg => sendMessageToOverlayWindow('deck-submission', msg));
     logParser.emitter.on('match-started', msg => {
       const account = settingsStore.getAccount();
       if (account) {
-        getlivematch(msg.matchId, account.uid)
-          .then(res => {
-            sendMessageToOverlayWindow('match-started', {...msg, ...res, uid: account.uid});
-          })
-          .catch(err => {
-            error('Failure to getlivematch', err, {...msg});
-          });
+        sendMessageToOverlayWindow('match-started', {...msg, uid: account.uid});
       }
     });
     logParser.emitter.on('card-played', msg => sendMessageToOverlayWindow('card-played', msg));

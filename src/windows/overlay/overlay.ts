@@ -3,7 +3,7 @@ import {countOfObject, hexToRgbA, jsonParse, sumOfObject} from 'root/lib/func';
 import {sortcards} from 'root/lib/sortcards';
 import {color, manafont, typecolorletter} from 'root/lib/utils';
 import {Card} from 'root/models/cards';
-import {Match} from 'root/models/match';
+import {Match, DeckStrorage} from 'root/models/match';
 import {Metadata} from 'root/models/metadata';
 import 'root/windows/css.css';
 import {onMessageFromIpcMain} from 'root/windows/messages';
@@ -21,6 +21,7 @@ const CardHint = document.getElementById('CardHint') as HTMLElement;
 const highlightTimeout = 3000;
 
 const currentMatch = new Match();
+const playerDecks: DeckStrorage = {};
 let metaData: Metadata | undefined;
 const superclasses = ['sorcery', 'creature', 'land'];
 
@@ -75,7 +76,7 @@ function applyStyles(cid: number, side: boolean): void {
 
   const cardThumb = document.getElementById(`cardthumb${mtgaId}${side ? 'me' : 'opp'}`) as HTMLElement;
   //console.log(cardThumb);
-  cardThumb.style.background = `url('https://mtgarena.pro/mtg/pict/thumb/${thumb}') 50% 50%`;
+  cardThumb.style.background = `url('mtga-image://card-image/mtg/pict/thumb/${thumb}') 50% 50%`;
   cardThumb.style.borderImage = bgcolor;
 }
 
@@ -142,10 +143,8 @@ const updateOppDeck = (highlight: number[]) => {
   const meta = metaData;
   const oppDeck: {[index: number]: number} = {};
   const forsort: {[index: number]: Card} = {};
-  /*console.log('???');
-  console.log(currentMatch.decks.opponent);*/
+
   Object.keys(currentMatch.decks.opponent).forEach(OppMtgaCid => {
-    //console.log(OppMtgaCid);
     const cid = meta.mtgatoinnerid[+OppMtgaCid];
     oppDeck[+cid] = currentMatch.decks.opponent[+OppMtgaCid];
     forsort[+cid] = meta.allcards[+cid];
@@ -282,7 +281,7 @@ const HoverEventListener = (theCard: Element) => {
     const cl: HTMLElement = event.target as HTMLElement;
     const cid = cl.getAttribute('data-cid') as string;
     const side = cl.getAttribute('data-side') as string;
-    const src = `/card-image/mtg/pict/${
+    const src = `mtga-image://card-image/mtg/pict/${
       cardsdb[+cid].has_hiresimg === 1 ? `mtga/card_${cardsdb[+cid].mtga_id}_EN.png` : cardsdb[+cid].pict
     }`;
     CardHint.innerHTML = `<img src="${src}" class="CardClass" />`;
@@ -326,13 +325,44 @@ onMessageFromIpcMain('set-metadata', meta => {
 });
 
 onMessageFromIpcMain('match-started', newMatch => {
+  if (playerDecks[newMatch.eventId] === undefined) {
+    return;
+  }
   currentMatch.matchId = newMatch.matchId;
   currentMatch.ourUid = newMatch.uid;
   currentMatch.myTeamId = newMatch.seatId;
+  currentMatch.eventId = newMatch.eventId;
   currentMatch.GameNumber = newMatch.gameNumber;
-  currentMatch.myFullDeck = newMatch.deckstruct;
-  currentMatch.humanname = newMatch.humanname;
+  currentMatch.myFullDeck = playerDecks[newMatch.eventId].mainDeck;
+  currentMatch.humanname = playerDecks[newMatch.eventId].deckName;
   drawDeck();
+});
+
+onMessageFromIpcMain('deck-submission', deck => {
+  if (!metaData) {
+    return '';
+  }
+  if (playerDecks[deck.InternalEventName] === undefined) {
+    playerDecks[deck.InternalEventName] = {mainDeck: [], deckId: deck.deckId, deckName: deck.deckName};
+  } else {
+    playerDecks[deck.InternalEventName].mainDeck = [];
+    playerDecks[deck.InternalEventName].deckId = deck.deckId;
+    playerDecks[deck.InternalEventName].deckName = deck.deckName;
+  }
+
+  const SortLikeMTGA = 11;
+  const meta = metaData;
+  const theDeck: {[index: number]: number} = {};
+  const forsort: {[index: number]: Card} = {};
+
+  Object.keys(deck.mainDeck).forEach(MtgaCid => {
+    const cid = meta.mtgatoinnerid[+MtgaCid];
+    theDeck[+cid] = deck.mainDeck[+MtgaCid];
+    forsort[+cid] = meta.allcards[+cid];
+  });
+  sortcards(forsort, true, SortLikeMTGA).forEach(cid => {
+    playerDecks[deck.InternalEventName].mainDeck.push({card: +cid[0], cardnum: theDeck[+cid[0]]});
+  });
 });
 
 onMessageFromIpcMain('mulligan', res => {
