@@ -45,11 +45,12 @@ function makeCard(cid: number, num: number, side: boolean): string {
 
   if (side) {
     currentMatch.totalCards += num;
-    if (currentMatch.cardsBySuperclass[supercls] === 0) {
+    if (currentMatch.cardsBySuperclass[supercls] === undefined) {
       currentMatch.cardsBySuperclass[supercls] = num;
     } else {
       currentMatch.cardsBySuperclass[supercls] += num;
     }
+    console.log(currentMatch.cardsBySuperclass);
   }
 
   const manajMap = asMap(colorarr !== '' && colorarr !== '[]' ? jsonParse(colorarr) : jsonParse(mana));
@@ -137,11 +138,14 @@ const updateOppDeck = (highlight: number[]) => {
   const forsort: {[index: number]: Card} = {};
 
   Object.keys(currentMatch.decks.opponent).forEach(OppMtgaCid => {
-    const cid = meta.mtgatoinnerid[+OppMtgaCid];
-    oppDeck[+cid] = currentMatch.decks.opponent[+OppMtgaCid];
-    forsort[+cid] = meta.allcards[+cid];
+    if (Object.keys(meta.mtgatoinnerid).includes(OppMtgaCid)) {
+      const cid = meta.mtgatoinnerid[+OppMtgaCid];
+      oppDeck[+cid] = currentMatch.decks.opponent[+OppMtgaCid];
+      forsort[+cid] = meta.allcards[+cid];
+    }
   });
   let output = '';
+
   sortcards(forsort, true, SortLikeMTGA).forEach(cid => {
     output += makeCard(+cid[0], oppDeck[+cid[0]], false);
   });
@@ -212,7 +216,7 @@ const updateDeck = (highlight: number[]) => {
   highlight.forEach(mtgaid => {
     const cid = meta.mtgatoinnerid[+mtgaid];
     const scls = meta.allcards[+cid].supercls;
-    if (currentMatch.cardsBySuperclassLeft[scls] === 0) {
+    if (currentMatch.cardsBySuperclassLeft[scls] === undefined) {
       currentMatch.cardsBySuperclassLeft[scls] = 1;
     } else {
       currentMatch.cardsBySuperclassLeft[scls]++;
@@ -232,6 +236,8 @@ const updateDeck = (highlight: number[]) => {
   for (let scls = 0; scls <= 2; scls++) {
     const sclsEl: HTMLElement | null = document.getElementById(`scls${scls}`);
     if (sclsEl) {
+      /*console.log(currentMatch.cardsBySuperclass);
+      console.log(currentMatch.cardsBySuperclassLeft);*/
       const numleft = currentMatch.cardsBySuperclass[scls] - currentMatch.cardsBySuperclassLeft[scls];
       const cardsPlayed = sumOfObject(currentMatch.decks.me);
       const draw = (100 * (numleft / (currentMatch.totalCards - cardsPlayed))).toFixed(2);

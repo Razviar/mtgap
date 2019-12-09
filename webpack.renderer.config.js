@@ -61,7 +61,7 @@ module.exports = {
         'object-src': "'none'",
         'script-src': ["'self'"],
         'img-src': ["'self'", 'https://mtgarena.pro/', 'data:'],
-        'style-src': ["'self'", `'nonce-${nonce}'`, "'unsafe-inline'"],
+        'style-src': ["'self'", "'unsafe-inline'"],
       },
       {
         enabled: true,
