@@ -41,7 +41,7 @@ a[href^="ftp://"] {
 }
 
 #MainOut {
-  display: inline-block;
+  display: block;
   position: absolute;
   top: 20%;
   width: 300px;
@@ -49,7 +49,7 @@ a[href^="ftp://"] {
 }
 
 #OpponentOut {
-  display: inline-block;
+  display: block;
   position: absolute;
   top: 20%;
   right: 0px;
@@ -180,4 +180,33 @@ a[href^="ftp://"] {
   opacity: 0.7;
   border-radius: 4%;
   width: 200px;
+}
+
+.scls {
+  display: inline-block;
+  width: 32%;
+}
+
+.smallLogo {
+  display: inline-block;
+  font-size: 0.7em;
+}
+
+.interfaceButton {
+  background-color: rgba(183, 171, 169, 0.1);
+  border: solid 1px rgba(183, 171, 169, 0.3);
+  display: inline-block;
+  width: 70px;
+  text-align: left;
+  padding-left: 10px;
+  cursor: pointer;
+  transition: all 0.3s linear;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+.interfaceButton:hover {
+  border: solid 1px rgba(183, 171, 169, 0.5);
+  background-color: rgba(132, 52, 38, 0.9);
+  color: #fff;
 }

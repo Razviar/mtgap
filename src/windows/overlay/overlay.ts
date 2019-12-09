@@ -19,6 +19,9 @@ import 'root/windows/overlay/overlay.css';
 const MainOut = document.getElementById('MainOut') as HTMLElement;
 const OpponentOut = document.getElementById('OpponentOut') as HTMLElement;
 const CardHint = document.getElementById('CardHint') as HTMLElement;
+const ToggleOpp = document.getElementById('ToggleOpp') as HTMLElement;
+const ToggleMe = document.getElementById('ToggleMe') as HTMLElement;
+
 const highlightTimeout = 3000;
 
 const currentMatch = new Match();
@@ -45,12 +48,13 @@ function makeCard(cid: number, num: number, side: boolean): string {
 
   if (side) {
     currentMatch.totalCards += num;
-    if (currentMatch.cardsBySuperclass[supercls] === undefined) {
-      currentMatch.cardsBySuperclass[supercls] = num;
+    if (!currentMatch.cardsBySuperclass.has(supercls.toString())) {
+      currentMatch.cardsBySuperclass.set(supercls.toString(), num);
     } else {
-      currentMatch.cardsBySuperclass[supercls] += num;
+      const n = currentMatch.cardsBySuperclass.get(supercls.toString()) as number;
+      currentMatch.cardsBySuperclass.set(supercls.toString(), n + num);
     }
-    console.log(currentMatch.cardsBySuperclass);
+    //console.log(currentMatch.cardsBySuperclass);
   }
 
   const manajMap = asMap(colorarr !== '' && colorarr !== '[]' ? jsonParse(colorarr) : jsonParse(mana));
@@ -216,10 +220,11 @@ const updateDeck = (highlight: number[]) => {
   highlight.forEach(mtgaid => {
     const cid = meta.mtgatoinnerid[+mtgaid];
     const scls = meta.allcards[+cid].supercls;
-    if (currentMatch.cardsBySuperclassLeft[scls] === undefined) {
-      currentMatch.cardsBySuperclassLeft[scls] = 1;
+    if (!currentMatch.cardsBySuperclassLeft.has(scls.toString())) {
+      currentMatch.cardsBySuperclassLeft.set(scls.toString(), 1);
     } else {
-      currentMatch.cardsBySuperclassLeft[scls]++;
+      const n = currentMatch.cardsBySuperclassLeft.get(scls.toString()) as number;
+      currentMatch.cardsBySuperclassLeft.set(scls.toString(), n + 1);
     }
 
     const crdEl: HTMLElement | null = document.getElementById(`card${mtgaid}me`);
@@ -238,10 +243,14 @@ const updateDeck = (highlight: number[]) => {
     if (sclsEl) {
       /*console.log(currentMatch.cardsBySuperclass);
       console.log(currentMatch.cardsBySuperclassLeft);*/
-      const numleft = currentMatch.cardsBySuperclass[scls] - currentMatch.cardsBySuperclassLeft[scls];
-      const cardsPlayed = sumOfObject(currentMatch.decks.me);
-      const draw = (100 * (numleft / (currentMatch.totalCards - cardsPlayed))).toFixed(2);
-      sclsEl.innerHTML = `<span class="ms ms-${superclasses[scls]}"> ${numleft} | ${draw}%`;
+      const cardsBySuperclass = currentMatch.cardsBySuperclass.get(scls.toString());
+      const cardsBySuperclassLeft = currentMatch.cardsBySuperclassLeft.get(scls.toString());
+      if (cardsBySuperclass !== undefined && cardsBySuperclassLeft !== undefined) {
+        const numleft = cardsBySuperclass - cardsBySuperclassLeft;
+        const cardsPlayed = sumOfObject(currentMatch.decks.me);
+        const draw = (100 * (numleft / (currentMatch.totalCards - cardsPlayed))).toFixed(2);
+        sclsEl.innerHTML = `<span class="ms ms-${superclasses[scls]}">${numleft}|${draw}%`;
+      }
     }
   }
 };
@@ -410,3 +419,10 @@ MainOut.addEventListener('mouseenter', () => {
   // tslint:disable-next-line: no-console
   console.log('!!!');
 });
+
+ToggleOpp.addEventListener(
+  'click',
+  () => (OpponentOut.style.display = OpponentOut.style.display === 'none' ? 'block' : 'none')
+);
+
+ToggleMe.addEventListener('click', () => (MainOut.style.display = MainOut.style.display === 'none' ? 'block' : 'none'));

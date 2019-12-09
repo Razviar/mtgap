@@ -51,8 +51,8 @@ export class Match {
   public GameNumber: number = 0;
   public DecisionPlayer: number = 0;
   public totalCards: number = 0;
-  public cardsBySuperclass: {[index: number]: number} = {};
-  public cardsBySuperclassLeft: {[index: number]: number} = {};
+  public cardsBySuperclass: Map<string, number> = new Map();
+  public cardsBySuperclassLeft: Map<string, number> = new Map();
 
   public mulligan(): void {
     this.instanceIds.me = {};
@@ -73,8 +73,8 @@ export class Match {
     this.TurnNumber = 0;
     this.GameNumber = 0;
     this.DecisionPlayer = 0;
-    this.cardsBySuperclass = {};
-    this.cardsBySuperclassLeft = {};
+    this.cardsBySuperclass.clear();
+    this.cardsBySuperclassLeft.clear();
     this.totalCards = 0;
   }
 
