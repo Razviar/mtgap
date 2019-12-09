@@ -318,12 +318,12 @@ const HoverEventListener = (theCard: Element) => {
 };
 
 onMessageFromIpcMain('set-metadata', meta => {
-  console.log(meta);
+  //console.log(meta);
   metaData = meta;
 });
 
 onMessageFromIpcMain('set-userdata', umeta => {
-  console.log(umeta);
+  //console.log(umeta);
   Object.keys(umeta.coursedecks).forEach(eventName => {
     playerDecks[eventName] = {
       mainDeck: umeta.coursedecks[eventName].deckstruct,
@@ -383,7 +383,11 @@ onMessageFromIpcMain('mulligan', res => {
   }
 });
 
-onMessageFromIpcMain('match-over', () => currentMatch.over());
+onMessageFromIpcMain('match-over', () => {
+  currentMatch.over();
+  drawDeck();
+  updateOppDeck([]);
+});
 
 onMessageFromIpcMain('card-played', arg => {
   //console.log(arg);

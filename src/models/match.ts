@@ -73,6 +73,9 @@ export class Match {
     this.TurnNumber = 0;
     this.GameNumber = 0;
     this.DecisionPlayer = 0;
+    this.cardsBySuperclass = {};
+    this.cardsBySuperclassLeft = {};
+    this.totalCards = 0;
   }
 
   public cardplayed({grpId, instanceId, ownerSeatId, zoneId}: CardPlayedNfo): CardPlayedResult {
