@@ -42,6 +42,8 @@ export interface Messages {
     eventId: string;
     gameNumber: number;
   };
+  'enable-clicks': undefined;
+  'disable-clicks': undefined;
   'deck-submission': {
     commandZoneGRPIds: number[];
     mainDeck: {[index: number]: number};

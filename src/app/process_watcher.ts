@@ -1,5 +1,4 @@
 import {getMetadata, getUserMetadata} from 'root/api/overlay';
-import {ConnectionWaiter} from 'root/app/connection_waiter';
 import {WindowLocator} from 'root/app/locatewindow';
 import {withLogParser} from 'root/app/log_parser';
 import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';

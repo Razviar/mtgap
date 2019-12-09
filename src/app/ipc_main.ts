@@ -11,6 +11,7 @@ import {withHomeWindow} from 'root/app/main_window';
 import {onMessageFromBrowserWindow, sendMessageToHomeWindow} from 'root/app/messages';
 import {settingsStore} from 'root/app/settings_store';
 import {error} from 'root/lib/logger';
+import {withOverlayWindow} from './overlay_window';
 
 export function setupIpcMain(app: App): void {
   onMessageFromBrowserWindow('token-input', newAccount => {
@@ -332,5 +333,17 @@ export function setupIpcMain(app: App): void {
 
   onMessageFromBrowserWindow('apply-update', () => {
     quitAndInstall();
+  });
+
+  onMessageFromBrowserWindow('enable-clicks', () => {
+    withOverlayWindow(overlayWindow => {
+      overlayWindow.setIgnoreMouseEvents(false);
+    });
+  });
+
+  onMessageFromBrowserWindow('disable-clicks', () => {
+    withOverlayWindow(overlayWindow => {
+      overlayWindow.setIgnoreMouseEvents(true, {forward: true});
+    });
   });
 }

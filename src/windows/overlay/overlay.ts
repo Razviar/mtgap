@@ -7,7 +7,7 @@ import {Card} from 'root/models/cards';
 import {DeckStrorage, Match} from 'root/models/match';
 import {Metadata} from 'root/models/metadata';
 import 'root/windows/css.css';
-import {onMessageFromIpcMain} from 'root/windows/messages';
+import {onMessageFromIpcMain, sendMessageToIpcMain} from 'root/windows/messages';
 import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdM3mDbRS.woff2';
 import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdMPmDQ.woff2';
 import 'root/windows/overlay/keyrune.css';
@@ -22,12 +22,21 @@ const CardHint = document.getElementById('CardHint') as HTMLElement;
 const ToggleOpp = document.getElementById('ToggleOpp') as HTMLElement;
 const ToggleMe = document.getElementById('ToggleMe') as HTMLElement;
 
+const Interactive = document.getElementsByClassName('Interactive');
+
 const highlightTimeout = 3000;
 
 const currentMatch = new Match();
 const playerDecks: DeckStrorage = {};
 let metaData: Metadata | undefined;
 const superclasses = ['sorcery', 'creature', 'land'];
+
+function toggleButtonClass(el: HTMLElement, state: boolean): void {
+  el.classList.remove('activeButton');
+  if (!state) {
+    el.classList.add('activeButton');
+  }
+}
 
 function makeCard(cid: number, num: number, side: boolean): string {
   if (!metaData) {
@@ -156,6 +165,7 @@ const updateOppDeck = (highlight: number[]) => {
 
   OpponentOut.innerHTML = output;
   OpponentOut.classList.remove('hidden');
+  toggleButtonClass(ToggleOpp, OpponentOut.classList.contains('hidden'));
 
   highlight.forEach(mtgaid => {
     const crdEl: HTMLElement | null = document.getElementById(`card${mtgaid}opp`);
@@ -267,6 +277,7 @@ const drawDeck = () => {
   output += '</div>';
   MainOut.innerHTML = output;
   MainOut.classList.remove('hidden');
+  toggleButtonClass(ToggleMe, MainOut.classList.contains('hidden'));
 
   const AllCards = document.getElementsByClassName('DcDrow');
   Array.from(AllCards).forEach(theCard => {
@@ -415,14 +426,24 @@ onMessageFromIpcMain('card-played', arg => {
   }
 });
 
-MainOut.addEventListener('mouseenter', () => {
-  // tslint:disable-next-line: no-console
-  console.log('!!!');
+ToggleOpp.addEventListener('click', () => {
+  OpponentOut.classList.contains('hidden')
+    ? OpponentOut.classList.remove('hidden')
+    : OpponentOut.classList.add('hidden');
+  toggleButtonClass(ToggleOpp, OpponentOut.classList.contains('hidden'));
 });
 
-ToggleOpp.addEventListener(
-  'click',
-  () => (OpponentOut.style.display = OpponentOut.style.display === 'none' ? 'block' : 'none')
-);
+ToggleMe.addEventListener('click', () => {
+  MainOut.classList.contains('hidden') ? MainOut.classList.remove('hidden') : MainOut.classList.add('hidden');
+  toggleButtonClass(ToggleMe, MainOut.classList.contains('hidden'));
+});
 
-ToggleMe.addEventListener('click', () => (MainOut.style.display = MainOut.style.display === 'none' ? 'block' : 'none'));
+Array.from(Interactive).forEach(elem => {
+  elem.addEventListener('mouseleave', () => {
+    sendMessageToIpcMain('disable-clicks', undefined);
+  });
+
+  elem.addEventListener('mouseenter', () => {
+    sendMessageToIpcMain('enable-clicks', undefined);
+  });
+});
