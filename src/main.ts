@@ -23,7 +23,7 @@ const processWatcherFn = setupProcessWatcher();
 const processWatcherFnInterval = 500;
 
 function recreateMainWindow(): void {
-  setupRequestIntercept(app);
+  //setupRequestIntercept(app);
   createMainWindow();
   withHomeWindow(w => {
     if (settingsStore.get().minimized) {

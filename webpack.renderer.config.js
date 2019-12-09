@@ -60,8 +60,8 @@ module.exports = {
         'base-uri': "'self'",
         'object-src': "'none'",
         'script-src': ["'self'"],
-        'img-src': ["'self'", 'https://mtgarena.pro/', 'data:', 'mtga-image:'],
-        'style-src': ["'self'", `'nonce-${nonce}'`],
+        'img-src': ["'self'", 'https://mtgarena.pro/', 'data:'],
+        'style-src': ["'self'", `'nonce-${nonce}'`, "'unsafe-inline'"],
       },
       {
         enabled: true,

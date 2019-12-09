@@ -1,9 +1,10 @@
 // tslint:disable: no-unsafe-any no-import-side-effect
 import {countOfObject, hexToRgbA, jsonParse, sumOfObject} from 'root/lib/func';
 import {sortcards} from 'root/lib/sortcards';
+import {asMap, asNumber} from 'root/lib/type_utils';
 import {color, manafont, typecolorletter} from 'root/lib/utils';
 import {Card} from 'root/models/cards';
-import {Match, DeckStrorage} from 'root/models/match';
+import {DeckStrorage, Match} from 'root/models/match';
 import {Metadata} from 'root/models/metadata';
 import 'root/windows/css.css';
 import {onMessageFromIpcMain} from 'root/windows/messages';
@@ -25,24 +26,44 @@ const playerDecks: DeckStrorage = {};
 let metaData: Metadata | undefined;
 const superclasses = ['sorcery', 'creature', 'land'];
 
-function applyStyles(cid: number, side: boolean): void {
-  //style="border-image:${bgcolor}; background:url('https://mtgarena.pro/mtg/pict/thumb/${thumb}') 50% 50%"
+function makeCard(cid: number, num: number, side: boolean): string {
   if (!metaData) {
-    return;
+    return '';
   }
   const cardsdb = metaData.allcards;
-  const colorarr = cardsdb[cid]['colorarr'];
+
+  const name = cardsdb[cid]['name'];
   const mtgaId = cardsdb[cid]['mtga_id'];
   const mana = cardsdb[cid]['mana'];
+  const colorarr = cardsdb[cid]['colorarr'];
+  const island = cardsdb[cid]['is_land'];
+  const supercls = cardsdb[cid]['supercls'];
   const thumb = cardsdb[cid]['art'];
   let bgcolor = 'linear-gradient(to bottom,';
-  const manaj: {[index: string]: number} | undefined =
-    colorarr !== '' && colorarr !== '[]' ? jsonParse(colorarr) : jsonParse(mana);
   let clnum = 0;
   let lastcolor = '';
 
-  if (manaj) {
-    const allcol = countOfObject(manaj);
+  if (side) {
+    currentMatch.totalCards += num;
+    if (currentMatch.cardsBySuperclass[supercls] === 0) {
+      currentMatch.cardsBySuperclass[supercls] = num;
+    } else {
+      currentMatch.cardsBySuperclass[supercls] += num;
+    }
+  }
+
+  const manajMap = asMap(colorarr !== '' && colorarr !== '[]' ? jsonParse(colorarr) : jsonParse(mana));
+  const manaj: {[index: string]: number} = {};
+  if (manajMap !== undefined) {
+    Object.keys(manajMap).forEach(elem => {
+      manaj[elem] = asNumber(manajMap[elem], 0);
+    });
+  }
+
+  let manas = '';
+
+  const allcol = countOfObject(manaj);
+  if (allcol > 0) {
     Object.keys(manaj).forEach((clr: string) => {
       if (clr !== 'Colorless' || +allcol === 0) {
         if (clr.indexOf('/') === -1) {
@@ -74,37 +95,6 @@ function applyStyles(cid: number, side: boolean): void {
   }
   bgcolor += ') 1 100%';
 
-  const cardThumb = document.getElementById(`cardthumb${mtgaId}${side ? 'me' : 'opp'}`) as HTMLElement;
-  //console.log(cardThumb);
-  cardThumb.style.background = `url('mtga-image://card-image/mtg/pict/thumb/${thumb}') 50% 50%`;
-  cardThumb.style.borderImage = bgcolor;
-}
-
-function makeCard(cid: number, num: number, side: boolean): string {
-  if (!metaData) {
-    return '';
-  }
-  const cardsdb = metaData.allcards;
-
-  const name = cardsdb[cid]['name'];
-  const mtgaId = cardsdb[cid]['mtga_id'];
-  const mana = cardsdb[cid]['mana'];
-  const colorarr = cardsdb[cid]['colorarr'];
-  const island = cardsdb[cid]['is_land'];
-  const supercls = cardsdb[cid]['supercls'];
-
-  if (side) {
-    currentMatch.totalCards += num;
-    if (currentMatch.cardsBySuperclass[supercls] === 0) {
-      currentMatch.cardsBySuperclass[supercls] = num;
-    } else {
-      currentMatch.cardsBySuperclass[supercls] += num;
-    }
-  }
-
-  const manaj: {[index: string]: number} = colorarr !== '' && colorarr !== '[]' ? jsonParse(colorarr) : jsonParse(mana);
-  let manas = '';
-
   color.forEach(clr => {
     // tslint:disable-next-line: strict-boolean-expressions
     if (manaj && manaj[clr] > 0 && +island === 0) {
@@ -122,7 +112,9 @@ function makeCard(cid: number, num: number, side: boolean): string {
 
   return `
 <div class="DcDrow" data-cid="${cid}" data-side="${side ? 'me' : 'opp'}" id="card${mtgaId}${side ? 'me' : 'opp'}">
-<div class="CardSmallPic" id="cardthumb${mtgaId}${side ? 'me' : 'opp'}">
+<div class="CardSmallPic" id="cardthumb${mtgaId}${
+    side ? 'me' : 'opp'
+  }" style="background:url('https://mtgarena.pro/mtg/pict/thumb/${thumb}') 50% 50%; border-image:${bgcolor}">
 </div>
 <div class="CNameManaWrap">
 <div class="CCmana">
@@ -149,12 +141,12 @@ const updateOppDeck = (highlight: number[]) => {
     oppDeck[+cid] = currentMatch.decks.opponent[+OppMtgaCid];
     forsort[+cid] = meta.allcards[+cid];
   });
-  OpponentOut.innerHTML = '';
+  let output = '';
   sortcards(forsort, true, SortLikeMTGA).forEach(cid => {
-    OpponentOut.innerHTML += makeCard(+cid[0], oppDeck[+cid[0]], false);
-    applyStyles(+cid[0], false);
+    output += makeCard(+cid[0], oppDeck[+cid[0]], false);
   });
 
+  OpponentOut.innerHTML = output;
   OpponentOut.classList.remove('hidden');
 
   highlight.forEach(mtgaid => {
@@ -249,17 +241,16 @@ const updateDeck = (highlight: number[]) => {
 };
 
 const drawDeck = () => {
-  MainOut.innerHTML = `<div class="deckName">${currentMatch.humanname}</div>`;
+  let output = `<div class="deckName">${currentMatch.humanname}</div>`;
   currentMatch.myFullDeck.forEach(card => {
-    MainOut.innerHTML += makeCard(card.card, card.cardnum, true);
-    applyStyles(+card.card, true);
+    output += makeCard(card.card, card.cardnum, true);
   });
-  let bottom = '<div class="deckBottom">';
+  output += '<div class="deckBottom">';
   for (let scls = 0; scls <= 2; scls++) {
-    bottom += `<div id="scls${scls}" class="scls"></div>`;
+    output += `<div id="scls${scls}" class="scls"></div>`;
   }
-  bottom += '</div>';
-  MainOut.innerHTML += bottom;
+  output += '</div>';
+  MainOut.innerHTML = output;
   MainOut.classList.remove('hidden');
 
   const AllCards = document.getElementsByClassName('DcDrow');
@@ -281,7 +272,7 @@ const HoverEventListener = (theCard: Element) => {
     const cl: HTMLElement = event.target as HTMLElement;
     const cid = cl.getAttribute('data-cid') as string;
     const side = cl.getAttribute('data-side') as string;
-    const src = `mtga-image://card-image/mtg/pict/${
+    const src = `https://mtgarena.pro/mtg/pict/${
       cardsdb[+cid].has_hiresimg === 1 ? `mtga/card_${cardsdb[+cid].mtga_id}_EN.png` : cardsdb[+cid].pict
     }`;
     CardHint.innerHTML = `<img src="${src}" class="CardClass" />`;
@@ -337,7 +328,7 @@ onMessageFromIpcMain('set-userdata', umeta => {
 });
 
 onMessageFromIpcMain('match-started', newMatch => {
-  if (playerDecks[newMatch.eventId] === undefined) {
+  if (!Object.keys(playerDecks).includes(newMatch.eventId)) {
     return;
   }
   currentMatch.matchId = newMatch.matchId;
@@ -354,7 +345,7 @@ onMessageFromIpcMain('deck-submission', deck => {
   if (!metaData) {
     return '';
   }
-  if (playerDecks[deck.InternalEventName] === undefined) {
+  if (!Object.keys(playerDecks).includes(deck.InternalEventName)) {
     playerDecks[deck.InternalEventName] = {mainDeck: [], deckId: deck.deckId, deckName: deck.deckName};
   } else {
     playerDecks[deck.InternalEventName].mainDeck = [];
