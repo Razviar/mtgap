@@ -35,7 +35,9 @@ export function logEventToStatefulEvent(event: LogEvent, state: LogFileParsingSt
 
 export function handleUserChangeEvent(event: LogEvent, state: LogFileParsingState): void {
   const userId = asString(extractValue(event.data, ['params', 'payloadObject', 'playerId']));
+  const screenName = asString(extractValue(event.data, ['params', 'payloadObject', 'screenName']));
   state.userId = userId;
+  state.screenName = screenName;
 }
 
 export function handleMatchStartEvent(event: LogEvent, state: LogFileParsingState): void {

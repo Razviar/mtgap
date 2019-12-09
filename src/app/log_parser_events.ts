@@ -25,7 +25,8 @@ interface LogParserEvents {
   newdata: {
     events: ParseResults[];
     parsingMetadata: ParsingMetadata;
-    state?: LogFileParsingState;
+    state: LogFileParsingState;
+    fileId: string;
   };
   'deck-submission': {
     commandZoneGRPIds: number[];

@@ -22,7 +22,7 @@ export function createOverlayWindow(): BrowserWindow {
     width: 300,
     height: 200,
     webPreferences: {
-      devTools: electronIsDev,
+      devTools: true, // TODO
       allowRunningInsecureContent: false,
       contextIsolation: true,
       enableRemoteModule: false,

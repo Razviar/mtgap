@@ -24,7 +24,6 @@ class SettingsStore {
       // tslint:disable-next-line: no-object-literal-type-assertion
       this.data = parseSettings({...rawMap, version} as AllSettings);
     } catch (e) {
-      error('SettingsStore.initSettings', e);
       this.data = createDefault();
     }
     this.save();

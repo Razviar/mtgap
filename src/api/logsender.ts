@@ -3,6 +3,7 @@ import {app} from 'electron';
 import {LogFileParsingState, LogSenderParsingMetadata} from 'root/app/log-parser/model';
 import {sendMessageToHomeWindow} from 'root/app/messages';
 import {Request} from 'root/app/request';
+import {stateStore} from 'root/app/state_store';
 import {error} from 'root/lib/logger';
 import {asMap, asString} from 'root/lib/type_utils';
 import {sleep} from 'root/lib/utils';
@@ -19,13 +20,14 @@ let logSenderParsingMetadata: LogSenderParsingMetadata = {
 export function sendEventsToServer(
   events: ParseResults[],
   parsingMetadata: LogSenderParsingMetadata,
-  state?: LogFileParsingState
+  state: LogFileParsingState,
+  fileId?: string
 ): void {
   logSenderParsingMetadata = parsingMetadata;
   if (events.length === 0) {
     return;
   }
-  internalBuffer.push({events, state});
+  internalBuffer.push({events, state, fileId});
   setTimeout(sendNextBatch, logSenderParsingMetadata.fastTimeout);
 }
 
@@ -45,7 +47,8 @@ const internalBuffer: EventsWithCursor[] = [];
 // Data structure of events with state to know where it is in log file
 interface EventsWithCursor {
   events: ParseResults[];
-  state?: LogFileParsingState;
+  state: LogFileParsingState;
+  fileId?: string;
 }
 
 // Global variables
@@ -97,8 +100,11 @@ async function sendNextBatch(): Promise<void> {
     // Data is uploaded, removing it from buffer
     const sentBufferParts = internalBuffer.splice(0, currentNumberOfEvents);
     if (sentBufferParts.length > 0) {
-      // TODO - Save state
-      // const stateToSave = sentBufferParts[sentBufferParts.length - 1].state;
+      const cursor = sentBufferParts[sentBufferParts.length - 1];
+      // If no fileId, it means it's an old log, therefore we don't save the state
+      if (cursor.fileId !== undefined) {
+        stateStore.saveState({fileId: cursor.fileId, state: cursor.state});
+      }
     }
   } catch (e) {
     // Error has occured, slowing down sending rate

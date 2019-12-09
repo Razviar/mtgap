@@ -5,6 +5,7 @@ export interface LogFileParsingState {
   timestamp?: number;
   userId?: string;
   matchId?: string;
+  screenName?: string;
 }
 
 export interface RawLogEvent {
@@ -132,14 +133,13 @@ export const parsingMetadata: ParsingMetadata = {
       name: 'GameObjects',
       constraint: {attributesPath: [0, 'type'], value: 'GameObjectType_Card'},
       multiEvents: {attributesPath: [], subEventName: 'CardPlayed'},
-      indicator: 5,
     },
     {name: '<== PlayerInventory.GetPlayerInventory', indicator: 0},
     {name: '<== PlayerInventory.GetPlayerCardsV3', indicator: 1},
     {name: '<== Deck.GetDeckListsV3', indicator: 2},
     {name: '<== Event.DeckSubmitV3', indicator: 3},
     {name: 'MatchGameRoomStateChangedEventSubInfo', indicator: 4},
-    {name: 'CardPlayed'},
+    {name: 'CardPlayed', indicator: 5},
     {name: '<== PlayerInventory.CrackBoostersV3'}, // Useless?
     {name: '<== Draft.DraftStatus', indicator: 7},
     {name: '==> Draft.MakePick', indicator: 8},

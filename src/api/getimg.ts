@@ -3,16 +3,9 @@ import fs from 'fs';
 import {Stream} from 'stream';
 
 export async function downloadImage(url: string, imgpath: string): Promise<void> {
-  console.log(url);
-  console.log(imgpath);
   const writer = fs.createWriteStream(imgpath);
 
-  const response: AxiosResponse<Stream> = await axios({
-    url,
-    method: 'GET',
-    responseType: 'stream',
-  });
-
+  const response: AxiosResponse<Stream> = await axios({url, method: 'GET', responseType: 'stream'});
   response.data.pipe(writer);
 
   return new Promise((resolve, reject) => {

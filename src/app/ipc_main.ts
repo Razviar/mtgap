@@ -1,16 +1,18 @@
 import {App, dialog, nativeImage, shell} from 'electron';
 import {join} from 'path';
 
+import {getParsingMetadata} from 'root/api/getindicators';
 import {setuserdata, tokencheck, tokenrequest, userbytokenid, UserData} from 'root/api/userbytokenid';
 import {loadAppIcon} from 'root/app/app_icon';
 import {sendSettingsToRenderer} from 'root/app/auth';
 import {disableAutoLauncher, enableAutoLauncher} from 'root/app/auto_launcher';
 import {checkForUpdates, quitAndInstall} from 'root/app/auto_updater';
-import {createLogParser, getLogParser, withLogParser} from 'root/app/log_parser';
+import {parseOldLogs, withLogParser} from 'root/app/log_parser_manager';
 import {withHomeWindow} from 'root/app/main_window';
 import {onMessageFromBrowserWindow, sendMessageToHomeWindow} from 'root/app/messages';
 import {withOverlayWindow} from 'root/app/overlay_window';
 import {settingsStore} from 'root/app/settings_store';
+import {stateStore} from 'root/app/state_store';
 import {error} from 'root/lib/logger';
 
 export function setupIpcMain(app: App): void {
@@ -255,10 +257,6 @@ export function setupIpcMain(app: App): void {
           settingsStore.get().logPath = log.filePaths[0];
           settingsStore.save();
           sendMessageToHomeWindow('show-prompt', {message: 'Log path have been updated!', autoclose: 1000});
-          withLogParser(logParser => {
-            logParser.stop();
-            createLogParser();
-          });
           sendSettingsToRenderer();
         }
       })
@@ -268,30 +266,28 @@ export function setupIpcMain(app: App): void {
   onMessageFromBrowserWindow('default-log-path', () => {
     settingsStore.get().logPath = undefined;
     settingsStore.save();
-    withLogParser(logParser => {
-      sendMessageToHomeWindow('show-prompt', {message: 'Log path have been set to default!', autoclose: 1000});
-      logParser.stop();
-      createLogParser();
-    });
+    sendMessageToHomeWindow('show-prompt', {message: 'Log path have been set to default!', autoclose: 1000});
     sendSettingsToRenderer();
   });
 
-  const ParseOldLogs = (logs: string[], index: number) => {
-    sendMessageToHomeWindow('show-prompt', {
-      message: `Parsing old log: ${index + 1}/${logs.length}`,
-      autoclose: 0,
-    });
-    if (getLogParser() !== undefined) {
-      const parseOnce = createLogParser(logs[index], true);
-      parseOnce.start().catch(err => error('parseOnce.start', err));
-      parseOnce.emitter.on('old-log-complete', () => {
-        if (index + 1 === logs.length) {
-          sendMessageToHomeWindow('show-prompt', {message: 'Parsing complete!', autoclose: 1000});
-        } else {
-          ParseOldLogs(logs, index + 1);
-        }
+  const parseOldLogsHandler = (logs: string[], index: number) => {
+    sendMessageToHomeWindow('show-prompt', {message: `Parsing old log: ${index + 1}/${logs.length}`, autoclose: 0});
+    withLogParser(lp => lp.stop());
+    getParsingMetadata(app.getVersion())
+      .then(parsingMetadata =>
+        parseOldLogs(logs[index], parsingMetadata).then(_ => {
+          if (index + 1 === logs.length) {
+            sendMessageToHomeWindow('show-prompt', {message: 'Parsing complete!', autoclose: 1000});
+            withLogParser(lp => lp.start());
+          } else {
+            parseOldLogsHandler(logs, index + 1);
+          }
+        })
+      )
+      .catch(err => {
+        error('Error while parsing old logs', err);
+        sendMessageToHomeWindow('show-prompt', {message: 'Error while parsing old logs', autoclose: 1000});
       });
-    }
   };
 
   onMessageFromBrowserWindow('old-log', () => {
@@ -303,7 +299,7 @@ export function setupIpcMain(app: App): void {
       })
       .then(log => {
         if (!log.canceled && log.filePaths[0]) {
-          ParseOldLogs(log.filePaths, 0);
+          parseOldLogsHandler(log.filePaths, 0);
         }
       })
       .catch(err => error('Error while showing open file dialog during old-log-path event', err));
@@ -311,16 +307,13 @@ export function setupIpcMain(app: App): void {
 
   onMessageFromBrowserWindow('wipe-all', () => {
     settingsStore.wipe();
-    withLogParser(logParser => {
-      sendMessageToHomeWindow('show-prompt', {
-        message: 'All settings have been wiped',
-        autoclose: 1000,
-      });
-
-      logParser.stop();
-      logParser = createLogParser();
+    stateStore.wipe();
+    sendMessageToHomeWindow('show-prompt', {
+      message: 'All settings have been wiped',
+      autoclose: 1000,
     });
-    sendSettingsToRenderer();
+    app.relaunch();
+    app.exit();
   });
 
   onMessageFromBrowserWindow('check-updates', () => {

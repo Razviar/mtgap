@@ -3,9 +3,8 @@ import {app} from 'electron';
 import {sendSettingsToRenderer, setCreds} from 'root/app/auth';
 import {enableAutoLauncher} from 'root/app/auto_launcher';
 import {setupAutoUpdater} from 'root/app/auto_updater';
-import {setupRequestIntercept} from 'root/app/intercepter';
 import {setupIpcMain} from 'root/app/ipc_main';
-import {createLogParser} from 'root/app/log_parser';
+import {createGlobalLogParser} from 'root/app/log_parser_manager';
 import {createMainWindow, withHomeWindow} from 'root/app/main_window';
 import {sendMessageToHomeWindow} from 'root/app/messages';
 import {setupProcessWatcher} from 'root/app/process_watcher';
@@ -32,7 +31,7 @@ function recreateMainWindow(): void {
       w.once('ready-to-show', () => w.show());
     }
     w.webContents.on('did-finish-load', () => {
-      createLogParser();
+      createGlobalLogParser();
       sendMessageToHomeWindow('set-version', app.getVersion());
       setCreds('ready-to-show');
       sendSettingsToRenderer();
@@ -48,8 +47,8 @@ if (!gotTheLock) {
 } else {
   app.on('second-instance', () => {
     withHomeWindow(w => {
-      if (w.isMinimized()) {
-        w.restore();
+      if (!w.isVisible()) {
+        w.show();
       }
       w.focus();
     });
