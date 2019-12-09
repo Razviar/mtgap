@@ -1,5 +1,7 @@
 import {app} from 'electron';
 
+import {parseMetadata} from 'root/api/parseMetadata';
+import {parseUserMetadata} from 'root/api/parseUserMetadata';
 import {AxiosResponse, Request} from 'root/app/request';
 import {error} from 'root/lib/logger';
 import {asArray, asMap, asNumber, asString, removeUndefined} from 'root/lib/type_utils';
@@ -31,16 +33,6 @@ function parseLiveMatch(data: AxiosResponse): LiveMatch {
     })
   );
   return {humanname, deckstruct};
-}
-
-function parseUserMetadata(data: AxiosResponse): UserMetadata {
-  // TODO - Safely parse this instead of casting
-  return data as UserMetadata;
-}
-
-function parseMetadata(data: AxiosResponse): Metadata {
-  // TODO - Safely parse this instead of casting
-  return data as Metadata;
 }
 
 export async function getlivematch(matchid: string, uid: string): Promise<LiveMatch> {

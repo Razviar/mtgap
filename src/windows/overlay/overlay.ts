@@ -321,6 +321,7 @@ const HoverEventListener = (theCard: Element) => {
 };
 
 onMessageFromIpcMain('set-metadata', meta => {
+  console.log(meta);
   metaData = meta;
 });
 

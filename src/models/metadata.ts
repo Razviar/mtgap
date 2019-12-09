@@ -15,7 +15,7 @@ export interface Metadata {
     date: number;
     format: string;
     name: string;
-  };
+  }[];
   datefilters: number[];
   datefilterlabels: string[];
   types: {id: number; is_creature: number; name: string; parent_id: number}[];
@@ -28,9 +28,18 @@ export interface Metadata {
 
 export interface UserMetadata {
   user: Userdata;
-  collection: {[index: number]: {[index: string]: string}};
+  collection: {[index: number]: {ic: number; ir: number; it: number}};
   usercapabilities: {[index: string]: boolean};
-  coursedecks: {[index: string]: {udeck: string; humanname: string; deckstruct: {card: number; cardnum: number}[]}};
+  coursedecks: {
+    [index: string]: {
+      udeck: string;
+      humanname: string;
+      deckstruct: {
+        card: number;
+        cardnum: number;
+      }[];
+    };
+  };
 }
 
 export interface Userdata {
