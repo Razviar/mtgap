@@ -38,7 +38,7 @@ a[href^="ftp://"] {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 #MainOut {
@@ -196,6 +196,7 @@ a[href^="ftp://"] {
 
 .activeButton {
   background-color: rgba(132, 52, 38, 0.9) !important;
+  color: #fff;
 }
 
 .interfaceButton {
