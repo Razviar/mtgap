@@ -1,17 +1,29 @@
 import axios, {AxiosRequestConfig} from 'axios';
 import zlib from 'zlib';
 
+import {isStillSendingEvents} from 'root/api/logsender';
+import {sendMessageToHomeWindow} from 'root/app/messages';
+import {NetworkStatusMessage} from 'root/lib/messages';
+
 export type AxiosResponse = any; // tslint:disable-line:no-any
 
 async function makeAxios(method: 'post' | 'get', path: string, config: AxiosRequestConfig): Promise<AxiosResponse> {
-  return (
-    await axios({
+  try {
+    const res = await axios({
       ...config,
       withCredentials: false,
       url: `https://mtgarena.pro/${path}`,
       method,
-    })
-  ).data;
+    });
+    const sendingEvents = path.indexOf('cm_uploadpackfile') > -1;
+    if (!sendingEvents && !isStillSendingEvents()) {
+      sendMessageToHomeWindow('network-status', {active: true, message: NetworkStatusMessage.Connected});
+    }
+    return res.data;
+  } catch (e) {
+    sendMessageToHomeWindow('network-status', {active: false, message: NetworkStatusMessage.Disconnected});
+    throw e;
+  }
 }
 
 async function axiosGet(path: string, config: AxiosRequestConfig = {}): Promise<AxiosResponse> {

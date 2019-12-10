@@ -38,7 +38,7 @@ input#token {
 }
 
 #AppVersion {
-  font-size: 0.7em;
+  font-size: 0.8em;
   display: inline-block;
   cursor: pointer;
 }
@@ -338,4 +338,40 @@ div#UserLinks {
 
 .brown {
   color: brown;
+}
+
+#network-status {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background-color: #2573ac;
+  border-radius: 50%;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  vertical-align: bottom;
+}
+
+#network-status.network-status-active {
+  background-color: #25ac3d;
+}
+
+#network-status.network-status-inactive {
+  background-color: #ac3925;
+}
+
+#network-status.network-status-sending {
+  background-color: #25ac3d;
+  animation: blink-animation 1s infinite;
+}
+
+@keyframes blink-animation {
+  0% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.5;
+  }
 }

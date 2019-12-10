@@ -1,4 +1,5 @@
 // tslint:disable: no-any no-unsafe-any no-import-side-effect
+import {NetworkStatusMessage} from 'root/lib/messages';
 import 'root/windows/css.css';
 import 'root/windows/fa-brands-400.woff2';
 import 'root/windows/fa-regular-400.woff2';
@@ -24,6 +25,7 @@ const UserControls = document.getElementById('UserControls') as HTMLElement;
 const BrightButton = document.getElementById('brightButton') as HTMLElement;
 const PromptWnd = document.getElementById('PromptWnd') as HTMLElement;
 const PromptText = document.getElementById('PromptText') as HTMLElement;
+const NetworkStatus = document.getElementById('network-status') as HTMLElement;
 
 const buttons = document.getElementsByClassName('button');
 const tabs = document.getElementsByClassName('tab');
@@ -389,3 +391,20 @@ Array.from(controls).forEach(el => {
 Array.from(settings).forEach(el => {
   el.addEventListener('change', settingsChecker);
 });
+
+onMessageFromIpcMain('network-status', status => {
+  NetworkStatus.title = status.message;
+  NetworkStatus.className = getNetworkStatusClassName(status);
+});
+
+function getNetworkStatusClassName(status: {active: boolean; message: NetworkStatusMessage}): string {
+  if (status.active) {
+    if (status.message === NetworkStatusMessage.Connected) {
+      return 'network-status-active';
+    } else {
+      return 'network-status-sending';
+    }
+  } else {
+    return 'network-status-inactive';
+  }
+}

@@ -5,6 +5,7 @@ import {sendMessageToHomeWindow} from 'root/app/messages';
 import {Request} from 'root/app/request';
 import {stateStore} from 'root/app/state_store';
 import {error} from 'root/lib/logger';
+import {NetworkStatusMessage} from 'root/lib/messages';
 import {asMap, asString} from 'root/lib/type_utils';
 import {sleep} from 'root/lib/utils';
 import {ParseResults} from 'root/models/indicators';
@@ -94,6 +95,7 @@ async function sendNextBatch(): Promise<void> {
     // Uploading data to server
     const ok = await uploadpackfile(events, app.getVersion());
     if (!ok) {
+      sendMessageToHomeWindow('network-status', {active: false, message: NetworkStatusMessage.Disconnected});
       throw new Error("Couldn't send to server");
     }
 
@@ -106,6 +108,10 @@ async function sendNextBatch(): Promise<void> {
         stateStore.saveState({fileId: cursor.fileId, state: cursor.state});
       }
     }
+    sendMessageToHomeWindow('network-status', {
+      active: true,
+      message: isStillSendingEvents() ? NetworkStatusMessage.SendingEvents : NetworkStatusMessage.Connected,
+    });
   } catch (e) {
     // Error has occured, slowing down sending rate
     hasErrored = true;
@@ -128,3 +134,5 @@ async function sendNextBatch(): Promise<void> {
     sendNextBatch().catch(_ => {});
   }
 }
+
+export const isStillSendingEvents = () => internalBuffer.length > 0;

@@ -74,6 +74,16 @@ export interface Messages {
   'set-setting-o-mydecks': boolean;
   'set-setting-o-cardhover': boolean;
   'set-setting-o-timers': boolean;
+  'network-status': {
+    active: boolean;
+    message: NetworkStatusMessage;
+  };
+}
+
+export enum NetworkStatusMessage {
+  'Connected' = 'Connected to server',
+  'Disconnected' = 'Error connecting to server',
+  'SendingEvents' = 'Sending events to server...',
 }
 
 export type Message = keyof Messages;
