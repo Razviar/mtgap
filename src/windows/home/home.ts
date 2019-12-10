@@ -47,10 +47,12 @@ const showPrompt = (message: string, autohide: number = 0) => {
 };
 
 let currentMtgaNick = '';
+let currentMtgaID = '';
 
-onMessageFromIpcMain('set-screenname', screenName => {
-  UserCredentials.innerHTML = `MTGA nick: <strong>${screenName}</strong>`;
-  currentMtgaNick = screenName;
+onMessageFromIpcMain('set-screenname', data => {
+  UserCredentials.innerHTML = `MTGA nick: <strong>${data.screenName}</strong>`;
+  currentMtgaNick = data.screenName;
+  currentMtgaID = data.newPlayerId;
 });
 
 onMessageFromIpcMain('set-creds', creds => {
@@ -275,7 +277,7 @@ const controlClick = (event: Event) => {
       break;
     case 'connect-acc':
       cl.innerHTML = 'Awaiting...';
-      sendMessageToIpcMain('start-sync', currentMtgaNick);
+      sendMessageToIpcMain('start-sync', {currentMtgaNick, currentMtgaID});
       break;
     case 'unskip-acc':
       sendMessageToIpcMain('kill-current-token', undefined);

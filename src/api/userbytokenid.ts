@@ -44,10 +44,17 @@ function parseTokenRequestRes(data: AxiosResponse): TokenRequestRes {
   return data as TokenRequestRes;
 }
 
-export async function tokenrequest(mtgaid: string): Promise<TokenRequestRes> {
+export async function tokenrequest({
+  currentMtgaNick,
+  currentMtgaID,
+}: {
+  currentMtgaNick: string;
+  currentMtgaID: string;
+}): Promise<TokenRequestRes> {
   return parseTokenRequestRes(
-    await Request.post<{mtgaid: string}>(`mtg/donew2.php?cmd=cm_tokenrequest&version=${app.getVersion()}`, {
-      mtgaid,
+    await Request.post(`mtg/donew2.php?cmd=cm_tokenrequest&version=${app.getVersion()}`, {
+      mtgaid: currentMtgaNick,
+      mtgaplid: currentMtgaID,
     })
   );
 }
