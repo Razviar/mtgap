@@ -35,7 +35,9 @@ export function logEventToStatefulEvent(event: LogEvent, state: LogFileParsingSt
 
 export function handleUserChangeEvent(event: LogEvent, state: LogFileParsingState): void {
   const userId = asString(extractValue(event.data, ['params', 'payloadObject', 'playerId']));
+  const screenName = asString(extractValue(event.data, ['params', 'payloadObject', 'screenName']));
   state.userId = userId;
+  state.screenName = screenName;
 }
 
 export function handleMatchStartEvent(event: LogEvent, state: LogFileParsingState): void {
@@ -51,7 +53,7 @@ export function getEventTimestamp(rawEvent: RawLogEvent): number | undefined {
   const timeFromRawData = asNumber(extractValue(rawEvent.rawData, ['timestamp']));
   if (timeFromRawData !== undefined) {
     const epoch = 621355968000000000;
-    return (timeFromRawData - epoch) / (10 * 1000);
+    return Math.floor((timeFromRawData - epoch) / (10 * 1000));
   }
   const timeFromData = asString(extractValue(rawEvent.data, ['params', 'payloadObject', 'timestamp']));
   if (timeFromData !== undefined) {

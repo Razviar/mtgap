@@ -90,13 +90,13 @@ export class LogParser {
             throw new Error('Enable Detailed Logs!');
           }
           nextState = detailedLogState;
+
+          if (gameIsRunning) {
+            // Updating UI
+            this.emitter.emit('status', 'Awaiting updates...');
+          }
         } else {
           nextState = this.currentState.state;
-        }
-
-        if (gameIsRunning) {
-          // Updating UI
-          this.emitter.emit('status', 'Awaiting updates...');
         }
 
         // Parsing events
@@ -164,7 +164,10 @@ export class LogParser {
         const timeout = eventsToSend.length === 0 ? parsingMetadata.logParser.readTimeout : 0;
         setTimeout(() => this.internalLoop(parsingMetadata), timeout);
       } catch (e) {
-        this.emitter.emit('error', String(e));
+        // Ignoring fileId error because game is deleting file at launch
+        if (String(e) !== 'Error: Could not determine the log file id') {
+          this.emitter.emit('error', String(e));
+        }
         setTimeout(() => this.internalLoop(parsingMetadata), parsingMetadata.logParser.readTimeout);
       }
     });
