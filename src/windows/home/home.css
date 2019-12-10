@@ -205,6 +205,10 @@ input#token {
   left: 10px;
 }
 
+.footer > i {
+  font-family: 'Font Awesome 5 Brands Regular';
+}
+
 div#UserLinks {
   width: 154px;
   display: inline-block;
