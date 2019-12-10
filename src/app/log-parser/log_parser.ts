@@ -30,7 +30,10 @@ export class LogParser {
   constructor() {
     this.currentState = stateStore.get();
     if (this.currentState && this.currentState.state.screenName !== undefined) {
-      sendMessageToHomeWindow('set-screenname', this.currentState.state.screenName);
+      sendMessageToHomeWindow('set-screenname', {
+        screenName: this.currentState.state.screenName,
+        newPlayerId: '',
+      });
     }
   }
 
