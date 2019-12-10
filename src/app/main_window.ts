@@ -28,7 +28,7 @@ export function createMainWindow(): void {
     width: 700,
     height: 500,
     webPreferences: {
-      devTools: true, // TODO
+      devTools: electronIsDev,
       allowRunningInsecureContent: false,
       contextIsolation: true,
       enableRemoteModule: false,

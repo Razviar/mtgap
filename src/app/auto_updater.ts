@@ -1,5 +1,5 @@
 import {app, autoUpdater, Notification} from 'electron';
-import isDev from 'electron-is-dev';
+import electronIsDev from 'electron-is-dev';
 import path from 'path';
 
 import {getAppIcon} from 'root/app/app_icon';
@@ -10,7 +10,7 @@ import {settingsStore} from 'root/app/settings_store';
 let checkingUpdate = false;
 let manualCheck = false;
 const updateTimeout = 600000;
-const updatesEnabled = !isDev;
+const updatesEnabled = !electronIsDev;
 const server = 'https://update.electronjs.org';
 
 const updatesHunter = () => {
