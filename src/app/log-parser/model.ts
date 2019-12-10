@@ -5,6 +5,7 @@ export interface LogFileParsingState {
   timestamp?: number;
   userId?: string;
   matchId?: string;
+  screenName?: string;
 }
 
 export interface RawLogEvent {

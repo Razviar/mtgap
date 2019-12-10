@@ -1,6 +1,5 @@
 import {getMetadata, getUserMetadata} from 'root/api/overlay';
 import {WindowLocator} from 'root/app/locatewindow';
-import {withLogParser} from 'root/app/log_parser';
 import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
 import {createOverlayWindow, getOverlayWindow, withOverlayWindow} from 'root/app/overlay_window';
 import {settingsStore} from 'root/app/settings_store';
@@ -13,6 +12,8 @@ const movementSensitivity = 5;
 const overlayPositioner = new WindowLocator();
 const processWatcher = new ProcessWatcher('MTGA.exe');
 
+export let gameIsRunning = false;
+
 export function setupProcessWatcher(): () => void {
   const processWatcherFn = () => {
     processWatcher
@@ -22,9 +23,11 @@ export function setupProcessWatcher(): () => void {
         MTGApid = res;
         overlayPositioner.findmtga(MTGApid);
         if (res === -1) {
+          gameIsRunning = false;
           sendMessageToHomeWindow('show-status', {message: 'Game is not running!', color: '#dbb63d'});
           withOverlayWindow(w => w.hide());
         } else if (res !== -1) {
+          gameIsRunning = true;
           let overlayWindow = getOverlayWindow();
           if (!overlayWindow) {
             overlayWindow = createOverlayWindow();

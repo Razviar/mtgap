@@ -1,9 +1,7 @@
-import fs from 'fs';
-
 import {createChunkReader} from 'root/app/log-parser/chunk_reader';
 import {LogFileOperationResult, LogFileParsingState, ParsingMetadata} from 'root/app/log-parser/model';
 import {extractEventData, extractValue} from 'root/app/log-parser/parsing';
-import {asMap, asString} from 'root/lib/type_utils';
+import {asString} from 'root/lib/type_utils';
 
 export async function getFileId(
   path: string,

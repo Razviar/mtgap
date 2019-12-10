@@ -1,7 +1,6 @@
 body,
 html {
   font-family: 'titillium web', sans-serif;
-  max-width: 38rem;
   padding: 0;
   margin: 0;
   background-color: #1b0000;
@@ -204,6 +203,10 @@ input#token {
   position: absolute;
   bottom: 10px;
   left: 10px;
+}
+
+.footer > i {
+  font-family: 'Font Awesome 5 Brands Regular';
 }
 
 div#UserLinks {

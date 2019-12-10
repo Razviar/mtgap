@@ -5,6 +5,7 @@ const SRC = path.join(ROOT, 'src');
 const NODE_MODULES = path.join(ROOT, 'node_modules');
 const {TsConfigPathsPlugin} = require('awesome-typescript-loader');
 const CspHtmlWebpackPlugin = require('csp-html-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 const nonce = Math.random()
   .toString()
@@ -76,5 +77,9 @@ module.exports = {
         },
       }
     ),
+    new CopyPlugin([
+      {context: 'src/windows', from: '*.woff2', to: 'home_window'},
+      {context: 'src/windows', from: '*.woff2', to: 'overlay_window'},
+    ]),
   ],
 };

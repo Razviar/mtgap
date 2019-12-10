@@ -1,6 +1,6 @@
 import {format} from 'date-fns';
 import {app} from 'electron';
-import {existsSync} from 'fs';
+import {stat} from 'fs';
 import {join} from 'path';
 
 import {getParsingMetadata} from 'root/api/getindicators';
@@ -13,58 +13,48 @@ import {LogFileParsingState, ParsingMetadata, StatefulLogEvent} from 'root/app/l
 import {extractValue} from 'root/app/log-parser/parsing';
 import {LogParserEventEmitter} from 'root/app/log_parser_events';
 import {sendMessageToHomeWindow} from 'root/app/messages';
+import {gameIsRunning} from 'root/app/process_watcher';
 import {settingsStore} from 'root/app/settings_store';
+import {StateInfo, stateStore} from 'root/app/state_store';
 import {getAccountFromScreenName} from 'root/app/userswitch';
 import {error} from 'root/lib/logger';
 import {asArray, asMap, asNumber, asString, removeUndefined} from 'root/lib/type_utils';
 
-const defaultTimeout = 500;
-
-export class LogParser2 {
-  private readonly path: string;
-  private readonly parseOnce: boolean = false;
+export class LogParser {
   private shouldStop: boolean = false;
   private isRunning: boolean = false;
+  private currentState?: StateInfo;
 
   public emitter = new LogParserEventEmitter();
 
-  constructor(targetname: string[] | string, pathset?: boolean, parseOnce?: boolean) {
-    if (!pathset) {
-      const appDataPath = app.getPath('appData');
-      this.path = join(appDataPath, ...targetname).replace('Roaming\\', '');
-    } else {
-      this.path = targetname as string;
-    }
-    if (parseOnce) {
-      this.parseOnce = true;
+  constructor() {
+    this.currentState = stateStore.get();
+    if (this.currentState && this.currentState.state.screenName !== undefined) {
+      sendMessageToHomeWindow('set-screenname', this.currentState.state.screenName);
     }
   }
 
-  public async start(): Promise<void> {
-    if (this.isRunning) {
-      error('Trying to start the parser while still running', undefined);
-      return;
+  private getPath(): string {
+    const specialpath = settingsStore.get().logPath;
+    if (specialpath !== undefined) {
+      return specialpath;
     }
-    this.isRunning = true;
+    return join(app.getPath('appData'), 'LocalLow', 'Wizards Of The Coast', 'MTGA', 'output_log.txt').replace(
+      'Roaming\\',
+      ''
+    );
+  }
+
+  public async start(): Promise<void> {
     try {
-      if (!existsSync(this.path)) {
-        this.emitter.emit('error', 'No log file found');
+      if (this.isRunning) {
+        error('Trying to start the parser while still running', undefined);
         return;
       }
-
+      this.isRunning = true;
+      this.shouldStop = false;
       const parsingMetadata = await getParsingMetadata(app.getVersion());
-
-      const [detailedLogEnabled, detailedLogState] = await checkDetailedLogEnabled(this.path, parsingMetadata);
-      if (!detailedLogEnabled) {
-        this.emitter.emit('error', 'Enable Detailed Logs!');
-        return;
-      }
-
-      const [fileId, fileIdState] = await getFileId(this.path, detailedLogState, parsingMetadata);
-
-      this.emitter.emit('status', 'Awaiting updates...');
-
-      this.parseEvents(this.path, fileIdState, parsingMetadata);
+      this.internalLoop(parsingMetadata);
     } catch (e) {
       error('start.getParsingMetadata', e);
       this.emitter.emit('error', String(e));
@@ -77,87 +67,110 @@ export class LogParser2 {
     this.isRunning = false;
   }
 
-  private parseEvents(logPath: string, currentState: LogFileParsingState, parsingMetadata: ParsingMetadata): void {
-    // Stop parsing when parser manually stopped
+  private internalLoop(parsingMetadata: ParsingMetadata): void {
     if (this.shouldStop) {
-      this.shouldStop = false;
       return;
     }
+    const path = this.getPath();
+    stat(path, async err => {
+      try {
+        // File doesn't exist
+        if (err) {
+          throw new Error('No log file found');
+        }
 
-    // Fetching batch of events
-    getFileId(this.path, {bytesRead: 0}, parsingMetadata)
-      .then(async ([fileId, fileIdState]) => {
-        const isDifferentFileId = false;
-        const newCurrentState = isDifferentFileId ? fileIdState : currentState;
-        return getEvents(logPath, newCurrentState, parsingMetadata).then(([events, newState]) => {
-          // Send parsing date
-          if (events.length > 0) {
-            const lastEvent = events[events.length - 1];
-            if (lastEvent.timestamp !== undefined) {
-              this.emitter.emit(
-                'status',
-                `Log parsed till: ${format(new Date(lastEvent.timestamp), 'h:mm:ss a dd, MMM yyyy')}`
-              );
-            }
+        // Fetching fileId
+        const [fileId] = await getFileId(path, {bytesRead: 0}, parsingMetadata);
+
+        // Detecting change in fileId
+        let nextState: LogFileParsingState;
+        if (!this.currentState || this.currentState.fileId !== fileId) {
+          const [detailedLogEnabled, detailedLogState] = await checkDetailedLogEnabled(path, parsingMetadata);
+          if (!detailedLogEnabled) {
+            throw new Error('Enable Detailed Logs!');
           }
+          nextState = detailedLogState;
 
-          // Checking events
-          for (const event of events) {
-            if (event.name === parsingMetadata.userChangeEvent) {
+          if (gameIsRunning) {
+            // Updating UI
+            this.emitter.emit('status', 'Awaiting updates...');
+          }
+        } else {
+          nextState = this.currentState.state;
+        }
+
+        // Parsing events
+        const [events, newState] = await getEvents(path, nextState, parsingMetadata);
+
+        // Send parsing date
+        if (events.length > 0) {
+          const lastEvent = events[events.length - 1];
+          if (lastEvent.timestamp !== undefined) {
+            this.emitter.emit(
+              'status',
+              `Log parsed till: ${format(new Date(lastEvent.timestamp), 'h:mm:ss a dd, MMM yyyy')}`
+            );
+          }
+        }
+
+        // Checking events
+        for (const event of events) {
+          switch (event.name) {
+            case parsingMetadata.userChangeEvent:
               this.handleUserChangeEvent(event);
-            } else if (event.name === parsingMetadata.matchStartEvent) {
+              break;
+            case parsingMetadata.matchStartEvent:
               this.handleMatchStartEvent(event);
-            } else if (event.name === parsingMetadata.matchEndEvent) {
+              break;
+            case parsingMetadata.matchEndEvent:
               this.handleMatchEndEvent(event);
-            } else if (event.name === parsingMetadata.cardPlayedEvent) {
+              break;
+            case parsingMetadata.cardPlayedEvent:
               this.handleCardPlayedEvent(event);
-            } else if (event.name === parsingMetadata.deckSubmissionEvent) {
+              break;
+            case parsingMetadata.deckSubmissionEvent:
               this.handleDeckSubmissionEvent(event);
+              break;
+          }
+        }
+
+        // Filter useless events
+        const eventsToSend = removeUndefined(
+          events.map(e => {
+            if (e.indicator === undefined) {
+              return undefined;
             }
-          }
+            const payload = asMap(e.rawData, {}).payload;
+            const json = JSON.stringify(payload === undefined ? e.rawData : payload);
+            return {
+              time: e.timestamp === undefined ? 1 : e.timestamp,
+              indicator: e.indicator,
+              json,
+              uid: e.userId === undefined ? '' : e.userId,
+              matchId: e.matchId === undefined ? '' : e.matchId,
+            };
+          })
+        );
 
-          // Filter useless events
-          const eventsToSend = removeUndefined(
-            events.map(e => {
-              if (e.indicator === undefined) {
-                return undefined;
-              }
-              const payload = asMap(e.rawData, {}).payload;
-              const json = JSON.stringify(payload === undefined ? e.rawData : payload);
-              return {
-                time: e.timestamp === undefined ? 1 : e.timestamp,
-                indicator: e.indicator,
-                json,
-                uid: e.userId === undefined ? '' : e.userId,
-                matchId: e.matchId === undefined ? '' : e.matchId,
-              };
-            })
-          );
+        // Forwarding new data for server sending
+        if (eventsToSend.length > 0) {
+          this.emitter.emit('newdata', {events: eventsToSend, parsingMetadata, state: newState, fileId});
+        }
 
-          // Forwarding new data for server sending
-          if (eventsToSend.length > 0) {
-            this.emitter.emit('newdata', {events: eventsToSend, parsingMetadata, state: newState});
-          }
+        // Saving new state for next batch
+        this.currentState = {fileId, state: newState};
 
-          // End of parsing for old log
-          if (this.parseOnce && events.length === 0) {
-            this.isRunning = false;
-            this.emitter.emit('old-log-complete', undefined);
-            return;
-          }
-
-          // Triggering next batch
-          const timeout = eventsToSend.length === 0 ? defaultTimeout : 0;
-          setTimeout(() => {
-            this.parseEvents(logPath, newState, parsingMetadata);
-          }, timeout);
-        });
-      })
-      .catch(err => {
-        this.isRunning = false;
-        error('start.parseEvents', err);
-        this.emitter.emit('error', String(err));
-      });
+        // Triggering next batch
+        const timeout = eventsToSend.length === 0 ? parsingMetadata.logParser.readTimeout : 0;
+        setTimeout(() => this.internalLoop(parsingMetadata), timeout);
+      } catch (e) {
+        // Ignoring fileId error because game is deleting file at launch
+        if (String(e) !== 'Error: Could not determine the log file id') {
+          this.emitter.emit('error', String(e));
+        }
+        setTimeout(() => this.internalLoop(parsingMetadata), parsingMetadata.logParser.readTimeout);
+      }
+    });
   }
 
   private handleUserChangeEvent(event: StatefulLogEvent): void {
@@ -178,7 +191,6 @@ export class LogParser2 {
     if (account && account.player && account.player.playerId === newPlayerId) {
       return;
     }
-    // this.emitter.emit('userchange', {language, playerId: newPlayerId, screenName});
 
     sendMessageToHomeWindow('show-status', {message: 'New User Detected!', color: '#dbb63d'});
 
@@ -242,7 +254,7 @@ export class LogParser2 {
       visibility === undefined ||
       ownerSeatId === undefined
     ) {
-      error('Encountered invalid card played event', undefined, {...event});
+      // error('Encountered invalid card played event', undefined, {...event});
       return;
     }
     this.emitter.emit('card-played', {instanceId, grpId, zoneId, visibility, ownerSeatId});
