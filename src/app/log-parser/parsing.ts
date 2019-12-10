@@ -35,9 +35,7 @@ export function logEventToStatefulEvent(event: LogEvent, state: LogFileParsingSt
 
 export function handleUserChangeEvent(event: LogEvent, state: LogFileParsingState): void {
   const userId = asString(extractValue(event.data, ['params', 'payloadObject', 'playerId']));
-  const screenName = asString(extractValue(event.data, ['params', 'payloadObject', 'screenName']));
   state.userId = userId;
-  state.screenName = screenName;
 }
 
 export function handleMatchStartEvent(event: LogEvent, state: LogFileParsingState): void {
@@ -69,6 +67,11 @@ export function postProcessEvent(rawEvent: RawLogEvent, options: ParsingMetadata
   if (parsingOptions === undefined) {
     return [];
   }
+  const toLogEvent = () => {
+    const name = parsingOptions.newName !== undefined ? parsingOptions.newName : rawEvent.name;
+    return {...rawEvent, name, indicator: parsingOptions.indicator};
+  };
+
   if (parsingOptions.constraint !== undefined) {
     const value = extractValue(rawEvent.data, parsingOptions.constraint.attributesPath);
     if (value !== parsingOptions.constraint.value) {
@@ -87,13 +90,20 @@ export function postProcessEvent(rawEvent: RawLogEvent, options: ParsingMetadata
           )
         );
       }
+      if (parsingOptions.indicator !== undefined) {
+        subEvents.push(toLogEvent());
+      }
       return subEvents;
     }
   }
   if (parsingOptions.renamer !== undefined) {
     const newName = asString(extractValue(rawEvent.data, parsingOptions.renamer));
     if (newName !== undefined) {
-      return postProcessEvent({...rawEvent, name: newName}, options);
+      const events = postProcessEvent({...rawEvent, name: newName}, options);
+      if (parsingOptions.indicator !== undefined) {
+        events.push(toLogEvent());
+      }
+      return events;
     }
   }
   if (parsingOptions.subEvents !== undefined) {
@@ -113,11 +123,13 @@ export function postProcessEvent(rawEvent: RawLogEvent, options: ParsingMetadata
         );
       }
     });
+    if (parsingOptions.indicator !== undefined) {
+      subEvents.push(toLogEvent());
+    }
     return subEvents;
   }
 
-  const name = parsingOptions.newName !== undefined ? parsingOptions.newName : rawEvent.name;
-  return [{...rawEvent, name, indicator: parsingOptions.indicator}];
+  return [toLogEvent()];
 }
 
 export function parseAsRawEvent(value: string): RawLogEvent | undefined {
