@@ -174,7 +174,7 @@ export class LogParser2 {
       error('Encountered invalid user change event', undefined, {...event});
       return;
     }
-    sendMessageToHomeWindow('set-screenname', screenName);
+    sendMessageToHomeWindow('set-screenname', {screenName, newPlayerId});
     if (account && account.player && account.player.playerId === newPlayerId) {
       return;
     }

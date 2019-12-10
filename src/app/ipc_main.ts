@@ -49,13 +49,13 @@ export function setupIpcMain(app: App): void {
     }
   });
 
-  onMessageFromBrowserWindow('start-sync', currentMtgaNick => {
-    tokenrequest(currentMtgaNick)
+  onMessageFromBrowserWindow('start-sync', currentMtgaCreds => {
+    tokenrequest(currentMtgaCreds)
       .then(res => {
         sendMessageToHomeWindow('sync-process', res);
       })
       .catch(err => {
-        error('Failure to perfporm tokenrequest', err, {currentMtgaNick});
+        error('Failure to perfporm tokenrequest', err, {currentMtgaCreds});
       });
   });
 

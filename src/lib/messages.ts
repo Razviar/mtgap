@@ -5,7 +5,7 @@ import {Metadata, UserMetadata} from 'root/models/metadata';
 import {UserResult} from 'root/models/userbytokenid';
 
 export interface Messages {
-  'start-sync': string;
+  'start-sync': {currentMtgaNick: string; currentMtgaID: string};
   'sync-process': TokenRequestRes;
   'token-waiter': string;
   'token-waiter-responce': {
@@ -34,7 +34,7 @@ export interface Messages {
   'show-prompt': {message: string; autoclose: number};
   'new-account': undefined;
   'show-status': {color: string; message: string};
-  'set-screenname': string;
+  'set-screenname': {screenName: string; newPlayerId: string};
   'match-started': {
     matchId: string;
     uid: string;
