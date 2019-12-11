@@ -1,6 +1,6 @@
 import {app} from 'electron';
 
-import {ParsingMetadata, parsingMetadata} from 'root/app/log-parser/model';
+import {ParsingMetadata} from 'root/app/log-parser/model';
 import {AxiosResponse, Request} from 'root/app/request';
 import {error} from 'root/lib/logger';
 import {asArray, asMap, asNumber, asString, asStringMap, removeUndefined} from 'root/lib/type_utils';
@@ -70,5 +70,5 @@ export async function getindicators(): Promise<{
 }
 
 export async function getParsingMetadata(version: string): Promise<ParsingMetadata> {
-  return parsingMetadata;
+  return Request.get(`mtg/json/parsing_metadata_${version}.json`);
 }
