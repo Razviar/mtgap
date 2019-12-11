@@ -15,6 +15,7 @@ let logSenderParsingMetadata: LogSenderParsingMetadata = {
   fastTimeout: 1000,
   slowTimeout: 5000,
   batchSize: 50,
+  sendingRates: {},
 };
 
 // Public function to send events to server, non-blocking
@@ -74,7 +75,13 @@ async function sendNextBatch(): Promise<void> {
   for (const part of internalBuffer) {
     if (events.length === 0 || events.length + part.events.length <= logSenderParsingMetadata.batchSize) {
       for (const event of part.events) {
-        events.push(event);
+        let sendingRate = logSenderParsingMetadata.sendingRates[event.indicator] as number | undefined;
+        if (sendingRate === undefined) {
+          sendingRate = 1;
+        }
+        if (Math.random() <= sendingRate) {
+          events.push(event);
+        }
       }
       currentNumberOfEvents++;
     } else {
@@ -102,10 +109,14 @@ async function sendNextBatch(): Promise<void> {
     // Data is uploaded, removing it from buffer
     const sentBufferParts = internalBuffer.splice(0, currentNumberOfEvents);
     if (sentBufferParts.length > 0) {
-      const cursor = sentBufferParts[sentBufferParts.length - 1];
-      // If no fileId, it means it's an old log, therefore we don't save the state
-      if (cursor.fileId !== undefined) {
-        stateStore.saveState({fileId: cursor.fileId, state: cursor.state});
+      // Filtering old logs to make sure we send state when it's mixed with new logs
+      const filteredSentBufferParts = sentBufferParts.filter(_ => _.fileId !== undefined);
+      if (filteredSentBufferParts.length > 0) {
+        const cursor = filteredSentBufferParts[filteredSentBufferParts.length - 1];
+        // If no fileId, it means it's an old log, therefore we don't save the state
+        if (cursor.fileId !== undefined) {
+          stateStore.saveState({fileId: cursor.fileId, state: cursor.state});
+        }
       }
     }
     sendMessageToHomeWindow('network-status', {

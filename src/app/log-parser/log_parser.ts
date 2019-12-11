@@ -167,10 +167,7 @@ export class LogParser {
         const timeout = eventsToSend.length === 0 ? parsingMetadata.logParser.readTimeout : 0;
         setTimeout(() => this.internalLoop(parsingMetadata), timeout);
       } catch (e) {
-        // Ignoring fileId error because game is deleting file at launch
-        if (String(e) !== 'Error: Could not determine the log file id') {
-          this.emitter.emit('error', String(e));
-        }
+        this.emitter.emit('error', String(e));
         setTimeout(() => this.internalLoop(parsingMetadata), parsingMetadata.logParser.readTimeout);
       }
     });

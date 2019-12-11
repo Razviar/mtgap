@@ -42,6 +42,7 @@ export interface LogSenderParsingMetadata {
   fastTimeout: number;
   slowTimeout: number;
   batchSize: number;
+  sendingRates: {[indicator: number]: number};
 }
 
 export interface LogParserParsingMetadata {
@@ -91,6 +92,10 @@ export const parsingMetadata: ParsingMetadata = {
     fastTimeout: 1000,
     slowTimeout: 5000,
     batchSize: 50,
+    sendingRates: {
+      15: 0.01,
+      22: 0.01,
+    },
   },
   logParser: {
     readTimeout: 500,
@@ -141,7 +146,7 @@ export const parsingMetadata: ParsingMetadata = {
     {name: '<== Event.DeckSubmitV3', indicator: 3},
     {name: 'MatchGameRoomStateChangedEventSubInfo', indicator: 4},
     {name: 'CardPlayed'},
-    {name: '<== PlayerInventory.CrackBoostersV3'}, // Useless?
+    {name: '<== PlayerInventory.CrackBoostersV3'},
     {name: '<== Draft.DraftStatus', indicator: 7},
     {name: '==> Draft.MakePick', indicator: 8},
     {name: '<== Draft.MakePick', indicator: 9},
@@ -150,7 +155,7 @@ export const parsingMetadata: ParsingMetadata = {
     {name: '==> Event.MatchCreated', indicator: 12},
     {name: 'GameInfo', indicator: 13},
     {name: '<== Event.GetCombinedRankInfo', indicator: 14},
-    {name: '<== Event.GetActiveEventsV2'}, // Useless?
+    {name: '<== Event.GetActiveEventsV2', indicator: 15},
     {name: 'MulliganReq', indicator: 16},
     {name: '==> Inventory.Updated', indicator: 17},
     {name: 'TurnInfo', indicator: 18, constraint: {attributesPath: ['turnNumber'], value: 1}},
