@@ -55,16 +55,22 @@ export function setupAutoUpdater(): void {
       }
     });
 
-    autoUpdater.on('update-downloaded', () => {
+    autoUpdater.on('update-downloaded', (e: Event, notes: string, version: string, date: Date, dlUrl: string) => {
       if (!settingsStore.get().manualUpdate) {
         if (manualCheck) {
           manualCheck = false;
-          sendMessageToHomeWindow('show-prompt', {message: 'Download complete. Restarting app...', autoclose: 0});
+          sendMessageToHomeWindow('show-prompt', {
+            message: `Downloaded version ${version}. Restarting app...`,
+            autoclose: 0,
+          });
         }
         autoUpdater.quitAndInstall();
       } else {
-        sendMessageToHomeWindow('show-prompt', {message: 'New version available for installation!', autoclose: 0});
-        sendMessageToHomeWindow('show-update-button', undefined);
+        sendMessageToHomeWindow('show-prompt', {
+          message: `Version ${version} available for installation!`,
+          autoclose: 0,
+        });
+        sendMessageToHomeWindow('show-update-button', version);
         withHomeWindow(w => {
           if (!w.isVisible()) {
             const notification = new Notification({

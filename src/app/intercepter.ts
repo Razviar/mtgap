@@ -13,7 +13,6 @@ export function setupRequestIntercept(app: App): void {
       const appDataPath = app.getPath('userData');
       const pathImgDetails = pathImg[1].split('/');
       const imgDirs = [...pathImgDetails].splice(pathImgDetails.length - 1, 1);
-      //console.log(request.url, imgDirs);
       const p = path.join(appDataPath, ...pathImgDetails);
       if (fs.existsSync(p)) {
         callback({mimeType: 'image/webp', data: fs.readFileSync(p)});

@@ -27,7 +27,7 @@
     "deprecation": true,
     "encoding": true,
     "file-header": false,
-    "file-name-casing": [true, "snake-case", { "react-app-env.d.ts": "ignored" }],
+    "file-name-casing": [true, "snake-case", {"react-app-env.d.ts": "ignored"}],
     "forin": true,
     "function-constructor": true,
     "import-blacklist": [true, ["^\\."]],
@@ -73,7 +73,7 @@
     "no-internal-module": true,
     "no-invalid-template-strings": true,
     "no-invalid-this": true,
-    "no-magic-numbers": [true, { "ignore-jsx": true, "allowed-numbers": [-1, 0, 1, 2, 10, 60, 100, 1000, 3600] }],
+    "no-magic-numbers": [true, {"ignore-jsx": true, "allowed-numbers": [-1, 0, 1, 2, 10, 60, 100, 1000, 1024, 3600]}],
     "no-mergeable-namespace": false,
     "no-misused-new": true,
     "no-namespace": true,
@@ -122,8 +122,8 @@
         "named-imports-order": "case-insensitive",
         "grouped-imports": true,
         "groups": [
-          { "name": "root", "match": "^root", "order": 20 },
-          { "name": "node_modules", "match": ".*", "order": 10 }
+          {"name": "root", "match": "^root", "order": 20},
+          {"name": "node_modules", "match": ".*", "order": 10}
         ]
       }
     ],

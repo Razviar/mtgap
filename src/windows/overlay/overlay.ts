@@ -63,7 +63,6 @@ function makeCard(cid: number, num: number, side: boolean): string {
       const n = currentMatch.cardsBySuperclass.get(supercls.toString()) as number;
       currentMatch.cardsBySuperclass.set(supercls.toString(), n + num);
     }
-    //console.log(currentMatch.cardsBySuperclass);
   }
 
   const manajMap = asMap(colorarr !== '' && colorarr !== '[]' ? jsonParse(colorarr) : jsonParse(mana));
@@ -187,9 +186,6 @@ const updateOppDeck = (highlight: number[]) => {
 };
 
 const genBattleCardNum = (mtgaid: number) => {
-  /*console.log(currentMatch.totalCards);
-  console.log(currentMatch.cardsBySuperclass);*/
-
   if (!metaData) {
     return '';
   }
@@ -203,7 +199,6 @@ const genBattleCardNum = (mtgaid: number) => {
   const numleft = currentMatch.decks.me[+mtgaid] > 0 ? num.cardnum - currentMatch.decks.me[+mtgaid] : num.cardnum;
   const cardsPlayed = sumOfObject(currentMatch.decks.me);
   const draw = (100 * (numleft / (currentMatch.totalCards - cardsPlayed))).toFixed(2);
-  //console.log(numleft + '/' + currentMatch.totalCards + '/' + cardsPlayed);
   const numbers = `<div class="uppernum"><div class="leftuppernum">${num.cardnum}</div> ${numleft}</div><div class="bottomnum">${draw}%</div>`;
   if (numleft === 0) {
     const crdEl: HTMLElement | null = document.getElementById(`card${mtgaid}me`);
@@ -251,8 +246,6 @@ const updateDeck = (highlight: number[]) => {
   for (let scls = 0; scls <= 2; scls++) {
     const sclsEl: HTMLElement | null = document.getElementById(`scls${scls}`);
     if (sclsEl) {
-      /*console.log(currentMatch.cardsBySuperclass);
-      console.log(currentMatch.cardsBySuperclassLeft);*/
       const cardsBySuperclass = currentMatch.cardsBySuperclass.get(scls.toString());
       const cardsBySuperclassLeft = currentMatch.cardsBySuperclassLeft.get(scls.toString());
       if (cardsBySuperclass !== undefined && cardsBySuperclassLeft !== undefined) {
@@ -338,12 +331,10 @@ const HoverEventListener = (theCard: Element) => {
 };
 
 onMessageFromIpcMain('set-metadata', meta => {
-  //console.log(meta);
   metaData = meta;
 });
 
 onMessageFromIpcMain('set-userdata', umeta => {
-  //console.log(umeta);
   Object.keys(umeta.coursedecks).forEach(eventName => {
     playerDecks[eventName] = {
       mainDeck: umeta.coursedecks[eventName].deckstruct,
@@ -410,7 +401,6 @@ onMessageFromIpcMain('match-over', () => {
 });
 
 onMessageFromIpcMain('card-played', arg => {
-  //console.log(arg);
   const res = currentMatch.cardplayed({
     grpId: arg.grpId,
     instanceId: arg.instanceId,

@@ -96,34 +96,17 @@ export class Match {
         : [ZoneTypeHandPl2];
     const affectedcards: number[] = [];
     this.zones[instanceId] = zoneId;
-    /*if (cardOperation === 'opponent') {
-      console.log('----------------');
-      console.log(ZoneOfInterest);
-      console.log({grpId, instanceId, ownerSeatId, zoneId});
-    }*/
     if (this.instanceIds[cardOperation][instanceId] !== grpId) {
       this.instanceIds[cardOperation][instanceId] = grpId;
       if (ZoneOfInterest.includes(+zoneId)) {
-        /*if (cardOperation === 'opponent') {
-          console.log('*');
-        }*/
         affectedcards.push(grpId);
         if (this.decks[cardOperation][grpId] > 0) {
           this.decks[cardOperation][grpId]++;
         } else {
-          /*if (cardOperation === 'opponent') {
-            console.log('***');
-          }*/
           this.decks[cardOperation][grpId] = 1;
         }
       }
-      /*if (cardOperation === 'opponent') {
-        console.log(this.decks);
-        console.log(this.instanceIds);
-        console.log(this.zones);
-      }*/
     }
-    //console.log(affectedcards);
     return {affectedcards, myDeck: ownerSeatId === this.myTeamId};
   }
 }

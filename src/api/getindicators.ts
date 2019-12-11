@@ -70,5 +70,9 @@ export async function getindicators(): Promise<{
 }
 
 export async function getParsingMetadata(version: string): Promise<ParsingMetadata> {
-  return Request.get(`mtg/json/parsing_metadata_${version}.json`);
+  const res = await Request.get(`mtg/json/parsing_metadata_${version}.json`);
+  if (typeof res === 'string') {
+    throw new Error('Cannot parse remote metadata');
+  }
+  return res as ParsingMetadata;
 }

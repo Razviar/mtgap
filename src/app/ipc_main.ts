@@ -57,7 +57,7 @@ export function setupIpcMain(app: App): void {
         sendMessageToHomeWindow('sync-process', res);
       })
       .catch(err => {
-        error('Failure to perfporm tokenrequest', err, {currentMtgaCreds});
+        error('Failure to perform tokenrequest', err, {currentMtgaCreds});
       });
   });
 
@@ -67,7 +67,7 @@ export function setupIpcMain(app: App): void {
         sendMessageToHomeWindow('token-waiter-responce', {res, request});
       })
       .catch(err => {
-        error('Failure to perfporm tokencheck', err, {request});
+        error('Failure to perform tokencheck', err, {request});
       });
   });
 
@@ -77,7 +77,7 @@ export function setupIpcMain(app: App): void {
         sendMessageToHomeWindow('userbytokenid-responce', res);
       })
       .catch(err => {
-        error('Failure to perfporm userbytokenid', err, {token});
+        error('Failure to perform userbytokenid', err, {token});
       });
   });
 

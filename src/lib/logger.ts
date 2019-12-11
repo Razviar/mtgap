@@ -1,3 +1,6 @@
+import electronIsDev from 'electron-is-dev';
+
+import {log} from 'root/app/log-rotate/log_rotate';
 import {asMap, asString} from 'root/lib/type_utils';
 
 interface LogProperties {
@@ -19,5 +22,9 @@ function getStacktrace(err?: unknown): string {
 }
 
 export function error(msg: string, err: unknown, extra: LogProperties = {}): void {
-  console.error({msg, err: String(err), type: 'Error', ...extra, stack: getStacktrace(err)}); // tslint:disable-line:no-console
+  if (electronIsDev) {
+    console.error({msg, err: String(err), type: 'Error', ...extra, stack: getStacktrace(err)}); // tslint:disable-line:no-console
+  } else {
+    log(`${JSON.stringify({date: new Date().toISOString(), msg, err, stacktrace: getStacktrace(err), extra})}`);
+  }
 }

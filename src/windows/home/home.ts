@@ -56,7 +56,6 @@ onMessageFromIpcMain('set-screenname', data => {
 });
 
 onMessageFromIpcMain('set-creds', creds => {
-  //console.log(arg.source);
   const unhide = document.querySelector('[data-button="unskip-acc"]') as HTMLElement;
   if (creds.account.nick !== 'Skipping') {
     login(creds.account.token, creds.account.uid, creds.account.nick, 'set-creds');
@@ -175,7 +174,6 @@ onMessageFromIpcMain('show-prompt', arg => {
 });
 
 onMessageFromIpcMain('new-account', () => {
-  //console.log('new-account');
   const unhide = document.querySelector('[data-button="unskip-acc"]') as HTMLElement;
   unhide.classList.add('hidden');
   StatusMessage.innerHTML = 'Awaiting account sync...';
@@ -289,10 +287,6 @@ const controlClick = (event: Event) => {
     case 'set-log-path':
     case 'default-log-path':
       sendMessageToIpcMain(button, undefined);
-      break;
-    default:
-      // tslint:disable-next-line: no-console
-      console.error('Event not implemented!');
       break;
   }
 };

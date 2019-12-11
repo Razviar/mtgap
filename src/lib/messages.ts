@@ -55,7 +55,7 @@ export interface Messages {
   'set-userdata': UserMetadata;
   mulligan: boolean;
   'set-version': string;
-  'show-update-button': undefined;
+  'show-update-button': string;
   'set-setting-autorun': boolean;
   'set-setting-minimized': boolean;
   'set-setting-manualupdate': boolean;

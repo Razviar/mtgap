@@ -29,6 +29,8 @@
     "date-fns": "2.8.1",
     "electron-is-dev": "1.1.0",
     "electron-squirrel-startup": "1.0.0",
+    "lodash": "4.17.15",
+    "moment": "2.24.0",
     "ps-list": "6.3.0",
     "source-map-support": "0.5.16",
     "update-electron-app": "1.5.0"
@@ -47,6 +49,8 @@
     "@types/axios": "0.14.0",
     "@types/electron": "1.6.10",
     "@types/electron-is-dev": "1.1.1",
+    "@types/lodash": "4.14.149",
+    "@types/moment": "2.13.0",
     "awesome-typescript-loader": "5.2.1",
     "copy-webpack-plugin": "5.1.0",
     "csp-html-webpack-plugin": "3.0.4",
