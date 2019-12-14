@@ -1,7 +1,7 @@
-import {BrowserWindow} from 'electron';
+import { BrowserWindow } from 'electron';
 import electronIsDev from 'electron-is-dev';
 
-import {error} from 'root/lib/logger';
+import { error } from 'root/lib/logger';
 
 export type MaybeBrowserWindow = BrowserWindow | undefined;
 let overlayWindow: MaybeBrowserWindow;
@@ -49,7 +49,7 @@ export function createOverlayWindow(): BrowserWindow {
     })
   );
   overlayWindow.setMenuBarVisibility(false);
-  overlayWindow.setIgnoreMouseEvents(true, {forward: true});
-  overlayWindow.webContents.openDevTools({mode: 'detach'});
+  overlayWindow.setIgnoreMouseEvents(true, { forward: true });
+  overlayWindow.webContents.openDevTools({ mode: 'detach' });
   return overlayWindow;
 }

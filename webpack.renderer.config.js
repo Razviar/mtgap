@@ -78,8 +78,8 @@ module.exports = {
       }
     ),
     new CopyPlugin([
-      {context: 'src/windows', from: '*.woff2', to: 'home_window'},
-      {context: 'src/windows', from: '*.woff2', to: 'overlay_window'},
+      {context: 'src/windows', from: '*.woff*', to: 'home_window'},
+      {context: 'src/windows', from: '*.woff*', to: 'overlay_window'},
     ]),
   ],
 };

@@ -7,13 +7,13 @@ import {Card} from 'root/models/cards';
 import {DeckStrorage, Match} from 'root/models/match';
 import {Metadata} from 'root/models/metadata';
 import 'root/windows/css.css';
+import 'root/windows/keyrune.css';
+import 'root/windows/keyrune.woff2';
+import 'root/windows/mana.css';
+import 'root/windows/mana.woff2';
 import {onMessageFromIpcMain, sendMessageToIpcMain} from 'root/windows/messages';
 import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdM3mDbRS.woff2';
 import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdMPmDQ.woff2';
-import 'root/windows/overlay/keyrune.css';
-import 'root/windows/overlay/keyrune.woff2';
-import 'root/windows/overlay/mana.css';
-import 'root/windows/overlay/mana.woff2';
 import 'root/windows/overlay/overlay.css';
 
 const MainOut = document.getElementById('MainOut') as HTMLElement;
