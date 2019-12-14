@@ -5,7 +5,6 @@ import 'root/windows/fa-brands-400.woff2';
 import 'root/windows/fa-regular-400.woff2';
 import 'root/windows/fa-solid-900.woff2';
 import 'root/windows/fontawesome.css';
-import 'root/windows/home/choices.min.css';
 import 'root/windows/home/home.css';
 import 'root/windows/home/icons.css';
 import 'root/windows/home/pretty-checkbox.min.css';
@@ -281,6 +280,7 @@ const controlClick = (event: Event) => {
       sendMessageToIpcMain('kill-current-token', undefined);
       break;
     case 'wipe-all':
+    case 'restart-me':
     case 'stop-tracker':
     case 'old-log':
     case 'apply-update':

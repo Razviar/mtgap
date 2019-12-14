@@ -56,18 +56,33 @@ export function createGlobalLogParser(): LogParser {
     sendMessageToHomeWindow('show-status', {message: msg, color: '#22a83a'});
   });
 
-  if (settingsStore.get().overlay) {
-    logParser.emitter.on('deck-submission', msg => sendMessageToOverlayWindow('deck-submission', msg));
-    logParser.emitter.on('match-started', msg => {
-      const account = settingsStore.getAccount();
-      if (account) {
-        sendMessageToOverlayWindow('match-started', {...msg, uid: account.uid});
-      }
-    });
-    logParser.emitter.on('card-played', msg => sendMessageToOverlayWindow('card-played', msg));
-    logParser.emitter.on('mulligan', msg => sendMessageToOverlayWindow('mulligan', msg));
-    logParser.emitter.on('match-over', () => sendMessageToOverlayWindow('match-over', undefined));
-  }
+  logParser.emitter.on('deck-submission', msg => {
+    if (settingsStore.get().overlay) {
+      sendMessageToOverlayWindow('deck-submission', msg);
+    }
+  });
+  logParser.emitter.on('match-started', msg => {
+    //console.log('match-started-recieved!');
+    const account = settingsStore.getAccount();
+    if (account && settingsStore.get().overlay) {
+      sendMessageToOverlayWindow('match-started', {...msg, uid: account.uid});
+    }
+  });
+  logParser.emitter.on('card-played', msg => {
+    if (settingsStore.get().overlay) {
+      sendMessageToOverlayWindow('card-played', msg);
+    }
+  });
+  logParser.emitter.on('mulligan', msg => {
+    if (settingsStore.get().overlay) {
+      sendMessageToOverlayWindow('mulligan', msg);
+    }
+  });
+  logParser.emitter.on('match-over', () => {
+    if (settingsStore.get().overlay) {
+      sendMessageToOverlayWindow('match-over', undefined);
+    }
+  });
 
   logParser.start().catch(err => {
     error('Failure to start parser', err);

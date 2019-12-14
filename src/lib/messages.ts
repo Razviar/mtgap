@@ -24,6 +24,7 @@ export interface Messages {
   'default-log-path': undefined;
   'old-log': undefined;
   'wipe-all': undefined;
+  'restart-me': undefined;
   'check-updates': undefined;
   'stop-tracker': undefined;
   'apply-update': undefined;

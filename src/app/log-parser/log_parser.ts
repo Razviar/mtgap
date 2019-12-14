@@ -4,6 +4,7 @@ import {stat} from 'fs';
 import {join} from 'path';
 
 import {getParsingMetadata} from 'root/api/getindicators';
+import {getUserMetadata} from 'root/api/overlay';
 import {setuserdata, UserData} from 'root/api/userbytokenid';
 import {setCreds} from 'root/app/auth';
 import {checkDetailedLogEnabled} from 'root/app/log-parser/detailed_log';
@@ -12,7 +13,7 @@ import {getFileId} from 'root/app/log-parser/file_id';
 import {LogFileParsingState, ParsingMetadata, StatefulLogEvent} from 'root/app/log-parser/model';
 import {extractValue} from 'root/app/log-parser/parsing';
 import {LogParserEventEmitter} from 'root/app/log_parser_events';
-import {sendMessageToHomeWindow} from 'root/app/messages';
+import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
 import {gameIsRunning} from 'root/app/process_watcher';
 import {settingsStore} from 'root/app/settings_store';
 import {StateInfo, stateStore} from 'root/app/state_store';
@@ -188,6 +189,15 @@ export class LogParser {
       return;
     }
     sendMessageToHomeWindow('set-screenname', {screenName, newPlayerId});
+
+    if (account && settingsStore.get().overlay) {
+      getUserMetadata(+account.uid)
+        .then(umd => sendMessageToOverlayWindow('set-userdata', umd))
+        .catch(err => {
+          error('Failure to load User Metadata', err);
+        });
+    }
+
     if (account && account.player && account.player.playerId === newPlayerId) {
       return;
     }
@@ -229,6 +239,7 @@ export class LogParser {
       error('Encountered invalid match start event', undefined, {...event});
       return;
     }
+    //console.log('match-started');
     this.emitter.emit('match-started', {matchId, gameNumber, seatId, eventId});
   }
 

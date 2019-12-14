@@ -27,11 +27,13 @@ export function setupProcessWatcher(): () => void {
           withOverlayWindow(w => w.hide());
         } else if (res !== -1) {
           gameIsRunning = true;
-          let overlayWindow = getOverlayWindow();
-          if (!overlayWindow) {
-            overlayWindow = createOverlayWindow();
-            const account = settingsStore.getAccount();
-            if (account) {
+          const account = settingsStore.getAccount();
+
+          if (account && settingsStore.get().overlay) {
+            let overlayWindow = getOverlayWindow();
+            if (!overlayWindow) {
+              overlayWindow = createOverlayWindow();
+
               getMetadata()
                 .then(md => sendMessageToOverlayWindow('set-metadata', md))
                 .catch(err => {
@@ -43,8 +45,7 @@ export function setupProcessWatcher(): () => void {
                   error('Failure to load User Metadata', err);
                 });
             }
-          }
-          if (settingsStore.get().overlay) {
+
             if (
               overlayPositioner.bounds.width !== 0 &&
               (Math.abs(overlayWindow.getBounds().x - overlayPositioner.bounds.x) > movementSensitivity ||

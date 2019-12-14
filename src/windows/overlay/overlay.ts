@@ -332,6 +332,7 @@ const HoverEventListener = (theCard: Element) => {
 
 onMessageFromIpcMain('set-metadata', meta => {
   metaData = meta;
+  //console.log(metaData);
 });
 
 onMessageFromIpcMain('set-userdata', umeta => {
@@ -342,9 +343,13 @@ onMessageFromIpcMain('set-userdata', umeta => {
       deckName: umeta.coursedecks[eventName].humanname,
     };
   });
+  //console.log(playerDecks);
 });
 
 onMessageFromIpcMain('match-started', newMatch => {
+  /*console.log('match-started');
+  console.log(newMatch.eventId);
+  console.log(playerDecks);*/
   if (!Object.keys(playerDecks).includes(newMatch.eventId)) {
     return;
   }
@@ -356,6 +361,7 @@ onMessageFromIpcMain('match-started', newMatch => {
   currentMatch.myFullDeck = playerDecks[newMatch.eventId].mainDeck;
   currentMatch.humanname = playerDecks[newMatch.eventId].deckName;
   drawDeck();
+  //console.log('match-initiated!');
 });
 
 onMessageFromIpcMain('deck-submission', deck => {
@@ -398,6 +404,10 @@ onMessageFromIpcMain('match-over', () => {
   currentMatch.over();
   drawDeck();
   updateOppDeck([]);
+  MainOut.classList.add('hidden');
+  toggleButtonClass(ToggleMe, MainOut.classList.contains('hidden'));
+  OpponentOut.classList.add('hidden');
+  toggleButtonClass(ToggleOpp, OpponentOut.classList.contains('hidden'));
 });
 
 onMessageFromIpcMain('card-played', arg => {

@@ -305,6 +305,15 @@ export function setupIpcMain(app: App): void {
       .catch(err => error('Error while showing open file dialog during old-log-path event', err));
   });
 
+  onMessageFromBrowserWindow('restart-me', () => {
+    sendMessageToHomeWindow('show-prompt', {
+      message: 'Restarting tracker...',
+      autoclose: 0,
+    });
+    app.relaunch();
+    app.exit();
+  });
+
   onMessageFromBrowserWindow('wipe-all', () => {
     settingsStore.wipe();
     stateStore.wipe();
