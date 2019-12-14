@@ -6,7 +6,6 @@ import {settingsStore} from 'root/app/settings_store';
 import {ProcessWatcher} from 'root/app/watchprocess';
 import {error} from 'root/lib/logger';
 
-let MTGApid = -1;
 const movementSensitivity = 5;
 
 const overlayPositioner = new WindowLocator();
@@ -18,14 +17,13 @@ export function setupProcessWatcher(): () => void {
   const processWatcherFn = () => {
     processWatcher
       .getprocesses()
-      .then(res => {
-        MTGApid = res;
+      .then(MTGApid => {
         overlayPositioner.findmtga(MTGApid);
-        if (res === -1) {
+        if (MTGApid === -1) {
           gameIsRunning = false;
           sendMessageToHomeWindow('show-status', {message: 'Game is not running!', color: '#dbb63d'});
           withOverlayWindow(w => w.hide());
-        } else if (res !== -1) {
+        } else {
           gameIsRunning = true;
           const account = settingsStore.getAccount();
 

@@ -2,7 +2,12 @@ const path = require('path');
 const ROOT = path.resolve(__dirname);
 const SRC = path.join(ROOT, 'src');
 const NODE_MODULES = path.join(ROOT, 'node_modules');
-const { TsConfigPathsPlugin } = require('awesome-typescript-loader');
+const {TsConfigPathsPlugin} = require('awesome-typescript-loader');
+const {copySync} = require('fs-extra');
+
+copySync('node_modules/iconv/build/Release/', 'node_modules/iconv/build/Debug/', {
+  overwrite: true,
+});
 
 module.exports = {
   /**
@@ -22,5 +27,4 @@ module.exports = {
     modules: [NODE_MODULES],
     plugins: [TsConfigPathsPlugin],
   },
-  externals: /Debug\/iconv\.node/,
 };
