@@ -27,6 +27,15 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 6. Check if antiviruses or firewalls are blocking app traffic, add app to exception.
 
 ## Changelog
+v.2.0.16 released 14/12/2019
+* Rewritten log parser: less CPU usage, more stability, no missed data.
+* Further upgrade of code quality.
+* Update issues are resolved.
+* Smoother authentication for users.
+* Overal improved user expirience.
+* Added logging of exceptions for better debugging.
+
+
 v.2.0.15 released 30/11/2019
 * Huge code quality improvements for better stability and debugging
 * Better updates settings: you can now enable manual updates to avoid intrusive auto-update
