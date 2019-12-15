@@ -80,6 +80,7 @@ export interface Messages {
     message: NetworkStatusMessage;
   };
   'set-scale': number;
+  'set-zoom': number;
 }
 
 export enum NetworkStatusMessage {

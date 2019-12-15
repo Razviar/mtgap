@@ -28,16 +28,6 @@ const user32 = new Library('User32.dll', {
   GetWindowRect: ['bool', ['pointer', RectPointer]],
 });
 
-// Create FFI declarations for the C++ library and functions needed (Kernel32.dll), using their "Unicode" (UTF-16) version
-const kernel32 = new Library('kernel32', {
-  // https://msdn.microsoft.com/en-us/library/windows/desktop/ms684320(v=vs.85).aspx
-  OpenProcess: ['pointer', ['uint32', 'int', 'uint32']],
-  // https://msdn.microsoft.com/en-us/library/windows/desktop/ms724211(v=vs.85).aspx
-  CloseHandle: ['int', ['pointer']],
-  // https://msdn.microsoft.com/en-us/library/windows/desktop/ms684919(v=vs.85).aspx
-  QueryFullProcessImageNameW: ['int', ['pointer', 'uint32', 'pointer', 'pointer']],
-});
-
 function windows() {
   // Windows C++ APIs' functions are declared with capitals, so this rule has to be turned off
 
@@ -57,12 +47,6 @@ function windows() {
   user32.GetWindowThreadProcessId(activeWindowHandle, processIdBuffer);
   // Get the process ID as a number from the buffer
   const processId = get(processIdBuffer);
-  // Get a "handle" of the process
-  const processHandle = kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, processId);
-
-  if (isNull(processHandle)) {
-    return undefined; // Failed to get process handle
-  }
 
   // Create a new instance of Rect, the struct required by the `GetWindowRect` method
   const bounds = new Rect();
