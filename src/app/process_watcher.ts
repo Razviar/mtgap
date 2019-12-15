@@ -5,7 +5,6 @@ import {createOverlayWindow, getOverlayWindow, withOverlayWindow} from 'root/app
 import {settingsStore} from 'root/app/settings_store';
 import {ProcessWatcher} from 'root/app/watchprocess';
 import {error} from 'root/lib/logger';
-import {getMainWindow} from './main_window';
 
 const movementSensitivity = 5;
 
@@ -55,13 +54,8 @@ export function setupProcessWatcher(): () => void {
               if (!overlayWindow.isVisible()) {
                 overlayWindow.show();
               }
-              const mainWindow = getMainWindow();
-              if (mainWindow) {
-                mainWindow.webContents.zoomFactor = 1;
-              }
               const EtalonHeight = 1144;
               const zoomFactor = overlayPositioner.bounds.height / EtalonHeight;
-              console.log(zoomFactor);
               overlayWindow.webContents.zoomFactor = zoomFactor;
               overlayWindow.setBounds(overlayPositioner.bounds);
             } else if (overlayPositioner.bounds.width === 0) {
