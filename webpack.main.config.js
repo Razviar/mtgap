@@ -5,9 +5,9 @@ const NODE_MODULES = path.join(ROOT, 'node_modules');
 const {TsConfigPathsPlugin} = require('awesome-typescript-loader');
 const {copySync} = require('fs-extra');
 
-copySync('node_modules/iconv/build/Release/', 'node_modules/iconv/build/Debug/', {
+/*copySync('node_modules/iconv/build/Release/', 'node_modules/iconv/build/Debug/', {
   overwrite: true,
-});
+});*/
 
 module.exports = {
   /**
