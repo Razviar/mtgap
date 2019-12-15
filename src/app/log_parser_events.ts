@@ -35,6 +35,11 @@ interface LogParserEvents {
     deckId: string;
     InternalEventName: string;
   };
+  'draft-turn': {
+    DraftPack: number[];
+    PackNumber: number;
+    PickNumber: number;
+  };
 }
 
 type LogParserListener<Event extends keyof LogParserEvents> = (data: LogParserEvents[Event]) => void;

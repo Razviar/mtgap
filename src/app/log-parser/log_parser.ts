@@ -136,13 +136,10 @@ export class LogParser {
               this.handleDeckSubmissionEvent(event);
               break;
             case parsingMetadata.draftStartEvent:
-              this.handledraftStartEvent(event);
-              break;
-            case parsingMetadata.draftMakePickEvent:
-              this.handledraftMakePickEvent(event);
+              this.handleDraftEvents(event);
               break;
             case parsingMetadata.draftPickResponseEvent:
-              this.handledraftPickResponseEvent(event);
+              this.handleDraftEvents(event);
               break;
           }
         }
@@ -309,9 +306,15 @@ export class LogParser {
     this.emitter.emit('deck-submission', {mainDeck, commandZoneGRPIds, deckName, deckId, InternalEventName});
   }
 
-  private handledraftStartEvent(event: StatefulLogEvent): void {}
+  private handleDraftEvents(event: StatefulLogEvent): void {
+    const DraftPack = asArray<number>(extractValue(event.data, ['DraftPack']));
+    const PackNumber = asNumber(extractValue(event.data, ['PackNumber']));
+    const PickNumber = asNumber(extractValue(event.data, ['PickNumber']));
+    if (DraftPack === undefined || PackNumber === undefined || PickNumber === undefined) {
+      error('Encountered invalid draft start event', undefined, {...event});
+      return;
+    }
 
-  private handledraftMakePickEvent(event: StatefulLogEvent): void {}
-
-  private handledraftPickResponseEvent(event: StatefulLogEvent): void {}
+    this.emitter.emit('draft-turn', {DraftPack, PackNumber, PickNumber});
+  }
 }

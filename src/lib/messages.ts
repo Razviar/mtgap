@@ -81,6 +81,11 @@ export interface Messages {
   };
   'set-scale': number;
   'set-zoom': number;
+  'draft-turn': {
+    DraftPack: number[];
+    PackNumber: number;
+    PickNumber: number;
+  };
 }
 
 export enum NetworkStatusMessage {

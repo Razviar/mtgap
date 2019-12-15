@@ -4,6 +4,7 @@ import {sortcards} from 'root/lib/sortcards';
 import {asMap, asNumber} from 'root/lib/type_utils';
 import {color, manafont, typecolorletter} from 'root/lib/utils';
 import {Card} from 'root/models/cards';
+import {Draft} from 'root/models/draft';
 import {DeckStrorage, Match} from 'root/models/match';
 import {Metadata} from 'root/models/metadata';
 import 'root/windows/css.css';
@@ -27,6 +28,7 @@ const Interactive = document.getElementsByClassName('Interactive');
 const highlightTimeout = 3000;
 
 const currentMatch = new Match();
+const currentDraft = new Draft();
 const playerDecks: DeckStrorage = {};
 let metaData: Metadata | undefined;
 const superclasses = ['sorcery', 'creature', 'land'];
@@ -38,7 +40,7 @@ function toggleButtonClass(el: HTMLElement, state: boolean): void {
   }
 }
 
-function makeCard(cid: number, num: number, side: boolean): string {
+function makeCard(cid: number, num: number, side: boolean, draft?: boolean): string {
   if (!metaData) {
     return '';
   }
@@ -258,6 +260,28 @@ const updateDeck = (highlight: number[]) => {
   }
 };
 
+const drawDraft = () => {
+  if (!metaData) {
+    return '';
+  }
+  const meta = metaData;
+
+  let output = `<div class="deckName">${currentDraft.PackNumber} / ${currentDraft.PickNumber}</div>`;
+  currentDraft.currentPack.forEach(card => {
+    const cid = meta.mtgatoinnerid[+card];
+    output += makeCard(cid, 1, true, true);
+  });
+
+  MainOut.innerHTML = output;
+  MainOut.classList.remove('hidden');
+  toggleButtonClass(ToggleMe, MainOut.classList.contains('hidden'));
+
+  const AllCards = document.getElementsByClassName('DcDrow');
+  Array.from(AllCards).forEach(theCard => {
+    HoverEventListener(theCard);
+  });
+};
+
 const drawDeck = () => {
   let output = `<div class="deckName">${currentMatch.humanname}</div>`;
   currentMatch.myFullDeck.forEach(card => {
@@ -428,6 +452,11 @@ onMessageFromIpcMain('card-played', arg => {
   } else {
     updateOppDeck(res.affectedcards);
   }
+});
+
+onMessageFromIpcMain('draft-turn', draft => {
+  currentDraft.draftStep(draft);
+  drawDraft();
 });
 
 ToggleOpp.addEventListener('click', () => {

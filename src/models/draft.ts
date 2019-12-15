@@ -11,10 +11,18 @@ export class Draft {
     this.currentPack = [];
   }
 
-  public draftStep(pack: number[], PickNumber: number, PackNumber: number): void {
+  public draftStep({
+    DraftPack,
+    PickNumber,
+    PackNumber,
+  }: {
+    DraftPack: number[];
+    PickNumber: number;
+    PackNumber: number;
+  }): void {
     this.PickNumber = PickNumber;
     this.PackNumber = PackNumber;
-    this.currentPack = pack;
+    this.currentPack = DraftPack;
     this.isDrafting = true;
   }
 }
