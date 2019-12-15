@@ -5,6 +5,7 @@ html {
   margin: 0;
   color: #9f9f9f;
   width: 100%;
+  overflow: hidden !important;
   /*background-color: rgba(11, 0, 0, 0.5);*/
 }
 
@@ -67,19 +68,19 @@ a[href^="ftp://"] {
 .CCmana {
   z-index: 1;
   vertical-align: top;
-  line-height: 15px;
+  line-height: 10px;
   font-size: 0.7em;
   vertical-align: top;
 }
 
 .CNameManaWrap {
   float: left;
-  height: 35px;
+  height: 30px;
 }
 
 .CName {
   font-family: 'Titillium Web', sans-serif;
-  line-height: 22px !important;
+  line-height: 20px !important;
   overflow: hidden;
   width: 175px;
   white-space: nowrap;
@@ -89,10 +90,10 @@ a[href^="ftp://"] {
 }
 
 .DcDrow {
-  line-height: 35px;
+  line-height: 30px;
   position: relative;
   width: auto;
-  height: 35px;
+  height: 30px;
   margin-bottom: 1px;
   clear: both;
   cursor: pointer;
@@ -119,13 +120,13 @@ a[href^="ftp://"] {
 .CardSmallPic {
   font-family: 'Titillium Web', sans-serif;
   font-size: 16px;
-  line-height: 35px;
+  line-height: 30px;
   position: relative;
   z-index: 1;
   vertical-align: top;
   float: left;
   width: 45px;
-  height: 35px !important;
+  height: 30px !important;
   text-align: center;
   border-left-width: 5px;
   border-left-style: solid;
@@ -136,7 +137,7 @@ a[href^="ftp://"] {
 .Copies {
   font-family: 'Titillium Web', sans-serif;
   font-size: 16px;
-  line-height: 35px;
+  line-height: 30px;
   position: relative;
   z-index: 1;
   vertical-align: top;
@@ -144,7 +145,7 @@ a[href^="ftp://"] {
   margin-top: 0;
   float: right;
   width: 50px;
-  height: 35px !important;
+  height: 30px !important;
   text-align: center;
   filter: brightness(1.4);
 }

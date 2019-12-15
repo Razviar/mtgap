@@ -38,6 +38,7 @@ export function createMainWindow(): void {
       sandbox: true,
       webSecurity: true,
       preload: HOME_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      zoomFactor: 1.0,
     },
     show: false,
     frame: false,
@@ -54,6 +55,7 @@ export function createMainWindow(): void {
   });
 
   mainWindow.setMenuBarVisibility(false);
+  mainWindow.webContents.zoomFactor = 1;
 
   mainWindow.on('closed', () => {
     mainWindow = undefined;

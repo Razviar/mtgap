@@ -401,13 +401,13 @@ onMessageFromIpcMain('mulligan', res => {
 });
 
 onMessageFromIpcMain('match-over', () => {
-  currentMatch.over();
+  /*currentMatch.over();
   drawDeck();
   updateOppDeck([]);
   MainOut.classList.add('hidden');
   toggleButtonClass(ToggleMe, MainOut.classList.contains('hidden'));
   OpponentOut.classList.add('hidden');
-  toggleButtonClass(ToggleOpp, OpponentOut.classList.contains('hidden'));
+  toggleButtonClass(ToggleOpp, OpponentOut.classList.contains('hidden'));*/
 });
 
 onMessageFromIpcMain('card-played', arg => {

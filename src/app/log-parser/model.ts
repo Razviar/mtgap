@@ -36,6 +36,9 @@ export interface ParsingMetadata {
   matchEndEvent: string;
   cardPlayedEvent: string;
   deckSubmissionEvent: string;
+  draftStartEvent: string;
+  draftMakePickEvent: string;
+  draftPickResponseEvent: string;
 }
 
 export interface LogSenderParsingMetadata {

@@ -135,6 +135,15 @@ export class LogParser {
             case parsingMetadata.deckSubmissionEvent:
               this.handleDeckSubmissionEvent(event);
               break;
+            case parsingMetadata.draftStartEvent:
+              this.handledraftStartEvent(event);
+              break;
+            case parsingMetadata.draftMakePickEvent:
+              this.handledraftMakePickEvent(event);
+              break;
+            case parsingMetadata.draftPickResponseEvent:
+              this.handledraftPickResponseEvent(event);
+              break;
           }
         }
 
@@ -299,4 +308,10 @@ export class LogParser {
 
     this.emitter.emit('deck-submission', {mainDeck, commandZoneGRPIds, deckName, deckId, InternalEventName});
   }
+
+  private handledraftStartEvent(event: StatefulLogEvent): void {}
+
+  private handledraftMakePickEvent(event: StatefulLogEvent): void {}
+
+  private handledraftPickResponseEvent(event: StatefulLogEvent): void {}
 }
