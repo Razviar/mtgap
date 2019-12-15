@@ -79,6 +79,7 @@ export interface Messages {
     active: boolean;
     message: NetworkStatusMessage;
   };
+  'set-scale': number;
 }
 
 export enum NetworkStatusMessage {

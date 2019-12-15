@@ -60,18 +60,6 @@ export function createMainWindow(): void {
     mainWindow = undefined;
   });
 
-  mainWindow.on('show', () => {
-    if (mainWindow) {
-      mainWindow.webContents.zoomFactor = 1;
-    }
-  });
-
-  mainWindow.on('focus', () => {
-    if (mainWindow) {
-      mainWindow.webContents.zoomFactor = 1;
-    }
-  });
-
   mainWindow.on('minimize', (event: Electron.Event) => {
     event.preventDefault();
     withHomeWindow(w => w.hide());

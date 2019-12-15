@@ -331,6 +331,7 @@ const HoverEventListener = (theCard: Element) => {
 };
 
 onMessageFromIpcMain('set-metadata', meta => {
+  sendMessageToIpcMain('set-scale', 2);
   metaData = meta;
   //console.log(metaData);
 });

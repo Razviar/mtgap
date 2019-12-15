@@ -54,9 +54,9 @@ export function setupProcessWatcher(): () => void {
               if (!overlayWindow.isVisible()) {
                 overlayWindow.show();
               }
-              const EtalonHeight = 1144;
+              /*const EtalonHeight = 1144;
               const zoomFactor = overlayPositioner.bounds.height / EtalonHeight;
-              overlayWindow.webContents.zoomFactor = zoomFactor;
+              overlayWindow.webContents.zoomFactor = zoomFactor;*/
               overlayWindow.setBounds(overlayPositioner.bounds);
             } else if (overlayPositioner.bounds.width === 0) {
               overlayWindow.hide();
