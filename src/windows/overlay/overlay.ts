@@ -30,7 +30,9 @@ const highlightTimeout = 3000;
 const currentMatch = new Match();
 const currentDraft = new Draft();
 const playerDecks: DeckStrorage = {};
+const userCollection: Map<number, number> = new Map();
 let metaData: Metadata | undefined;
+
 const superclasses = ['sorcery', 'creature', 'land'];
 
 function toggleButtonClass(el: HTMLElement, state: boolean): void {
@@ -45,7 +47,7 @@ function makeCard(cid: number, num: number, side: boolean, draft?: boolean): str
     return '';
   }
   const cardsdb = metaData.allcards;
-
+  const inCollection = userCollection.get(cid);
   const name = cardsdb[cid]['name'];
   const mtgaId = cardsdb[cid]['mtga_id'];
   const mana = cardsdb[cid]['mana'];
@@ -53,6 +55,9 @@ function makeCard(cid: number, num: number, side: boolean, draft?: boolean): str
   const island = cardsdb[cid]['is_land'];
   const supercls = cardsdb[cid]['supercls'];
   const thumb = cardsdb[cid]['art'];
+  const drafteval2 = cardsdb[cid]['drafteval2'];
+  const wlevalDraft = cardsdb[cid]['wleval_draft'];
+  const battleusageDraft = cardsdb[cid]['battleusage_draft'];
   let bgcolor = 'linear-gradient(to bottom,';
   let clnum = 0;
   let lastcolor = '';
@@ -138,7 +143,13 @@ ${manas} ${manas !== '' ? '|' : ''} <span class="ms ms-${superclasses[cardsdb[ci
 <div class="CName">${name}</div>
 </div>
 <div class="Copies" id="cardnum${mtgaId}${side ? 'me' : 'opp'}">
-${side ? `${num} | ${num}` : num}</div>
+${
+  draft
+    ? `${inCollection !== undefined ? inCollection : '0'} | ${(100 * drafteval2).toFixed(1)}`
+    : side
+    ? `${num} | ${num}`
+    : num
+}</div>
 </div>`;
 }
 
@@ -264,12 +275,19 @@ const drawDraft = () => {
   if (!metaData) {
     return '';
   }
+  const SortbyDraft = 2;
   const meta = metaData;
+  const forsort: {[index: number]: Card} = {};
 
-  let output = `<div class="deckName">${currentDraft.PackNumber} / ${currentDraft.PickNumber}</div>`;
   currentDraft.currentPack.forEach(card => {
     const cid = meta.mtgatoinnerid[+card];
-    output += makeCard(cid, 1, true, true);
+    forsort[+cid] = meta.allcards[+cid];
+  });
+  let output = `<div class="deckName"><strong>Pack: ${currentDraft.PackNumber + 1} / Pick: ${currentDraft.PickNumber +
+    1}</strong></div>`;
+
+  sortcards(forsort, false, SortbyDraft).forEach(cid => {
+    output += makeCard(+cid[0], 1, true, true);
   });
 
   MainOut.innerHTML = output;
@@ -364,6 +382,10 @@ onMessageFromIpcMain('set-metadata', meta => {
 });
 
 onMessageFromIpcMain('set-userdata', umeta => {
+  Object.keys(umeta.collection).forEach(col => {
+    userCollection.set(+col, umeta.collection[+col].it);
+  });
+
   Object.keys(umeta.coursedecks).forEach(eventName => {
     playerDecks[eventName] = {
       mainDeck: umeta.coursedecks[eventName].deckstruct,
@@ -455,6 +477,7 @@ onMessageFromIpcMain('card-played', arg => {
 });
 
 onMessageFromIpcMain('draft-turn', draft => {
+  //console.log(draft);
   currentDraft.draftStep(draft);
   drawDraft();
 });
