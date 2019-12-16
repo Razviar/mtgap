@@ -12,6 +12,7 @@ const overlayPositioner = new WindowLocator();
 const processWatcher = new ProcessWatcher('MTGA.exe');
 
 export let gameIsRunning = false;
+let overlayIsPositioned = false;
 
 export function setupProcessWatcher(): () => void {
   const processWatcherFn = () => {
@@ -28,12 +29,16 @@ export function setupProcessWatcher(): () => void {
           const account = settingsStore.getAccount();
 
           if (account && settingsStore.get().overlay) {
+            const ovlSettings = account.overlaySettings;
             let overlayWindow = getOverlayWindow();
             if (!overlayWindow) {
               overlayWindow = createOverlayWindow();
 
               getMetadata()
-                .then(md => sendMessageToOverlayWindow('set-metadata', md))
+                .then(md => {
+                  sendMessageToOverlayWindow('set-metadata', md);
+                  sendMessageToOverlayWindow('set-ovlsettings', ovlSettings);
+                })
                 .catch(err => {
                   error('Failure to load Metadata', err);
                 });
@@ -58,7 +63,11 @@ export function setupProcessWatcher(): () => void {
               const zoomFactor = overlayPositioner.bounds.height / EtalonHeight;
               sendMessageToOverlayWindow('set-zoom', zoomFactor);
               overlayWindow.setBounds(overlayPositioner.bounds);
-            } else if (overlayPositioner.bounds.width === 0) {
+              overlayIsPositioned = true;
+            } else if (
+              (overlayPositioner.bounds.width === 0 && (!ovlSettings || !ovlSettings.neverhide)) ||
+              !overlayIsPositioned
+            ) {
               overlayWindow.hide();
             } else {
               if (!overlayWindow.isVisible()) {

@@ -179,13 +179,19 @@
       </select>
       <h2>Draft Mode</h2>
       [Card name] [mana]
-      <select>
-        <option>Draft Eval by Picks</option
-        ><option>Draft Eval by W/L</option
-        ><option>In Collection</option
-        ><option>Disable</option>
+      <select class="settings" data-setting="o-draftleftdigit">
+        <option value="1">Draft Eval by Picks</option
+        ><option value="2">Draft Eval by W/L</option
+        ><option value="3">In Collection</option
+        ><option value="4">Disable</option>
       </select>
-      | [Select]
+      |
+      <select class="settings" data-setting="o-draftrightdigit">
+        <option value="1">Draft Eval by Picks</option
+        ><option value="2">Draft Eval by W/L</option
+        ><option value="3">In Collection</option
+        ><option value="4">Disable</option>
+      </select>
       <h2>Preferences</h2>
       <div class="pretty p-switch p-fill">
         <input class="settings" data-setting="o-neverhide" type="checkbox" value="1" />

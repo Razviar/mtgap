@@ -16,6 +16,7 @@ import {onMessageFromIpcMain, sendMessageToIpcMain} from 'root/windows/messages'
 import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdM3mDbRS.woff2';
 import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdMPmDQ.woff2';
 import 'root/windows/overlay/overlay.css';
+import {OverlaySettings} from 'root/app/settings_store';
 
 const MainOut = document.getElementById('MainOut') as HTMLElement;
 const OpponentOut = document.getElementById('OpponentOut') as HTMLElement;
@@ -31,6 +32,7 @@ const currentMatch = new Match();
 const currentDraft = new Draft();
 const playerDecks: DeckStrorage = {};
 const userCollection: Map<number, number> = new Map();
+let ovlSettings: OverlaySettings | undefined;
 let metaData: Metadata | undefined;
 
 const superclasses = ['sorcery', 'creature', 'land'];
@@ -216,7 +218,7 @@ const genBattleCardNum = (mtgaid: number) => {
   if (numleft === 0) {
     const crdEl: HTMLElement | null = document.getElementById(`card${mtgaid}me`);
     if (crdEl) {
-      crdEl.classList.add('outCard');
+      crdEl.classList.add(ovlSettings && ovlSettings.hidezero ? 'hidden' : 'outCard');
     }
   }
   return numbers;
@@ -371,6 +373,10 @@ const HoverEventListener = (theCard: Element) => {
     CardHint.classList.add('hidden');
   });
 };
+
+onMessageFromIpcMain('set-ovlsettings', settings => {
+  ovlSettings = settings;
+});
 
 onMessageFromIpcMain('set-zoom', zoom => {
   sendMessageToIpcMain('set-scale', zoom);
