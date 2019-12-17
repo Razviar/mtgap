@@ -191,7 +191,7 @@ export function setupIpcMain(app: App): void {
     });
   });
 
-  const overlaySettingsNumber = ['leftdigit', 'rightdigit', 'bottomdigit'];
+  const overlaySettingsNumber = ['leftdigit', 'rightdigit', 'bottomdigit', 'leftdraftdigit', 'rightdraftdigit'];
 
   overlaySettingsNumber.forEach(setting => {
     const settingType = setting as 'leftdigit' | 'rightdigit' | 'bottomdigit' | 'leftdraftdigit' | 'rightdraftdigit';

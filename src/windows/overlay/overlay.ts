@@ -137,27 +137,32 @@ function makeCard(cid: number, num: number, side: boolean, draft?: boolean): str
 
   if (draft) {
     const digits: ('leftdraftdigit' | 'rightdraftdigit')[] = ['leftdraftdigit', 'rightdraftdigit'];
-
+    const digitsFilled: Map<string, string> = new Map();
     digits.forEach(digit => {
       if (!ovlSettings) {
         return;
       }
-      draftOut += draftOut !== '' ? ' | ' : '';
       switch (ovlSettings[digit]) {
         case 1:
-          draftOut += (100 * drafteval2).toFixed(1);
+          digitsFilled.set(digit, (100 * drafteval2).toFixed(1));
           break;
         case 2:
-          draftOut += (100 * wlevalDraft).toFixed(1);
+          digitsFilled.set(digit, (100 * wlevalDraft).toFixed(1));
           break;
         case 3:
-          draftOut += inCollection !== undefined ? inCollection.toString() : '0';
+          digitsFilled.set(digit, inCollection !== undefined ? inCollection.toString() : '0');
           break;
-        default:
-          draftOut += '';
+        case 4:
+          digitsFilled.set(digit, '');
           break;
       }
     });
+
+    draftOut = `<div class="uppernum">${
+      digitsFilled.get('leftdraftdigit') !== undefined
+        ? `<div class="leftuppernum">${digitsFilled.get('leftdraftdigit')}</div>`
+        : ''
+    } ${digitsFilled.get('rightdraftdigit') !== undefined ? digitsFilled.get('rightdraftdigit') : ''}</div>`;
   }
 
   return `
@@ -299,7 +304,8 @@ const drawDraft = () => {
   if (!metaData) {
     return '';
   }
-  const SortbyDraft = 2;
+
+  const Sortby = ovlSettings?.leftdraftdigit === 1 ? 2 : ovlSettings?.leftdraftdigit === 2 ? 3 : 11;
   const meta = metaData;
   const forsort: {[index: number]: Card} = {};
 
@@ -310,7 +316,7 @@ const drawDraft = () => {
   let output = `<div class="deckName"><strong>Pack: ${currentDraft.PackNumber + 1} / Pick: ${currentDraft.PickNumber +
     1}</strong></div>`;
 
-  sortcards(forsort, false, SortbyDraft).forEach(cid => {
+  sortcards(forsort, false, Sortby).forEach(cid => {
     output += makeCard(+cid[0], 1, true, true);
   });
 
@@ -412,7 +418,6 @@ onMessageFromIpcMain('set-ovlsettings', settings => {
       pic.classList.remove('picWithNoPic');
     });
   }
-
   if (currentDraft.isDrafting) {
     drawDraft();
   }

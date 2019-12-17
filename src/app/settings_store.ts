@@ -69,6 +69,7 @@ class SettingsStore {
 
 export type LatestSettings = SettingsV2;
 export type OverlaySettings = OverlaySettingsV2;
+export type Account = AccountV2;
 type AllSettings = SettingsV0 | SettingsV1 | LatestSettings;
 
 enum Version {
@@ -89,7 +90,7 @@ interface SettingsV0 extends SettingsBase {
 
 interface SettingsV1 extends SettingsBase {
   version: Version.v1;
-  accounts: Account[];
+  accounts: AccountV0[];
   userToken?: string;
   icon?: string;
   autorun: boolean;
@@ -119,7 +120,7 @@ export interface Player {
   language: string;
 }
 
-export interface Account {
+export interface AccountV0 {
   uid: string;
   token: string;
   nick: string;
@@ -141,8 +142,6 @@ export interface OverlaySettingsV0 {
   leftdigit: number;
   rightdigit: number;
   bottomdigit: number;
-  rightdraftdigit: number;
-  leftdraftdigit: number;
   hidemy: boolean;
   hideopp: boolean;
   hidezero: boolean;
@@ -169,7 +168,7 @@ export interface OverlaySettingsV2 {
   timers: boolean;
 }
 
-function asOverlaySettings(anyMap: AnyMap | undefined): OverlaySettings | undefined {
+function asOverlaySettings(anyMap: AnyMap | undefined): OverlaySettingsV0 | undefined {
   if (!anyMap) {
     return undefined;
   }
@@ -178,8 +177,6 @@ function asOverlaySettings(anyMap: AnyMap | undefined): OverlaySettings | undefi
   const rightdigit = asNumber(anyMap['rightdigit']);
   const bottomdigit = asNumber(anyMap['bottomdigit']);
   // tslint:disable-next-line: no-magic-numbers
-  const rightdraftdigit = asNumber(anyMap['rightdraftdigit'], 3);
-  const leftdraftdigit = asNumber(anyMap['leftdraftdigit'], 1);
   const hidemy = asBoolean(anyMap['hidemy']);
   const hideopp = asBoolean(anyMap['hideopp']);
   const hidezero = asBoolean(anyMap['hidezero']);
@@ -209,8 +206,6 @@ function asOverlaySettings(anyMap: AnyMap | undefined): OverlaySettings | undefi
     leftdigit,
     rightdigit,
     bottomdigit,
-    rightdraftdigit,
-    leftdraftdigit,
     hidemy,
     hideopp,
     hidezero,
@@ -275,8 +270,8 @@ function asPlayer(anyMap: AnyMap | undefined): Player | undefined {
   return {playerId, screenName, language};
 }
 
-function asAccountV0(anyMap: AnyMap): Account[] {
-  const res: Account[] = [];
+function asAccountV0(anyMap: AnyMap): AccountV0[] {
+  const res: AccountV0[] = [];
 
   for (const key of Object.keys(anyMap)) {
     const raw = asMap(anyMap[key]);
@@ -319,7 +314,7 @@ function asAccountV0(anyMap: AnyMap): Account[] {
   return res;
 }
 
-function asAccountsV2(accountsV1: Account[]): AccountV2[] {
+function asAccountsV2(accountsV1: AccountV0[]): AccountV2[] {
   const res: AccountV2[] = [];
   accountsV1.forEach(accV1 => {
     res.push({
