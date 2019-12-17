@@ -27,6 +27,11 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 6. Check if antiviruses or firewalls are blocking app traffic, add app to exception.
 
 ## Changelog
+v.2.0.17 released 17/12/2019
+* Fixed overlay: FINALLY it's showing up
+* Impelmented most if overlay's settings
+* Fixed some bugs
+
 v.2.0.16 released 14/12/2019
 * Rewritten log parser: less CPU usage, more stability, no missed data.
 * Further upgrade of code quality.
