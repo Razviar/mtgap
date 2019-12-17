@@ -325,7 +325,7 @@ export class LogParser {
     const PackNumber = asNumber(extractValue(event.data, ['PackNumber']));
     const PickNumber = asNumber(extractValue(event.data, ['PickNumber']));
     const PacksInDraft = 2;
-    const CardsInPack = 14;
+    const CardsInPack = 13;
     if (PackNumber === PacksInDraft || PickNumber === CardsInPack) {
       this.emitter.emit('draft-complete', undefined);
     }
