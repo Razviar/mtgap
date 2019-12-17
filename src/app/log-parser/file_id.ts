@@ -69,7 +69,7 @@ export async function getFileId(
     chunkStream.onEnd(() => {
       // This would happen if we can find a valid "file id" event in the log file. Should be very rare since
       // the event is logged very early.
-      reject(new Error('Could not determine the log file id'));
+      reject(new Error('Awaiting log file id...'));
       chunkStream.close();
     });
     chunkStream.onError(err => {

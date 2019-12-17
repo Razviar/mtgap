@@ -240,8 +240,45 @@ const genBattleCardNum = (mtgaid: number) => {
 
   const numleft = currentMatch.decks.me[+mtgaid] > 0 ? num.cardnum - currentMatch.decks.me[+mtgaid] : num.cardnum;
   const cardsPlayed = sumOfObject(currentMatch.decks.me);
-  const draw = (100 * (numleft / (currentMatch.totalCards - cardsPlayed))).toFixed(2);
-  const numbers = `<div class="uppernum"><div class="leftuppernum">${num.cardnum}</div> ${numleft}</div><div class="bottomnum">${draw}%</div>`;
+  const draw = `${(100 * (numleft / (currentMatch.totalCards - cardsPlayed))).toFixed(2)}%`;
+
+  const digits: ('leftdigit' | 'rightdigit' | 'bottomdigit')[] = ['leftdigit', 'rightdigit', 'bottomdigit'];
+  const digitsFilled: Map<string, string> = new Map();
+  digits.forEach(digit => {
+    if (!ovlSettings) {
+      return;
+    }
+    switch (ovlSettings[digit]) {
+      case 1:
+        digitsFilled.set(digit, numleft.toString());
+        break;
+      case 2:
+        digitsFilled.set(digit, num.cardnum.toString());
+        break;
+      case 3:
+        digitsFilled.set(digit, draw);
+        break;
+      case 4:
+        digitsFilled.set(digit, '');
+        break;
+    }
+  });
+
+  /* draftOut = `<div class="uppernum">${
+    digitsFilled.get('leftdraftdigit') !== undefined
+      ? `<div class="leftuppernum">${digitsFilled.get('leftdraftdigit')}</div>`
+      : ''
+  } ${digitsFilled.get('rightdraftdigit') !== undefined ? digitsFilled.get('rightdraftdigit') : ''}</div>`;*/
+
+  const numbers = `<div class="uppernum">${
+    digitsFilled.get('leftdigit') !== undefined
+      ? `<div class="leftuppernum">${digitsFilled.get('leftdigit')}</div>`
+      : ''
+  } ${digitsFilled.get('rightdigit') !== undefined ? digitsFilled.get('rightdigit') : ''}</div>${
+    digitsFilled.get('bottomdigit') !== undefined
+      ? `<div class="bottomnum">${digitsFilled.get('bottomdigit')}</div>`
+      : ''
+  }`;
   if (numleft === 0) {
     const crdEl: HTMLElement | null = document.getElementById(`card${mtgaid}me`);
     if (crdEl) {
@@ -421,6 +458,9 @@ onMessageFromIpcMain('set-ovlsettings', settings => {
   if (currentDraft.isDrafting) {
     drawDraft();
   }
+  if (currentMatch.matchId !== '') {
+    updateDeck([]);
+  }
 });
 
 onMessageFromIpcMain('set-zoom', zoom => {
@@ -454,6 +494,9 @@ onMessageFromIpcMain('match-started', newMatch => {
   if (!Object.keys(playerDecks).includes(newMatch.eventId)) {
     return;
   }
+  currentDraft.isDrafting = false;
+  MainOut.classList.add('hidden');
+  toggleButtonClass(ToggleMe, MainOut.classList.contains('hidden'));
   currentMatch.matchId = newMatch.matchId;
   currentMatch.ourUid = newMatch.uid;
   currentMatch.myTeamId = newMatch.seatId;

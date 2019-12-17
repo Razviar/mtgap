@@ -5,7 +5,7 @@ function messageFromMainHandler(channel, event) {
 }
 
 function messageFromWebHandler(event) {
-  if (event.data.message == 'set-scale') {
+  if (event.data.message === 'set-scale') {
     webFrame.setZoomFactor(event.data.data);
   } else {
     ipcRenderer.send('bridge-message', event.data);
