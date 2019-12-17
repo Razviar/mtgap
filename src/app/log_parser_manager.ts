@@ -92,6 +92,14 @@ export function createGlobalLogParser(): LogParser {
     }
   });
 
+  logParser.emitter.on('draft-complete', () => {
+    //console.log('match-started-recieved!');
+    const account = settingsStore.getAccount();
+    if (account && settingsStore.get().overlay) {
+      sendMessageToOverlayWindow('draft-complete', undefined);
+    }
+  });
+
   logParser.start().catch(err => {
     error('Failure to start parser', err);
   });

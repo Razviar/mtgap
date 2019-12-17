@@ -40,6 +40,7 @@ interface LogParserEvents {
     PackNumber: number;
     PickNumber: number;
   };
+  'draft-complete': undefined;
 }
 
 type LogParserListener<Event extends keyof LogParserEvents> = (data: LogParserEvents[Event]) => void;

@@ -91,6 +91,7 @@ export interface Messages {
     PickNumber: number;
   };
   'set-ovlsettings': OverlaySettings | undefined;
+  'draft-complete': undefined;
 }
 
 export enum NetworkStatusMessage {

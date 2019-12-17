@@ -1,4 +1,5 @@
 // tslint:disable: no-unsafe-any no-import-side-effect
+// tslint:disable: no-magic-numbers
 import {OverlaySettings} from 'root/app/settings_store';
 import {countOfObject, hexToRgbA, jsonParse, sumOfObject} from 'root/lib/func';
 import {sortcards} from 'root/lib/sortcards';
@@ -59,7 +60,7 @@ function makeCard(cid: number, num: number, side: boolean, draft?: boolean): str
   const thumb = cardsdb[cid]['art'];
   const drafteval2 = cardsdb[cid]['drafteval2'];
   const wlevalDraft = cardsdb[cid]['wleval_draft'];
-  const battleusageDraft = cardsdb[cid]['battleusage_draft'];
+  //const battleusageDraft = cardsdb[cid]['battleusage_draft'];
   let bgcolor = 'linear-gradient(to bottom,';
   let clnum = 0;
   let lastcolor = '';
@@ -132,6 +133,33 @@ function makeCard(cid: number, num: number, side: boolean, draft?: boolean): str
     }
   });
 
+  let draftOut = '';
+
+  if (draft) {
+    const digits: ('leftdraftdigit' | 'rightdraftdigit')[] = ['leftdraftdigit', 'rightdraftdigit'];
+
+    digits.forEach(digit => {
+      if (!ovlSettings) {
+        return;
+      }
+      draftOut += draftOut !== '' ? ' | ' : '';
+      switch (ovlSettings[digit]) {
+        case 1:
+          draftOut += (100 * drafteval2).toFixed(1);
+          break;
+        case 2:
+          draftOut += (100 * wlevalDraft).toFixed(1);
+          break;
+        case 3:
+          draftOut += inCollection !== undefined ? inCollection.toString() : '0';
+          break;
+        default:
+          draftOut += '';
+          break;
+      }
+    });
+  }
+
   return `
 <div class="DcDrow" data-cid="${cid}" data-side="${side ? 'me' : 'opp'}" id="card${mtgaId}${side ? 'me' : 'opp'}">
 <div class="CardSmallPic${!ovlSettings?.showcardicon ? ' picWithNoPic' : ''}" id="cardthumb${mtgaId}${
@@ -145,13 +173,7 @@ ${manas} ${manas !== '' ? '|' : ''} <span class="ms ms-${superclasses[cardsdb[ci
 <div class="CName">${name}</div>
 </div>
 <div class="Copies" id="cardnum${mtgaId}${side ? 'me' : 'opp'}">
-${
-  draft
-    ? `${inCollection !== undefined ? inCollection : '0'} | ${(100 * drafteval2).toFixed(1)}`
-    : side
-    ? `${num} | ${num}`
-    : num
-}</div>
+${draft ? draftOut : num}</div>
 </div>`;
 }
 
@@ -390,6 +412,10 @@ onMessageFromIpcMain('set-ovlsettings', settings => {
       pic.classList.remove('picWithNoPic');
     });
   }
+
+  if (currentDraft.isDrafting) {
+    drawDraft();
+  }
 });
 
 onMessageFromIpcMain('set-zoom', zoom => {
@@ -498,8 +524,16 @@ onMessageFromIpcMain('card-played', arg => {
 
 onMessageFromIpcMain('draft-turn', draft => {
   //console.log(draft);
+  currentDraft.isDrafting = true;
   currentDraft.draftStep(draft);
   drawDraft();
+});
+
+onMessageFromIpcMain('draft-complete', () => {
+  //console.log(draft);
+  currentDraft.isDrafting = false;
+  MainOut.classList.add('hidden');
+  toggleButtonClass(ToggleMe, MainOut.classList.contains('hidden'));
 });
 
 ToggleOpp.addEventListener('click', () => {

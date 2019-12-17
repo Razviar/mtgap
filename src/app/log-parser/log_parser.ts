@@ -141,6 +141,9 @@ export class LogParser {
             case parsingMetadata.draftPickResponseEvent:
               this.handleDraftEvents(event);
               break;
+            case parsingMetadata.draftMakePickEvent:
+              this.handledraftMakePickEvents(event);
+              break;
           }
         }
 
@@ -316,5 +319,15 @@ export class LogParser {
     }
 
     this.emitter.emit('draft-turn', {DraftPack, PackNumber, PickNumber});
+  }
+
+  private handledraftMakePickEvents(event: StatefulLogEvent): void {
+    const PackNumber = asNumber(extractValue(event.data, ['PackNumber']));
+    const PickNumber = asNumber(extractValue(event.data, ['PickNumber']));
+    const PacksInDraft = 2;
+    const CardsInPack = 14;
+    if (PackNumber === PacksInDraft || PickNumber === CardsInPack) {
+      this.emitter.emit('draft-complete', undefined);
+    }
   }
 }
