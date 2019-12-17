@@ -1,4 +1,5 @@
 // tslint:disable: no-unsafe-any no-import-side-effect
+import {OverlaySettings} from 'root/app/settings_store';
 import {countOfObject, hexToRgbA, jsonParse, sumOfObject} from 'root/lib/func';
 import {sortcards} from 'root/lib/sortcards';
 import {asMap, asNumber} from 'root/lib/type_utils';
@@ -16,7 +17,6 @@ import {onMessageFromIpcMain, sendMessageToIpcMain} from 'root/windows/messages'
 import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdM3mDbRS.woff2';
 import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdMPmDQ.woff2';
 import 'root/windows/overlay/overlay.css';
-import {OverlaySettings} from 'root/app/settings_store';
 
 const MainOut = document.getElementById('MainOut') as HTMLElement;
 const OpponentOut = document.getElementById('OpponentOut') as HTMLElement;
@@ -134,7 +134,7 @@ function makeCard(cid: number, num: number, side: boolean, draft?: boolean): str
 
   return `
 <div class="DcDrow" data-cid="${cid}" data-side="${side ? 'me' : 'opp'}" id="card${mtgaId}${side ? 'me' : 'opp'}">
-<div class="CardSmallPic" id="cardthumb${mtgaId}${
+<div class="CardSmallPic${!ovlSettings?.showcardicon ? ' picWithNoPic' : ''}" id="cardthumb${mtgaId}${
     side ? 'me' : 'opp'
   }" style="background:url('https://mtgarena.pro/mtg/pict/thumb/${thumb}') 50% 50%; border-image:${bgcolor}">
 </div>
@@ -332,6 +332,10 @@ const HoverEventListener = (theCard: Element) => {
   const cardsdb = metaData.allcards;
 
   theCard.addEventListener('mouseenter', (event: Event) => {
+    if (!ovlSettings?.cardhover) {
+      return;
+    }
+
     const cl: HTMLElement = event.target as HTMLElement;
     const cid = cl.getAttribute('data-cid') as string;
     const side = cl.getAttribute('data-side') as string;
@@ -376,6 +380,16 @@ const HoverEventListener = (theCard: Element) => {
 
 onMessageFromIpcMain('set-ovlsettings', settings => {
   ovlSettings = settings;
+  const smallpics = document.getElementsByClassName('CardSmallPic');
+  if (!ovlSettings?.showcardicon) {
+    Array.from(smallpics).forEach(pic => {
+      pic.classList.add('picWithNoPic');
+    });
+  } else {
+    Array.from(smallpics).forEach(pic => {
+      pic.classList.remove('picWithNoPic');
+    });
+  }
 });
 
 onMessageFromIpcMain('set-zoom', zoom => {

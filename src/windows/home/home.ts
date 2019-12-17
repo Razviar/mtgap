@@ -75,7 +75,7 @@ onMessageFromIpcMain('set-o-settings', newOSettings => {
     'mydecks',
     'cardhover',
   ];
-  const overlaySettingsNumber = ['leftdigit', 'rightdigit', 'bottomdigit'];
+  const overlaySettingsNumber = ['leftdigit', 'rightdigit', 'leftdraftdigit', 'rightdraftdigit', 'bottomdigit'];
 
   overlaySettingsBoolean.forEach(setting => {
     const settingType = setting as
@@ -93,7 +93,7 @@ onMessageFromIpcMain('set-o-settings', newOSettings => {
   });
 
   overlaySettingsNumber.forEach(setting => {
-    const settingType = setting as 'leftdigit' | 'rightdigit' | 'bottomdigit';
+    const settingType = setting as 'leftdigit' | 'rightdigit' | 'bottomdigit' | 'rightdraftdigit' | 'leftdraftdigit';
 
     const sw = document.querySelector(`[data-setting="o-${settingType}"]`) as HTMLSelectElement;
     const opts = sw.options;
@@ -322,6 +322,12 @@ const settingsChecker = (event: Event) => {
       break;
     case 'o-rightdigit':
       sendMessageToIpcMain('set-setting-o-rightdigit', +cl.value);
+      break;
+    case 'o-leftdraftdigit':
+      sendMessageToIpcMain('set-setting-o-leftdraftdigit', +cl.value);
+      break;
+    case 'o-rightdraftdigit':
+      sendMessageToIpcMain('set-setting-o-rightdraftdigit', +cl.value);
       break;
     case 'o-bottomdigit':
       sendMessageToIpcMain('set-setting-o-bottomdigit', +cl.value);

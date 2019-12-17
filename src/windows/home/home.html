@@ -152,25 +152,21 @@
       </div>
 
       <h2>Combat mode</h2>
-      <select class="settings" data-setting="o-showcardicon">
-        <option value="true">Card Icon</option>
-        <option value="false">No Card Icon</option>
-      </select>
-      [mana] | [supertype] [Card name]
+      Left digit:
       <select class="settings" data-setting="o-leftdigit">
         <option value="1">Cards Left In deck</option>
         <option value="2">Cards Total In deck</option>
         <option value="3">Draw Chance</option>
         <option value="4">Disable</option>
       </select>
-      |
+      Right Digit:
       <select class="settings" data-setting="o-rightdigit">
         <option value="1">Cards Left In deck</option>
         <option value="2">Cards Total In deck</option>
         <option value="3">Draw Chance</option>
         <option value="4">Disable</option>
       </select>
-      |
+      Bottom Digit:
       <select class="settings" data-setting="o-bottomdigit">
         <option value="1">Cards Left In deck</option>
         <option value="2">Cards Total In deck</option>
@@ -178,21 +174,26 @@
         <option value="4">Disable</option>
       </select>
       <h2>Draft Mode</h2>
-      [Card name] [mana]
-      <select class="settings" data-setting="o-draftleftdigit">
+      Left Digit:
+      <select class="settings" data-setting="o-leftdraftdigit">
         <option value="1">Draft Eval by Picks</option
         ><option value="2">Draft Eval by W/L</option
         ><option value="3">In Collection</option
         ><option value="4">Disable</option>
       </select>
-      |
-      <select class="settings" data-setting="o-draftrightdigit">
+      Right Digit:
+      <select class="settings" data-setting="o-rightdraftdigit">
         <option value="1">Draft Eval by Picks</option
         ><option value="2">Draft Eval by W/L</option
         ><option value="3">In Collection</option
         ><option value="4">Disable</option>
       </select>
       <h2>Preferences</h2>
+
+      <div class="pretty p-switch p-fill">
+        <input class="settings" data-setting="o-showcardicon" type="checkbox" value="1" />
+        <div class="state p-danger"><label>Show card icon</label></div>
+      </div>
       <div class="pretty p-switch p-fill">
         <input class="settings" data-setting="o-neverhide" type="checkbox" value="1" />
         <div class="state p-danger"><label>Don't hide overlay</label></div>

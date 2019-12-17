@@ -9,6 +9,8 @@ export function setCreds(source: string): void {
       account.overlaySettings = {
         leftdigit: 2,
         rightdigit: 1,
+        leftdraftdigit: 3,
+        rightdraftdigit: 1,
         bottomdigit: 3,
         hidemy: false,
         hideopp: false,

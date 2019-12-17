@@ -117,6 +117,11 @@ a[href^="ftp://"] {
   filter: brightness(0.6);
 }
 
+.picWithNoPic {
+  width: 5px !important;
+  background: none !important;
+}
+
 .CardSmallPic {
   font-family: 'Titillium Web', sans-serif;
   font-size: 16px;

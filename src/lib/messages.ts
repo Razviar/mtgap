@@ -70,6 +70,8 @@ export interface Messages {
   'set-setting-o-showcardicon': boolean;
   'set-setting-o-leftdigit': number;
   'set-setting-o-rightdigit': number;
+  'set-setting-o-leftdraftdigit': number;
+  'set-setting-o-rightdraftdigit': number;
   'set-setting-o-draftleftdigit': number;
   'set-setting-o-draftrightdigit': number;
   'set-setting-o-bottomdigit': number;

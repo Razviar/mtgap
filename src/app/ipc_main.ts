@@ -9,7 +9,7 @@ import {disableAutoLauncher, enableAutoLauncher} from 'root/app/auto_launcher';
 import {checkForUpdates, quitAndInstall} from 'root/app/auto_updater';
 import {parseOldLogs, withLogParser} from 'root/app/log_parser_manager';
 import {withHomeWindow} from 'root/app/main_window';
-import {onMessageFromBrowserWindow, sendMessageToHomeWindow} from 'root/app/messages';
+import {onMessageFromBrowserWindow, sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
 import {withOverlayWindow} from 'root/app/overlay_window';
 import {settingsStore} from 'root/app/settings_store';
 import {stateStore} from 'root/app/state_store';
@@ -173,6 +173,8 @@ export function setupIpcMain(app: App): void {
           leftdigit: 2,
           rightdigit: 1,
           bottomdigit: 3,
+          leftdraftdigit: 3,
+          rightdraftdigit: 1,
           hidemy: false,
           hideopp: false,
           hidezero: false,
@@ -185,17 +187,20 @@ export function setupIpcMain(app: App): void {
       }
       session.overlaySettings[settingType] = newOverlaySetting;
       settingsStore.save();
+      sendMessageToOverlayWindow('set-ovlsettings', session.overlaySettings);
     });
   });
 
   const overlaySettingsNumber = ['leftdigit', 'rightdigit', 'bottomdigit'];
 
   overlaySettingsNumber.forEach(setting => {
-    const settingType = setting as 'leftdigit' | 'rightdigit' | 'bottomdigit';
+    const settingType = setting as 'leftdigit' | 'rightdigit' | 'bottomdigit' | 'leftdraftdigit' | 'rightdraftdigit';
     const settingName = `set-setting-o-${settingType}` as
       | 'set-setting-o-leftdigit'
       | 'set-setting-o-rightdigit'
-      | 'set-setting-o-bottomdigit';
+      | 'set-setting-o-bottomdigit'
+      | 'set-setting-o-leftdraftdigit'
+      | 'set-setting-o-rightdraftdigit';
     onMessageFromBrowserWindow(settingName, newOverlaySetting => {
       const session = settingsStore.getAccount();
       if (!session) {
@@ -206,6 +211,8 @@ export function setupIpcMain(app: App): void {
           leftdigit: 2,
           rightdigit: 1,
           bottomdigit: 3,
+          leftdraftdigit: 3,
+          rightdraftdigit: 1,
           hidemy: false,
           hideopp: false,
           hidezero: false,
@@ -218,6 +225,7 @@ export function setupIpcMain(app: App): void {
       }
       session.overlaySettings[settingType] = newOverlaySetting;
       settingsStore.save();
+      sendMessageToOverlayWindow('set-ovlsettings', session.overlaySettings);
     });
   });
 

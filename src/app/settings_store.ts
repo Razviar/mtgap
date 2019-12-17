@@ -67,12 +67,14 @@ class SettingsStore {
   }
 }
 
-export type LatestSettings = SettingsV1;
-type AllSettings = SettingsV0 | LatestSettings;
+export type LatestSettings = SettingsV2;
+export type OverlaySettings = OverlaySettingsV2;
+type AllSettings = SettingsV0 | SettingsV1 | LatestSettings;
 
 enum Version {
   v0,
   v1,
+  v2,
 }
 
 interface SettingsBase {
@@ -98,6 +100,19 @@ interface SettingsV1 extends SettingsBase {
   logPath?: string;
 }
 
+interface SettingsV2 extends SettingsBase {
+  version: Version.v2;
+  accounts: AccountV2[];
+  userToken?: string;
+  icon?: string;
+  autorun: boolean;
+  minimized: boolean;
+  overlay: boolean;
+  manualUpdate: boolean;
+  awaiting?: Player;
+  logPath?: string;
+}
+
 export interface Player {
   playerId: string;
   screenName: string;
@@ -110,13 +125,40 @@ export interface Account {
   nick: string;
   overlay: boolean;
   player?: Player;
-  overlaySettings?: OverlaySettings;
+  overlaySettings?: OverlaySettingsV0;
 }
 
-export interface OverlaySettings {
+export interface AccountV2 {
+  uid: string;
+  token: string;
+  nick: string;
+  overlay: boolean;
+  player?: Player;
+  overlaySettings?: OverlaySettingsV2;
+}
+
+export interface OverlaySettingsV0 {
   leftdigit: number;
   rightdigit: number;
   bottomdigit: number;
+  rightdraftdigit: number;
+  leftdraftdigit: number;
+  hidemy: boolean;
+  hideopp: boolean;
+  hidezero: boolean;
+  showcardicon: boolean;
+  neverhide: boolean;
+  mydecks: boolean;
+  cardhover: boolean;
+  timers: boolean;
+}
+
+export interface OverlaySettingsV2 {
+  leftdigit: number;
+  rightdigit: number;
+  bottomdigit: number;
+  rightdraftdigit: number;
+  leftdraftdigit: number;
   hidemy: boolean;
   hideopp: boolean;
   hidezero: boolean;
@@ -135,6 +177,9 @@ function asOverlaySettings(anyMap: AnyMap | undefined): OverlaySettings | undefi
   const leftdigit = asNumber(anyMap['leftdigit']);
   const rightdigit = asNumber(anyMap['rightdigit']);
   const bottomdigit = asNumber(anyMap['bottomdigit']);
+  // tslint:disable-next-line: no-magic-numbers
+  const rightdraftdigit = asNumber(anyMap['rightdraftdigit'], 3);
+  const leftdraftdigit = asNumber(anyMap['leftdraftdigit'], 1);
   const hidemy = asBoolean(anyMap['hidemy']);
   const hideopp = asBoolean(anyMap['hideopp']);
   const hidezero = asBoolean(anyMap['hidezero']);
@@ -164,6 +209,45 @@ function asOverlaySettings(anyMap: AnyMap | undefined): OverlaySettings | undefi
     leftdigit,
     rightdigit,
     bottomdigit,
+    rightdraftdigit,
+    leftdraftdigit,
+    hidemy,
+    hideopp,
+    hidezero,
+    showcardicon,
+    timers,
+    neverhide,
+    mydecks,
+    cardhover,
+  };
+}
+
+function asOverlaySettingsV2(ovlSettings: OverlaySettingsV0 | undefined): OverlaySettingsV2 | undefined {
+  if (!ovlSettings) {
+    return undefined;
+  }
+
+  const leftdigit = ovlSettings.leftdigit;
+  const rightdigit = ovlSettings.rightdigit;
+  const bottomdigit = ovlSettings.bottomdigit;
+  // tslint:disable-next-line: no-magic-numbers
+  const rightdraftdigit = 3;
+  const leftdraftdigit = 1;
+  const hidemy = ovlSettings.hidemy;
+  const hideopp = ovlSettings.hideopp;
+  const hidezero = ovlSettings.hidezero;
+  const showcardicon = ovlSettings.showcardicon;
+  const timers = ovlSettings.timers;
+  const neverhide = ovlSettings.neverhide;
+  const mydecks = ovlSettings.mydecks;
+  const cardhover = ovlSettings.cardhover;
+
+  return {
+    leftdigit,
+    rightdigit,
+    bottomdigit,
+    rightdraftdigit,
+    leftdraftdigit,
     hidemy,
     hideopp,
     hidezero,
@@ -235,6 +319,21 @@ function asAccountV0(anyMap: AnyMap): Account[] {
   return res;
 }
 
+function asAccountsV2(accountsV1: Account[]): AccountV2[] {
+  const res: AccountV2[] = [];
+  accountsV1.forEach(accV1 => {
+    res.push({
+      uid: accV1.uid,
+      token: accV1.token,
+      nick: accV1.nick,
+      overlay: accV1.overlay,
+      player: accV1.player,
+      overlaySettings: asOverlaySettingsV2(accV1.overlaySettings),
+    });
+  });
+  return res;
+}
+
 function migrateV0toV1(v0: SettingsV0): SettingsV1 {
   return {
     version: Version.v1,
@@ -250,11 +349,28 @@ function migrateV0toV1(v0: SettingsV0): SettingsV1 {
   };
 }
 
+function migrateV1toV2(v1: SettingsV1): SettingsV2 {
+  return {
+    version: Version.v2,
+    accounts: asAccountsV2(v1.accounts),
+    userToken: v1.userToken,
+    icon: v1.icon,
+    autorun: v1.autorun,
+    minimized: v1.minimized,
+    overlay: v1.overlay,
+    manualUpdate: v1.manualUpdate,
+    awaiting: v1.awaiting,
+    logPath: v1.logPath,
+  };
+}
+
 function parseSettings(settings: AllSettings): LatestSettings {
   // Recursively parse settings and migrate them to arrive at latest version
   switch (settings.version) {
     case Version.v0:
       return parseSettings(migrateV0toV1(settings));
+    case Version.v1:
+      return parseSettings(migrateV1toV2(settings));
     default:
       return settings;
   }
