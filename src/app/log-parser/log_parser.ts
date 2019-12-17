@@ -310,10 +310,10 @@ export class LogParser {
   }
 
   private handleDraftEvents(event: StatefulLogEvent): void {
-    const DraftPack = asArray<number>(extractValue(event.data, ['DraftPack']));
+    const DraftPack = asArray<number>(extractValue(event.data, ['DraftPack']), []);
     const PackNumber = asNumber(extractValue(event.data, ['PackNumber']));
     const PickNumber = asNumber(extractValue(event.data, ['PickNumber']));
-    if (DraftPack === undefined || PackNumber === undefined || PickNumber === undefined) {
+    if (PackNumber === undefined || PickNumber === undefined) {
       error('Encountered invalid draft start event', undefined, {...event});
       return;
     }
