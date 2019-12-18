@@ -262,6 +262,7 @@ export class LogParser {
   }
 
   private handleCardPlayedEvent(event: StatefulLogEvent): void {
+    console.log(event);
     const instanceId = asNumber(extractValue(event.data, ['instanceId']));
     const grpId = asNumber(extractValue(event.data, ['grpId']));
     const zoneId = asNumber(extractValue(event.data, ['zoneId']));
@@ -274,7 +275,7 @@ export class LogParser {
       visibility === undefined ||
       ownerSeatId === undefined
     ) {
-      // error('Encountered invalid card played event', undefined, {...event});
+      error('Encountered invalid card played event', undefined, {...event});
       return;
     }
     this.emitter.emit('card-played', {instanceId, grpId, zoneId, visibility, ownerSeatId});

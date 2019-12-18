@@ -559,6 +559,7 @@ onMessageFromIpcMain('match-over', () => {
 });
 
 onMessageFromIpcMain('card-played', arg => {
+  console.log(arg);
   const res = currentMatch.cardplayed({
     grpId: arg.grpId,
     instanceId: arg.instanceId,

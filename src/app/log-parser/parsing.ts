@@ -76,8 +76,14 @@ export function postProcessEvent(rawEvent: RawLogEvent, options: ParsingMetadata
 
   if (parsingOptions.constraint !== undefined) {
     const value = extractValue(rawEvent.data, parsingOptions.constraint.attributesPath);
-    if (value !== parsingOptions.constraint.value) {
-      return [];
+    if (Array.isArray(parsingOptions.constraint.value)) {
+      if (!parsingOptions.constraint.value.includes(value)) {
+        return [];
+      }
+    } else {
+      if (value !== parsingOptions.constraint.value) {
+        return [];
+      }
     }
   }
   if (parsingOptions.multiEvents !== undefined) {

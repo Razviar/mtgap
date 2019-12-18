@@ -237,6 +237,11 @@ a[href^="ftp://"] {
   content: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAMFBMVEUAAAD///////////////////////////////////////////////////////////87TQQwAAAAD3RSTlMAHuLcId/e+tOxeUnqgU4IcVInAAAAxElEQVQ4y2OgM5BoxC7OaP/JAauE8P//Ktg1/P8P0YKpAaoFUwNWLZz/wWAChgRXPUj8+wJs1v//DyToLsE4F1nipgBcQvQ7mIr/BqbqA+Ea4iFKN2lDNH4VQIQSqlUqsFBClYCHmCgklKJB7K0QNsSWfgjnE4itD2H/wC8hBuFkg9jbIOxEnJbjdi5ESz5E4s05iMQ3eJiIQYJE/xMkSBIRgTgLORBXCgyOqMVMcISTKCJR480GhDMOIqsRypyY2Zm+AACL9rHh9KGtVAAAAABJRU5ErkJggg==');
   width: 25px !important;
   height: 25px !important;
+  opacity: 0.7;
+}
+
+#moveIco:hover {
+  opacity: 1;
 }
 
 #deckName {
