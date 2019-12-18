@@ -117,6 +117,10 @@ export class LogParser {
           }
         }
 
+        /*if (events.length > 0) {
+          console.log(events);
+        }*/
+
         // Checking events
         for (const event of events) {
           switch (event.name) {
@@ -262,7 +266,7 @@ export class LogParser {
   }
 
   private handleCardPlayedEvent(event: StatefulLogEvent): void {
-    console.log(event);
+    //console.log(event);
     const instanceId = asNumber(extractValue(event.data, ['instanceId']));
     const grpId = asNumber(extractValue(event.data, ['grpId']));
     const zoneId = asNumber(extractValue(event.data, ['zoneId']));

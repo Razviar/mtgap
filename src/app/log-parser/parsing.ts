@@ -161,7 +161,7 @@ export function parseAsRawEvent(value: string): RawLogEvent | undefined {
   }
 }
 
-const timedMessageRegex = /^[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}/;
+const timedMessageRegex = /^[0-9]{1,4}[\/.:-][0-9]{1,4}[\/.:-][0-9]{1,4}/;
 
 export function postProcessEventName(message: string): string {
   // Some messages are time based. For those we only care of the last part
