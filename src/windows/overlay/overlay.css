@@ -33,9 +33,9 @@ a[href^="ftp://"] {
   top: 0px;
   left: 0px;
   background-color: rgba(11, 0, 0, 0.5);
-  width: 250px;
+  width: 200px;
   height: 60px;
-  padding-left: 10px;
+  padding-left: 15%;
 }
 
 .hidden {
