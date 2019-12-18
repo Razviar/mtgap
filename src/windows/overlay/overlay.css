@@ -30,7 +30,7 @@ a[href^="ftp://"] {
 
 .bottom {
   position: absolute;
-  bottom: 0px;
+  top: 0px;
   left: 0px;
   background-color: rgba(11, 0, 0, 0.5);
   width: 250px;
@@ -42,7 +42,7 @@ a[href^="ftp://"] {
   display: none !important;
 }
 
-#MainOut {
+.main {
   display: block;
   position: absolute;
   top: 15%;
@@ -222,4 +222,23 @@ a[href^="ftp://"] {
   border: solid 1px rgba(183, 171, 169, 0.5);
   background-color: rgba(132, 52, 38, 0.9);
   color: #fff;
+}
+
+#MoveHandle {
+  width: 25px;
+  height: 25px;
+  line-height: 25px;
+  text-align: center;
+  float: right;
+  cursor: move;
+}
+
+#moveIco {
+  content: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAMFBMVEUAAAD///////////////////////////////////////////////////////////87TQQwAAAAD3RSTlMAHuLcId/e+tOxeUnqgU4IcVInAAAAxElEQVQ4y2OgM5BoxC7OaP/JAauE8P//Ktg1/P8P0YKpAaoFUwNWLZz/wWAChgRXPUj8+wJs1v//DyToLsE4F1nipgBcQvQ7mIr/BqbqA+Ea4iFKN2lDNH4VQIQSqlUqsFBClYCHmCgklKJB7K0QNsSWfgjnE4itD2H/wC8hBuFkg9jbIOxEnJbjdi5ESz5E4s05iMQ3eJiIQYJE/xMkSBIRgTgLORBXCgyOqMVMcISTKCJR480GhDMOIqsRypyY2Zm+AACL9rHh9KGtVAAAAABJRU5ErkJggg==');
+  width: 25px !important;
+  height: 25px !important;
+}
+
+#deckName {
+  float: left;
 }
