@@ -77,6 +77,11 @@ export interface Messages {
   'set-setting-o-mydecks': boolean;
   'set-setting-o-cardhover': boolean;
   'set-setting-o-timers': boolean;
+  'set-setting-o-savepositiontop': number;
+  'set-setting-o-savepositionleft': number;
+  'set-setting-o-savepositiontopopp': number;
+  'set-setting-o-savepositionleftopp': number;
+  'set-setting-o-savescale': number;
   'network-status': {
     active: boolean;
     message: NetworkStatusMessage;

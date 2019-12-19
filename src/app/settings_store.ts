@@ -67,15 +67,16 @@ class SettingsStore {
   }
 }
 
-export type LatestSettings = SettingsV2;
-export type OverlaySettings = OverlaySettingsV2;
-export type Account = AccountV2;
-type AllSettings = SettingsV0 | SettingsV1 | LatestSettings;
+export type LatestSettings = SettingsV3;
+export type OverlaySettings = OverlaySettingsV3;
+export type Account = AccountV3;
+type AllSettings = SettingsV0 | SettingsV1 | SettingsV2 | LatestSettings;
 
 enum Version {
   v0,
   v1,
   v2,
+  v3,
 }
 
 interface SettingsBase {
@@ -114,6 +115,19 @@ interface SettingsV2 extends SettingsBase {
   logPath?: string;
 }
 
+interface SettingsV3 extends SettingsBase {
+  version: Version.v3;
+  accounts: AccountV3[];
+  userToken?: string;
+  icon?: string;
+  autorun: boolean;
+  minimized: boolean;
+  overlay: boolean;
+  manualUpdate: boolean;
+  awaiting?: Player;
+  logPath?: string;
+}
+
 export interface Player {
   playerId: string;
   screenName: string;
@@ -136,6 +150,15 @@ export interface AccountV2 {
   overlay: boolean;
   player?: Player;
   overlaySettings?: OverlaySettingsV2;
+}
+
+export interface AccountV3 {
+  uid: string;
+  token: string;
+  nick: string;
+  overlay: boolean;
+  player?: Player;
+  overlaySettings?: OverlaySettingsV3;
 }
 
 export interface OverlaySettingsV0 {
@@ -168,6 +191,28 @@ export interface OverlaySettingsV2 {
   timers: boolean;
 }
 
+export interface OverlaySettingsV3 {
+  leftdigit: number;
+  rightdigit: number;
+  bottomdigit: number;
+  rightdraftdigit: number;
+  leftdraftdigit: number;
+  hidemy: boolean;
+  hideopp: boolean;
+  hidezero: boolean;
+  showcardicon: boolean;
+  neverhide: boolean;
+  mydecks: boolean;
+  cardhover: boolean;
+  timers: boolean;
+  savepositiontop: number;
+  savepositionleft: number;
+  savepositiontopopp: number;
+  savepositionleftopp: number;
+  savescale: number;
+  opacity: number;
+}
+
 function asOverlaySettings(anyMap: AnyMap | undefined): OverlaySettingsV0 | undefined {
   if (!anyMap) {
     return undefined;
@@ -176,7 +221,6 @@ function asOverlaySettings(anyMap: AnyMap | undefined): OverlaySettingsV0 | unde
   const leftdigit = asNumber(anyMap['leftdigit']);
   const rightdigit = asNumber(anyMap['rightdigit']);
   const bottomdigit = asNumber(anyMap['bottomdigit']);
-  // tslint:disable-next-line: no-magic-numbers
   const hidemy = asBoolean(anyMap['hidemy']);
   const hideopp = asBoolean(anyMap['hideopp']);
   const hidezero = asBoolean(anyMap['hidezero']);
@@ -225,7 +269,6 @@ function asOverlaySettingsV2(ovlSettings: OverlaySettingsV0 | undefined): Overla
   const leftdigit = ovlSettings.leftdigit;
   const rightdigit = ovlSettings.rightdigit;
   const bottomdigit = ovlSettings.bottomdigit;
-  // tslint:disable-next-line: no-magic-numbers
   const rightdraftdigit = 3;
   const leftdraftdigit = 1;
   const hidemy = ovlSettings.hidemy;
@@ -251,6 +294,54 @@ function asOverlaySettingsV2(ovlSettings: OverlaySettingsV0 | undefined): Overla
     neverhide,
     mydecks,
     cardhover,
+  };
+}
+
+function asOverlaySettingsV3(ovlSettings: OverlaySettingsV2 | undefined): OverlaySettingsV3 | undefined {
+  if (!ovlSettings) {
+    return undefined;
+  }
+
+  const leftdigit = ovlSettings.leftdigit;
+  const rightdigit = ovlSettings.rightdigit;
+  const bottomdigit = ovlSettings.bottomdigit;
+  const rightdraftdigit = ovlSettings.rightdraftdigit;
+  const leftdraftdigit = ovlSettings.leftdigit;
+  const hidemy = ovlSettings.hidemy;
+  const hideopp = ovlSettings.hideopp;
+  const hidezero = ovlSettings.hidezero;
+  const showcardicon = ovlSettings.showcardicon;
+  const timers = ovlSettings.timers;
+  const neverhide = ovlSettings.neverhide;
+  const mydecks = ovlSettings.mydecks;
+  const cardhover = ovlSettings.cardhover;
+  const savepositiontop = 0;
+  const savepositionleft = 0;
+  const savepositiontopopp = 0;
+  const savepositionleftopp = 0;
+  const savescale = 0;
+  const opacity = 0;
+
+  return {
+    leftdigit,
+    rightdigit,
+    bottomdigit,
+    rightdraftdigit,
+    leftdraftdigit,
+    hidemy,
+    hideopp,
+    hidezero,
+    showcardicon,
+    timers,
+    neverhide,
+    mydecks,
+    cardhover,
+    savepositiontop,
+    savepositionleft,
+    savepositiontopopp,
+    savepositionleftopp,
+    savescale,
+    opacity,
   };
 }
 
@@ -329,6 +420,21 @@ function asAccountsV2(accountsV1: AccountV0[]): AccountV2[] {
   return res;
 }
 
+function asAccountsV3(accountsV2: AccountV2[]): AccountV3[] {
+  const res: AccountV3[] = [];
+  accountsV2.forEach(acc => {
+    res.push({
+      uid: acc.uid,
+      token: acc.token,
+      nick: acc.nick,
+      overlay: acc.overlay,
+      player: acc.player,
+      overlaySettings: asOverlaySettingsV3(acc.overlaySettings),
+    });
+  });
+  return res;
+}
+
 function migrateV0toV1(v0: SettingsV0): SettingsV1 {
   return {
     version: Version.v1,
@@ -359,6 +465,21 @@ function migrateV1toV2(v1: SettingsV1): SettingsV2 {
   };
 }
 
+function migrateV2toV3(v2: SettingsV2): SettingsV3 {
+  return {
+    version: Version.v3,
+    accounts: asAccountsV3(v2.accounts),
+    userToken: v2.userToken,
+    icon: v2.icon,
+    autorun: v2.autorun,
+    minimized: v2.minimized,
+    overlay: v2.overlay,
+    manualUpdate: v2.manualUpdate,
+    awaiting: v2.awaiting,
+    logPath: v2.logPath,
+  };
+}
+
 function parseSettings(settings: AllSettings): LatestSettings {
   // Recursively parse settings and migrate them to arrive at latest version
   switch (settings.version) {
@@ -366,6 +487,8 @@ function parseSettings(settings: AllSettings): LatestSettings {
       return parseSettings(migrateV0toV1(settings));
     case Version.v1:
       return parseSettings(migrateV1toV2(settings));
+    case Version.v2:
+      return parseSettings(migrateV2toV3(settings));
     default:
       return settings;
   }

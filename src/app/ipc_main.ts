@@ -183,6 +183,12 @@ export function setupIpcMain(app: App): void {
           mydecks: false,
           cardhover: false,
           timers: false,
+          savepositiontop: 0,
+          savepositionleft: 0,
+          savepositiontopopp: 0,
+          savepositionleftopp: 0,
+          savescale: 0,
+          opacity: 0,
         };
       }
       session.overlaySettings[settingType] = newOverlaySetting;
@@ -191,16 +197,42 @@ export function setupIpcMain(app: App): void {
     });
   });
 
-  const overlaySettingsNumber = ['leftdigit', 'rightdigit', 'bottomdigit', 'leftdraftdigit', 'rightdraftdigit'];
+  const overlaySettingsNumber = [
+    'leftdigit',
+    'rightdigit',
+    'bottomdigit',
+    'leftdraftdigit',
+    'rightdraftdigit',
+    'savescale',
+    'savepositiontop',
+    'savepositionleft',
+    'savepositiontopopp',
+    'savepositionleftopp',
+  ];
 
   overlaySettingsNumber.forEach(setting => {
-    const settingType = setting as 'leftdigit' | 'rightdigit' | 'bottomdigit' | 'leftdraftdigit' | 'rightdraftdigit';
+    const settingType = setting as
+      | 'leftdigit'
+      | 'rightdigit'
+      | 'bottomdigit'
+      | 'leftdraftdigit'
+      | 'rightdraftdigit'
+      | 'savescale'
+      | 'savepositiontop'
+      | 'savepositionleft'
+      | 'savepositiontopopp'
+      | 'savepositionleftopp';
     const settingName = `set-setting-o-${settingType}` as
       | 'set-setting-o-leftdigit'
       | 'set-setting-o-rightdigit'
       | 'set-setting-o-bottomdigit'
       | 'set-setting-o-leftdraftdigit'
-      | 'set-setting-o-rightdraftdigit';
+      | 'set-setting-o-rightdraftdigit'
+      | 'set-setting-o-savescale'
+      | 'set-setting-o-savepositiontop'
+      | 'set-setting-o-savepositionleft'
+      | 'set-setting-o-savepositiontopopp'
+      | 'set-setting-o-savepositionleftopp';
     onMessageFromBrowserWindow(settingName, newOverlaySetting => {
       const session = settingsStore.getAccount();
       if (!session) {
@@ -221,6 +253,12 @@ export function setupIpcMain(app: App): void {
           mydecks: false,
           cardhover: false,
           timers: false,
+          savepositiontop: 0,
+          savepositionleft: 0,
+          savepositiontopopp: 0,
+          savepositionleftopp: 0,
+          savescale: 0,
+          opacity: 0,
         };
       }
       session.overlaySettings[settingType] = newOverlaySetting;

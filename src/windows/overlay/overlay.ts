@@ -26,6 +26,8 @@ const MainDeckFrame = document.getElementById('MainDeckFrame') as HTMLElement;
 const MoveHandle = document.getElementById('MoveHandle') as HTMLElement;
 const OpponentOut = document.getElementById('OpponentOut') as HTMLElement;
 const CardHint = document.getElementById('CardHint') as HTMLElement;
+const scaleIn = document.getElementById('scaleIn') as HTMLElement;
+const scaleOut = document.getElementById('scaleOut') as HTMLElement;
 const ToggleOpp = document.getElementById('ToggleOpp') as HTMLElement;
 const ToggleMe = document.getElementById('ToggleMe') as HTMLElement;
 const OpponentOutFrame = document.getElementById('OpponentOutFrame') as HTMLElement;
@@ -43,6 +45,8 @@ let ovlSettings: OverlaySettings | undefined;
 let metaData: Metadata | undefined;
 
 const superclasses = ['sorcery', 'creature', 'land'];
+let currentScale = 1;
+let justcreated = true;
 
 function toggleButtonClass(el: HTMLElement, state: boolean): void {
   el.classList.remove('activeButton');
@@ -310,7 +314,7 @@ function updateDeck(highlight: number[]): void {
   });
   highlight.forEach(mtgaid => {
     const cid = meta.mtgatoinnerid[+mtgaid];
-    const scls = asNumber(meta.allcards[+cid].supercls, 0);
+    const scls = meta.allcards[+cid].supercls !== undefined ? meta.allcards[+cid].supercls : 0;
     if (!currentMatch.cardsBySuperclassLeft.has(scls.toString())) {
       currentMatch.cardsBySuperclassLeft.set(scls.toString(), 1);
     } else {
@@ -463,12 +467,31 @@ onMessageFromIpcMain('set-ovlsettings', settings => {
       pic.classList.remove('picWithNoPic');
     });
   }
+
+  if (ovlSettings && justcreated) {
+    currentScale = ovlSettings.savescale !== 0 ? ovlSettings.savescale : 1;
+    MainDeckFrame.style.transform = `scale(${currentScale})`;
+    OpponentOutFrame.style.transform = `scale(${currentScale})`;
+    if (ovlSettings.savepositionleft !== 0) {
+      MainDeckFrame.style.top = `${ovlSettings.savepositiontop}%`;
+      MainDeckFrame.style.left = `${ovlSettings.savepositionleft}%`;
+    }
+    if (ovlSettings.savepositionleftopp !== 0) {
+      OpponentOutFrame.style.top = `${ovlSettings.savepositiontopopp}%`;
+      OpponentOutFrame.style.left = `${ovlSettings.savepositionleftopp}%`;
+    }
+    dragger(MainDeckFrame, MoveHandle, currentScale);
+    dragger(OpponentOutFrame, OppMoveHandle, currentScale);
+  }
+
   if (currentDraft.isDrafting) {
     drawDraft();
   }
   if (currentMatch.matchId !== '') {
     updateDeck([]);
   }
+
+  justcreated = false;
 });
 
 onMessageFromIpcMain('set-zoom', zoom => {
@@ -594,8 +617,11 @@ onMessageFromIpcMain('draft-complete', () => {
 });
 
 Array.from(Interactive).forEach(elem => {
-  elem.addEventListener('mouseleave', () => {
-    sendMessageToIpcMain('disable-clicks', undefined);
+  elem.addEventListener('mouseleave', (event: Event) => {
+    const e = event as MouseEvent;
+    if (e.relatedTarget) {
+      sendMessageToIpcMain('disable-clicks', undefined);
+    }
   });
 
   elem.addEventListener('mouseenter', () => {
@@ -603,7 +629,19 @@ Array.from(Interactive).forEach(elem => {
   });
 });
 
-dragger(MainDeckFrame, MoveHandle);
-dragger(OpponentOutFrame, OppMoveHandle);
+scaleIn.addEventListener('click', () => {
+  currentScale += 0.02;
+  MainDeckFrame.style.transform = `scale(${currentScale})`;
+  OpponentOutFrame.style.transform = `scale(${currentScale})`;
+  sendMessageToIpcMain('set-setting-o-savescale', currentScale);
+});
+
+scaleOut.addEventListener('click', () => {
+  currentScale -= 0.02;
+  MainDeckFrame.style.transform = `scale(${currentScale})`;
+  OpponentOutFrame.style.transform = `scale(${currentScale})`;
+  sendMessageToIpcMain('set-setting-o-savescale', currentScale);
+});
+
 toggler(OpponentOutFrame, ToggleOpp);
 toggler(MainDeckFrame, ToggleMe);
