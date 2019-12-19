@@ -27,7 +27,10 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 6. Check if antiviruses or firewalls are blocking app traffic, add app to exception.
 
 ## Changelog
-v.2.0/18 released 18/12/2019
+v.2.0.19 released 19/12/2019
+* More control over overlay: opacity, position and size
+
+v.2.0.18 released 18/12/2019
 * International MTGA date formats fix
 * Overlay is dragable now (for now position is not being saved)
 * Some bugs are fixed.
