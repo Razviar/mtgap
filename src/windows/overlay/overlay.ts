@@ -17,6 +17,7 @@ import 'root/windows/mana.woff2';
 import {onMessageFromIpcMain, sendMessageToIpcMain} from 'root/windows/messages';
 import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdM3mDbRS.woff2';
 import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdMPmDQ.woff2';
+import {dragger} from 'root/windows/overlay/dragger';
 import 'root/windows/overlay/overlay.css';
 
 const MainOut = document.getElementById('MainOut') as HTMLElement;
@@ -27,6 +28,8 @@ const OpponentOut = document.getElementById('OpponentOut') as HTMLElement;
 const CardHint = document.getElementById('CardHint') as HTMLElement;
 const ToggleOpp = document.getElementById('ToggleOpp') as HTMLElement;
 const ToggleMe = document.getElementById('ToggleMe') as HTMLElement;
+const OpponentOutFrame = document.getElementById('OpponentOutFrame') as HTMLElement;
+const OppMoveHandle = document.getElementById('OppMoveHandle') as HTMLElement;
 
 const Interactive = document.getElementsByClassName('Interactive');
 
@@ -46,6 +49,13 @@ function toggleButtonClass(el: HTMLElement, state: boolean): void {
   if (!state) {
     el.classList.add('activeButton');
   }
+}
+
+function toggler(elem: HTMLElement, totoggle: HTMLElement): void {
+  totoggle.addEventListener('click', () => {
+    elem.classList.contains('hidden') ? elem.classList.remove('hidden') : elem.classList.add('hidden');
+    toggleButtonClass(totoggle, elem.classList.contains('hidden'));
+  });
 }
 
 function makeCard(cid: number, num: number, side: boolean, draft?: boolean): string {
@@ -185,9 +195,9 @@ ${draft ? draftOut : num}</div>
 </div>`;
 }
 
-const updateOppDeck = (highlight: number[]) => {
+function updateOppDeck(highlight: number[]): void {
   if (!metaData) {
-    return '';
+    return;
   }
   const SortLikeMTGA = 11;
   const meta = metaData;
@@ -208,8 +218,8 @@ const updateOppDeck = (highlight: number[]) => {
   });
 
   OpponentOut.innerHTML = output;
-  OpponentOut.classList.remove('hidden');
-  toggleButtonClass(ToggleOpp, OpponentOut.classList.contains('hidden'));
+  OpponentOutFrame.classList.remove('hidden');
+  toggleButtonClass(ToggleOpp, OpponentOutFrame.classList.contains('hidden'));
 
   highlight.forEach(mtgaid => {
     const crdEl: HTMLElement | null = document.getElementById(`card${mtgaid}opp`);
@@ -228,9 +238,9 @@ const updateOppDeck = (highlight: number[]) => {
   Array.from(AllCards).forEach(theCard => {
     HoverEventListener(theCard);
   });
-};
+}
 
-const genBattleCardNum = (mtgaid: number) => {
+function genBattleCardNum(mtgaid: number): string {
   if (!metaData) {
     return '';
   }
@@ -267,12 +277,6 @@ const genBattleCardNum = (mtgaid: number) => {
     }
   });
 
-  /* draftOut = `<div class="uppernum">${
-    digitsFilled.get('leftdraftdigit') !== undefined
-      ? `<div class="leftuppernum">${digitsFilled.get('leftdraftdigit')}</div>`
-      : ''
-  } ${digitsFilled.get('rightdraftdigit') !== undefined ? digitsFilled.get('rightdraftdigit') : ''}</div>`;*/
-
   const numbers = `<div class="uppernum">${
     digitsFilled.get('leftdigit') !== undefined
       ? `<div class="leftuppernum">${digitsFilled.get('leftdigit')}</div>`
@@ -289,11 +293,11 @@ const genBattleCardNum = (mtgaid: number) => {
     }
   }
   return numbers;
-};
+}
 
-const updateDeck = (highlight: number[]) => {
+function updateDeck(highlight: number[]): void {
   if (!metaData) {
-    return '';
+    return;
   }
   const meta = metaData;
 
@@ -306,7 +310,7 @@ const updateDeck = (highlight: number[]) => {
   });
   highlight.forEach(mtgaid => {
     const cid = meta.mtgatoinnerid[+mtgaid];
-    const scls = meta.allcards[+cid].supercls;
+    const scls = asNumber(meta.allcards[+cid].supercls, 0);
     if (!currentMatch.cardsBySuperclassLeft.has(scls.toString())) {
       currentMatch.cardsBySuperclassLeft.set(scls.toString(), 1);
     } else {
@@ -338,11 +342,11 @@ const updateDeck = (highlight: number[]) => {
       }
     }
   }
-};
+}
 
-const drawDraft = () => {
+function drawDraft(): void {
   if (!metaData) {
-    return '';
+    return;
   }
 
   const Sortby = ovlSettings?.leftdraftdigit === 1 ? 2 : ovlSettings?.leftdraftdigit === 2 ? 3 : 11;
@@ -368,9 +372,9 @@ const drawDraft = () => {
   Array.from(AllCards).forEach(theCard => {
     HoverEventListener(theCard);
   });
-};
+}
 
-const drawDeck = () => {
+function drawDeck(): void {
   let output = '';
   currentMatch.myFullDeck.forEach(card => {
     output += makeCard(card.card, card.cardnum, true);
@@ -389,7 +393,7 @@ const drawDeck = () => {
   Array.from(AllCards).forEach(theCard => {
     HoverEventListener(theCard);
   });
-};
+}
 
 const HoverEventListener = (theCard: Element) => {
   const minHeight = 500;
@@ -421,7 +425,7 @@ const HoverEventListener = (theCard: Element) => {
       hintTop: number;
     } = {
       pos: cl.getBoundingClientRect(),
-      moPos: side === 'me' ? MainDeckFrame.getBoundingClientRect() : OpponentOut.getBoundingClientRect(),
+      moPos: side === 'me' ? MainDeckFrame.getBoundingClientRect() : OpponentOutFrame.getBoundingClientRect(),
       cardPosHeight: 268,
       maxTop: 0,
       hintTop: 0,
@@ -554,8 +558,8 @@ onMessageFromIpcMain('match-over', () => {
   updateOppDeck([]);
   MainDeckFrame.classList.add('hidden');
   toggleButtonClass(ToggleMe, MainDeckFrame.classList.contains('hidden'));
-  OpponentOut.classList.add('hidden');
-  toggleButtonClass(ToggleOpp, OpponentOut.classList.contains('hidden'));
+  OpponentOutFrame.classList.add('hidden');
+  toggleButtonClass(ToggleOpp, OpponentOutFrame.classList.contains('hidden'));
 });
 
 onMessageFromIpcMain('card-played', arg => {
@@ -589,64 +593,6 @@ onMessageFromIpcMain('draft-complete', () => {
   toggleButtonClass(ToggleMe, MainDeckFrame.classList.contains('hidden'));
 });
 
-ToggleOpp.addEventListener('click', () => {
-  OpponentOut.classList.contains('hidden')
-    ? OpponentOut.classList.remove('hidden')
-    : OpponentOut.classList.add('hidden');
-  toggleButtonClass(ToggleOpp, OpponentOut.classList.contains('hidden'));
-});
-
-ToggleMe.addEventListener('click', () => {
-  MainDeckFrame.classList.contains('hidden')
-    ? MainDeckFrame.classList.remove('hidden')
-    : MainDeckFrame.classList.add('hidden');
-  toggleButtonClass(ToggleMe, MainDeckFrame.classList.contains('hidden'));
-});
-
-let pos1 = 0;
-let pos2 = 0;
-let pos3 = 0;
-let pos4 = 0;
-let isMoving = false;
-
-const DraggingMouseMove = (ee: MouseEvent) => {
-  ee.preventDefault();
-  // calculate the new cursor position:
-  pos1 = pos3 - ee.clientX;
-  pos2 = pos4 - ee.clientY;
-  pos3 = ee.clientX;
-  pos4 = ee.clientY;
-  MainDeckFrame.style.top = `${MainDeckFrame.offsetTop - pos2}px`;
-  MainDeckFrame.style.left = `${MainDeckFrame.offsetLeft - pos1}px`;
-  //console.log(pos1 + '/' + pos2 + '/' + pos3 + '/' + pos4);
-};
-
-MoveHandle.addEventListener('mouseenter', () => {
-  sendMessageToIpcMain('enable-clicks', undefined);
-});
-
-MoveHandle.addEventListener('mouseleave', () => {
-  if (!isMoving) {
-    sendMessageToIpcMain('disable-clicks', undefined);
-  }
-});
-
-MoveHandle.addEventListener('mousedown', e => {
-  isMoving = true;
-  e.preventDefault();
-  // get the mouse cursor position at startup:
-  pos3 = e.clientX;
-  pos4 = e.clientY;
-
-  document.addEventListener('mousemove', DraggingMouseMove);
-
-  document.addEventListener('mouseup', () => {
-    isMoving = false;
-    sendMessageToIpcMain('disable-clicks', undefined);
-    document.removeEventListener('mousemove', DraggingMouseMove);
-  });
-});
-
 Array.from(Interactive).forEach(elem => {
   elem.addEventListener('mouseleave', () => {
     sendMessageToIpcMain('disable-clicks', undefined);
@@ -656,3 +602,8 @@ Array.from(Interactive).forEach(elem => {
     sendMessageToIpcMain('enable-clicks', undefined);
   });
 });
+
+dragger(MainDeckFrame, MoveHandle);
+dragger(OpponentOutFrame, OppMoveHandle);
+toggler(OpponentOutFrame, ToggleOpp);
+toggler(MainDeckFrame, ToggleMe);

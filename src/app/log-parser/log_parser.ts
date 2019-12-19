@@ -279,7 +279,7 @@ export class LogParser {
       visibility === undefined ||
       ownerSeatId === undefined
     ) {
-      error('Encountered invalid card played event', undefined, {...event});
+      //error('Encountered invalid card played event', undefined, {...event});
       return;
     }
     this.emitter.emit('card-played', {instanceId, grpId, zoneId, visibility, ownerSeatId});

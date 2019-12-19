@@ -9,20 +9,39 @@ export class WindowLocator {
     /*const path = join(app.getPath('userData'), 'debugging.txt');
     fs.appendFileSync(path, JSON.stringify({pid}));*/
     try {
-      const scaleFactor = screen.getPrimaryDisplay().scaleFactor;
+      const display = screen.getPrimaryDisplay();
+      const scaleFactor = display.scaleFactor;
       const processes = ourActiveWin.sync();
       //fs.appendFileSync(path, JSON.stringify({scaleFactor, processes}));
       if (processes) {
         const pidwin = processes.owner.processId;
         if (pidwin === pid) {
           const xMargin = 6;
-          const heightReduce = 8;
-          this.bounds = {
-            x: Math.round(processes.bounds.x / scaleFactor) + xMargin,
-            y: Math.round(processes.bounds.y / scaleFactor),
-            width: Math.round(processes.bounds.width / scaleFactor) - 10,
-            height: Math.round(processes.bounds.height / scaleFactor - heightReduce),
-          };
+          const yMargin = 30;
+          const heightReduce = 38;
+          if (
+            processes.bounds.y === 0 &&
+            processes.bounds.width === display.bounds.width * scaleFactor &&
+            processes.bounds.height === display.bounds.height * scaleFactor
+          ) {
+            //console.log('FullScreen!');
+            const monitorNumber = processes.bounds.x / processes.bounds.width;
+            this.bounds = {
+              x: monitorNumber * display.bounds.width,
+              y: 0,
+              width: display.bounds.width,
+              height: display.bounds.height,
+            };
+          } else {
+            this.bounds = {
+              x: Math.round(processes.bounds.x / scaleFactor) + xMargin,
+              y: Math.round(processes.bounds.y / scaleFactor) + yMargin,
+              width: Math.round(processes.bounds.width / scaleFactor) - 10,
+              height: Math.round(processes.bounds.height / scaleFactor - heightReduce),
+            };
+          }
+          /*console.log(display);
+          console.log(processes.bounds);*/
         } else {
           this.bounds = {
             x: 0,

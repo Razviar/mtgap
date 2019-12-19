@@ -33,9 +33,9 @@ a[href^="ftp://"] {
   top: 0px;
   left: 0px;
   background-color: rgba(11, 0, 0, 0.5);
-  width: 200px;
+  width: 250px;
   height: 60px;
-  padding-left: 15%;
+  padding-left: 10px;
 }
 
 .hidden {
@@ -50,7 +50,7 @@ a[href^="ftp://"] {
   background-color: rgba(11, 0, 0, 0.5);
 }
 
-#OpponentOut {
+#OpponentOutFrame {
   display: block;
   position: absolute;
   top: 15%;
@@ -224,7 +224,7 @@ a[href^="ftp://"] {
   color: #fff;
 }
 
-#MoveHandle {
+.MoveHandle {
   width: 25px;
   height: 25px;
   line-height: 25px;
@@ -233,14 +233,14 @@ a[href^="ftp://"] {
   cursor: move;
 }
 
-#moveIco {
+.moveIco {
   content: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAMFBMVEUAAAD///////////////////////////////////////////////////////////87TQQwAAAAD3RSTlMAHuLcId/e+tOxeUnqgU4IcVInAAAAxElEQVQ4y2OgM5BoxC7OaP/JAauE8P//Ktg1/P8P0YKpAaoFUwNWLZz/wWAChgRXPUj8+wJs1v//DyToLsE4F1nipgBcQvQ7mIr/BqbqA+Ea4iFKN2lDNH4VQIQSqlUqsFBClYCHmCgklKJB7K0QNsSWfgjnE4itD2H/wC8hBuFkg9jbIOxEnJbjdi5ESz5E4s05iMQ3eJiIQYJE/xMkSBIRgTgLORBXCgyOqMVMcISTKCJR480GhDMOIqsRypyY2Zm+AACL9rHh9KGtVAAAAABJRU5ErkJggg==');
   width: 25px !important;
   height: 25px !important;
   opacity: 0.7;
 }
 
-#moveIco:hover {
+.moveIco:hover {
   opacity: 1;
 }
 
