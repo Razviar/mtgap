@@ -1,5 +1,5 @@
-import {makeCard} from 'root/windows/overlay/drawcard';
-import {HoverEventListener} from 'root/windows/overlay/hovereventlistener';
+import {makeCard} from 'root/windows/overlay/functions/drawcard';
+import {HoverEventListener} from 'root/windows/overlay/functions/hovereventlistener';
 import {currentMatch, overlayConfig, overlayElements, toggleButtonClass} from 'root/windows/overlay/overlay';
 
 export function drawDeck(): void {

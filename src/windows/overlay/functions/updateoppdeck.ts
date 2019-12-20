@@ -1,7 +1,7 @@
 import {sortcards} from 'root/lib/sortcards';
 import {Card} from 'root/models/cards';
-import {makeCard} from 'root/windows/overlay/drawcard';
-import {HoverEventListener} from 'root/windows/overlay/hovereventlistener';
+import {makeCard} from 'root/windows/overlay/functions/drawcard';
+import {HoverEventListener} from 'root/windows/overlay/functions/hovereventlistener';
 import {currentMatch, overlayConfig, overlayElements, toggleButtonClass} from 'root/windows/overlay/overlay';
 
 export function updateOppDeck(highlight: number[]): void {

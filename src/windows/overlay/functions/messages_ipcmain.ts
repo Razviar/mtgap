@@ -1,21 +1,21 @@
 import {sortcards} from 'root/lib/sortcards';
 import {Card} from 'root/models/cards';
 import {onMessageFromIpcMain, sendMessageToIpcMain} from 'root/windows/messages';
-import {dragger} from 'root/windows/overlay/dragger';
-import {drawDeck} from 'root/windows/overlay/drawdeck';
-import {drawDraft} from 'root/windows/overlay/drawdraft';
+import {dragger} from 'root/windows/overlay/functions/dragger';
+import {drawDeck} from 'root/windows/overlay/functions/drawdeck';
+import {drawDraft} from 'root/windows/overlay/functions/drawdraft';
+import {updateDeck} from 'root/windows/overlay/functions/updatedeck';
+import {updateOppDeck} from 'root/windows/overlay/functions/updateoppdeck';
 import {
   currentDraft,
   currentMatch,
+  icons,
+  overlayConfig,
+  overlayElements,
   playerDecks,
   toggleButtonClass,
   userCollection,
-  overlayConfig,
-  overlayElements,
-  icons,
 } from 'root/windows/overlay/overlay';
-import {updateDeck} from 'root/windows/overlay/updatedeck';
-import {updateOppDeck} from 'root/windows/overlay/updateoppdeck';
 
 export function SetMessages(): void {
   onMessageFromIpcMain('set-icosettings', ico => {

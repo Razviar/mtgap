@@ -11,9 +11,9 @@ import 'root/windows/mana.woff2';
 import {sendMessageToIpcMain} from 'root/windows/messages';
 import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdM3mDbRS.woff2';
 import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdMPmDQ.woff2';
-import {SetMessages} from 'root/windows/overlay/messages_ipcmain';
+import {SetMessages} from 'root/windows/overlay/functions/messages_ipcmain';
+import {SetHandlers} from 'root/windows/overlay/functions/sethandlers';
 import 'root/windows/overlay/overlay.css';
-import {SetHandlers} from 'root/windows/overlay/sethandlers';
 
 export const overlayElements = {
   MainOut: document.getElementById('MainOut') as HTMLElement,

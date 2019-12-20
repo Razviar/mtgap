@@ -1,5 +1,5 @@
 import {sumOfObject} from 'root/lib/func';
-import {genBattleCardNum} from 'root/windows/overlay/genbattlecardnum';
+import {genBattleCardNum} from 'root/windows/overlay/functions/genbattlecardnum';
 import {currentMatch, overlayConfig, superclasses} from 'root/windows/overlay/overlay';
 
 export function updateDeck(highlight: number[]): void {
