@@ -39,6 +39,7 @@ export interface ParsingMetadata {
   draftStartEvent: string;
   draftMakePickEvent: string;
   draftPickResponseEvent: string;
+  TurnInfoAllEvent: string;
 }
 
 export interface LogSenderParsingMetadata {

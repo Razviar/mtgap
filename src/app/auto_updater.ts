@@ -34,6 +34,10 @@ export function setupAutoUpdater(): void {
         manualCheck = false;
         sendMessageToHomeWindow('show-prompt', {message: 'You have the latest version!', autoclose: 2000});
       }
+      sendMessageToHomeWindow('network-status', {
+        active: true,
+        message: NetworkStatusMessage.Connected,
+      });
     });
 
     autoUpdater.on('error', () => {
@@ -80,6 +84,10 @@ export function setupAutoUpdater(): void {
           autoclose: 0,
         });
         sendMessageToHomeWindow('show-update-button', version);
+        sendMessageToHomeWindow('network-status', {
+          active: true,
+          message: NetworkStatusMessage.Connected,
+        });
         withHomeWindow(w => {
           if (!w.isVisible()) {
             const notification = new Notification({

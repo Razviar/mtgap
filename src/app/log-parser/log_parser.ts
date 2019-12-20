@@ -148,6 +148,9 @@ export class LogParser {
             case parsingMetadata.draftMakePickEvent:
               this.handledraftMakePickEvents(event);
               break;
+            case parsingMetadata.TurnInfoAllEvent:
+              this.handleTurnInfoAllEvent(event);
+              break;
           }
         }
 
@@ -334,5 +337,9 @@ export class LogParser {
     if (PackNumber === PacksInDraft || PickNumber === CardsInPack) {
       this.emitter.emit('draft-complete', undefined);
     }
+  }
+
+  private handleTurnInfoAllEvent(event: StatefulLogEvent): void {
+    console.log(event);
   }
 }
