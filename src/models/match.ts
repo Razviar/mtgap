@@ -49,6 +49,7 @@ export class Match {
   public myTeamId: number = 0;
   public TurnNumber: number = 0;
   public GameNumber: number = 0;
+  public timers: {me: number; opponent: number} = {me: 0, opponent: 0};
   public DecisionPlayer: number = 0;
   public totalCards: number = 0;
   public cardsBySuperclass: Map<string, number> = new Map();
@@ -76,6 +77,7 @@ export class Match {
     this.cardsBySuperclass.clear();
     this.cardsBySuperclassLeft.clear();
     this.totalCards = 0;
+    this.timers = {me: 0, opponent: 0};
   }
 
   public cardplayed({grpId, instanceId, ownerSeatId, zoneId}: CardPlayedNfo): CardPlayedResult {
@@ -108,5 +110,14 @@ export class Match {
       }
     }
     return {affectedcards, myDeck: ownerSeatId === this.myTeamId};
+  }
+
+  public switchTimer(decisionPlayer: number): void {
+    this.DecisionPlayer = decisionPlayer;
+  }
+
+  public tick(): void {
+    const timerOperation: 'me' | 'opponent' = this.DecisionPlayer !== this.myTeamId ? 'opponent' : 'me';
+    this.timers[timerOperation]++;
   }
 }

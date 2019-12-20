@@ -340,6 +340,7 @@ export class LogParser {
   }
 
   private handleTurnInfoAllEvent(event: StatefulLogEvent): void {
-    console.log(event);
+    const decisionPlayer = asNumber(extractValue(event.data, ['decisionPlayer']), 0);
+    this.emitter.emit('turn-info', decisionPlayer);
   }
 }

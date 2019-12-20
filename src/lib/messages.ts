@@ -97,6 +97,7 @@ export interface Messages {
   };
   'set-ovlsettings': OverlaySettings | undefined;
   'draft-complete': undefined;
+  'turn-info': number;
 }
 
 export enum NetworkStatusMessage {

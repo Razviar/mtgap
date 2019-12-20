@@ -16,6 +16,7 @@ import {
   toggleButtonClass,
   userCollection,
 } from 'root/windows/overlay/overlay';
+import {lz} from 'root/lib/utils';
 
 export function SetMessages(): void {
   onMessageFromIpcMain('set-icosettings', ico => {
@@ -118,6 +119,30 @@ export function SetMessages(): void {
     //console.log('match-initiated!');
   });
 
+  onMessageFromIpcMain('turn-info', dp => {
+    currentMatch.switchTimer(dp);
+    if (!overlayConfig.timer) {
+      overlayConfig.timer = setInterval(() => {
+        currentMatch.tick();
+        const me = `${lz(Math.floor(currentMatch.timers.me / 60))}:${lz(currentMatch.timers.me % 60)}`;
+        const opponent = `${lz(Math.floor(currentMatch.timers.opponent / 60))}:${lz(
+          currentMatch.timers.opponent % 60
+        )}`;
+
+        if (overlayElements.myTimer.innerHTML !== me) {
+          overlayElements.myTimer.innerHTML = me;
+          overlayElements.myTimer.classList.add('timerActive');
+          overlayElements.oppTimer.classList.remove('timerActive');
+        }
+        if (overlayElements.oppTimer.innerHTML !== opponent) {
+          overlayElements.oppTimer.innerHTML = opponent;
+          overlayElements.oppTimer.classList.add('timerActive');
+          overlayElements.myTimer.classList.remove('timerActive');
+        }
+      }, 1000);
+    }
+  });
+
   onMessageFromIpcMain('deck-submission', deck => {
     if (!overlayConfig.metaData) {
       return '';
@@ -163,6 +188,12 @@ export function SetMessages(): void {
     overlayElements.OpponentOutFrame.classList.add('hidden');
     toggleButtonClass(overlayElements.ToggleOpp, overlayElements.OpponentOutFrame.classList.contains('hidden'));
     overlayElements.CardHint.classList.add('hidden');
+    if (overlayConfig.timer) {
+      clearInterval(overlayConfig.timer);
+      overlayConfig.timer = undefined;
+      overlayElements.myTimer.innerHTML = '';
+      overlayElements.oppTimer.innerHTML = '';
+    }
   });
 
   onMessageFromIpcMain('card-played', arg => {

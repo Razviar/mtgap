@@ -1,8 +1,8 @@
 // tslint:disable: no-unsafe-any no-import-side-effect
 // tslint:disable: no-magic-numbers
-import {OverlayConfig} from 'root/lib/overlay';
 import {Draft} from 'root/models/draft';
 import {DeckStrorage, Match} from 'root/models/match';
+import {OverlayConfig} from 'root/models/overlay';
 import 'root/windows/css.css';
 import 'root/windows/keyrune.css';
 import 'root/windows/keyrune.woff2';
@@ -32,6 +32,8 @@ export const overlayElements = {
   Collapser: document.getElementById('Collapser') as HTMLElement,
   CollapsibleMenu: document.getElementById('CollapsibleMenu') as HTMLElement,
   LogoSpan: document.getElementById('LogoSpan') as HTMLElement,
+  myTimer: document.getElementById('myTimer') as HTMLElement,
+  oppTimer: document.getElementById('oppTimer') as HTMLElement,
 };
 
 const Interactive = document.getElementsByClassName('Interactive');

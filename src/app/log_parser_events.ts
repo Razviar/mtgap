@@ -41,6 +41,7 @@ interface LogParserEvents {
     PickNumber: number;
   };
   'draft-complete': undefined;
+  'turn-info': number;
 }
 
 type LogParserListener<Event extends keyof LogParserEvents> = (data: LogParserEvents[Event]) => void;

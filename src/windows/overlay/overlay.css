@@ -314,6 +314,27 @@ a[href^="ftp://"] {
   opacity: 1;
 }
 
-#deckName {
+#deckName,
+#oppTimer {
   float: left;
+}
+
+#myTimer {
+  float: right;
+  padding-right: 2px;
+}
+
+#oppTimer {
+  padding-left: 2px;
+}
+
+.timerActive {
+  color: #fff;
+  font-weight: bold;
+}
+
+#deckName {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

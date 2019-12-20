@@ -10,4 +10,5 @@ export interface OverlayConfig {
   justcreated: boolean;
   icon: string;
   highlightTimeout: number;
+  timer?: NodeJS.Timeout;
 }

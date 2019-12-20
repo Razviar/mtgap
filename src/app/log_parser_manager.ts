@@ -84,6 +84,13 @@ export function createGlobalLogParser(): LogParser {
     }
   });
 
+  logParser.emitter.on('turn-info', dp => {
+    const account = settingsStore.getAccount();
+    if (account?.overlaySettings?.timers) {
+      sendMessageToOverlayWindow('turn-info', dp);
+    }
+  });
+
   logParser.emitter.on('draft-turn', msg => {
     //console.log('match-started-recieved!');
     const account = settingsStore.getAccount();
