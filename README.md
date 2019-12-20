@@ -32,7 +32,7 @@ v.2.0.21 released 20/12/2019
 * Cards hover images are affected by transparency and zoom settings.
 * Hide my/opp deck settings in Overlay settings are working now.
 * Not implemented settings are disabled in the menu.
-* Timers are avaliable.
+* Timers are available.
 * Fixed some bugs and made tiny visuals improvements.
 
 v.2.0.19 released 19/12/2019
