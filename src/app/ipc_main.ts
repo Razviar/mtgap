@@ -208,6 +208,7 @@ export function setupIpcMain(app: App): void {
     'savepositionleft',
     'savepositiontopopp',
     'savepositionleftopp',
+    'opacity',
   ];
 
   overlaySettingsNumber.forEach(setting => {
@@ -221,7 +222,8 @@ export function setupIpcMain(app: App): void {
       | 'savepositiontop'
       | 'savepositionleft'
       | 'savepositiontopopp'
-      | 'savepositionleftopp';
+      | 'savepositionleftopp'
+      | 'opacity';
     const settingName = `set-setting-o-${settingType}` as
       | 'set-setting-o-leftdigit'
       | 'set-setting-o-rightdigit'
@@ -229,6 +231,7 @@ export function setupIpcMain(app: App): void {
       | 'set-setting-o-leftdraftdigit'
       | 'set-setting-o-rightdraftdigit'
       | 'set-setting-o-savescale'
+      | 'set-setting-o-opacity'
       | 'set-setting-o-savepositiontop'
       | 'set-setting-o-savepositionleft'
       | 'set-setting-o-savepositiontopopp'

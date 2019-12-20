@@ -6,6 +6,7 @@ import {getAppIcon} from 'root/app/app_icon';
 import {withHomeWindow} from 'root/app/main_window';
 import {sendMessageToHomeWindow} from 'root/app/messages';
 import {settingsStore} from 'root/app/settings_store';
+import {NetworkStatusMessage} from 'root/lib/messages';
 
 let checkingUpdate = false;
 let manualCheck = false;
@@ -47,12 +48,20 @@ export function setupAutoUpdater(): void {
       if (manualCheck) {
         sendMessageToHomeWindow('show-prompt', {message: 'Checking updates...', autoclose: 0});
       }
+      sendMessageToHomeWindow('network-status', {
+        active: true,
+        message: NetworkStatusMessage.CheckingUpdates,
+      });
     });
 
     autoUpdater.on('update-available', () => {
       if (manualCheck) {
         sendMessageToHomeWindow('show-prompt', {message: 'Downloading update...', autoclose: 0});
       }
+      sendMessageToHomeWindow('network-status', {
+        active: true,
+        message: NetworkStatusMessage.DownloadingUpdates,
+      });
     });
 
     autoUpdater.on('update-downloaded', (e: Event, notes: string, version: string, date: Date, dlUrl: string) => {

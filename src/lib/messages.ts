@@ -82,6 +82,7 @@ export interface Messages {
   'set-setting-o-savepositiontopopp': number;
   'set-setting-o-savepositionleftopp': number;
   'set-setting-o-savescale': number;
+  'set-setting-o-opacity': number;
   'network-status': {
     active: boolean;
     message: NetworkStatusMessage;
@@ -98,6 +99,8 @@ export interface Messages {
 }
 
 export enum NetworkStatusMessage {
+  'DownloadingUpdates' = 'Preparing updates...',
+  'CheckingUpdates' = 'Checking for updates...',
   'Connected' = 'Connected to server',
   'Disconnected' = 'Error connecting to server',
   'SendingEvents' = 'Sending events to server...',

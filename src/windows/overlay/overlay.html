@@ -8,23 +8,28 @@
     <div class="overlay">
       <div class="main hidden" id="MainDeckFrame">
         <div id="deckName"></div>
-        <div id="MoveHandle" class="MoveHandle"><img class="moveIco Ico" /></div>
+        <div id="MoveHandle" class="Move Handle"><img class="moveIco Ico" /></div>
+        <div id="TransparencyHandle" class="Handle Interactive" title="Adjust Opacity">
+          <img class="glassIco Ico" />
+        </div>
         <div id="MainOut"></div>
       </div>
       <div class="opponent hidden" id="OpponentOutFrame">
-        <div id="OppMoveHandle" class="MoveHandle"><img class="moveIco Ico" /></div>
+        <div id="OppMoveHandle" class="Move HandleRight"><img class="moveIco Ico" /></div>
         <div id="OpponentOut"></div>
       </div>
       <div class="bottom">
+        <div id="Collapser" class="Interactive CollapserIco"><img /></div>
         <div class="smallLogo">MTGAPro</div>
-        <br />
-        <div class="interfaceButton Interactive" id="ToggleMe"><img class="eyeIco IcoGeneral" />Me</div>
-        <div class="interfaceButton Interactive" id="ToggleOpp"><img class="eyeIco IcoGeneral" />Opp</div>
-        <div class="interfaceButton Interactive" id="scaleOut">
-          <img class="scaleOutIco IcoGeneral" />
-        </div>
-        <div class="interfaceButton Interactive" id="scaleIn">
-          <img class="scaleInIco IcoGeneral" />
+        <div id="CollapsibleMenu">
+          <div class="interfaceButton Interactive" id="ToggleMe"><img class="eyeIco IcoGeneral" />Me</div>
+          <div class="interfaceButton Interactive" id="ToggleOpp"><img class="eyeIco IcoGeneral" />Opp</div>
+          <div class="interfaceButton Interactive" id="scaleOut">
+            <img class="scaleOutIco IcoGeneral" />
+          </div>
+          <div class="interfaceButton Interactive" id="scaleIn">
+            <img class="scaleInIco IcoGeneral" />
+          </div>
         </div>
       </div>
       <div id="CardHint" class="hidden"></div>

@@ -32,6 +32,9 @@ const ToggleOpp = document.getElementById('ToggleOpp') as HTMLElement;
 const ToggleMe = document.getElementById('ToggleMe') as HTMLElement;
 const OpponentOutFrame = document.getElementById('OpponentOutFrame') as HTMLElement;
 const OppMoveHandle = document.getElementById('OppMoveHandle') as HTMLElement;
+const TransparencyHandle = document.getElementById('TransparencyHandle') as HTMLElement;
+const Collapser = document.getElementById('Collapser') as HTMLElement;
+const CollapsibleMenu = document.getElementById('CollapsibleMenu') as HTMLElement;
 
 const Interactive = document.getElementsByClassName('Interactive');
 
@@ -46,6 +49,8 @@ let metaData: Metadata | undefined;
 
 const superclasses = ['sorcery', 'creature', 'land'];
 let currentScale = 1;
+let currentOpacity = 1;
+let dopplerOpacity = -0.1;
 let justcreated = true;
 
 function toggleButtonClass(el: HTMLElement, state: boolean): void {
@@ -222,8 +227,10 @@ function updateOppDeck(highlight: number[]): void {
   });
 
   OpponentOut.innerHTML = output;
-  OpponentOutFrame.classList.remove('hidden');
-  toggleButtonClass(ToggleOpp, OpponentOutFrame.classList.contains('hidden'));
+  if (!ovlSettings?.hideopp) {
+    OpponentOutFrame.classList.remove('hidden');
+    toggleButtonClass(ToggleOpp, OpponentOutFrame.classList.contains('hidden'));
+  }
 
   highlight.forEach(mtgaid => {
     const crdEl: HTMLElement | null = document.getElementById(`card${mtgaid}opp`);
@@ -390,9 +397,10 @@ function drawDeck(): void {
   output += '</div>';
   DeckName.innerHTML = currentMatch.humanname;
   MainOut.innerHTML = output;
-  MainDeckFrame.classList.remove('hidden');
-  toggleButtonClass(ToggleMe, MainDeckFrame.classList.contains('hidden'));
-
+  if (!ovlSettings?.hidemy) {
+    MainDeckFrame.classList.remove('hidden');
+    toggleButtonClass(ToggleMe, MainDeckFrame.classList.contains('hidden'));
+  }
   const AllCards = document.getElementsByClassName('DcDrow');
   Array.from(AllCards).forEach(theCard => {
     HoverEventListener(theCard);
@@ -419,7 +427,7 @@ const HoverEventListener = (theCard: Element) => {
     const src = `https://mtgarena.pro/mtg/pict/${
       cardsdb[+cid].has_hiresimg === 1 ? `mtga/card_${cardsdb[+cid].mtga_id}_EN.png` : cardsdb[+cid].pict
     }`;
-    CardHint.innerHTML = `<img src="${src}" class="CardClass" />`;
+    CardHint.innerHTML = `<img src="${src}"/>`;
 
     const positioner: {
       pos: ClientRect | DOMRect;
@@ -472,6 +480,7 @@ onMessageFromIpcMain('set-ovlsettings', settings => {
     currentScale = ovlSettings.savescale !== 0 ? ovlSettings.savescale : 1;
     MainDeckFrame.style.transform = `scale(${currentScale})`;
     OpponentOutFrame.style.transform = `scale(${currentScale})`;
+    CardHint.style.transform = `scale(${currentScale})`;
     if (ovlSettings.savepositionleft !== 0) {
       MainDeckFrame.style.top = `${ovlSettings.savepositiontop}%`;
       MainDeckFrame.style.left = `${ovlSettings.savepositionleft}%`;
@@ -482,6 +491,11 @@ onMessageFromIpcMain('set-ovlsettings', settings => {
     }
     dragger(MainDeckFrame, MoveHandle, currentScale);
     dragger(OpponentOutFrame, OppMoveHandle, currentScale);
+
+    currentOpacity = ovlSettings.opacity !== 0 ? ovlSettings.opacity : 1;
+    MainDeckFrame.style.opacity = `${currentOpacity}`;
+    OpponentOutFrame.style.opacity = `${currentOpacity}`;
+    CardHint.style.opacity = `${currentOpacity}`;
   }
 
   if (currentDraft.isDrafting) {
@@ -583,6 +597,7 @@ onMessageFromIpcMain('match-over', () => {
   toggleButtonClass(ToggleMe, MainDeckFrame.classList.contains('hidden'));
   OpponentOutFrame.classList.add('hidden');
   toggleButtonClass(ToggleOpp, OpponentOutFrame.classList.contains('hidden'));
+  CardHint.classList.add('hidden');
 });
 
 onMessageFromIpcMain('card-played', arg => {
@@ -629,10 +644,25 @@ Array.from(Interactive).forEach(elem => {
   });
 });
 
+TransparencyHandle.addEventListener('click', () => {
+  currentOpacity += dopplerOpacity;
+  //console.log(currentOpacity);
+  if (currentOpacity.toFixed(1) === '0.5') {
+    dopplerOpacity = 0.1;
+  } else if (currentOpacity.toFixed(1) === '1.0') {
+    dopplerOpacity = -0.1;
+  }
+  MainDeckFrame.style.opacity = `${currentOpacity}`;
+  OpponentOutFrame.style.opacity = `${currentOpacity}`;
+  CardHint.style.opacity = `${currentOpacity}`;
+  sendMessageToIpcMain('set-setting-o-opacity', currentOpacity);
+});
+
 scaleIn.addEventListener('click', () => {
   currentScale += 0.02;
   MainDeckFrame.style.transform = `scale(${currentScale})`;
   OpponentOutFrame.style.transform = `scale(${currentScale})`;
+  CardHint.style.transform = `scale(${currentScale})`;
   sendMessageToIpcMain('set-setting-o-savescale', currentScale);
 });
 
@@ -640,7 +670,20 @@ scaleOut.addEventListener('click', () => {
   currentScale -= 0.02;
   MainDeckFrame.style.transform = `scale(${currentScale})`;
   OpponentOutFrame.style.transform = `scale(${currentScale})`;
+  CardHint.style.transform = `scale(${currentScale})`;
   sendMessageToIpcMain('set-setting-o-savescale', currentScale);
+});
+
+Collapser.addEventListener('click', () => {
+  if (Collapser.classList.contains('CollapserIco')) {
+    Collapser.classList.remove('CollapserIco');
+    Collapser.classList.add('ExpanderIco');
+    CollapsibleMenu.classList.add('hidden');
+  } else {
+    Collapser.classList.remove('ExpanderIco');
+    Collapser.classList.add('CollapserIco');
+    CollapsibleMenu.classList.remove('hidden');
+  }
 });
 
 toggler(OpponentOutFrame, ToggleOpp);
