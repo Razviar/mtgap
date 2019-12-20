@@ -78,6 +78,7 @@ export interface MultiEventParsingMetadata {
 export interface EventConstraint {
   attributesPath: (number | string)[];
   value: any; // tslint:disable-line:no-any
+  fireevents?: boolean;
 }
 
 export interface EventParsingMetadata {

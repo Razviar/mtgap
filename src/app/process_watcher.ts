@@ -38,6 +38,7 @@ export function setupProcessWatcher(): () => void {
                 .then(md => {
                   sendMessageToOverlayWindow('set-metadata', md);
                   sendMessageToOverlayWindow('set-ovlsettings', ovlSettings);
+                  sendMessageToOverlayWindow('set-icosettings', settingsStore.get().icon);
                 })
                 .catch(err => {
                   error('Failure to load Metadata', err);

@@ -87,6 +87,7 @@ export interface Messages {
     active: boolean;
     message: NetworkStatusMessage;
   };
+  'set-icosettings': string | undefined;
   'set-scale': number;
   'set-zoom': number;
   'draft-turn': {

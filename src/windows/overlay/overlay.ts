@@ -35,6 +35,7 @@ const OppMoveHandle = document.getElementById('OppMoveHandle') as HTMLElement;
 const TransparencyHandle = document.getElementById('TransparencyHandle') as HTMLElement;
 const Collapser = document.getElementById('Collapser') as HTMLElement;
 const CollapsibleMenu = document.getElementById('CollapsibleMenu') as HTMLElement;
+const LogoSpan = document.getElementById('LogoSpan') as HTMLElement;
 
 const Interactive = document.getElementsByClassName('Interactive');
 
@@ -52,6 +53,8 @@ let currentScale = 1;
 let currentOpacity = 1;
 let dopplerOpacity = -0.1;
 let justcreated = true;
+let icon = '';
+const icons: {[index: string]: string} = {'': 'w', '2': 'u', '3': 'b', '1': 'r', '4': 'g'};
 
 function toggleButtonClass(el: HTMLElement, state: boolean): void {
   el.classList.remove('activeButton');
@@ -462,6 +465,16 @@ const HoverEventListener = (theCard: Element) => {
     CardHint.classList.add('hidden');
   });
 };
+
+onMessageFromIpcMain('set-icosettings', ico => {
+  if (ico !== undefined) {
+    icon = ico;
+  }
+  Object.keys(icons).forEach(i => {
+    LogoSpan.classList.remove(`ms-${icons[i]}`);
+  });
+  LogoSpan.classList.add(`ms-${icons[icon]}`);
+});
 
 onMessageFromIpcMain('set-ovlsettings', settings => {
   ovlSettings = settings;

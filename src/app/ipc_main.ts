@@ -124,6 +124,8 @@ export function setupIpcMain(app: App): void {
     settings.icon = newIcon;
     settingsStore.save();
 
+    sendMessageToOverlayWindow('set-icosettings', newIcon);
+
     withHomeWindow(w => {
       const icon = loadAppIcon(newIcon);
       const newico = nativeImage.createFromPath(join(__dirname, icon));

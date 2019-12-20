@@ -204,6 +204,7 @@ a[href^="ftp://"] {
 .smallLogo {
   display: inline-block;
   font-size: 0.7em;
+  color: #fff;
 }
 
 .activeButton {
