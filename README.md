@@ -27,11 +27,12 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 6. Check if antiviruses or firewalls are blocking app traffic, add app to exception.
 
 ## Changelog
-v.2.0.20 released 20/12/2019
+v.2.0.21 released 20/12/2019
 * Tracker controls are collapsible to avoid blocking Opponent's name.
 * Cards hover images are affected by transparency and zoom settings.
 * Hide my/opp deck settings in Overlay settings are working now.
 * Not implemented settings are disabled in the menu.
+* Timers are avaliable.
 * Fixed some bugs and made tiny visuals improvements.
 
 v.2.0.19 released 19/12/2019
