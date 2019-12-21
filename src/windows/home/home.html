@@ -9,14 +9,16 @@
     <div id="header">
       <img id="titleimg" width="220" />
       <div class="button white active" data-activate="general">
-        <img class="imgico" id="Generalico" width="20" /> General
+        <img class="imgico" id="Generalico" width="20" data-activate="general" /> General
       </div>
       <div class="button white" data-activate="settings">
-        <img class="imgico" id="Settingsico" width="20" /> Settings
+        <img class="imgico" id="Settingsico" width="20" data-activate="settings" /> Settings
       </div>
-      <div class="button white" data-activate="overlay"><img class="imgico" id="Overlayico" width="20" /> Overlay</div>
+      <div class="button white" data-activate="overlay">
+        <img class="imgico" id="Overlayico" width="20" data-activate="settings" /> Overlay
+      </div>
       <div class="button white" data-activate="accounts">
-        <img class="imgico" id="Accountsico" width="20" /> Accounts
+        <img class="imgico" id="Accountsico" width="20" data-activate="settings" /> Accounts
       </div>
       <div id="minimize" class="buttonClose white" title="Minimize to tray">
         &#10799;
@@ -97,21 +99,21 @@
     </div>
     <div class="tab" id="settings">
       <div class="settingRow">
-        <div class="pretty p-switch p-fill">
+        <div class="pretty p-smooth p-switch p-slim">
           <input class="settings" data-setting="autorun" type="checkbox" value="1" />
-          <div class="state p-danger"><label>Start with Windows</label></div>
+          <div class="state p-success"><label>Start with Windows</label></div>
         </div>
       </div>
       <div class="settingRow">
-        <div class="pretty p-switch p-fill">
+        <div class="pretty p-smooth p-switch p-slim">
           <input class="settings" data-setting="minimized" type="checkbox" value="1" />
-          <div class="state p-danger"><label>Start Minimized</label></div>
+          <div class="state p-success"><label>Start Minimized</label></div>
         </div>
       </div>
       <div class="settingRow">
-        <div class="pretty p-switch p-fill">
+        <div class="pretty p-smooth p-switch p-slim">
           <input class="settings" data-setting="manualupdate" type="checkbox" value="1" />
-          <div class="state p-danger"><label>Disable auto updates</label></div>
+          <div class="state p-success"><label>Disable auto updates</label></div>
         </div>
         <br /><small
           >If you disable auto updates, app will just download them and you'll have to click 'Apply Update' button to
@@ -142,9 +144,11 @@
       </div>
     </div>
     <div class="tab" id="overlay">
-      <div id="OverlaySwitch" class="pretty p-switch p-fill">
+      <div id="OverlaySwitch" class="pretty p-smooth p-switch p-slim">
         <input class="settings" data-setting="overlay" type="checkbox" value="1" />
-        <div class="state p-danger"><label>Enable Overlay</label></div>
+        <div class="state p-success">
+          <label><strong>Enable Overlay</strong></label>
+        </div>
       </div>
 
       <h2>Combat mode</h2>
@@ -187,37 +191,56 @@
       <small>Cards are sorted by Left digit parameter</small>
       <h2>Preferences</h2>
 
-      <div class="pretty p-switch p-fill">
+      <div class="pretty p-smooth p-switch p-slim">
         <input class="settings" data-setting="o-showcardicon" type="checkbox" value="1" />
-        <div class="state p-danger"><label>Show card icon</label></div>
+        <div class="state p-success"><label>Show card icon</label></div>
       </div>
-      <div class="pretty p-switch p-fill">
+      <div class="pretty p-smooth p-switch p-slim">
         <input class="settings" data-setting="o-neverhide" type="checkbox" value="1" />
-        <div class="state p-danger"><label>Don't hide overlay</label></div>
+        <div class="state p-success"><label>Don't hide overlay</label></div>
       </div>
-      <div class="pretty p-switch p-fill" title="Not implemented yet">
+      <div class="pretty p-smooth p-switch p-slim" title="Not implemented yet">
         <input class="settings" data-setting="o-mydecks" type="checkbox" value="1" disabled />
-        <div class="state p-danger"><label>Show My Decks between battles</label></div>
+        <div class="state p-success"><label>Show My Decks between battles</label></div>
       </div>
-      <div class="pretty p-switch p-fill">
+      <div class="pretty p-smooth p-switch p-slim">
         <input class="settings" data-setting="o-cardhover" type="checkbox" value="1" />
-        <div class="state p-danger"><label>Show card image on hover</label></div>
+        <div class="state p-success"><label>Show card image on hover</label></div>
       </div>
-      <div class="pretty p-switch p-fill" title="Not implemented yet">
+      <div class="pretty p-smooth p-switch p-slim" title="Not implemented yet">
         <input class="settings" data-setting="o-timers" type="checkbox" value="1" />
-        <div class="state p-danger"><label>Show timers</label></div>
+        <div class="state p-success"><label>Show timers</label></div>
       </div>
-      <div class="pretty p-switch p-fill">
+      <div class="pretty p-smooth p-switch p-slim">
         <input class="settings" data-setting="o-hidezero" type="checkbox" value="1" />
-        <div class="state p-danger"><label>Hide 0 cards</label></div>
+        <div class="state p-success"><label>Hide 0 cards</label></div>
       </div>
-      <div class="pretty p-switch p-fill">
+      <div class="pretty p-smooth p-switch p-slim">
         <input class="settings" data-setting="o-hidemy" type="checkbox" value="1" />
-        <div class="state p-danger"><label>Hide my deck</label></div>
+        <div class="state p-success"><label>Hide my deck</label></div>
       </div>
-      <div class="pretty p-switch p-fill">
+      <div class="pretty p-smooth p-switch p-slim">
         <input class="settings" data-setting="o-hideopp" type="checkbox" value="1" />
-        <div class="state p-danger"><label>Hide opponent deck</label></div>
+        <div class="state p-success"><label>Hide opponent deck</label></div>
+      </div>
+      <h2>Overlay Font</h2>
+      <div class="pretty autowidth p-success p-round">
+        <input type="radio" name="fontselect" data-setting="o-fontcolor" value="1" />
+        <div class="state p-success">
+          <label>Dark</label>
+        </div>
+      </div>
+      <div class="pretty autowidth p-success p-round">
+        <input type="radio" name="fontselect" data-setting="o-fontcolor" value="2" />
+        <div class="state p-success">
+          <label>Light</label>
+        </div>
+      </div>
+      <div class="pretty autowidth p-success p-round">
+        <input type="radio" name="fontselect" data-setting="o-fontcolor" value="3" />
+        <div class="state p-success">
+          <label>White</label>
+        </div>
       </div>
     </div>
     <div class="tab" id="accounts"></div>

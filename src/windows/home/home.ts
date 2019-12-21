@@ -1,4 +1,6 @@
 // tslint:disable: no-any no-unsafe-any no-import-side-effect
+import 'pretty-checkbox/dist/pretty-checkbox.min.css';
+
 import {NetworkStatusMessage} from 'root/lib/messages';
 import 'root/windows/css.css';
 import 'root/windows/fa-brands-400.woff2';
@@ -7,7 +9,6 @@ import 'root/windows/fa-solid-900.woff2';
 import 'root/windows/fontawesome.css';
 import 'root/windows/home/home.css';
 import 'root/windows/home/icons.css';
-import 'root/windows/home/pretty-checkbox.min.css';
 import {onMessageFromIpcMain, sendMessageToIpcMain} from 'root/windows/messages';
 import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdM3mDbRS.woff2';
 import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdMPmDQ.woff2';

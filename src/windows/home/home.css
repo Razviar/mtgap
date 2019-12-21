@@ -340,6 +340,10 @@ div#UserLinks {
   color: brown;
 }
 
+.autowidth {
+  width: auto !important;
+}
+
 #network-status {
   display: inline-block;
   width: 10px;
