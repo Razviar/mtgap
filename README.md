@@ -27,6 +27,11 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 6. Check if antiviruses or firewalls are blocking app traffic, add app to exception.
 
 ## Changelog
+v.2.0.22 released 22/12/2019
+* Now you can adjust font color of the overlay
+* Overlay shows draw probablilities of lands of specific colors
+* Big background cleanup which should lead to performance update and reduce of bugs
+
 v.2.0.21 released 20/12/2019
 * Tracker controls are collapsible to avoid blocking Opponent's name.
 * Cards hover images are affected by transparency and zoom settings.
