@@ -1,4 +1,4 @@
-import {SettingsBase, Version, Player} from 'root/app/settings-store/settings_store';
+import {Player, SettingsBase, Version} from 'root/app/settings-store/settings_store';
 
 export interface SettingsV2 extends SettingsBase {
   version: Version.v2;

@@ -8,7 +8,13 @@ export function drawDeck(): void {
   currentMatch.myFullDeck.forEach(card => {
     output += makeCard(card.card, card.cardnum, true);
   });
-  output += '<div class="deckBottom">';
+  output += `<div class="deckBottom${
+    overlayConfig.ovlSettings?.fontcolor === 2
+      ? ' White'
+      : overlayConfig.ovlSettings?.fontcolor === 1
+      ? ' LightGrey'
+      : 'DarkGrey'
+  }">`;
   for (let scls = 0; scls <= 2; scls++) {
     output += `<div id="scls${scls}" class="scls"></div>`;
   }

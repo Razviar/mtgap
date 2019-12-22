@@ -110,17 +110,17 @@ export function makeCard(cid: number, num: number, side: boolean, draft?: boolea
       if (!overlayConfig.ovlSettings) {
         return;
       }
-      switch (overlayConfig.ovlSettings[digit]) {
-        case 1:
+      switch (overlayConfig.ovlSettings[digit].toString()) {
+        case '1':
           digitsFilled.set(digit, (100 * drafteval2).toFixed(1));
           break;
-        case 2:
+        case '2':
           digitsFilled.set(digit, (100 * wlevalDraft).toFixed(1));
           break;
-        case 3:
+        case '3':
           digitsFilled.set(digit, inCollection !== undefined ? inCollection.toString() : '0');
           break;
-        case 4:
+        case '4':
           digitsFilled.set(digit, '');
           break;
       }
@@ -134,7 +134,13 @@ export function makeCard(cid: number, num: number, side: boolean, draft?: boolea
   }
 
   return `
-  <div class="DcDrow" data-cid="${cid}" data-side="${side ? 'me' : 'opp'}" id="card${mtgaId}${side ? 'me' : 'opp'}">
+  <div class="DcDrow${
+    overlayConfig.ovlSettings?.fontcolor === 2
+      ? ' White'
+      : overlayConfig.ovlSettings?.fontcolor === 1
+      ? ' LightGrey'
+      : 'DarkGrey'
+  }" data-cid="${cid}" data-side="${side ? 'me' : 'opp'}" id="card${mtgaId}${side ? 'me' : 'opp'}">
   <div class="CardSmallPic${!overlayConfig.ovlSettings?.showcardicon ? ' picWithNoPic' : ''}" id="cardthumb${mtgaId}${
     side ? 'me' : 'opp'
   }" style="background:url('https://mtgarena.pro/mtg/pict/thumb/${thumb}') 50% 50%; border-image:${bgcolor}">

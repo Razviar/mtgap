@@ -87,7 +87,6 @@ a[href^="ftp://"] {
   white-space: nowrap;
   text-overflow: ellipsis;
   text-align: left !important;
-  color: #c3c3c3 !important;
 }
 
 .DcDrow {
@@ -158,7 +157,18 @@ a[href^="ftp://"] {
 
 .ms {
   text-shadow: none !important;
+}
+
+.DarkGrey {
   color: #c3c3c3 !important;
+}
+
+.LightGrey {
+  color: #e3e3e3 !important;
+}
+
+.White {
+  color: #fff !important;
 }
 
 .uppernum {

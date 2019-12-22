@@ -1,6 +1,6 @@
 import {jsonParse, sumOfObject} from 'root/lib/func';
 import {asMap} from 'root/lib/type_utils';
-import {colorforfilter, manafont} from 'root/lib/utils';
+import {colorforfilter, manafont, typecolorletter} from 'root/lib/utils';
 import {genBattleCardNum} from 'root/windows/overlay/functions/genbattlecardnum';
 import {currentMatch, overlayConfig, superclasses} from 'root/windows/overlay/overlay';
 
@@ -66,7 +66,7 @@ export function updateDeck(highlight: number[]): void {
         const numleft = cardsBySuperclass - (cardsBySuperclassLeft !== undefined ? cardsBySuperclassLeft : 0);
         const cardsPlayed = sumOfObject(currentMatch.decks.me);
         const draw = (100 * (numleft / (currentMatch.totalCards - cardsPlayed))).toFixed(2);
-        sclsEl.innerHTML = `<span class="ms ms-${superclasses[scls]}">${numleft}|${draw}%`;
+        sclsEl.innerHTML = `<span class="ms ms-${superclasses[scls]}" />${numleft}|${draw}%`;
       }
     }
   }
@@ -81,7 +81,9 @@ export function updateDeck(highlight: number[]): void {
         const cardsPlayed = sumOfObject(currentMatch.decks.me);
         const draw = (100 * (numleft / (currentMatch.totalCards - cardsPlayed))).toFixed(2);
         clrEl.style.display = '';
-        clrEl.innerHTML = `<span class="ms ms-${manafont[colorforfilter[cf].toLowerCase()]}">${numleft}|${draw}%`;
+        clrEl.innerHTML = `<span class="ms ms-${manafont[colorforfilter[cf].toLowerCase()]}" style="color:#${
+          typecolorletter[colorforfilter[cf]]
+        } !important" />${numleft}|${draw}%`;
       } else {
         clrEl.style.display = 'none';
       }

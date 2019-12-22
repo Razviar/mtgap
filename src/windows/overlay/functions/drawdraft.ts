@@ -9,8 +9,16 @@ export function drawDraft(): void {
     return;
   }
 
+  const sortByPicks = 2;
+  const sortByWL = 3;
+  const sortLikeMTGA = 11;
+
   const Sortby =
-    overlayConfig.ovlSettings?.leftdraftdigit === 1 ? 2 : overlayConfig.ovlSettings?.leftdraftdigit === 2 ? 3 : 11;
+    overlayConfig.ovlSettings?.leftdraftdigit === 1
+      ? sortByPicks
+      : overlayConfig.ovlSettings?.leftdraftdigit === 2
+      ? sortByWL
+      : sortLikeMTGA;
   const meta = overlayConfig.metaData;
   const forsort: {[index: number]: Card} = {};
 
