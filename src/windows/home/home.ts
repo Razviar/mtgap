@@ -76,7 +76,14 @@ onMessageFromIpcMain('set-o-settings', newOSettings => {
     'mydecks',
     'cardhover',
   ];
-  const overlaySettingsNumber = ['leftdigit', 'rightdigit', 'leftdraftdigit', 'rightdraftdigit', 'bottomdigit'];
+  const overlaySettingsNumber = [
+    'leftdigit',
+    'rightdigit',
+    'leftdraftdigit',
+    'rightdraftdigit',
+    'bottomdigit',
+    'fontcolor',
+  ];
 
   overlaySettingsBoolean.forEach(setting => {
     const settingType = setting as
@@ -94,7 +101,13 @@ onMessageFromIpcMain('set-o-settings', newOSettings => {
   });
 
   overlaySettingsNumber.forEach(setting => {
-    const settingType = setting as 'leftdigit' | 'rightdigit' | 'bottomdigit' | 'rightdraftdigit' | 'leftdraftdigit';
+    const settingType = setting as
+      | 'leftdigit'
+      | 'rightdigit'
+      | 'bottomdigit'
+      | 'rightdraftdigit'
+      | 'leftdraftdigit'
+      | 'fontcolor';
 
     const sw = document.querySelector(`[data-setting="o-${settingType}"]`) as HTMLSelectElement;
     const opts = sw.options;
@@ -350,6 +363,9 @@ const settingsChecker = (event: Event) => {
       break;
     case 'o-timers':
       sendMessageToIpcMain('set-setting-o-timers', cl.checked);
+      break;
+    case 'o-fontcolor':
+      sendMessageToIpcMain('set-setting-o-fontcolor', +cl.value);
       break;
   }
 };

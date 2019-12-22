@@ -5,7 +5,7 @@ import path from 'path';
 import {getAppIcon} from 'root/app/app_icon';
 import {withHomeWindow} from 'root/app/main_window';
 import {sendMessageToHomeWindow} from 'root/app/messages';
-import {settingsStore} from 'root/app/settings_store';
+import {settingsStore} from 'root/app/settings-store/settings_store';
 import {NetworkStatusMessage} from 'root/lib/messages';
 
 let checkingUpdate = false;

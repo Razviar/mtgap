@@ -2,7 +2,7 @@ import {getMetadata, getUserMetadata} from 'root/api/overlay';
 import {WindowLocator} from 'root/app/locatewindow';
 import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
 import {createOverlayWindow, getOverlayWindow, withOverlayWindow} from 'root/app/overlay_window';
-import {settingsStore} from 'root/app/settings_store';
+import {settingsStore} from 'root/app/settings-store/settings_store';
 import {ProcessWatcher} from 'root/app/watchprocess';
 import {error} from 'root/lib/logger';
 
@@ -55,7 +55,8 @@ export function setupProcessWatcher(): () => void {
               (Math.abs(overlayWindow.getBounds().x - overlayPositioner.bounds.x) > movementSensitivity ||
                 Math.abs(overlayWindow.getBounds().y - overlayPositioner.bounds.y) > movementSensitivity ||
                 Math.abs(overlayWindow.getBounds().width - overlayPositioner.bounds.width) > movementSensitivity ||
-                Math.abs(overlayWindow.getBounds().height - overlayPositioner.bounds.height) > movementSensitivity)
+                Math.abs(overlayWindow.getBounds().height - overlayPositioner.bounds.height) > movementSensitivity ||
+                !overlayIsPositioned)
             ) {
               if (!overlayWindow.isVisible()) {
                 overlayWindow.show();

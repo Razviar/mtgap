@@ -8,7 +8,7 @@ import {createGlobalLogParser} from 'root/app/log_parser_manager';
 import {createMainWindow, withHomeWindow} from 'root/app/main_window';
 import {sendMessageToHomeWindow} from 'root/app/messages';
 import {setupProcessWatcher} from 'root/app/process_watcher';
-import {settingsStore} from 'root/app/settings_store';
+import {settingsStore} from 'root/app/settings-store/settings_store';
 
 // tslint:disable-next-line: no-var-requires no-unsafe-any no-require-imports
 require('source-map-support').install();

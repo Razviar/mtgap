@@ -2,6 +2,10 @@ import {app} from 'electron';
 import {readFileSync, writeFileSync} from 'fs';
 import {join} from 'path';
 
+import {AccountV0, OverlaySettingsV0, SettingsV1} from 'root/app/settings-store/v0';
+import {AccountV2, OverlaySettingsV2, SettingsV2} from 'root/app/settings-store/v2';
+import {AccountV3, OverlaySettingsV3, SettingsV3} from 'root/app/settings-store/v3';
+import {AccountV4, OverlaySettingsV4, SettingsV4} from 'root/app/settings-store/v4';
 import {error} from 'root/lib/logger';
 import {AnyMap, asBoolean, asMap, asNumber, asNumberString, asString} from 'root/lib/type_utils';
 
@@ -67,150 +71,33 @@ class SettingsStore {
   }
 }
 
-export type LatestSettings = SettingsV3;
-export type OverlaySettings = OverlaySettingsV3;
-export type Account = AccountV3;
-type AllSettings = SettingsV0 | SettingsV1 | SettingsV2 | LatestSettings;
+export type LatestSettings = SettingsV4;
+export type OverlaySettings = OverlaySettingsV4;
+export type Account = AccountV4;
+type AllSettings = SettingsV0 | SettingsV1 | SettingsV2 | SettingsV3 | LatestSettings;
 
-enum Version {
+export enum Version {
   v0,
   v1,
   v2,
   v3,
+  v4,
 }
 
-interface SettingsBase {
+export interface SettingsBase {
   version: Version;
 }
 
-interface SettingsV0 extends SettingsBase {
+export interface SettingsV0 extends SettingsBase {
   version: Version.v0;
   // tslint:disable-next-line: no-any
   [index: string]: any;
-}
-
-interface SettingsV1 extends SettingsBase {
-  version: Version.v1;
-  accounts: AccountV0[];
-  userToken?: string;
-  icon?: string;
-  autorun: boolean;
-  minimized: boolean;
-  overlay: boolean;
-  manualUpdate: boolean;
-  awaiting?: Player;
-  logPath?: string;
-}
-
-interface SettingsV2 extends SettingsBase {
-  version: Version.v2;
-  accounts: AccountV2[];
-  userToken?: string;
-  icon?: string;
-  autorun: boolean;
-  minimized: boolean;
-  overlay: boolean;
-  manualUpdate: boolean;
-  awaiting?: Player;
-  logPath?: string;
-}
-
-interface SettingsV3 extends SettingsBase {
-  version: Version.v3;
-  accounts: AccountV3[];
-  userToken?: string;
-  icon?: string;
-  autorun: boolean;
-  minimized: boolean;
-  overlay: boolean;
-  manualUpdate: boolean;
-  awaiting?: Player;
-  logPath?: string;
 }
 
 export interface Player {
   playerId: string;
   screenName: string;
   language: string;
-}
-
-export interface AccountV0 {
-  uid: string;
-  token: string;
-  nick: string;
-  overlay: boolean;
-  player?: Player;
-  overlaySettings?: OverlaySettingsV0;
-}
-
-export interface AccountV2 {
-  uid: string;
-  token: string;
-  nick: string;
-  overlay: boolean;
-  player?: Player;
-  overlaySettings?: OverlaySettingsV2;
-}
-
-export interface AccountV3 {
-  uid: string;
-  token: string;
-  nick: string;
-  overlay: boolean;
-  player?: Player;
-  overlaySettings?: OverlaySettingsV3;
-}
-
-export interface OverlaySettingsV0 {
-  leftdigit: number;
-  rightdigit: number;
-  bottomdigit: number;
-  hidemy: boolean;
-  hideopp: boolean;
-  hidezero: boolean;
-  showcardicon: boolean;
-  neverhide: boolean;
-  mydecks: boolean;
-  cardhover: boolean;
-  timers: boolean;
-}
-
-export interface OverlaySettingsV2 {
-  leftdigit: number;
-  rightdigit: number;
-  bottomdigit: number;
-  rightdraftdigit: number;
-  leftdraftdigit: number;
-  hidemy: boolean;
-  hideopp: boolean;
-  hidezero: boolean;
-  showcardicon: boolean;
-  neverhide: boolean;
-  mydecks: boolean;
-  cardhover: boolean;
-  timers: boolean;
-}
-
-export interface OverlaySettingsV3 {
-  leftdigit: number;
-  rightdigit: number;
-  bottomdigit: number;
-  rightdraftdigit: number;
-  leftdraftdigit: number;
-  hidemy: boolean;
-  hideopp: boolean;
-  hidezero: boolean;
-  showcardicon: boolean;
-  neverhide: boolean;
-  mydecks: boolean;
-  cardhover: boolean;
-  timers: boolean;
-  savepositiontop: number;
-  savepositionleft: number;
-  savepositiontopopp: number;
-  savepositionleftopp: number;
-  savescale: number;
-  opacity: number;
 }
 
 function asOverlaySettings(anyMap: AnyMap | undefined): OverlaySettingsV0 | undefined {
@@ -345,6 +232,56 @@ function asOverlaySettingsV3(ovlSettings: OverlaySettingsV2 | undefined): Overla
   };
 }
 
+function asOverlaySettingsV4(ovlSettings: OverlaySettingsV3 | undefined): OverlaySettingsV4 | undefined {
+  if (!ovlSettings) {
+    return undefined;
+  }
+
+  const leftdigit = ovlSettings.leftdigit;
+  const rightdigit = ovlSettings.rightdigit;
+  const bottomdigit = ovlSettings.bottomdigit;
+  const rightdraftdigit = ovlSettings.rightdraftdigit;
+  const leftdraftdigit = ovlSettings.leftdigit;
+  const hidemy = ovlSettings.hidemy;
+  const hideopp = ovlSettings.hideopp;
+  const hidezero = ovlSettings.hidezero;
+  const showcardicon = ovlSettings.showcardicon;
+  const timers = ovlSettings.timers;
+  const neverhide = ovlSettings.neverhide;
+  const mydecks = ovlSettings.mydecks;
+  const cardhover = ovlSettings.cardhover;
+  const savepositiontop = ovlSettings.savepositiontop;
+  const savepositionleft = ovlSettings.savepositionleft;
+  const savepositiontopopp = ovlSettings.savepositiontopopp;
+  const savepositionleftopp = ovlSettings.savepositionleftopp;
+  const savescale = ovlSettings.savescale;
+  const opacity = ovlSettings.opacity;
+  const fontcolor = 0;
+
+  return {
+    leftdigit,
+    rightdigit,
+    bottomdigit,
+    rightdraftdigit,
+    leftdraftdigit,
+    hidemy,
+    hideopp,
+    hidezero,
+    showcardicon,
+    timers,
+    neverhide,
+    mydecks,
+    cardhover,
+    savepositiontop,
+    savepositionleft,
+    savepositiontopopp,
+    savepositionleftopp,
+    savescale,
+    opacity,
+    fontcolor,
+  };
+}
+
 function asPlayer(anyMap: AnyMap | undefined): Player | undefined {
   if (!anyMap) {
     return undefined;
@@ -435,6 +372,21 @@ function asAccountsV3(accountsV2: AccountV2[]): AccountV3[] {
   return res;
 }
 
+function asAccountsV4(accountsV3: AccountV3[]): AccountV4[] {
+  const res: AccountV4[] = [];
+  accountsV3.forEach(acc => {
+    res.push({
+      uid: acc.uid,
+      token: acc.token,
+      nick: acc.nick,
+      overlay: acc.overlay,
+      player: acc.player,
+      overlaySettings: asOverlaySettingsV4(acc.overlaySettings),
+    });
+  });
+  return res;
+}
+
 function migrateV0toV1(v0: SettingsV0): SettingsV1 {
   return {
     version: Version.v1,
@@ -480,6 +432,21 @@ function migrateV2toV3(v2: SettingsV2): SettingsV3 {
   };
 }
 
+function migrateV3toV4(v3: SettingsV3): SettingsV4 {
+  return {
+    version: Version.v4,
+    accounts: asAccountsV4(v3.accounts),
+    userToken: v3.userToken,
+    icon: v3.icon,
+    autorun: v3.autorun,
+    minimized: v3.minimized,
+    overlay: v3.overlay,
+    manualUpdate: v3.manualUpdate,
+    awaiting: v3.awaiting,
+    logPath: v3.logPath,
+  };
+}
+
 function parseSettings(settings: AllSettings): LatestSettings {
   // Recursively parse settings and migrate them to arrive at latest version
   switch (settings.version) {
@@ -489,6 +456,8 @@ function parseSettings(settings: AllSettings): LatestSettings {
       return parseSettings(migrateV1toV2(settings));
     case Version.v2:
       return parseSettings(migrateV2toV3(settings));
+    case Version.v3:
+      return parseSettings(migrateV3toV4(settings));
     default:
       return settings;
   }

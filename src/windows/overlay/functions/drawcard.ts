@@ -22,6 +22,14 @@ export function makeCard(cid: number, num: number, side: boolean, draft?: boolea
   let bgcolor = 'linear-gradient(to bottom,';
   let clnum = 0;
   let lastcolor = '';
+  const manajMap = asMap(colorarr !== '' && colorarr !== '[]' ? jsonParse(colorarr) : jsonParse(mana));
+  const manaj: {[index: string]: number} = {};
+
+  if (manajMap !== undefined) {
+    Object.keys(manajMap).forEach(elem => {
+      manaj[elem] = asNumber(manajMap[elem], 0);
+    });
+  }
 
   if (side) {
     currentMatch.totalCards += num;
@@ -31,14 +39,16 @@ export function makeCard(cid: number, num: number, side: boolean, draft?: boolea
       const n = currentMatch.cardsBySuperclass.get(supercls.toString()) as number;
       currentMatch.cardsBySuperclass.set(supercls.toString(), n + num);
     }
-  }
-
-  const manajMap = asMap(colorarr !== '' && colorarr !== '[]' ? jsonParse(colorarr) : jsonParse(mana));
-  const manaj: {[index: string]: number} = {};
-  if (manajMap !== undefined) {
-    Object.keys(manajMap).forEach(elem => {
-      manaj[elem] = asNumber(manajMap[elem], 0);
-    });
+    if (island === 1) {
+      Object.keys(manaj).forEach(landClr => {
+        if (!currentMatch.lands.has(landClr)) {
+          currentMatch.lands.set(landClr, num);
+        } else {
+          const n = currentMatch.lands.get(landClr) as number;
+          currentMatch.lands.set(landClr, n + num);
+        }
+      });
+    }
   }
 
   let manas = '';

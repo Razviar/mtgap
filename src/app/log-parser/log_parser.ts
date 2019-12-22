@@ -15,7 +15,7 @@ import {extractValue} from 'root/app/log-parser/parsing';
 import {LogParserEventEmitter} from 'root/app/log_parser_events';
 import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
 import {gameIsRunning} from 'root/app/process_watcher';
-import {settingsStore} from 'root/app/settings_store';
+import {settingsStore} from 'root/app/settings-store/settings_store';
 import {StateInfo, stateStore} from 'root/app/state_store';
 import {getAccountFromScreenName} from 'root/app/userswitch';
 import {error} from 'root/lib/logger';

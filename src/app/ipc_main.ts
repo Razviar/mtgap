@@ -11,7 +11,7 @@ import {parseOldLogs, withLogParser} from 'root/app/log_parser_manager';
 import {withHomeWindow} from 'root/app/main_window';
 import {onMessageFromBrowserWindow, sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
 import {withOverlayWindow} from 'root/app/overlay_window';
-import {settingsStore} from 'root/app/settings_store';
+import {settingsStore} from 'root/app/settings-store/settings_store';
 import {stateStore} from 'root/app/state_store';
 import {error} from 'root/lib/logger';
 
@@ -191,6 +191,7 @@ export function setupIpcMain(app: App): void {
           savepositionleftopp: 0,
           savescale: 0,
           opacity: 0,
+          fontcolor: 0,
         };
       }
       session.overlaySettings[settingType] = newOverlaySetting;
@@ -211,6 +212,7 @@ export function setupIpcMain(app: App): void {
     'savepositiontopopp',
     'savepositionleftopp',
     'opacity',
+    'fontcolor',
   ];
 
   overlaySettingsNumber.forEach(setting => {
@@ -225,7 +227,8 @@ export function setupIpcMain(app: App): void {
       | 'savepositionleft'
       | 'savepositiontopopp'
       | 'savepositionleftopp'
-      | 'opacity';
+      | 'opacity'
+      | 'fontcolor';
     const settingName = `set-setting-o-${settingType}` as
       | 'set-setting-o-leftdigit'
       | 'set-setting-o-rightdigit'
@@ -237,7 +240,8 @@ export function setupIpcMain(app: App): void {
       | 'set-setting-o-savepositiontop'
       | 'set-setting-o-savepositionleft'
       | 'set-setting-o-savepositiontopopp'
-      | 'set-setting-o-savepositionleftopp';
+      | 'set-setting-o-savepositionleftopp'
+      | 'set-setting-o-fontcolor';
     onMessageFromBrowserWindow(settingName, newOverlaySetting => {
       const session = settingsStore.getAccount();
       if (!session) {
@@ -264,6 +268,7 @@ export function setupIpcMain(app: App): void {
           savepositionleftopp: 0,
           savescale: 0,
           opacity: 0,
+          fontcolor: 0,
         };
       }
       session.overlaySettings[settingType] = newOverlaySetting;

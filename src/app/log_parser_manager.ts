@@ -7,7 +7,7 @@ import {getEvents} from 'root/app/log-parser/events';
 import {LogParser} from 'root/app/log-parser/log_parser';
 import {LogFileParsingState, ParsingMetadata} from 'root/app/log-parser/model';
 import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
-import {settingsStore} from 'root/app/settings_store';
+import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
 import {asMap, removeUndefined} from 'root/lib/type_utils';
 import {sleep} from 'root/lib/utils';

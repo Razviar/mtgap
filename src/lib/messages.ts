@@ -1,5 +1,5 @@
 import {TokenCheckRes, TokenRequestRes} from 'root/api/userbytokenid';
-import {Account, LatestSettings, OverlaySettings} from 'root/app/settings_store';
+import {Account, LatestSettings, OverlaySettings} from 'root/app/settings-store/settings_store';
 import {CardPlayed} from 'root/models/cards';
 import {Metadata, UserMetadata} from 'root/models/metadata';
 import {UserResult} from 'root/models/userbytokenid';
@@ -83,6 +83,7 @@ export interface Messages {
   'set-setting-o-savepositionleftopp': number;
   'set-setting-o-savescale': number;
   'set-setting-o-opacity': number;
+  'set-setting-o-fontcolor': number;
   'network-status': {
     active: boolean;
     message: NetworkStatusMessage;

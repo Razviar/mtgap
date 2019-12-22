@@ -1,3 +1,4 @@
+import {colorforfilter} from 'root/lib/utils';
 import {makeCard} from 'root/windows/overlay/functions/drawcard';
 import {HoverEventListener} from 'root/windows/overlay/functions/hovereventlistener';
 import {currentMatch, overlayConfig, overlayElements, toggleButtonClass} from 'root/windows/overlay/overlay';
@@ -10,6 +11,9 @@ export function drawDeck(): void {
   output += '<div class="deckBottom">';
   for (let scls = 0; scls <= 2; scls++) {
     output += `<div id="scls${scls}" class="scls"></div>`;
+  }
+  for (let cf = 0; cf <= colorforfilter.length - 2; cf++) {
+    output += `<div id="landclr${colorforfilter[cf]}" class="scls"></div>`;
   }
   output += '</div>';
   overlayElements.DeckName.innerHTML = currentMatch.humanname;

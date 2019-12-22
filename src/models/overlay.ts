@@ -1,4 +1,4 @@
-import {OverlaySettings} from 'root/app/settings_store';
+import {OverlaySettings} from 'root/app/settings-store/settings_store';
 import {Metadata} from 'root/models/metadata';
 
 export interface OverlayConfig {

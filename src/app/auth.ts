@@ -1,5 +1,5 @@
 import {sendMessageToHomeWindow} from 'root/app/messages';
-import {settingsStore} from 'root/app/settings_store';
+import {settingsStore} from 'root/app/settings-store/settings_store';
 
 export function setCreds(source: string): void {
   const account = settingsStore.getAccount();
@@ -20,6 +20,13 @@ export function setCreds(source: string): void {
         mydecks: false,
         cardhover: false,
         timers: false,
+        savepositiontop: 0,
+        savepositionleft: 0,
+        savepositiontopopp: 0,
+        savepositionleftopp: 0,
+        savescale: 0,
+        opacity: 0,
+        fontcolor: 0,
       };
       settingsStore.save();
     }

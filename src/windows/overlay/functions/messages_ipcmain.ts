@@ -1,4 +1,5 @@
 import {sortcards} from 'root/lib/sortcards';
+import {lz} from 'root/lib/utils';
 import {Card} from 'root/models/cards';
 import {onMessageFromIpcMain, sendMessageToIpcMain} from 'root/windows/messages';
 import {dragger} from 'root/windows/overlay/functions/dragger';
@@ -16,7 +17,6 @@ import {
   toggleButtonClass,
   userCollection,
 } from 'root/windows/overlay/overlay';
-import {lz} from 'root/lib/utils';
 
 export function SetMessages(): void {
   onMessageFromIpcMain('set-icosettings', ico => {
