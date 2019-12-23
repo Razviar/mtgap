@@ -27,7 +27,7 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 6. Check if antiviruses or firewalls are blocking app traffic, add app to exception.
 
 ## Changelog
-v.2.0.23 released 23/12/2019
+v.2.0.24 released 23/12/2019
 * Overlay fixes
 * Improved card images on hover
 * Visual improvements of overlay
