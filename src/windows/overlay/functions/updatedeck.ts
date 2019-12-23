@@ -83,7 +83,7 @@ export function updateDeck(highlight: number[]): void {
         clrEl.style.display = '';
         clrEl.innerHTML = `<span class="ms ms-${manafont[colorforfilter[cf].toLowerCase()]}" style="color:#${
           typecolorletter[colorforfilter[cf]]
-        } !important" />${numleft}|${draw}%`;
+        } !important"></span>${numleft}|${draw}%`;
       } else {
         clrEl.style.display = 'none';
       }
