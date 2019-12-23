@@ -19,7 +19,10 @@ export function updateDeck(highlight: number[]): void {
   });
   highlight.forEach(mtgaid => {
     const cid = meta.mtgatoinnerid[+mtgaid];
-    const scls = meta.allcards[+cid].supercls !== undefined ? meta.allcards[+cid].supercls : 0;
+    if (meta.allcards[+cid] === undefined) {
+      return;
+    }
+    const scls = meta.allcards[+cid].supercls;
     if (!currentMatch.cardsBySuperclassLeft.has(scls.toString())) {
       currentMatch.cardsBySuperclassLeft.set(scls.toString(), 1);
     } else {

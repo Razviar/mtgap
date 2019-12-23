@@ -139,7 +139,7 @@ export function makeCard(cid: number, num: number, side: boolean, draft?: boolea
       ? ' White'
       : overlayConfig.ovlSettings?.fontcolor === 1
       ? ' LightGrey'
-      : 'DarkGrey'
+      : ' DarkGrey'
   }" data-cid="${cid}" data-side="${side ? 'me' : 'opp'}" id="card${mtgaId}${side ? 'me' : 'opp'}">
   <div class="CardSmallPic${!overlayConfig.ovlSettings?.showcardicon ? ' picWithNoPic' : ''}" id="cardthumb${mtgaId}${
     side ? 'me' : 'opp'
