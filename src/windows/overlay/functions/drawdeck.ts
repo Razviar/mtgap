@@ -22,6 +22,13 @@ export function drawDeck(): void {
     output += `<div id="landclr${colorforfilter[cf]}" class="scls"></div>`;
   }
   output += '</div>';
+  overlayElements.DeckName.classList.add(
+    overlayConfig.ovlSettings?.fontcolor === 2
+      ? ' White'
+      : overlayConfig.ovlSettings?.fontcolor === 1
+      ? ' LightGrey'
+      : 'DarkGrey'
+  );
   overlayElements.DeckName.innerHTML = currentMatch.humanname;
   overlayElements.MainOut.innerHTML = output;
   if (!overlayConfig.ovlSettings?.hidemy) {
