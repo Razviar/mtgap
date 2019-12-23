@@ -14,7 +14,6 @@ export const HoverEventListener = (theCard: Element) => {
     }
 
     const cardHeight = 402;
-    const cardWidth = 300;
 
     const cl: HTMLElement = event.target as HTMLElement;
     const cid = cl.getAttribute('data-cid') as string;
@@ -53,7 +52,7 @@ export const HoverEventListener = (theCard: Element) => {
         : 0;
 
     overlayElements.CardHint.style.left = `${
-      side === 'me' ? positioner.pos.left + positioner.pos.width : positioner.pos.left
+      side === 'me' ? positioner.pos.left + positioner.pos.width : positioner.pos.left - positioner.moPos.width
     }px`;
     overlayElements.CardHint.style.top = `${positioner.hintTop}px`;
     overlayElements.CardHint.classList.remove('hidden');

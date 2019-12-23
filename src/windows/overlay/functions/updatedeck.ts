@@ -19,7 +19,7 @@ export function updateDeck(highlight: number[]): void {
   });
   highlight.forEach(mtgaid => {
     const cid = meta.mtgatoinnerid[+mtgaid];
-    if (meta.allcards[+cid] === undefined) {
+    if (!meta.allcards[+cid]) {
       return;
     }
     const scls = meta.allcards[+cid].supercls;

@@ -94,8 +94,7 @@ export function makeCard(cid: number, num: number, side: boolean, draft?: boolea
           manas += `
                 <span class="ManaGroup ms ms-${manafont[clr.toLowerCase()]}" style="color:#${
             typecolorletter[clr]
-          } !important"
-                ></span>`;
+          } !important"></span>`;
         }
       } else {
         manas += `<span class="ManaGroup ms ms-${manaj[clr]}"></span>`;
