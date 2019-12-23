@@ -22,17 +22,17 @@ export function genBattleCardNum(mtgaid: number): string {
     if (!overlayConfig.ovlSettings) {
       return;
     }
-    switch (overlayConfig.ovlSettings[digit]) {
-      case 1:
+    switch (overlayConfig.ovlSettings[digit].toString()) {
+      case '1':
         digitsFilled.set(digit, numleft.toString());
         break;
-      case 2:
+      case '2':
         digitsFilled.set(digit, num.cardnum.toString());
         break;
-      case 3:
+      case '3':
         digitsFilled.set(digit, draw);
         break;
-      case 4:
+      case '4':
         digitsFilled.set(digit, '');
         break;
     }

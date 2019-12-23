@@ -92,7 +92,9 @@ export function makeCard(cid: number, num: number, side: boolean, draft?: boolea
       if (clr !== 'Colorless') {
         for (let i = 0; i < manaj[clr]; i++) {
           manas += `
-                <span class="ManaGroup ms ms-${manafont[clr.toLowerCase()]}"
+                <span class="ManaGroup ms ms-${manafont[clr.toLowerCase()]}" style="color:#${
+            typecolorletter[clr]
+          } !important"
                 ></span>`;
         }
       } else {
@@ -147,7 +149,7 @@ export function makeCard(cid: number, num: number, side: boolean, draft?: boolea
   </div>
   <div class="CNameManaWrap">
   <div class="CCmana">
-  ${manas} ${manas !== '' ? '|' : ''} <span class="ms ms-${superclasses[cardsdb[cid]['supercls']]}">
+  ${manas} ${manas !== '' ? '|' : ''} <span class="ms ms-${superclasses[cardsdb[cid]['supercls']]}"></span>
   </div>
   <div class="CName">${name}</div>
   </div>
