@@ -55,8 +55,8 @@ export function SetMessages(): void {
         overlayElements.OpponentOutFrame.style.top = `${overlayConfig.ovlSettings.savepositiontopopp}%`;
         overlayElements.OpponentOutFrame.style.left = `${overlayConfig.ovlSettings.savepositionleftopp}%`;
       }
-      dragger(overlayElements.MainDeckFrame, overlayElements.MoveHandle, overlayConfig.currentScale);
-      dragger(overlayElements.OpponentOutFrame, overlayElements.OppMoveHandle, overlayConfig.currentScale);
+      dragger(overlayElements.MainDeckFrame, overlayElements.MoveHandle);
+      dragger(overlayElements.OpponentOutFrame, overlayElements.OppMoveHandle);
 
       overlayConfig.currentOpacity = overlayConfig.ovlSettings.opacity !== 0 ? overlayConfig.ovlSettings.opacity : 1;
       overlayElements.MainDeckFrame.style.opacity = `${overlayConfig.currentOpacity}`;

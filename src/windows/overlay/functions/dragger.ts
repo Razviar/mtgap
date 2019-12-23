@@ -1,6 +1,7 @@
 import {sendMessageToIpcMain} from 'root/windows/messages';
+import {overlayConfig} from 'root/windows/overlay/overlay';
 
-export function dragger(dragable: HTMLElement, handle: HTMLElement, currentScale: number): void {
+export function dragger(dragable: HTMLElement, handle: HTMLElement): void {
   let pos1 = 0;
   let pos2 = 0;
   let pos3 = 0;
@@ -14,7 +15,7 @@ export function dragger(dragable: HTMLElement, handle: HTMLElement, currentScale
 
   const DraggingMouseMove = (ee: MouseEvent) => {
     const rect = dragable.getBoundingClientRect();
-    const dopplerX = dragable.id === 'OpponentOutFrame' ? rect.width * currentScale - rect.width : 0;
+    const dopplerX = dragable.id === 'OpponentOutFrame' ? rect.width * overlayConfig.currentScale - rect.width : 0;
     const windowBoundsX = window.innerWidth - rect.width + dopplerX;
     const windowBoundsY = window.innerHeight - rect.height;
     //console.log(dragable.id + '/' + rect.width + '/' + currentScale + '/' + rect.width * currentScale);

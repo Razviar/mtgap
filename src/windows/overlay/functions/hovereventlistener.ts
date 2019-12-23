@@ -2,7 +2,6 @@ import {overlayConfig, overlayElements} from 'root/windows/overlay/overlay';
 
 export const HoverEventListener = (theCard: Element) => {
   const minHeight = 500;
-  const imgWidth = 200;
 
   if (!overlayConfig.metaData) {
     return '';
@@ -13,6 +12,9 @@ export const HoverEventListener = (theCard: Element) => {
     if (!overlayConfig.ovlSettings?.cardhover) {
       return;
     }
+
+    const cardHeight = 402;
+    const cardWidth = 300;
 
     const cl: HTMLElement = event.target as HTMLElement;
     const cid = cl.getAttribute('data-cid') as string;
@@ -34,7 +36,7 @@ export const HoverEventListener = (theCard: Element) => {
         side === 'me'
           ? overlayElements.MainDeckFrame.getBoundingClientRect()
           : overlayElements.OpponentOutFrame.getBoundingClientRect(),
-      cardPosHeight: 268,
+      cardPosHeight: cardHeight,
       maxTop: 0,
       hintTop: 0,
     };
@@ -46,10 +48,12 @@ export const HoverEventListener = (theCard: Element) => {
     positioner.hintTop =
       positioner.pos.top + positioner.cardPosHeight < positioner.maxTop
         ? positioner.pos.top
-        : positioner.pos.bottom - positioner.cardPosHeight;
+        : positioner.pos.bottom - positioner.cardPosHeight > 0
+        ? positioner.pos.bottom - positioner.cardPosHeight
+        : 0;
 
     overlayElements.CardHint.style.left = `${
-      side === 'me' ? positioner.pos.left + positioner.pos.width : positioner.pos.left - imgWidth
+      side === 'me' ? positioner.pos.left + positioner.pos.width : positioner.pos.left
     }px`;
     overlayElements.CardHint.style.top = `${positioner.hintTop}px`;
     overlayElements.CardHint.classList.remove('hidden');
