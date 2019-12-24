@@ -13,6 +13,11 @@ MTGA Pro Tracker is an advanced Magic the Gathering: Arena tracking tool that au
 * Unpack it and launch EXE Installer.
 * Sync your account using respective button in the app interface.
 
+## Hotkeys
+* Alt+Q to see your cards.
+* Alt+W to see opponent.
+* Alt+~ to collapse/expand the overlay.
+
 ## Windows protected your PC?
 When you get mesage "Windows protected your PC", you should click "More Info..." and "Run Anyway". Defender gets alarmed because application is not known enough. After several scans, it will calm down and let you use Tracker. 
 
