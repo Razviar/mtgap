@@ -226,4 +226,30 @@ export function SetMessages(): void {
     overlayElements.MainDeckFrame.classList.add('hidden');
     toggleButtonClass(overlayElements.ToggleMe, overlayElements.MainDeckFrame.classList.contains('hidden'));
   });
+
+  onMessageFromIpcMain('toggle-me', () => {
+    overlayElements.MainDeckFrame.classList.contains('hidden')
+      ? overlayElements.MainDeckFrame.classList.remove('hidden')
+      : overlayElements.MainDeckFrame.classList.add('hidden');
+    toggleButtonClass(overlayElements.ToggleMe, overlayElements.MainDeckFrame.classList.contains('hidden'));
+  });
+
+  onMessageFromIpcMain('toggle-opp', () => {
+    overlayElements.OpponentOutFrame.classList.contains('hidden')
+      ? overlayElements.OpponentOutFrame.classList.remove('hidden')
+      : overlayElements.OpponentOutFrame.classList.add('hidden');
+    toggleButtonClass(overlayElements.ToggleOpp, overlayElements.OpponentOutFrame.classList.contains('hidden'));
+  });
+
+  onMessageFromIpcMain('toggle-all', () => {
+    if (overlayElements.Collapser.classList.contains('CollapserIco')) {
+      overlayElements.Collapser.classList.remove('CollapserIco');
+      overlayElements.Collapser.classList.add('ExpanderIco');
+      overlayElements.CollapsibleMenu.classList.add('hidden');
+    } else {
+      overlayElements.Collapser.classList.remove('ExpanderIco');
+      overlayElements.Collapser.classList.add('CollapserIco');
+      overlayElements.CollapsibleMenu.classList.remove('hidden');
+    }
+  });
 }

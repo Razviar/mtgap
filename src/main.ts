@@ -3,6 +3,7 @@ import {app} from 'electron';
 import {sendSettingsToRenderer, setCreds} from 'root/app/auth';
 import {enableAutoLauncher} from 'root/app/auto_launcher';
 import {setupAutoUpdater} from 'root/app/auto_updater';
+import {registerHotkeys} from 'root/app/hotkeys';
 import {setupIpcMain} from 'root/app/ipc_main';
 import {createGlobalLogParser} from 'root/app/log_parser_manager';
 import {createMainWindow, withHomeWindow} from 'root/app/main_window';
@@ -25,6 +26,7 @@ const processWatcherFnInterval = 500;
 function recreateMainWindow(): void {
   //setupRequestIntercept(app);
   createMainWindow();
+  registerHotkeys();
   withHomeWindow(w => {
     if (settingsStore.get().minimized) {
       w.hide();

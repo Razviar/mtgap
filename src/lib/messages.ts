@@ -104,6 +104,9 @@ export interface Messages {
     url: string | undefined;
     line: number | undefined;
   };
+  'toggle-me': undefined;
+  'toggle-opp': undefined;
+  'toggle-all': undefined;
 }
 
 export enum NetworkStatusMessage {
