@@ -361,6 +361,10 @@ export function setupIpcMain(app: App): void {
       .catch(err => error('Error while showing open file dialog during old-log-path event', err));
   });
 
+  onMessageFromBrowserWindow('error-in-renderer', err => {
+    error('Error in renderer process', err.error, {line: err.line, url: err.url});
+  });
+
   onMessageFromBrowserWindow('restart-me', () => {
     sendMessageToHomeWindow('show-prompt', {
       message: 'Restarting tracker...',

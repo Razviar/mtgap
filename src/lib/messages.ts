@@ -99,6 +99,11 @@ export interface Messages {
   'set-ovlsettings': OverlaySettings | undefined;
   'draft-complete': undefined;
   'turn-info': number;
+  'error-in-renderer': {
+    error: string | Event;
+    url: string | undefined;
+    line: number | undefined;
+  };
 }
 
 export enum NetworkStatusMessage {

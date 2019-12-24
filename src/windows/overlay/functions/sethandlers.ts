@@ -5,6 +5,10 @@ const opacityIncrement = 0.1;
 const scaleIncrement = 0.02;
 
 export function SetHandlers(): void {
+  window.onerror = function(error: string | Event, url: string | undefined, line: number | undefined): void {
+    sendMessageToIpcMain('error-in-renderer', {error, url, line});
+  };
+
   overlayElements.TransparencyHandle.addEventListener('click', () => {
     overlayConfig.currentOpacity += overlayConfig.dopplerOpacity;
     //console.log(currentOpacity);

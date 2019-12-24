@@ -9,6 +9,7 @@ import {createMainWindow, withHomeWindow} from 'root/app/main_window';
 import {sendMessageToHomeWindow} from 'root/app/messages';
 import {setupProcessWatcher} from 'root/app/process_watcher';
 import {settingsStore} from 'root/app/settings-store/settings_store';
+import {error} from 'root/lib/logger';
 
 // tslint:disable-next-line: no-var-requires no-unsafe-any no-require-imports
 require('source-map-support').install();
@@ -75,3 +76,7 @@ if (settingsStore.get().autorun) {
 }
 
 setupIpcMain(app);
+
+process.on('uncaughtException', err => {
+  error('Uncaught error in renderer process', err);
+});
