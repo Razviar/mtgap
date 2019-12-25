@@ -3,7 +3,7 @@ import {app} from 'electron';
 import {sendSettingsToRenderer, setCreds} from 'root/app/auth';
 import {enableAutoLauncher} from 'root/app/auto_launcher';
 import {setupAutoUpdater} from 'root/app/auto_updater';
-import {registerHotkeys} from 'root/app/hotkeys';
+import {uploadCardData} from 'root/app/cards_uploader';
 import {setupIpcMain} from 'root/app/ipc_main';
 import {createGlobalLogParser} from 'root/app/log_parser_manager';
 import {createMainWindow, withHomeWindow} from 'root/app/main_window';
@@ -26,7 +26,11 @@ const processWatcherFnInterval = 500;
 function recreateMainWindow(): void {
   //setupRequestIntercept(app);
   createMainWindow();
-  registerHotkeys();
+  if (settingsStore.get().uploads) {
+    uploadCardData(['data_loc_', 'data_cards_'], ['Wizards of the Coast', 'MTGA', 'MTGA_Data', 'Downloads', 'Data']);
+    uploadCardData(['loc_Events_'], ['Wizards of the Coast', 'MTGA', 'MTGA_Data', 'Downloads', 'Loc']);
+  }
+
   withHomeWindow(w => {
     if (settingsStore.get().minimized) {
       w.hide();
@@ -81,4 +85,6 @@ setupIpcMain(app);
 
 process.on('uncaughtException', err => {
   error('Uncaught error in renderer process', err);
+  app.relaunch();
+  app.exit();
 });

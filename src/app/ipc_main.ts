@@ -7,6 +7,7 @@ import {loadAppIcon} from 'root/app/app_icon';
 import {sendSettingsToRenderer} from 'root/app/auth';
 import {disableAutoLauncher, enableAutoLauncher} from 'root/app/auto_launcher';
 import {checkForUpdates, quitAndInstall} from 'root/app/auto_updater';
+import {unRegisterHotkeys} from 'root/app/hotkeys';
 import {parseOldLogs, withLogParser} from 'root/app/log_parser_manager';
 import {withHomeWindow} from 'root/app/main_window';
 import {onMessageFromBrowserWindow, sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
@@ -117,6 +118,19 @@ export function setupIpcMain(app: App): void {
     const settings = settingsStore.get();
     settings.overlay = newOverlay;
     settingsStore.save();
+  });
+
+  onMessageFromBrowserWindow('set-setting-do-uploads', newUploads => {
+    const settings = settingsStore.get();
+    settings.uploads = newUploads;
+    settingsStore.save();
+  });
+
+  onMessageFromBrowserWindow('set-setting-disable-hotkeys', newHotkeys => {
+    const settings = settingsStore.get();
+    settings.nohotkeys = newHotkeys;
+    settingsStore.save();
+    unRegisterHotkeys();
   });
 
   onMessageFromBrowserWindow('set-setting-icon', newIcon => {

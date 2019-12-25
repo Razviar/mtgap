@@ -6,6 +6,7 @@ import {AccountV0, OverlaySettingsV0, SettingsV1} from 'root/app/settings-store/
 import {AccountV2, OverlaySettingsV2, SettingsV2} from 'root/app/settings-store/v2';
 import {AccountV3, OverlaySettingsV3, SettingsV3} from 'root/app/settings-store/v3';
 import {AccountV4, OverlaySettingsV4, SettingsV4} from 'root/app/settings-store/v4';
+import {SettingsV5} from 'root/app/settings-store/v5';
 import {error} from 'root/lib/logger';
 import {AnyMap, asBoolean, asMap, asNumber, asNumberString, asString} from 'root/lib/type_utils';
 
@@ -71,10 +72,10 @@ class SettingsStore {
   }
 }
 
-export type LatestSettings = SettingsV4;
+export type LatestSettings = SettingsV5;
 export type OverlaySettings = OverlaySettingsV4;
 export type Account = AccountV4;
-type AllSettings = SettingsV0 | SettingsV1 | SettingsV2 | SettingsV3 | LatestSettings;
+type AllSettings = SettingsV0 | SettingsV1 | SettingsV2 | SettingsV3 | SettingsV4 | LatestSettings;
 
 export enum Version {
   v0,
@@ -82,6 +83,7 @@ export enum Version {
   v2,
   v3,
   v4,
+  v5,
 }
 
 export interface SettingsBase {
@@ -447,6 +449,23 @@ function migrateV3toV4(v3: SettingsV3): SettingsV4 {
   };
 }
 
+function migrateV4toV5(v4: SettingsV4): SettingsV5 {
+  return {
+    version: Version.v5,
+    accounts: v4.accounts,
+    userToken: v4.userToken,
+    icon: v4.icon,
+    autorun: v4.autorun,
+    minimized: v4.minimized,
+    overlay: v4.overlay,
+    manualUpdate: v4.manualUpdate,
+    awaiting: v4.awaiting,
+    logPath: v4.logPath,
+    nohotkeys: false,
+    uploads: true,
+  };
+}
+
 function parseSettings(settings: AllSettings): LatestSettings {
   // Recursively parse settings and migrate them to arrive at latest version
   switch (settings.version) {
@@ -458,6 +477,8 @@ function parseSettings(settings: AllSettings): LatestSettings {
       return parseSettings(migrateV2toV3(settings));
     case Version.v3:
       return parseSettings(migrateV3toV4(settings));
+    case Version.v4:
+      return parseSettings(migrateV4toV5(settings));
     default:
       return settings;
   }

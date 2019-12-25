@@ -62,6 +62,8 @@ export interface Messages {
   'set-setting-manualupdate': boolean;
   'set-setting-overlay': boolean;
   'set-setting-icon': string;
+  'set-setting-do-uploads': boolean;
+  'set-setting-disable-hotkeys': boolean;
   'match-over': undefined;
   'card-played': CardPlayed;
   'set-setting-o-hidezero': boolean;

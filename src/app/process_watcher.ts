@@ -1,4 +1,5 @@
 import {getMetadata, getUserMetadata} from 'root/api/overlay';
+import {registerHotkeys, unRegisterHotkeys} from 'root/app/hotkeys';
 import {WindowLocator} from 'root/app/locatewindow';
 import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
 import {createOverlayWindow, getOverlayWindow, withOverlayWindow} from 'root/app/overlay_window';
@@ -59,6 +60,7 @@ export function setupProcessWatcher(): () => void {
                 !overlayIsPositioned)
             ) {
               if (!overlayWindow.isVisible()) {
+                registerHotkeys();
                 overlayWindow.show();
               }
               const EtalonHeight = 1144;
@@ -70,9 +72,11 @@ export function setupProcessWatcher(): () => void {
               (overlayPositioner.bounds.width === 0 && (!ovlSettings || !ovlSettings.neverhide)) ||
               !overlayIsPositioned
             ) {
+              unRegisterHotkeys();
               overlayWindow.hide();
             } else {
               if (!overlayWindow.isVisible()) {
+                registerHotkeys();
                 overlayWindow.show();
               }
             }

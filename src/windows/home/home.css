@@ -239,6 +239,18 @@ div#UserLinks {
   margin-top: 10px;
 }
 
+.small {
+  line-height: 15px !important;
+  display: inline-block;
+}
+
+.settingRowHalf {
+  margin-top: 10px;
+  display: inline-block;
+  width: 49%;
+  vertical-align: top;
+}
+
 #CurrentLogPath {
   font-size: 0.8em;
 }

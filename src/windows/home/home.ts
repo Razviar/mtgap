@@ -136,6 +136,21 @@ onMessageFromIpcMain('set-settings', newSettings => {
     sw.checked = newSettings.manualUpdate;
   }
 
+  if (newSettings.uploads) {
+    const sw = document.querySelector('[data-setting="do-uploads"]') as HTMLInputElement;
+    sw.checked = newSettings.uploads;
+  }
+
+  if (newSettings.nohotkeys) {
+    const sw = document.querySelector('[data-setting="disable-hotkeys"]') as HTMLInputElement;
+    sw.checked = newSettings.nohotkeys;
+  }
+
+  if (newSettings.minimized) {
+    const sw = document.querySelector('[data-setting="minimized"]') as HTMLInputElement;
+    sw.checked = newSettings.minimized;
+  }
+
   if (newSettings.logPath !== undefined) {
     const sw = document.getElementById('CurrentLogPath') as HTMLElement;
     sw.innerHTML = `<strong>${newSettings.logPath}</strong>`;
@@ -321,6 +336,12 @@ const settingsChecker = (event: Event) => {
       break;
     case 'overlay':
       sendMessageToIpcMain('set-setting-overlay', cl.checked);
+      break;
+    case 'do-uploads':
+      sendMessageToIpcMain('set-setting-do-uploads', cl.checked);
+      break;
+    case 'disable-hotkeys':
+      sendMessageToIpcMain('set-setting-disable-hotkeys', cl.checked);
       break;
     case 'icon':
       sendMessageToIpcMain('set-setting-icon', cl.value);

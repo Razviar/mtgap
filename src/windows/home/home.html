@@ -98,28 +98,49 @@
       </div>
     </div>
     <div class="tab" id="settings">
-      <div class="settingRow">
+      <div class="settingRowHalf">
         <div class="pretty p-smooth p-switch p-slim">
           <input class="settings" data-setting="autorun" type="checkbox" value="1" />
           <div class="state p-success"><label>Start with Windows</label></div>
         </div>
       </div>
-      <div class="settingRow">
+      <div class="settingRowHalf">
         <div class="pretty p-smooth p-switch p-slim">
           <input class="settings" data-setting="minimized" type="checkbox" value="1" />
           <div class="state p-success"><label>Start Minimized</label></div>
         </div>
       </div>
-      <div class="settingRow">
+      <div class="settingRowHalf">
+        <div class="pretty p-smooth p-switch p-slim">
+          <input class="settings" data-setting="do-uploads" type="checkbox" value="1" />
+          <div class="state p-success">
+            <label>Upload MTGA data</label>
+          </div>
+        </div>
+        <br /><small class="small"
+          >Help MTGArena.pro by auto-uploading new cards, events and other game data after MTGA update. This will take
+          no more than 10-15 MB of traffic and uploads will happen only when new release of MTGA was issued and you are
+          the FIRST user among MTGAPRO tracker users who is running the Tracker with new game version.</small class="small"
+        >
+      </div>
+      <div class="settingRowHalf">
         <div class="pretty p-smooth p-switch p-slim">
           <input class="settings" data-setting="manualupdate" type="checkbox" value="1" />
           <div class="state p-success"><label>Disable auto updates</label></div>
         </div>
-        <br /><small
+        <br /><small class="small"
           >If you disable auto updates, app will just download them and you'll have to click 'Apply Update' button to
-          get Tracker updated. App will check and download updates at startup and every 10 minutes no mater how this
-          setting is configured.To check updates manually click on version number in bottom right corner.</small
+          get Tracker updated. App will check and download updates at startup and every 10 minutes no matter how this
+          setting is configured. To check updates manually click on version number in bottom right corner.</small ckass=
         >
+      </div>
+      <div class="settingRowHalf">
+        <div class="pretty p-smooth p-switch p-slim">
+          <input class="settings" data-setting="disable-hotkeys" type="checkbox" value="1" />
+          <div class="state p-success">
+            <label>Disable Overlay Hotkeys</label>
+          </div>
+        </div>
       </div>
       <div class="settingRow">
         Current Log Path:
