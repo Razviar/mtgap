@@ -21,6 +21,18 @@ export function registerHotkeys(): void {
     globalShortcut.register('Alt+`', () => {
       sendMessageToOverlayWindow('toggle-all', undefined);
     });
+    globalShortcut.register('Alt+A', () => {
+      sendMessageToOverlayWindow('scale-up', undefined);
+    });
+    globalShortcut.register('Alt+S', () => {
+      sendMessageToOverlayWindow('scale-down', undefined);
+    });
+    globalShortcut.register('Alt+E', () => {
+      sendMessageToOverlayWindow('opacity-up', undefined);
+    });
+    globalShortcut.register('Alt+D', () => {
+      sendMessageToOverlayWindow('opacity-down', undefined);
+    });
   }
 }
 

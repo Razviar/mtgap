@@ -1,8 +1,9 @@
 import {sendMessageToIpcMain} from 'root/windows/messages';
+import {scalesetter} from 'root/windows/overlay/functions/setters';
 import {overlayConfig, overlayElements} from 'root/windows/overlay/overlay';
 
-const opacityIncrement = 0.1;
-const scaleIncrement = 0.02;
+export const opacityIncrement = 0.1;
+export const scaleIncrement = 0.02;
 
 export function SetHandlers(): void {
   window.onerror = function(error: string | Event, url: string | undefined, line: number | undefined): void {
@@ -25,18 +26,12 @@ export function SetHandlers(): void {
 
   overlayElements.scaleIn.addEventListener('click', () => {
     overlayConfig.currentScale += scaleIncrement;
-    overlayElements.MainDeckFrame.style.transform = `scale(${overlayConfig.currentScale})`;
-    overlayElements.OpponentOutFrame.style.transform = `scale(${overlayConfig.currentScale})`;
-    overlayElements.CardHint.style.transform = `scale(${overlayConfig.currentScale})`;
-    sendMessageToIpcMain('set-setting-o-savescale', overlayConfig.currentScale);
+    scalesetter(true);
   });
 
   overlayElements.scaleOut.addEventListener('click', () => {
     overlayConfig.currentScale -= scaleIncrement;
-    overlayElements.MainDeckFrame.style.transform = `scale(${overlayConfig.currentScale})`;
-    overlayElements.OpponentOutFrame.style.transform = `scale(${overlayConfig.currentScale})`;
-    overlayElements.CardHint.style.transform = `scale(${overlayConfig.currentScale})`;
-    sendMessageToIpcMain('set-setting-o-savescale', overlayConfig.currentScale);
+    scalesetter(true);
   });
 
   overlayElements.Collapser.addEventListener('click', () => {

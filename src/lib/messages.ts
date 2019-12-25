@@ -109,6 +109,10 @@ export interface Messages {
   'toggle-me': undefined;
   'toggle-opp': undefined;
   'toggle-all': undefined;
+  'scale-up': undefined;
+  'scale-down': undefined;
+  'opacity-up': undefined;
+  'opacity-down': undefined;
 }
 
 export enum NetworkStatusMessage {

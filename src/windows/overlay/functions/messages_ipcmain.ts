@@ -5,6 +5,8 @@ import {onMessageFromIpcMain, sendMessageToIpcMain} from 'root/windows/messages'
 import {dragger} from 'root/windows/overlay/functions/dragger';
 import {drawDeck} from 'root/windows/overlay/functions/drawdeck';
 import {drawDraft} from 'root/windows/overlay/functions/drawdraft';
+import {opacityIncrement, scaleIncrement} from 'root/windows/overlay/functions/sethandlers';
+import {opacitySetter, scalesetter} from 'root/windows/overlay/functions/setters';
 import {updateDeck} from 'root/windows/overlay/functions/updatedeck';
 import {updateOppDeck} from 'root/windows/overlay/functions/updateoppdeck';
 import {
@@ -44,9 +46,7 @@ export function SetMessages(): void {
 
     if (overlayConfig.ovlSettings && overlayConfig.justcreated) {
       overlayConfig.currentScale = overlayConfig.ovlSettings.savescale !== 0 ? overlayConfig.ovlSettings.savescale : 1;
-      overlayElements.MainDeckFrame.style.transform = `scale(${overlayConfig.currentScale})`;
-      overlayElements.OpponentOutFrame.style.transform = `scale(${overlayConfig.currentScale})`;
-      overlayElements.CardHint.style.transform = `scale(${overlayConfig.currentScale})`;
+      scalesetter(false);
       if (overlayConfig.ovlSettings.savepositionleft !== 0) {
         overlayElements.MainDeckFrame.style.top = `${overlayConfig.ovlSettings.savepositiontop}%`;
         overlayElements.MainDeckFrame.style.left = `${overlayConfig.ovlSettings.savepositionleft}%`;
@@ -59,9 +59,7 @@ export function SetMessages(): void {
       dragger(overlayElements.OpponentOutFrame, overlayElements.OppMoveHandle);
 
       overlayConfig.currentOpacity = overlayConfig.ovlSettings.opacity !== 0 ? overlayConfig.ovlSettings.opacity : 1;
-      overlayElements.MainDeckFrame.style.opacity = `${overlayConfig.currentOpacity}`;
-      overlayElements.OpponentOutFrame.style.opacity = `${overlayConfig.currentOpacity}`;
-      overlayElements.CardHint.style.opacity = `${overlayConfig.currentOpacity}`;
+      opacitySetter(false);
     }
 
     if (currentDraft.isDrafting) {
@@ -250,6 +248,27 @@ export function SetMessages(): void {
       overlayElements.Collapser.classList.remove('ExpanderIco');
       overlayElements.Collapser.classList.add('CollapserIco');
       overlayElements.CollapsibleMenu.classList.remove('hidden');
+    }
+  });
+
+  onMessageFromIpcMain('scale-up', () => {
+    overlayConfig.currentScale += scaleIncrement;
+    scalesetter(true);
+  });
+  onMessageFromIpcMain('scale-down', () => {
+    overlayConfig.currentScale -= scaleIncrement;
+    scalesetter(true);
+  });
+  onMessageFromIpcMain('opacity-up', () => {
+    if (overlayConfig.currentOpacity < 1) {
+      overlayConfig.currentOpacity += opacityIncrement;
+      opacitySetter(true);
+    }
+  });
+  onMessageFromIpcMain('opacity-down', () => {
+    if (overlayConfig.currentOpacity > 0.3) {
+      overlayConfig.currentOpacity -= opacityIncrement;
+      opacitySetter(true);
     }
   });
 }
