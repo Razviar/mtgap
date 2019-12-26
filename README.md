@@ -33,7 +33,7 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 
 ## Changelog
 v.2.0.27 released 26/12/2019
-* Now you can detach overlay from MTGA window and place it wherever you like. Espeially usefull for users with several monitors.
+* Now you can detach overlay from MTGA window and place it wherever you like. Especially useful for users with several monitors.
 * More hotkeys
 * Hotkey map on General tab to make it easier to memorize them.
 * Bunch of bugfixes
