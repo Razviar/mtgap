@@ -76,6 +76,8 @@ onMessageFromIpcMain('set-o-settings', newOSettings => {
     'neverhide',
     'mydecks',
     'cardhover',
+    'detach',
+    'hidemain',
   ];
   const overlaySettingsNumber = [
     'leftdigit',
@@ -95,7 +97,9 @@ onMessageFromIpcMain('set-o-settings', newOSettings => {
       | 'timers'
       | 'neverhide'
       | 'mydecks'
-      | 'cardhover';
+      | 'cardhover'
+      | 'detach'
+      | 'hidemain';
 
     const sw = document.querySelector(`[data-setting="o-${settingType}"]`) as HTMLInputElement;
     sw.checked = newOSettings[settingType];
@@ -398,6 +402,12 @@ const settingsChecker = (event: Event) => {
       break;
     case 'o-fontcolor':
       sendMessageToIpcMain('set-setting-o-fontcolor', +cl.value);
+      break;
+    case 'o-detach':
+      sendMessageToIpcMain('set-setting-o-detach', cl.checked);
+      break;
+    case 'o-hidemain':
+      sendMessageToIpcMain('set-setting-o-hidemain', cl.checked);
       break;
   }
 };

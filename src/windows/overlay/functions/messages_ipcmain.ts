@@ -62,6 +62,12 @@ export function SetMessages(): void {
       opacitySetter(false);
     }
 
+    if (overlayConfig.ovlSettings?.hidemain) {
+      overlayElements.OverlayMenu.classList.add('hidden');
+    } else {
+      overlayElements.OverlayMenu.classList.remove('hidden');
+    }
+
     if (currentDraft.isDrafting) {
       drawDraft();
     }
@@ -266,7 +272,8 @@ export function SetMessages(): void {
     }
   });
   onMessageFromIpcMain('opacity-down', () => {
-    if (overlayConfig.currentOpacity > 0.3) {
+    const minOpacity = 0.3;
+    if (overlayConfig.currentOpacity > minOpacity) {
       overlayConfig.currentOpacity -= opacityIncrement;
       opacitySetter(true);
     }

@@ -158,6 +158,8 @@ export function setupIpcMain(app: App): void {
     'neverhide',
     'mydecks',
     'cardhover',
+    'detach',
+    'hidemain',
   ];
 
   overlaySettingsBoolean.forEach(setting => {
@@ -169,7 +171,9 @@ export function setupIpcMain(app: App): void {
       | 'timers'
       | 'neverhide'
       | 'mydecks'
-      | 'cardhover';
+      | 'cardhover'
+      | 'detach'
+      | 'hidemain';
     const settingName = `set-setting-o-${settingType}` as
       | 'set-setting-o-hidezero'
       | 'set-setting-o-hidemy'
@@ -178,7 +182,9 @@ export function setupIpcMain(app: App): void {
       | 'set-setting-o-neverhide'
       | 'set-setting-o-mydecks'
       | 'set-setting-o-cardhover'
-      | 'set-setting-o-timers';
+      | 'set-setting-o-timers'
+      | 'set-setting-o-detach'
+      | 'set-setting-o-hidemain';
     onMessageFromBrowserWindow(settingName, newOverlaySetting => {
       const session = settingsStore.getAccount();
       if (!session) {
@@ -206,6 +212,8 @@ export function setupIpcMain(app: App): void {
           savescale: 0,
           opacity: 0,
           fontcolor: 0,
+          detach: false,
+          hidemain: false,
         };
       }
       session.overlaySettings[settingType] = newOverlaySetting;
@@ -283,6 +291,8 @@ export function setupIpcMain(app: App): void {
           savescale: 0,
           opacity: 0,
           fontcolor: 0,
+          detach: false,
+          hidemain: false,
         };
       }
       session.overlaySettings[settingType] = newOverlaySetting;

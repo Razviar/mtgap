@@ -34,6 +34,7 @@ export const overlayElements = {
   LogoSpan: document.getElementById('LogoSpan') as HTMLElement,
   myTimer: document.getElementById('myTimer') as HTMLElement,
   oppTimer: document.getElementById('oppTimer') as HTMLElement,
+  OverlayMenu: document.getElementById('OverlayMenu') as HTMLElement,
 };
 
 const Interactive = document.getElementsByClassName('Interactive');

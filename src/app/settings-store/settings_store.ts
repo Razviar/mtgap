@@ -7,6 +7,7 @@ import {AccountV2, OverlaySettingsV2, SettingsV2} from 'root/app/settings-store/
 import {AccountV3, OverlaySettingsV3, SettingsV3} from 'root/app/settings-store/v3';
 import {AccountV4, OverlaySettingsV4, SettingsV4} from 'root/app/settings-store/v4';
 import {SettingsV5} from 'root/app/settings-store/v5';
+import {AccountV6, OverlaySettingsV6, SettingsV6} from 'root/app/settings-store/v6';
 import {error} from 'root/lib/logger';
 import {AnyMap, asBoolean, asMap, asNumber, asNumberString, asString} from 'root/lib/type_utils';
 
@@ -72,10 +73,10 @@ class SettingsStore {
   }
 }
 
-export type LatestSettings = SettingsV5;
-export type OverlaySettings = OverlaySettingsV4;
-export type Account = AccountV4;
-type AllSettings = SettingsV0 | SettingsV1 | SettingsV2 | SettingsV3 | SettingsV4 | LatestSettings;
+export type LatestSettings = SettingsV6;
+export type OverlaySettings = OverlaySettingsV6;
+export type Account = AccountV6;
+type AllSettings = SettingsV0 | SettingsV1 | SettingsV2 | SettingsV3 | SettingsV4 | SettingsV5 | SettingsV6;
 
 export enum Version {
   v0,
@@ -84,6 +85,7 @@ export enum Version {
   v3,
   v4,
   v5,
+  v6,
 }
 
 export interface SettingsBase {
@@ -284,6 +286,60 @@ function asOverlaySettingsV4(ovlSettings: OverlaySettingsV3 | undefined): Overla
   };
 }
 
+function asOverlaySettingsV6(ovlSettings: OverlaySettingsV4 | undefined): OverlaySettingsV6 | undefined {
+  if (!ovlSettings) {
+    return undefined;
+  }
+
+  const leftdigit = ovlSettings.leftdigit;
+  const rightdigit = ovlSettings.rightdigit;
+  const bottomdigit = ovlSettings.bottomdigit;
+  const rightdraftdigit = ovlSettings.rightdraftdigit;
+  const leftdraftdigit = ovlSettings.leftdigit;
+  const hidemy = ovlSettings.hidemy;
+  const hideopp = ovlSettings.hideopp;
+  const hidezero = ovlSettings.hidezero;
+  const showcardicon = ovlSettings.showcardicon;
+  const timers = ovlSettings.timers;
+  const neverhide = ovlSettings.neverhide;
+  const mydecks = ovlSettings.mydecks;
+  const cardhover = ovlSettings.cardhover;
+  const savepositiontop = ovlSettings.savepositiontop;
+  const savepositionleft = ovlSettings.savepositionleft;
+  const savepositiontopopp = ovlSettings.savepositiontopopp;
+  const savepositionleftopp = ovlSettings.savepositionleftopp;
+  const savescale = ovlSettings.savescale;
+  const opacity = ovlSettings.opacity;
+  const fontcolor = ovlSettings.fontcolor;
+  const detach = false;
+  const hidemain = false;
+
+  return {
+    leftdigit,
+    rightdigit,
+    bottomdigit,
+    rightdraftdigit,
+    leftdraftdigit,
+    hidemy,
+    hideopp,
+    hidezero,
+    showcardicon,
+    timers,
+    neverhide,
+    mydecks,
+    cardhover,
+    savepositiontop,
+    savepositionleft,
+    savepositiontopopp,
+    savepositionleftopp,
+    savescale,
+    opacity,
+    fontcolor,
+    detach,
+    hidemain,
+  };
+}
+
 function asPlayer(anyMap: AnyMap | undefined): Player | undefined {
   if (!anyMap) {
     return undefined;
@@ -389,6 +445,21 @@ function asAccountsV4(accountsV3: AccountV3[]): AccountV4[] {
   return res;
 }
 
+function asAccountsV6(accountsV4: AccountV4[]): AccountV6[] {
+  const res: AccountV6[] = [];
+  accountsV4.forEach(acc => {
+    res.push({
+      uid: acc.uid,
+      token: acc.token,
+      nick: acc.nick,
+      overlay: acc.overlay,
+      player: acc.player,
+      overlaySettings: asOverlaySettingsV6(acc.overlaySettings),
+    });
+  });
+  return res;
+}
+
 function migrateV0toV1(v0: SettingsV0): SettingsV1 {
   return {
     version: Version.v1,
@@ -466,6 +537,23 @@ function migrateV4toV5(v4: SettingsV4): SettingsV5 {
   };
 }
 
+function migrateV5toV6(v5: SettingsV5): SettingsV6 {
+  return {
+    version: Version.v6,
+    accounts: asAccountsV6(v5.accounts),
+    userToken: v5.userToken,
+    icon: v5.icon,
+    autorun: v5.autorun,
+    minimized: v5.minimized,
+    overlay: v5.overlay,
+    manualUpdate: v5.manualUpdate,
+    awaiting: v5.awaiting,
+    logPath: v5.logPath,
+    nohotkeys: v5.nohotkeys,
+    uploads: v5.uploads,
+  };
+}
+
 function parseSettings(settings: AllSettings): LatestSettings {
   // Recursively parse settings and migrate them to arrive at latest version
   switch (settings.version) {
@@ -479,6 +567,8 @@ function parseSettings(settings: AllSettings): LatestSettings {
       return parseSettings(migrateV3toV4(settings));
     case Version.v4:
       return parseSettings(migrateV4toV5(settings));
+    case Version.v5:
+      return parseSettings(migrateV5toV6(settings));
     default:
       return settings;
   }

@@ -326,6 +326,17 @@ export class LogParser {
       return;
     }
 
+    if (PackNumber === 0 && PickNumber === 0) {
+      const account = settingsStore.getAccount();
+      if (account && settingsStore.get().overlay) {
+        getUserMetadata(+account.uid)
+          .then(umd => sendMessageToOverlayWindow('set-userdata', umd))
+          .catch(err => {
+            error('Failure to load User Metadata', err);
+          });
+      }
+    }
+
     this.emitter.emit('draft-turn', {DraftPack, PackNumber, PickNumber});
   }
 

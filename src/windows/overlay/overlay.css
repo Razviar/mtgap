@@ -28,7 +28,7 @@ a[href^="ftp://"] {
   /*opacity: 0.5;*/
 }
 
-.bottom {
+#OverlayMenu {
   position: absolute;
   top: 0px;
   left: 0px;

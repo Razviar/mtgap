@@ -86,6 +86,8 @@ export interface Messages {
   'set-setting-o-savescale': number;
   'set-setting-o-opacity': number;
   'set-setting-o-fontcolor': number;
+  'set-setting-o-detach': boolean;
+  'set-setting-o-hidemain': boolean;
   'network-status': {
     active: boolean;
     message: NetworkStatusMessage;
