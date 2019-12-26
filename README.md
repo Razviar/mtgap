@@ -32,6 +32,12 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 6. Check if antiviruses or firewalls are blocking app traffic, add app to exception.
 
 ## Changelog
+v.2.0.27 released 26/12/2019
+* Now you can detach overlay from MTGA window and place it wherever you like. Espeially usefull for users with several monitors.
+* More hotkeys
+* Hotkey map on General tab to make it easier to memorize them.
+* Bunch of bugfixes
+
 v.2.0.26 released 25/12/2019
 * Better Hotkeys handling: they work only when overlay is active and can be disabled globally
 * Implemented automated MTGA data uploads to minimize time required to update MTGA Pro serviced for new MTGA features
