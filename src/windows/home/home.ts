@@ -26,6 +26,7 @@ const BrightButton = document.getElementById('brightButton') as HTMLElement;
 const PromptWnd = document.getElementById('PromptWnd') as HTMLElement;
 const PromptText = document.getElementById('PromptText') as HTMLElement;
 const NetworkStatus = document.getElementById('network-status') as HTMLElement;
+const hotkeyMap = document.getElementById('hotkeyMap') as HTMLElement;
 
 const buttons = document.getElementsByClassName('button');
 const tabs = document.getElementsByClassName('tab');
@@ -116,6 +117,26 @@ onMessageFromIpcMain('set-o-settings', newOSettings => {
 });
 
 onMessageFromIpcMain('set-settings', newSettings => {
+  let output = `<div class="table"><div class='row'>
+    <div class='cell header white'><strong>Nick</strong></div>
+    <div class='cell header white'><strong>MTGA nick</strong></div>
+    <div class='cell header white'><strong>Language</strong></div>
+    <div class='cell header white'><strong>Token</strong></div>
+    <div class='cell header white'><strong>Actions</strong></div>
+    </div>`;
+  newSettings.accounts.forEach(account => {
+    output += `<div class='row'>
+      <div class='cell'><strong class="white">${account.nick}</strong></div>
+      <div class='cell'>${account.player ? account.player.screenName : ''}</div>
+      <div class='cell'>${account.player ? account.player.language : ''}</div>
+      <div class='cell'>${account.token}</div>
+      <div class='cell'><span class="link" data-link="https://mtgarena.pro/sync/">Unlink</span></div>
+      </div>`;
+  });
+  output += '</div>';
+  AccountsTab.innerHTML = output;
+  updatelinks();
+
   if (newSettings.overlay) {
     const sw = document.querySelector('[data-setting="overlay"]') as HTMLInputElement;
     sw.checked = newSettings.overlay;
@@ -136,14 +157,19 @@ onMessageFromIpcMain('set-settings', newSettings => {
     sw.checked = newSettings.manualUpdate;
   }
 
-  if (newSettings.uploads) {
+  if (newSettings.uploads !== undefined) {
     const sw = document.querySelector('[data-setting="do-uploads"]') as HTMLInputElement;
     sw.checked = newSettings.uploads;
   }
 
-  if (newSettings.nohotkeys) {
+  if (newSettings.nohotkeys !== undefined) {
     const sw = document.querySelector('[data-setting="disable-hotkeys"]') as HTMLInputElement;
     sw.checked = newSettings.nohotkeys;
+    if (!newSettings.nohotkeys) {
+      hotkeyMap.classList.remove('hidden');
+    } else {
+      hotkeyMap.classList.add('hidden');
+    }
   }
 
   if (newSettings.minimized) {
@@ -171,30 +197,10 @@ onMessageFromIpcMain('set-version', version => {
 });
 
 onMessageFromIpcMain('show-status', arg => {
-  StatusMessage.innerHTML = arg.message;
-  StatusMessage.style.color = arg.color;
-});
-
-onMessageFromIpcMain('set-settings', newSettings => {
-  let output = `<div class="table"><div class='row'>
-    <div class='cell header white'><strong>Nick</strong></div>
-    <div class='cell header white'><strong>MTGA nick</strong></div>
-    <div class='cell header white'><strong>Language</strong></div>
-    <div class='cell header white'><strong>Token</strong></div>
-    <div class='cell header white'><strong>Actions</strong></div>
-    </div>`;
-  newSettings.accounts.forEach(account => {
-    output += `<div class='row'>
-      <div class='cell'><strong class="white">${account.nick}</strong></div>
-      <div class='cell'>${account.player ? account.player.screenName : ''}</div>
-      <div class='cell'>${account.player ? account.player.language : ''}</div>
-      <div class='cell'>${account.token}</div>
-      <div class='cell'><span class="link" data-link="https://mtgarena.pro/sync/">Unlink</span></div>
-      </div>`;
-  });
-  output += '</div>';
-  AccountsTab.innerHTML = output;
-  updatelinks();
+  if (StatusMessage.innerHTML !== arg.message) {
+    StatusMessage.innerHTML = arg.message;
+    StatusMessage.style.color = arg.color;
+  }
 });
 
 onMessageFromIpcMain('show-prompt', arg => {
@@ -342,6 +348,11 @@ const settingsChecker = (event: Event) => {
       break;
     case 'disable-hotkeys':
       sendMessageToIpcMain('set-setting-disable-hotkeys', cl.checked);
+      if (!cl.checked) {
+        hotkeyMap.classList.remove('hidden');
+      } else {
+        hotkeyMap.classList.add('hidden');
+      }
       break;
     case 'icon':
       sendMessageToIpcMain('set-setting-icon', cl.value);

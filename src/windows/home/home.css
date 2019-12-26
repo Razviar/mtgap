@@ -149,7 +149,7 @@ input#token {
 
 .interfaceButton {
   background-color: rgba(183, 171, 169, 0.1);
-  border: solid 1px rgba(183, 171, 169, 0.3);
+  border: solid 1px rgba(183, 171, 169, 0.15);
   display: inline-block;
   width: 140px;
   text-align: left;
@@ -161,7 +161,7 @@ input#token {
 }
 
 .interfaceButton:hover {
-  border: solid 1px rgba(183, 171, 169, 0.5);
+  border: solid 1px rgba(183, 171, 169, 0.3);
   background-color: rgba(132, 52, 38, 0.9);
   color: #fff;
 }
@@ -390,4 +390,28 @@ div#UserLinks {
   100% {
     opacity: 0.5;
   }
+}
+
+/*HOTKEYS*/
+
+div#hotkeyMap {
+  margin-top: 15px;
+}
+
+.hotkey {
+  display: inline-block;
+  width: 37%;
+  margin-bottom: 6px;
+}
+
+.hkButton {
+  display: inline-block;
+  width: 25px;
+  text-align: center;
+  background-color: rgba(183, 171, 169, 0.1);
+  border: solid 1px rgba(183, 171, 169, 0.15);
+}
+
+.hkDescription {
+  display: inline-block;
 }
