@@ -358,22 +358,29 @@ export function setupIpcMain(app: App): void {
     withLogParser(lp => lp.stop());
     getParsingMetadata(app.getVersion())
       .then(parsingMetadata =>
-        parseOldLogs(logs[index], parsingMetadata).then(_ => {
-          if (index + 1 === logs.length) {
-            sendMessageToHomeWindow('show-prompt', {message: 'Parsing complete!', autoclose: 1000});
-            withLogParser(lp => lp.start());
-          } else {
-            parseOldLogsHandler(logs, index + 1, skipped);
+        parseOldLogs(logs[index], parsingMetadata).then(result => {
+          switch (result) {
+            case 0:
+            case 1:
+              if (index + 1 === logs.length) {
+                sendMessageToHomeWindow('show-prompt', {message: 'Parsing complete!', autoclose: 1000});
+                withLogParser(lp => lp.start());
+              } else {
+                parseOldLogsHandler(logs, index + 1, skipped + result);
+              }
+              break;
+            case 2:
+              sendMessageToHomeWindow('show-prompt', {
+                message:
+                  'Found new user during old logs parsing! Please handle this account and repeat old logs parsing',
+                autoclose: 1000,
+              });
+              break;
           }
         })
       )
-      .catch(_ => {
-        if (index + 1 === logs.length) {
-          sendMessageToHomeWindow('show-prompt', {message: 'Parsing complete!', autoclose: 1000});
-          withLogParser(lp => lp.start());
-        } else {
-          parseOldLogsHandler(logs, index + 1, skipped + 1);
-        }
+      .catch(err => {
+        error('Error reading old logs', err);
       });
   };
 

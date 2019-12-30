@@ -206,6 +206,8 @@ export class LogParser {
     }
     sendMessageToHomeWindow('set-screenname', {screenName, newPlayerId});
 
+    //console.log(screenName);
+
     if (account && settingsStore.get().overlay) {
       getUserMetadata(+account.uid)
         .then(umd => sendMessageToOverlayWindow('set-userdata', umd))

@@ -84,7 +84,7 @@ if (settingsStore.get().autorun) {
 setupIpcMain(app);
 
 process.on('uncaughtException', err => {
-  error('Uncaught error in renderer process', err);
+  error('Uncaught error in main process', err);
   app.relaunch();
   app.exit();
 });

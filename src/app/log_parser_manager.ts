@@ -5,11 +5,13 @@ import {sendEventsToServer} from 'root/api/logsender';
 import {checkDetailedLogEnabled} from 'root/app/log-parser/detailed_log';
 import {getEvents} from 'root/app/log-parser/events';
 import {LogParser} from 'root/app/log-parser/log_parser';
-import {LogFileParsingState, ParsingMetadata} from 'root/app/log-parser/model';
+import {LogFileParsingState, ParsingMetadata, StatefulLogEvent} from 'root/app/log-parser/model';
+import {extractValue} from 'root/app/log-parser/parsing';
 import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
 import {settingsStore} from 'root/app/settings-store/settings_store';
+import {getAccountFromScreenName} from 'root/app/userswitch';
 import {error} from 'root/lib/logger';
-import {asMap, removeUndefined} from 'root/lib/type_utils';
+import {asMap, asString, removeUndefined} from 'root/lib/type_utils';
 import {sleep} from 'root/lib/utils';
 
 export type MaybeLogParser = LogParser | undefined;
@@ -118,7 +120,7 @@ export async function parseOldLogs(
   logpath: string,
   parsingMetadata: ParsingMetadata,
   nextState?: LogFileParsingState
-): Promise<void> {
+): Promise<number> {
   // Check that file exists
   await promisify(stat)(logpath);
 
@@ -127,7 +129,7 @@ export async function parseOldLogs(
     // Detecting detailed logs
     const [detailedLogEnabled, detailedLogState] = await checkDetailedLogEnabled(logpath, parsingMetadata);
     if (!detailedLogEnabled) {
-      throw new Error('Enable Detailed Logs!');
+      return 1;
     }
     currentState = detailedLogState;
   } else {
@@ -136,10 +138,21 @@ export async function parseOldLogs(
 
   // Parsing events
   const [events, newState] = await getEvents(logpath, currentState, parsingMetadata);
-
+  /*console.log(events);
+  console.log(newState);*/
   // Check if end of parsing
   if (events.length === 0) {
-    return;
+    return 0;
+  }
+
+  for (const event of events) {
+    switch (event.name) {
+      case parsingMetadata.userChangeEvent:
+        if (handleUserChangeEvent(event)) {
+          return 2;
+        }
+        break;
+    }
   }
 
   // Filter useless events
@@ -161,6 +174,7 @@ export async function parseOldLogs(
   );
 
   // Send events to server
+  //console.log(eventsToSend);
   sendEventsToServer(eventsToSend, parsingMetadata.logSender, newState);
 
   // Adding small sleep
@@ -168,4 +182,28 @@ export async function parseOldLogs(
 
   // Triggering next batch
   return parseOldLogs(logpath, parsingMetadata, newState);
+}
+
+function handleUserChangeEvent(event: StatefulLogEvent): boolean {
+  const settings = settingsStore.get();
+  const newPlayerId = asString(extractValue(event.data, ['params', 'payloadObject', 'playerId']));
+  const language = asString(extractValue(event.data, ['params', 'payloadObject', 'settings', 'language', 'language']));
+  const screenName = asString(extractValue(event.data, ['params', 'payloadObject', 'screenName']));
+  if (newPlayerId === undefined || language === undefined || screenName === undefined) {
+    error('Encountered invalid user change event', undefined, {...event});
+    return false;
+  }
+  const newAccount = getAccountFromScreenName(screenName);
+  if (newAccount === undefined) {
+    sendMessageToHomeWindow('set-screenname', {screenName, newPlayerId});
+    sendMessageToHomeWindow('new-account', undefined);
+    sendMessageToHomeWindow('show-prompt', {
+      message: 'New MTGA account found in the old logs! Please Skip or Sync it and repeat old logs scanning...',
+      autoclose: 1000,
+    });
+    settings.awaiting = {playerId: newPlayerId, screenName, language};
+    settingsStore.save();
+    return true;
+  }
+  return false;
 }
