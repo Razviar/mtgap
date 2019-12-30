@@ -11,6 +11,7 @@ import {unRegisterHotkeys} from 'root/app/hotkeys';
 import {parseOldLogs, withLogParser} from 'root/app/log_parser_manager';
 import {withHomeWindow} from 'root/app/main_window';
 import {onMessageFromBrowserWindow, sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
+import {locateMtgaDir} from 'root/app/mtga_dir_ops';
 import {withOverlayWindow} from 'root/app/overlay_window';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {stateStore} from 'root/app/state_store';
@@ -347,6 +348,38 @@ export function setupIpcMain(app: App): void {
     settingsStore.get().logPath = undefined;
     settingsStore.save();
     sendMessageToHomeWindow('show-prompt', {message: 'Log path have been set to default!', autoclose: 1000});
+    sendSettingsToRenderer();
+  });
+
+  onMessageFromBrowserWindow('set-mtga-path', () => {
+    dialog
+      .showOpenDialog({properties: ['openDirectory']})
+      .then(log => {
+        if (!log.canceled && log.filePaths[0]) {
+          settingsStore.get().mtgaPath = log.filePaths[0];
+          settingsStore.save();
+          if (locateMtgaDir(log.filePaths[0])) {
+            sendMessageToHomeWindow('show-prompt', {message: 'MTGA path have been updated!', autoclose: 1000});
+          } else {
+            sendMessageToHomeWindow('show-prompt', {
+              message: 'Bad MTGA path, please set it correctly',
+              autoclose: 1000,
+            });
+          }
+          sendSettingsToRenderer();
+        }
+      })
+      .catch(err => error('Error while showing open file dialog during set-mtga-path event', err));
+  });
+
+  onMessageFromBrowserWindow('default-mtga-path', () => {
+    settingsStore.get().mtgaPath = undefined;
+    settingsStore.save();
+    if (locateMtgaDir(undefined)) {
+      sendMessageToHomeWindow('show-prompt', {message: 'MTGA path have been set to default!', autoclose: 1000});
+    } else {
+      sendMessageToHomeWindow('show-prompt', {message: 'Bad MTGA path, please set it correctly', autoclose: 1000});
+    }
     sendSettingsToRenderer();
   });
 

@@ -4,23 +4,36 @@ import path from 'path';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
 
-export function locateMtgaDir(pathElements: string[]): void {
-  const x64 = process.arch === 'x64' || process.env.hasOwnProperty('PROCESSOR_ARCHITEW6432');
-  const progFiles = process.env[`ProgramFiles${x64 ? '(x86)' : ''}`];
-  if (progFiles === undefined) {
-    return;
-  }
-  const pth = path.join(progFiles, ...pathElements);
-
-  fs.readdir(pth, (err: NodeJS.ErrnoException | null, _): void => {
-    if (err === null) {
-      const settings = settingsStore.get();
-      settings.mtgaPath = pth;
-      settingsStore.save();
-    } else {
-      console.log('no MTGA found');
+export function locateMtgaDir(checkPath: string | undefined): boolean {
+  let pth = '';
+  if (checkPath !== undefined) {
+    pth = checkPath;
+  } else {
+    const pathElements = ['Wizards of the Coast', 'MTGA'];
+    const x64 = process.arch === 'x64' || process.env.hasOwnProperty('PROCESSOR_ARCHITEW6432');
+    const progFiles = process.env[`ProgramFiles${x64 ? '(x86)' : ''}`];
+    if (progFiles === undefined) {
+      return false;
     }
-  });
+    pth = path.join(progFiles, ...pathElements);
+  }
+  let result = false;
+  const settings = settingsStore.get();
+
+  try {
+    const dir = fs.readdirSync(pth);
+    dir.forEach(file => {
+      if (file === 'MTGA.exe') {
+        result = true;
+      }
+    });
+    settings.mtgaPath = result ? pth : undefined;
+  } catch (e) {
+    result = false;
+    settings.mtgaPath = undefined;
+  }
+
+  return result;
 }
 
 export function locateMostRecentDate(): Date | undefined {

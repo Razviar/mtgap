@@ -22,6 +22,8 @@ export interface Messages {
   'kill-current-token': undefined;
   'set-log-path': undefined;
   'default-log-path': undefined;
+  'set-mtga-path': undefined;
+  'default-mtga-path': undefined;
   'old-log': undefined;
   'wipe-all': undefined;
   'restart-me': undefined;

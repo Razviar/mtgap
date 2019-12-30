@@ -3,12 +3,11 @@ import {app} from 'electron';
 import {sendSettingsToRenderer, setCreds} from 'root/app/auth';
 import {enableAutoLauncher} from 'root/app/auto_launcher';
 import {setupAutoUpdater} from 'root/app/auto_updater';
-import {uploadCardData} from 'root/app/cards_uploader';
+import {doMtgaPathOps} from 'root/app/do-path-ops';
 import {setupIpcMain} from 'root/app/ipc_main';
 import {createGlobalLogParser} from 'root/app/log_parser_manager';
 import {createMainWindow, withHomeWindow} from 'root/app/main_window';
 import {sendMessageToHomeWindow} from 'root/app/messages';
-import {locateMtgaDir} from 'root/app/mtga_dir_ops';
 import {setupProcessWatcher} from 'root/app/process_watcher';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
@@ -27,15 +26,7 @@ const processWatcherFnInterval = 500;
 function recreateMainWindow(): void {
   //setupRequestIntercept(app);
   createMainWindow();
-  let mtgaPath = settingsStore.get().mtgaPath;
-  if (mtgaPath === undefined) {
-    locateMtgaDir(['Wizards of the Coast', 'MTGA']);
-    mtgaPath = settingsStore.get().mtgaPath;
-  }
-  if (settingsStore.get().uploads && mtgaPath !== undefined) {
-    uploadCardData(['data_loc_', 'data_cards_'], [mtgaPath, 'MTGA_Data', 'Downloads', 'Data']);
-    uploadCardData(['loc_Events_'], [mtgaPath, 'MTGA_Data', 'Downloads', 'Loc']);
-  }
+  doMtgaPathOps();
 
   withHomeWindow(w => {
     if (settingsStore.get().minimized) {

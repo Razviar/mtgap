@@ -251,7 +251,7 @@ div#UserLinks {
   vertical-align: top;
 }
 
-#CurrentLogPath {
+.logpath {
   font-size: 0.8em;
 }
 

@@ -189,6 +189,14 @@ onMessageFromIpcMain('set-settings', newSettings => {
     sw.innerHTML = '<strong>Default</strong>';
   }
 
+  if (newSettings.mtgaPath !== undefined) {
+    const sw = document.getElementById('CurrentMTGAPath') as HTMLElement;
+    sw.innerHTML = `<strong>${newSettings.mtgaPath}</strong>`;
+  } else {
+    const sw = document.getElementById('CurrentMTGAPath') as HTMLElement;
+    sw.innerHTML = '<strong class="brown">Unknown!</strong>';
+  }
+
   if (newSettings.icon !== undefined) {
     const sw = document.querySelector('[data-setting="icon"]') as HTMLSelectElement;
     const opts = sw.options;
@@ -325,6 +333,8 @@ const controlClick = (event: Event) => {
     case 'apply-update':
     case 'set-log-path':
     case 'default-log-path':
+    case 'set-mtga-path':
+    case 'default-mtga-path':
       sendMessageToIpcMain(button, undefined);
       break;
   }
