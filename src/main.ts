@@ -8,6 +8,7 @@ import {setupIpcMain} from 'root/app/ipc_main';
 import {createGlobalLogParser} from 'root/app/log_parser_manager';
 import {createMainWindow, withHomeWindow} from 'root/app/main_window';
 import {sendMessageToHomeWindow} from 'root/app/messages';
+import {locateMtgaDir} from 'root/app/mtga_dir_ops';
 import {setupProcessWatcher} from 'root/app/process_watcher';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
@@ -26,9 +27,14 @@ const processWatcherFnInterval = 500;
 function recreateMainWindow(): void {
   //setupRequestIntercept(app);
   createMainWindow();
-  if (settingsStore.get().uploads) {
-    uploadCardData(['data_loc_', 'data_cards_'], ['Wizards of the Coast', 'MTGA', 'MTGA_Data', 'Downloads', 'Data']);
-    uploadCardData(['loc_Events_'], ['Wizards of the Coast', 'MTGA', 'MTGA_Data', 'Downloads', 'Loc']);
+  let mtgaPath = settingsStore.get().mtgaPath;
+  if (mtgaPath === undefined) {
+    locateMtgaDir(['Wizards of the Coast', 'MTGA']);
+    mtgaPath = settingsStore.get().mtgaPath;
+  }
+  if (settingsStore.get().uploads && mtgaPath !== undefined) {
+    uploadCardData(['data_loc_', 'data_cards_'], [mtgaPath, 'MTGA_Data', 'Downloads', 'Data']);
+    uploadCardData(['loc_Events_'], [mtgaPath, 'MTGA_Data', 'Downloads', 'Loc']);
   }
 
   withHomeWindow(w => {

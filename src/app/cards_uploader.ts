@@ -2,17 +2,19 @@ import fs from 'fs';
 import path from 'path';
 
 import {checkFileBeforeUpload, doFileUpload} from 'root/api/checkFileBeforeUpload';
+import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
 
 export function uploadCardData(FilesOfInterest: string[], pathElements: string[]): void {
-  const x64 = process.arch === 'x64' || process.env.hasOwnProperty('PROCESSOR_ARCHITEW6432');
-  const progFiles = process.env[`ProgramFiles${x64 ? '(x86)' : ''}`];
-  if (progFiles === undefined) {
-    return;
-  }
-  const pth = path.join(progFiles, ...pathElements);
-  try {
-    const dirToScan = fs.readdirSync(pth);
+  const pth = path.join(...pathElements);
+  fs.readdir(pth, (err, dirToScan) => {
+    if (err !== null) {
+      const settings = settingsStore.get();
+      settings.mtgaPath = undefined;
+      settingsStore.save();
+      return;
+    }
+
     dirToScan
       .filter(file => {
         let pass = false;
@@ -24,13 +26,11 @@ export function uploadCardData(FilesOfInterest: string[], pathElements: string[]
         return pass;
       })
       .forEach(interestingFile => {
-        fs.readFile(path.join(pth, interestingFile), 'utf8', (err: NodeJS.ErrnoException | null, data: string) => {
-          fileUploader(err, data, interestingFile);
+        fs.readFile(path.join(pth, interestingFile), 'utf8', (errr: NodeJS.ErrnoException | null, data: string) => {
+          fileUploader(errr, data, interestingFile);
         });
       });
-  } catch (e) {
-    error('Failure to read ProgramFiles dir', e, {progFiles, pth});
-  }
+  });
 }
 
 const fileUploader = (err: NodeJS.ErrnoException | null, data: string, filename: string) => {

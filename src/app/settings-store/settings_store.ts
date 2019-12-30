@@ -8,6 +8,7 @@ import {AccountV3, OverlaySettingsV3, SettingsV3} from 'root/app/settings-store/
 import {AccountV4, OverlaySettingsV4, SettingsV4} from 'root/app/settings-store/v4';
 import {SettingsV5} from 'root/app/settings-store/v5';
 import {AccountV6, OverlaySettingsV6, SettingsV6} from 'root/app/settings-store/v6';
+import {SettingsV7} from 'root/app/settings-store/v7';
 import {error} from 'root/lib/logger';
 import {AnyMap, asBoolean, asMap, asNumber, asNumberString, asString} from 'root/lib/type_utils';
 
@@ -73,10 +74,18 @@ class SettingsStore {
   }
 }
 
-export type LatestSettings = SettingsV6;
+export type LatestSettings = SettingsV7;
 export type OverlaySettings = OverlaySettingsV6;
 export type Account = AccountV6;
-type AllSettings = SettingsV0 | SettingsV1 | SettingsV2 | SettingsV3 | SettingsV4 | SettingsV5 | SettingsV6;
+type AllSettings =
+  | SettingsV0
+  | SettingsV1
+  | SettingsV2
+  | SettingsV3
+  | SettingsV4
+  | SettingsV5
+  | SettingsV6
+  | SettingsV7;
 
 export enum Version {
   v0,
@@ -86,6 +95,7 @@ export enum Version {
   v4,
   v5,
   v6,
+  v7,
 }
 
 export interface SettingsBase {
@@ -554,6 +564,24 @@ function migrateV5toV6(v5: SettingsV5): SettingsV6 {
   };
 }
 
+function migrateV6toV7(v6: SettingsV6): SettingsV7 {
+  return {
+    version: Version.v7,
+    accounts: asAccountsV6(v6.accounts),
+    userToken: v6.userToken,
+    icon: v6.icon,
+    autorun: v6.autorun,
+    minimized: v6.minimized,
+    overlay: v6.overlay,
+    manualUpdate: v6.manualUpdate,
+    awaiting: v6.awaiting,
+    logPath: v6.logPath,
+    mtgaPath: undefined,
+    nohotkeys: v6.nohotkeys,
+    uploads: v6.uploads,
+  };
+}
+
 function parseSettings(settings: AllSettings): LatestSettings {
   // Recursively parse settings and migrate them to arrive at latest version
   switch (settings.version) {
@@ -569,6 +597,8 @@ function parseSettings(settings: AllSettings): LatestSettings {
       return parseSettings(migrateV4toV5(settings));
     case Version.v5:
       return parseSettings(migrateV5toV6(settings));
+    case Version.v6:
+      return parseSettings(migrateV6toV7(settings));
     default:
       return settings;
   }
