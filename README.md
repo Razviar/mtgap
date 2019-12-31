@@ -32,6 +32,12 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 6. Check if antiviruses or firewalls are blocking app traffic, add app to exception.
 
 ## Changelog
+v.2.0.28 released 31/12/2019
+* Better old logs parsing: now skips empty logs without error and correctly works with user switch events.
+* Better timestamp acquisition using stats of log files. 
+* Faster collection updates and overall faster sync for new users.
+* Added settings to locate MTGA installation dir to avoid errors if it's non-standard.
+
 v.2.0.27 released 26/12/2019
 * Now you can detach overlay from MTGA window and place it wherever you like. Especially useful for users with several monitors.
 * More hotkeys
