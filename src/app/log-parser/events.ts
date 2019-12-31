@@ -7,6 +7,7 @@ import {
   StatefulLogEvent,
 } from 'root/app/log-parser/model';
 import {parseEvent} from 'root/app/log-parser/parsing';
+import {locateMostRecentDate} from 'root/app/mtga_dir_ops';
 
 function shouldStopParsing(allEvents: StatefulLogEvent[], options: ParsingMetadata): boolean {
   if (allEvents.length === 0) {
@@ -22,7 +23,8 @@ function shouldStopParsing(allEvents: StatefulLogEvent[], options: ParsingMetada
 export async function getEvents(
   path: string,
   state: LogFileParsingState,
-  options: ParsingMetadata
+  options: ParsingMetadata,
+  oldlog?: boolean
 ): Promise<LogFileOperationResult<StatefulLogEvent[]>> {
   return new Promise<LogFileOperationResult<StatefulLogEvent[]>>((resolve, reject) => {
     const fileStream = fs.createReadStream(path, {
@@ -35,6 +37,10 @@ export async function getEvents(
     let bytesRead = state.bytesRead;
     let currentEvent: string | undefined;
     const allEvents: StatefulLogEvent[] = [];
+
+    if (!oldlog && (state.timestamp === undefined || state.timestamp === 1)) {
+      state.timestamp = locateMostRecentDate();
+    }
 
     fileStream.on('data', (chunk: string) => {
       bytesRead += chunk.length;

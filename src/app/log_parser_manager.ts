@@ -1,4 +1,4 @@
-import {stat} from 'fs';
+import {stat, statSync} from 'fs';
 import {promisify} from 'util';
 
 import {sendEventsToServer} from 'root/api/logsender';
@@ -137,7 +137,9 @@ export async function parseOldLogs(
   }
 
   // Parsing events
-  const [events, newState] = await getEvents(logpath, currentState, parsingMetadata);
+  const fileCTime = statSync(logpath).ctime;
+  currentState.timestamp = fileCTime.getTime();
+  const [events, newState] = await getEvents(logpath, currentState, parsingMetadata, true);
   /*console.log(events);
   console.log(newState);*/
   // Check if end of parsing
@@ -174,7 +176,7 @@ export async function parseOldLogs(
   );
 
   // Send events to server
-  //console.log(eventsToSend);
+  // console.log(eventsToSend);
   sendEventsToServer(eventsToSend, parsingMetadata.logSender, newState);
 
   // Adding small sleep

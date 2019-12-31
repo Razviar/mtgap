@@ -36,27 +36,25 @@ export function locateMtgaDir(checkPath: string | undefined): boolean {
   return result;
 }
 
-export function locateMostRecentDate(): Date | undefined {
+export function locateMostRecentDate(): number | undefined {
   const mtgaPath = settingsStore.get().mtgaPath;
   if (mtgaPath === undefined) {
     return undefined;
   }
   let logDate: Date | undefined;
   const pth = path.join(mtgaPath, ...['MTGA_Data', 'Logs', 'Logs']);
-  fs.readdir(pth, (err: NodeJS.ErrnoException | null, files: string[]): void => {
-    if (err !== null) {
-      return;
-    }
-    try {
-      files.forEach(file => {
-        const ctime = fs.statSync(path.join(pth, file)).ctime;
-        if (logDate === undefined || logDate < ctime) {
-          logDate = ctime;
-        }
-      });
-    } catch (e) {
-      error('Error reading files in logs folder', e);
-    }
-  });
-  return logDate;
+  try {
+    const files = fs.readdirSync(pth);
+    files.forEach(file => {
+      const ctime = fs.statSync(path.join(pth, file)).ctime;
+      if (logDate === undefined || logDate < ctime) {
+        logDate = ctime;
+      }
+    });
+  } catch (e) {
+    error('Error reading files in logs folder', e);
+  }
+
+  //console.log(logDate);
+  return logDate?.getTime();
 }
