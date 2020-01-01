@@ -80,6 +80,10 @@ export function setupProcessWatcher(): () => void {
                 overlayWindow.show();
               }
             }
+
+            if (overlayWindow.isVisible()) {
+              overlayWindow.setAlwaysOnTop(true);
+            }
           }
         }
       })
