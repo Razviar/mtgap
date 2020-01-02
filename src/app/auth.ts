@@ -28,6 +28,7 @@ export function setCreds(source: string): void {
         opacity: 0,
         fontcolor: 0,
         detach: false,
+        hidemain: false,
       };
       settingsStore.save();
     }

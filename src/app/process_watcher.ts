@@ -82,7 +82,7 @@ export function setupProcessWatcher(): () => void {
             }
 
             if (overlayWindow.isVisible()) {
-              overlayWindow.setAlwaysOnTop(true);
+              overlayWindow.setAlwaysOnTop(true, 'screen-saver');
             }
           }
         }
