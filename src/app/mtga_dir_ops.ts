@@ -1,6 +1,7 @@
 import fs from 'fs';
 import {join} from 'path';
 
+import {parseOldLogsHandler} from 'root/app/old-log-handler';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
 
@@ -57,4 +58,31 @@ export function locateMostRecentDate(): number | undefined {
 
   //console.log(logDate);
   return logDate?.getTime();
+}
+
+export function getOldLogs(): string[] | undefined {
+  const mtgaPath = settingsStore.get().mtgaPath;
+  if (mtgaPath === undefined) {
+    return undefined;
+  }
+  const pth = join(mtgaPath, ...['MTGA_Data', 'Logs', 'Logs']);
+  const files: string[] = [];
+  try {
+    fs.readdirSync(pth)
+      .filter(file => file.includes('UTC_Log') && file.includes('.log'))
+      .forEach(file => {
+        files.push(join(mtgaPath, ...['MTGA_Data', 'Logs', 'Logs'], file));
+      });
+  } catch (e) {
+    error('Error reading files in logs folder', e);
+  }
+  return files;
+}
+
+export function ShadowLogParse(): void {
+  const logs = getOldLogs();
+  if (logs === undefined) {
+    return;
+  }
+  parseOldLogsHandler(logs, 0, 0);
 }
