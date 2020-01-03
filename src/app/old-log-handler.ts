@@ -11,6 +11,11 @@ export function parseOldLogsHandler(logs: string[], index: number, skipped: numb
       message: `Parsing old log: ${index + 1}/${logs.length} (Skipped: ${skipped})`,
       autoclose: 0,
     });
+  } else {
+    sendMessageToHomeWindow('show-status', {
+      message: `Parsing old logs: ${index + 1}/${logs.length} (Skipped: ${skipped})`,
+      color: '#22a83a',
+    });
   }
   withLogParser(lp => lp.stop());
   getParsingMetadata(app.getVersion())
@@ -22,10 +27,12 @@ export function parseOldLogsHandler(logs: string[], index: number, skipped: numb
             if (index + 1 === logs.length) {
               if (!shadow) {
                 sendMessageToHomeWindow('show-prompt', {message: 'Parsing complete!', autoclose: 1000});
+              } else {
+                sendMessageToHomeWindow('show-status', {message: 'Old logs are uploaded!', color: '#22a83a'});
               }
               withLogParser(lp => lp.start());
             } else {
-              parseOldLogsHandler(logs, index + 1, skipped + result);
+              parseOldLogsHandler(logs, index + 1, skipped + result, shadow);
             }
             break;
           case 2:

@@ -12,7 +12,7 @@ const movementSensitivity = 5;
 const overlayPositioner = new WindowLocator();
 const processWatcher = new ProcessWatcher('MTGA.exe');
 
-export let gameIsRunning = false;
+export let gameIsRunning: boolean | undefined;
 let overlayIsPositioned = false;
 
 export function setupProcessWatcher(): () => void {
@@ -22,9 +22,11 @@ export function setupProcessWatcher(): () => void {
       .then(MTGApid => {
         overlayPositioner.findmtga(MTGApid);
         if (MTGApid === -1) {
-          gameIsRunning = false;
-          sendMessageToHomeWindow('show-status', {message: 'Game is not running!', color: '#dbb63d'});
-          withOverlayWindow(w => w.hide());
+          if (gameIsRunning) {
+            gameIsRunning = false;
+            sendMessageToHomeWindow('show-status', {message: 'Game is not running!', color: '#dbb63d'});
+            withOverlayWindow(w => w.hide());
+          }
         } else {
           gameIsRunning = true;
           const account = settingsStore.getAccount();

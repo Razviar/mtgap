@@ -84,5 +84,5 @@ export function ShadowLogParse(): void {
   if (logs === undefined) {
     return;
   }
-  parseOldLogsHandler(logs, 0, 0);
+  parseOldLogsHandler(logs, 0, 0, true);
 }

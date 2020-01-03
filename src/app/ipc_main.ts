@@ -1,17 +1,16 @@
 import {App, dialog, nativeImage, shell} from 'electron';
 import {join} from 'path';
 
-import {getParsingMetadata} from 'root/api/getindicators';
 import {setuserdata, tokencheck, tokenrequest, userbytokenid, UserData} from 'root/api/userbytokenid';
 import {loadAppIcon} from 'root/app/app_icon';
 import {sendSettingsToRenderer} from 'root/app/auth';
 import {disableAutoLauncher, enableAutoLauncher} from 'root/app/auto_launcher';
 import {checkForUpdates, quitAndInstall} from 'root/app/auto_updater';
 import {unRegisterHotkeys} from 'root/app/hotkeys';
-import {parseOldLogs, withLogParser} from 'root/app/log_parser_manager';
+import {withLogParser} from 'root/app/log_parser_manager';
 import {withHomeWindow} from 'root/app/main_window';
 import {onMessageFromBrowserWindow, sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
-import {locateMtgaDir} from 'root/app/mtga_dir_ops';
+import {locateMtgaDir, ShadowLogParse} from 'root/app/mtga_dir_ops';
 import {parseOldLogsHandler} from 'root/app/old-log-handler';
 import {withOverlayWindow} from 'root/app/overlay_window';
 import {settingsStore} from 'root/app/settings-store/settings_store';
@@ -37,9 +36,11 @@ export function setupIpcMain(app: App): void {
           token: newAccount.token,
         };
 
-        setuserdata(userData).catch(err => {
-          error('Failure to set user data after a token-input event', err, {...userData});
-        });
+        if (!newAccount.token.includes('SKIPPING')) {
+          setuserdata(userData).catch(err => {
+            error('Failure to set user data after a token-input event', err, {...userData});
+          });
+        }
 
         settings.awaiting = undefined;
         withLogParser(logParser => {
@@ -382,6 +383,10 @@ export function setupIpcMain(app: App): void {
       sendMessageToHomeWindow('show-prompt', {message: 'Bad MTGA path, please set it correctly', autoclose: 1000});
     }
     sendSettingsToRenderer();
+  });
+
+  onMessageFromBrowserWindow('do-shadow-sync', () => {
+    ShadowLogParse();
   });
 
   onMessageFromBrowserWindow('old-log', () => {

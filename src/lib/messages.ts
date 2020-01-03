@@ -12,6 +12,7 @@ export interface Messages {
     res: TokenCheckRes | undefined;
     request: string;
   };
+  'do-shadow-sync': undefined;
   'get-userbytokenid': string;
   'userbytokenid-responce': UserResult;
   'open-link': string;

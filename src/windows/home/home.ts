@@ -62,6 +62,7 @@ onMessageFromIpcMain('set-creds', creds => {
     login(creds.account.token, creds.account.uid, creds.account.nick, 'set-creds');
     unhide.classList.add('hidden');
   } else {
+    UserControls.classList.remove('hidden');
     unhide.classList.remove('hidden');
   }
 });
@@ -246,6 +247,7 @@ onMessageFromIpcMain('sync-process', res => {
 onMessageFromIpcMain('token-waiter-responce', response => {
   if (response.res && response.res.token) {
     login(response.res.token, response.res.uid, response.res.nick);
+    sendMessageToIpcMain('do-shadow-sync', undefined);
   } else {
     setTimeout(() => {
       tokenWaiter(response.request);
@@ -335,6 +337,7 @@ const controlClick = (event: Event) => {
     case 'default-log-path':
     case 'set-mtga-path':
     case 'default-mtga-path':
+    case 'do-shadow-sync':
       sendMessageToIpcMain(button, undefined);
       break;
   }

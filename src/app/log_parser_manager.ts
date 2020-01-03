@@ -129,17 +129,17 @@ export async function parseOldLogs(
   let currentState: LogFileParsingState;
   if (!nextState) {
     // Detecting detailed logs
-    const [fileId] = await getFileId(logpath, {bytesRead: 0}, parsingMetadata);
-    if (oldStore.checkLog(fileId, logpath)) {
-      return 1;
-    }
     const fileCTime = statSync(logpath).ctime;
-    oldStore.saveFileID(fileCTime.getTime(), fileId);
-    oldStore.saveLogName(fileCTime.getTime(), logpath);
     const [detailedLogEnabled, detailedLogState] = await checkDetailedLogEnabled(logpath, parsingMetadata);
     if (!detailedLogEnabled) {
       return 1;
     }
+    const [fileId] = await getFileId(logpath, {bytesRead: 0}, parsingMetadata);
+    if (oldStore.checkLog(fileId, logpath)) {
+      return 1;
+    }
+    oldStore.saveFileID(fileCTime.getTime(), fileId);
+    oldStore.saveLogName(fileCTime.getTime(), logpath);
     currentState = detailedLogState;
     currentState.timestamp = fileCTime.getTime();
   } else {

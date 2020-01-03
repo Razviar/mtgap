@@ -40,7 +40,7 @@ export async function checkDetailedLogEnabled(
     chunkStream.onEnd(() => {
       // This should never happen unless there is a race condition we are parsing the log file extremely
       // early in its lifecycle and the "detailed log" line has not been written yet.
-      reject(new Error('Could not determine if detailed logs are enabled or not'));
+      resolve([false, {bytesRead: 0}]);
       chunkStream.close();
     });
     chunkStream.onError(err => {
