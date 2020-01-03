@@ -1,5 +1,5 @@
 import {Notification} from 'electron';
-import path from 'path';
+import {join} from 'path';
 
 import {getAppIcon} from 'root/app/app_icon';
 import {uploadCardData} from 'root/app/cards_uploader';
@@ -23,7 +23,7 @@ export function doMtgaPathOps(): void {
         const notification = new Notification({
           title: 'Set MTGA folder for Tracker',
           body: 'MTGA installation folder was not located automatically. Please set it up manually in settings!',
-          icon: path.join(__dirname, getAppIcon()),
+          icon: join(__dirname, getAppIcon()),
         });
         notification.show();
       }

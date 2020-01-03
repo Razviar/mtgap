@@ -1,5 +1,5 @@
 import fs from 'fs';
-import path from 'path';
+import {join} from 'path';
 
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
@@ -15,7 +15,7 @@ export function locateMtgaDir(checkPath: string | undefined): boolean {
     if (progFiles === undefined) {
       return false;
     }
-    pth = path.join(progFiles, ...pathElements);
+    pth = join(progFiles, ...pathElements);
   }
   let result = false;
   const settings = settingsStore.get();
@@ -42,11 +42,11 @@ export function locateMostRecentDate(): number | undefined {
     return undefined;
   }
   let logDate: Date | undefined;
-  const pth = path.join(mtgaPath, ...['MTGA_Data', 'Logs', 'Logs']);
+  const pth = join(mtgaPath, ...['MTGA_Data', 'Logs', 'Logs']);
   try {
     const files = fs.readdirSync(pth);
     files.forEach(file => {
-      const ctime = fs.statSync(path.join(pth, file)).ctime;
+      const ctime = fs.statSync(join(pth, file)).ctime;
       if (logDate === undefined || logDate < ctime) {
         logDate = ctime;
       }

@@ -4,10 +4,12 @@ import {promisify} from 'util';
 import {sendEventsToServer} from 'root/api/logsender';
 import {checkDetailedLogEnabled} from 'root/app/log-parser/detailed_log';
 import {getEvents} from 'root/app/log-parser/events';
+import {getFileId} from 'root/app/log-parser/file_id';
 import {LogParser} from 'root/app/log-parser/log_parser';
 import {LogFileParsingState, ParsingMetadata, StatefulLogEvent} from 'root/app/log-parser/model';
 import {extractValue} from 'root/app/log-parser/parsing';
 import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
+import {oldStore} from 'root/app/old_store';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {getAccountFromScreenName} from 'root/app/userswitch';
 import {error} from 'root/lib/logger';
@@ -127,19 +129,26 @@ export async function parseOldLogs(
   let currentState: LogFileParsingState;
   if (!nextState) {
     // Detecting detailed logs
+    const [fileId] = await getFileId(logpath, {bytesRead: 0}, parsingMetadata);
+    if (oldStore.checkLog(fileId, logpath)) {
+      return 1;
+    }
+    const fileCTime = statSync(logpath).ctime;
+    oldStore.saveFileID(fileCTime.getTime(), fileId);
+    oldStore.saveLogName(fileCTime.getTime(), logpath);
     const [detailedLogEnabled, detailedLogState] = await checkDetailedLogEnabled(logpath, parsingMetadata);
     if (!detailedLogEnabled) {
       return 1;
     }
     currentState = detailedLogState;
+    currentState.timestamp = fileCTime.getTime();
   } else {
     currentState = nextState;
   }
 
   // Parsing events
-  const fileCTime = statSync(logpath).ctime;
-  currentState.timestamp = fileCTime.getTime();
   const [events, newState] = await getEvents(logpath, currentState, parsingMetadata, true);
+
   /*console.log(events);
   console.log(newState);*/
   // Check if end of parsing

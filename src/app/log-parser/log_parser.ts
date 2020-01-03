@@ -14,6 +14,7 @@ import {LogFileParsingState, ParsingMetadata, StatefulLogEvent} from 'root/app/l
 import {extractValue} from 'root/app/log-parser/parsing';
 import {LogParserEventEmitter} from 'root/app/log_parser_events';
 import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
+import {oldStore} from 'root/app/old_store';
 import {gameIsRunning} from 'root/app/process_watcher';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {StateInfo, stateStore} from 'root/app/state_store';
@@ -94,6 +95,8 @@ export class LogParser {
             throw new Error('Enable Detailed Logs!');
           }
           nextState = detailedLogState;
+
+          oldStore.saveFileID(new Date().getTime(), fileId);
 
           if (gameIsRunning) {
             // Updating UI

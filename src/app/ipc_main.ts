@@ -418,10 +418,11 @@ export function setupIpcMain(app: App): void {
   };
 
   onMessageFromBrowserWindow('old-log', () => {
+    const logpath = settingsStore.get().mtgaPath;
     dialog
       .showOpenDialog({
         properties: ['openFile', 'multiSelections'],
-        defaultPath: 'C:\\Program Files (x86)\\Wizards of the Coast\\MTGA\\MTGA_Data\\Logs\\Logs',
+        defaultPath: logpath !== undefined ? join(logpath, ...['MTGA_Data', 'Logs', 'Logs']) : '',
         filters: [{name: 'UTC_Log*', extensions: ['log']}],
       })
       .then(log => {

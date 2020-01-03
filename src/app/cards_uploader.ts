@@ -1,12 +1,12 @@
 import fs from 'fs';
-import path from 'path';
+import {join} from 'path';
 
 import {checkFileBeforeUpload, doFileUpload} from 'root/api/checkFileBeforeUpload';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
 
 export function uploadCardData(FilesOfInterest: string[], pathElements: string[]): void {
-  const pth = path.join(...pathElements);
+  const pth = join(...pathElements);
   fs.readdir(pth, (err, dirToScan) => {
     if (err !== null) {
       const settings = settingsStore.get();
@@ -26,7 +26,7 @@ export function uploadCardData(FilesOfInterest: string[], pathElements: string[]
         return pass;
       })
       .forEach(interestingFile => {
-        fs.readFile(path.join(pth, interestingFile), 'utf8', (errr: NodeJS.ErrnoException | null, data: string) => {
+        fs.readFile(join(pth, interestingFile), 'utf8', (errr: NodeJS.ErrnoException | null, data: string) => {
           fileUploader(errr, data, interestingFile);
         });
       });

@@ -1,6 +1,6 @@
 import {app, autoUpdater, Notification} from 'electron';
 import electronIsDev from 'electron-is-dev';
-import path from 'path';
+import {join} from 'path';
 
 import {getAppIcon} from 'root/app/app_icon';
 import {withHomeWindow} from 'root/app/main_window';
@@ -94,7 +94,7 @@ export function setupAutoUpdater(): void {
               title: 'MTGA Pro Tracker Update',
               body:
                 'Updated is downloaded and ready to be applied. Since you have manual updates switched on, you need to click Apply Update button.',
-              icon: path.join(__dirname, getAppIcon()),
+              icon: join(__dirname, getAppIcon()),
             });
             notification.show();
           }

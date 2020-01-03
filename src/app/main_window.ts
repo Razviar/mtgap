@@ -1,6 +1,6 @@
 import {BrowserWindow, nativeImage, Tray} from 'electron';
 import electronIsDev from 'electron-is-dev';
-import path from 'path';
+import {join} from 'path';
 
 import {getAppIcon} from 'root/app/app_icon';
 import {createContextMenuForMainWindow} from 'root/app/context_menu';
@@ -21,7 +21,7 @@ export function withHomeWindow(fn: (mainWindow: BrowserWindow) => void): void {
 }
 
 export function createMainWindow(): void {
-  const appIcoImg = nativeImage.createFromPath(path.join(__dirname, getAppIcon()));
+  const appIcoImg = nativeImage.createFromPath(join(__dirname, getAppIcon()));
   const appIcon = new Tray(appIcoImg);
 
   mainWindow = new BrowserWindow({
