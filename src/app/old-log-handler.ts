@@ -62,6 +62,8 @@ export function parseOldLogsHandler(logs: string[], index: number, skipped: numb
               'MTGA Pro Tracker',
               'Found new user during old logs parsing! Please handle this account and repeat old logs parsing'
             );
+            oldLogHandlerStatus.ReadingOldLogs = false;
+            sendMessageToHomeWindow('shadow-sync-over', undefined);
             break;
         }
       })

@@ -394,6 +394,7 @@ export function setupIpcMain(app: App): void {
   });
 
   onMessageFromBrowserWindow('stop-shadow-sync', () => {
+    sendMessageToHomeWindow('show-prompt', {message: 'Stopping parser...', autoclose: 1000});
     oldLogHandlerStatus.AbortOldLogs = true;
   });
 
