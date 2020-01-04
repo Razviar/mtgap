@@ -11,7 +11,7 @@ import {withLogParser} from 'root/app/log_parser_manager';
 import {withHomeWindow} from 'root/app/main_window';
 import {onMessageFromBrowserWindow, sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
 import {locateMtgaDir, ShadowLogParse} from 'root/app/mtga_dir_ops';
-import {parseOldLogsHandler} from 'root/app/old-log-handler';
+import {parseOldLogsHandler, ReadingOldLogs} from 'root/app/old-log-handler';
 import {withOverlayWindow} from 'root/app/overlay_window';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {stateStore} from 'root/app/state_store';
@@ -386,23 +386,31 @@ export function setupIpcMain(app: App): void {
   });
 
   onMessageFromBrowserWindow('do-shadow-sync', () => {
-    ShadowLogParse();
+    if (!ReadingOldLogs) {
+      ShadowLogParse();
+    } else {
+      sendMessageToHomeWindow('show-prompt', {message: 'Old logs are alraedy being parsedg', autoclose: 1000});
+    }
   });
 
   onMessageFromBrowserWindow('old-log', () => {
-    const logpath = settingsStore.get().mtgaPath;
-    dialog
-      .showOpenDialog({
-        properties: ['openFile', 'multiSelections'],
-        defaultPath: logpath !== undefined ? join(logpath, ...['MTGA_Data', 'Logs', 'Logs']) : '',
-        filters: [{name: 'UTC_Log*', extensions: ['log']}],
-      })
-      .then(log => {
-        if (!log.canceled && log.filePaths[0]) {
-          parseOldLogsHandler(log.filePaths, 0, 0);
-        }
-      })
-      .catch(err => error('Error while showing open file dialog during old-log-path event', err));
+    if (!ReadingOldLogs) {
+      const logpath = settingsStore.get().mtgaPath;
+      dialog
+        .showOpenDialog({
+          properties: ['openFile', 'multiSelections'],
+          defaultPath: logpath !== undefined ? join(logpath, ...['MTGA_Data', 'Logs', 'Logs']) : '',
+          filters: [{name: 'UTC_Log*', extensions: ['log']}],
+        })
+        .then(log => {
+          if (!log.canceled && log.filePaths[0]) {
+            parseOldLogsHandler(log.filePaths, 0, 0);
+          }
+        })
+        .catch(err => error('Error while showing open file dialog during old-log-path event', err));
+    } else {
+      sendMessageToHomeWindow('show-prompt', {message: 'Old logs are alraedy being parsedg', autoclose: 1000});
+    }
   });
 
   onMessageFromBrowserWindow('error-in-renderer', err => {

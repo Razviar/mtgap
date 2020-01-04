@@ -6,7 +6,10 @@ import {sendMessageToHomeWindow} from 'root/app/messages';
 import {showNotifi} from 'root/app/notification';
 import {error} from 'root/lib/logger';
 
+export let ReadingOldLogs = false;
+
 export function parseOldLogsHandler(logs: string[], index: number, skipped: number, shadow?: boolean): void {
+  ReadingOldLogs = true;
   if (!shadow) {
     sendMessageToHomeWindow('show-prompt', {
       message: `Parsing old log: ${index + 1}/${logs.length} (Skipped: ${skipped})`,
@@ -26,6 +29,7 @@ export function parseOldLogsHandler(logs: string[], index: number, skipped: numb
           case 0:
           case 1:
             if (index + 1 === logs.length) {
+              ReadingOldLogs = false;
               if (!shadow) {
                 sendMessageToHomeWindow('show-prompt', {message: 'Parsing complete!', autoclose: 1000});
               } else {
@@ -52,5 +56,6 @@ export function parseOldLogsHandler(logs: string[], index: number, skipped: numb
     )
     .catch(err => {
       error('Error reading old logs', err);
+      ReadingOldLogs = false;
     });
 }
