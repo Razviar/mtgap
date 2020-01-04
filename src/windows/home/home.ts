@@ -262,6 +262,16 @@ onMessageFromIpcMain('userbytokenid-responce', res => {
   }
 });
 
+onMessageFromIpcMain('shadow-sync-over', () => {
+  const ShadowSyncStopper = document.querySelector('[data-button="stop-shadow-sync"]') as HTMLElement;
+  ShadowSyncStopper.classList.add('hidden');
+  const ShadowSyncStarter = document.querySelector('[data-button="do-shadow-sync""]') as HTMLElement;
+  ShadowSyncStarter.classList.remove('hidden');
+});
+
+const sss = document.querySelector('[data-button="stop-shadow-sync"]') as HTMLElement;
+sss.classList.remove('hidden');
+
 minimizeButton.addEventListener('click', () => {
   sendMessageToIpcMain('minimize-me', undefined);
 });
@@ -331,6 +341,12 @@ const controlClick = (event: Event) => {
     case 'unskip-acc':
       sendMessageToIpcMain('kill-current-token', undefined);
       break;
+    case 'do-shadow-sync':
+      cl.classList.add('hidden');
+      const sssi = document.querySelector('[data-button="stop-shadow-sync"]') as HTMLElement;
+      sssi.classList.remove('hidden');
+      sendMessageToIpcMain(button, undefined);
+      break;
     case 'wipe-all':
     case 'restart-me':
     case 'stop-tracker':
@@ -340,7 +356,7 @@ const controlClick = (event: Event) => {
     case 'default-log-path':
     case 'set-mtga-path':
     case 'default-mtga-path':
-    case 'do-shadow-sync':
+    case 'stop-shadow-sync':
       sendMessageToIpcMain(button, undefined);
       break;
   }

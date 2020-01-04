@@ -6,10 +6,13 @@ import {sendMessageToHomeWindow} from 'root/app/messages';
 import {showNotifi} from 'root/app/notification';
 import {error} from 'root/lib/logger';
 
-export let ReadingOldLogs = false;
+export const oldLogHandlerStatus = {
+  ReadingOldLogs: false,
+  AbortOldLogs: false,
+};
 
 export function parseOldLogsHandler(logs: string[], index: number, skipped: number, shadow?: boolean): void {
-  ReadingOldLogs = true;
+  oldLogHandlerStatus.ReadingOldLogs = true;
   if (!shadow) {
     sendMessageToHomeWindow('show-prompt', {
       message: `Parsing old log: ${index + 1}/${logs.length} (Skipped: ${skipped})`,
@@ -21,6 +24,9 @@ export function parseOldLogsHandler(logs: string[], index: number, skipped: numb
       color: '#22a83a',
     });
   }
+  if (oldLogHandlerStatus.AbortOldLogs) {
+    sendMessageToHomeWindow('show-prompt', {message: 'Parsing aborted!', autoclose: 1000});
+  }
   withLogParser(lp => lp.stop());
   getParsingMetadata(app.getVersion())
     .then(parsingMetadata =>
@@ -29,12 +35,13 @@ export function parseOldLogsHandler(logs: string[], index: number, skipped: numb
           case 0:
           case 1:
             if (index + 1 === logs.length) {
-              ReadingOldLogs = false;
+              oldLogHandlerStatus.ReadingOldLogs = false;
               if (!shadow) {
                 sendMessageToHomeWindow('show-prompt', {message: 'Parsing complete!', autoclose: 1000});
               } else {
                 sendMessageToHomeWindow('show-status', {message: 'Old logs are uploaded!', color: '#22a83a'});
                 showNotifi('MTGA Pro Tracker', 'All old logs have been parsed!');
+                sendMessageToHomeWindow('shadow-sync-over', undefined);
               }
               withLogParser(lp => lp.start());
             } else {
@@ -56,6 +63,6 @@ export function parseOldLogsHandler(logs: string[], index: number, skipped: numb
     )
     .catch(err => {
       error('Error reading old logs', err);
-      ReadingOldLogs = false;
+      oldLogHandlerStatus.ReadingOldLogs = false;
     });
 }

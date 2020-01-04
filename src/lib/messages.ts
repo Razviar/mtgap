@@ -119,6 +119,8 @@ export interface Messages {
   'scale-down': undefined;
   'opacity-up': undefined;
   'opacity-down': undefined;
+  'stop-shadow-sync': undefined;
+  'shadow-sync-over': undefined;
 }
 
 export enum NetworkStatusMessage {

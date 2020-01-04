@@ -11,7 +11,7 @@ import {withLogParser} from 'root/app/log_parser_manager';
 import {withHomeWindow} from 'root/app/main_window';
 import {onMessageFromBrowserWindow, sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
 import {locateMtgaDir, ShadowLogParse} from 'root/app/mtga_dir_ops';
-import {parseOldLogsHandler, ReadingOldLogs} from 'root/app/old-log-handler';
+import {oldLogHandlerStatus, parseOldLogsHandler} from 'root/app/old-log-handler';
 import {withOverlayWindow} from 'root/app/overlay_window';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {stateStore} from 'root/app/state_store';
@@ -386,15 +386,19 @@ export function setupIpcMain(app: App): void {
   });
 
   onMessageFromBrowserWindow('do-shadow-sync', () => {
-    if (!ReadingOldLogs) {
+    if (!oldLogHandlerStatus.ReadingOldLogs) {
       ShadowLogParse();
     } else {
-      sendMessageToHomeWindow('show-prompt', {message: 'Old logs are alraedy being parsedg', autoclose: 1000});
+      sendMessageToHomeWindow('show-prompt', {message: 'Old logs are already being parsed', autoclose: 1000});
     }
   });
 
+  onMessageFromBrowserWindow('stop-shadow-sync', () => {
+    oldLogHandlerStatus.AbortOldLogs = true;
+  });
+
   onMessageFromBrowserWindow('old-log', () => {
-    if (!ReadingOldLogs) {
+    if (!oldLogHandlerStatus.ReadingOldLogs) {
       const logpath = settingsStore.get().mtgaPath;
       dialog
         .showOpenDialog({
@@ -409,7 +413,7 @@ export function setupIpcMain(app: App): void {
         })
         .catch(err => error('Error while showing open file dialog during old-log-path event', err));
     } else {
-      sendMessageToHomeWindow('show-prompt', {message: 'Old logs are alraedy being parsedg', autoclose: 1000});
+      sendMessageToHomeWindow('show-prompt', {message: 'Old logs are already being parsed', autoclose: 1000});
     }
   });
 
