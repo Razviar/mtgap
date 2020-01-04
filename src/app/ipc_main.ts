@@ -53,6 +53,7 @@ export function setupIpcMain(app: App): void {
       // Don't forget to save on disk ;)
       settingsStore.save();
     }
+    sendSettingsToRenderer();
   });
 
   onMessageFromBrowserWindow('start-sync', currentMtgaCreds => {
@@ -394,7 +395,7 @@ export function setupIpcMain(app: App): void {
   });
 
   onMessageFromBrowserWindow('stop-shadow-sync', () => {
-    sendMessageToHomeWindow('show-prompt', {message: 'Stopping parser...', autoclose: 1000});
+    sendMessageToHomeWindow('show-status', {message: 'Stopping parser...', color: '#22a83a'});
     oldLogHandlerStatus.AbortOldLogs = true;
   });
 

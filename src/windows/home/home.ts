@@ -62,7 +62,8 @@ onMessageFromIpcMain('set-creds', creds => {
     login(creds.account.token, creds.account.uid, creds.account.nick, 'set-creds');
     unhide.classList.add('hidden');
   } else {
-    StatusMessage.innerHTML = 'Skipping this account...';
+    TokenResponse.innerHTML = `Current user: <strong>Skipping this account...</strong>`;
+    StatusMessage.innerHTML = '';
     UserControls.classList.remove('hidden');
     unhide.classList.remove('hidden');
   }
