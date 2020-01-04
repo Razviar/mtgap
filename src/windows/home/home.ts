@@ -265,7 +265,7 @@ onMessageFromIpcMain('userbytokenid-responce', res => {
 onMessageFromIpcMain('shadow-sync-over', () => {
   const ShadowSyncStopper = document.querySelector('[data-button="stop-shadow-sync"]') as HTMLElement;
   ShadowSyncStopper.classList.add('hidden');
-  const ShadowSyncStarter = document.querySelector('[data-button="do-shadow-sync""]') as HTMLElement;
+  const ShadowSyncStarter = document.querySelector('[data-button="do-shadow-sync"]') as HTMLElement;
   ShadowSyncStarter.classList.remove('hidden');
 });
 

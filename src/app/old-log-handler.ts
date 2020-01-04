@@ -26,8 +26,9 @@ export function parseOldLogsHandler(logs: string[], index: number, skipped: numb
   }
   if (oldLogHandlerStatus.AbortOldLogs) {
     sendMessageToHomeWindow('shadow-sync-over', undefined);
-    sendMessageToHomeWindow('show-prompt', {message: 'Parsing aborted!', autoclose: 1000});
+    sendMessageToHomeWindow('show-status', {message: 'Parsing aborted!', color: '#22a83a'});
     oldLogHandlerStatus.ReadingOldLogs = false;
+    oldLogHandlerStatus.AbortOldLogs = false;
     withLogParser(lp => lp.start());
     return;
   }
