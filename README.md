@@ -32,6 +32,12 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 6. Check if antiviruses or firewalls are blocking app traffic, add app to exception.
 
 ## Changelog
+v.2.0.29 released 04/01/2019
+* Shadow old logs parsing: now all new users will automatically get synced all logs in MTGA Logs directory, so it will result in getting about month of tracked data right from tracker start.
+* Better multiple accounts handling.
+* More control over old logs parsing.
+* Improved stability of old logs parsing.
+
 v.2.0.28 released 31/12/2019
 * Better old logs parsing: now skips empty logs without error and correctly works with user switch events.
 * Better timestamp acquisition using stats of log files. 
