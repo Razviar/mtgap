@@ -37,6 +37,7 @@ v.2.0.29 released 04/01/2019
 * Better multiple accounts handling.
 * More control over old logs parsing.
 * Improved stability of old logs parsing.
+* Improved errors telemetry: now we will definetly know if your tracked does something weird.
 
 v.2.0.28 released 31/12/2019
 * Better old logs parsing: now skips empty logs without error and correctly works with user switch events.
