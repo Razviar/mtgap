@@ -1,10 +1,9 @@
-import {app, autoUpdater, Notification} from 'electron';
+import {app, autoUpdater} from 'electron';
 import electronIsDev from 'electron-is-dev';
-import {join} from 'path';
 
-import {getAppIcon} from 'root/app/app_icon';
 import {withHomeWindow} from 'root/app/main_window';
 import {sendMessageToHomeWindow} from 'root/app/messages';
+import {showNotifi} from 'root/app/notification';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {NetworkStatusMessage} from 'root/lib/messages';
 
@@ -90,13 +89,10 @@ export function setupAutoUpdater(): void {
         });
         withHomeWindow(w => {
           if (!w.isVisible()) {
-            const notification = new Notification({
-              title: 'MTGA Pro Tracker Update',
-              body:
-                'Updated is downloaded and ready to be applied. Since you have manual updates switched on, you need to click Apply Update button.',
-              icon: join(__dirname, getAppIcon()),
-            });
-            notification.show();
+            showNotifi(
+              'MTGA Pro Tracker Update',
+              'Updated is downloaded and ready to be applied. Since you have manual updates switched on, you need to click Apply Update button.'
+            );
           }
         });
       }

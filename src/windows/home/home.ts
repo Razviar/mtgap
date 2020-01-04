@@ -62,6 +62,7 @@ onMessageFromIpcMain('set-creds', creds => {
     login(creds.account.token, creds.account.uid, creds.account.nick, 'set-creds');
     unhide.classList.add('hidden');
   } else {
+    StatusMessage.innerHTML = 'Skipping this account...';
     UserControls.classList.remove('hidden');
     unhide.classList.remove('hidden');
   }
@@ -314,6 +315,8 @@ const controlClick = (event: Event) => {
       TokenInput.classList.add('hidden');
       const unhide = document.querySelector('[data-button="unskip-acc"]') as HTMLElement;
       unhide.classList.remove('hidden');
+      StatusMessage.innerHTML = 'Skipping this account...';
+      UserControls.classList.remove('hidden');
       sendMessageToIpcMain('token-input', {
         token: `SKIPPING${Math.floor(1000 * Math.random())}`,
         uid: '',
@@ -467,7 +470,9 @@ Array.from(settings).forEach(el => {
 });
 
 onMessageFromIpcMain('network-status', status => {
-  NetworkStatus.title = status.message;
+  NetworkStatus.title = `${status.message}${
+    status.eventsleft !== undefined ? ` (${status.eventsleft} events to upload)` : ''
+  }`;
   NetworkStatus.className = getNetworkStatusClassName(status);
 });
 

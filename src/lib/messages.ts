@@ -94,6 +94,7 @@ export interface Messages {
   'network-status': {
     active: boolean;
     message: NetworkStatusMessage;
+    eventsleft?: number;
   };
   'set-icosettings': string | undefined;
   'set-scale': number;

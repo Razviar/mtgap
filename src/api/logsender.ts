@@ -122,6 +122,7 @@ async function sendNextBatch(): Promise<void> {
     sendMessageToHomeWindow('network-status', {
       active: true,
       message: isStillSendingEvents() ? NetworkStatusMessage.SendingEvents : NetworkStatusMessage.Connected,
+      eventsleft: internalBuffer.length,
     });
   } catch (e) {
     // Error has occured, slowing down sending rate

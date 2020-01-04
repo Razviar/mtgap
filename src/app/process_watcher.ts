@@ -12,7 +12,7 @@ const movementSensitivity = 5;
 const overlayPositioner = new WindowLocator();
 const processWatcher = new ProcessWatcher('MTGA.exe');
 
-export let gameIsRunning: boolean | undefined;
+export let gameIsRunning = true;
 let overlayIsPositioned = false;
 
 export function setupProcessWatcher(): () => void {

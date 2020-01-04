@@ -1,11 +1,8 @@
-import {Notification} from 'electron';
-import {join} from 'path';
-
-import {getAppIcon} from 'root/app/app_icon';
 import {uploadCardData} from 'root/app/cards_uploader';
 import {withHomeWindow} from 'root/app/main_window';
 import {sendMessageToHomeWindow} from 'root/app/messages';
 import {locateMtgaDir} from 'root/app/mtga_dir_ops';
+import {showNotifi} from 'root/app/notification';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 
 export function doMtgaPathOps(): void {
@@ -20,12 +17,10 @@ export function doMtgaPathOps(): void {
     });
     withHomeWindow(w => {
       if (!w.isVisible()) {
-        const notification = new Notification({
-          title: 'Set MTGA folder for Tracker',
-          body: 'MTGA installation folder was not located automatically. Please set it up manually in settings!',
-          icon: join(__dirname, getAppIcon()),
-        });
-        notification.show();
+        showNotifi(
+          'Set MTGA folder for Tracker',
+          'MTGA installation folder was not located automatically. Please set it up manually in settings!'
+        );
       }
     });
   }
