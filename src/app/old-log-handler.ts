@@ -25,7 +25,11 @@ export function parseOldLogsHandler(logs: string[], index: number, skipped: numb
     });
   }
   if (oldLogHandlerStatus.AbortOldLogs) {
+    sendMessageToHomeWindow('shadow-sync-over', undefined);
     sendMessageToHomeWindow('show-prompt', {message: 'Parsing aborted!', autoclose: 1000});
+    oldLogHandlerStatus.ReadingOldLogs = false;
+    withLogParser(lp => lp.start());
+    return;
   }
   withLogParser(lp => lp.stop());
   getParsingMetadata(app.getVersion())
@@ -63,6 +67,7 @@ export function parseOldLogsHandler(logs: string[], index: number, skipped: numb
     )
     .catch(err => {
       error('Error reading old logs', err);
+      sendMessageToHomeWindow('shadow-sync-over', undefined);
       oldLogHandlerStatus.ReadingOldLogs = false;
     });
 }
