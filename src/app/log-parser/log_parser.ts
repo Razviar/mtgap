@@ -15,6 +15,7 @@ import {extractValue} from 'root/app/log-parser/parsing';
 import {LogParserEventEmitter} from 'root/app/log_parser_events';
 import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
 import {oldStore} from 'root/app/old_store';
+import {getOverlayWindow} from 'root/app/overlay_window';
 import {gameIsRunning} from 'root/app/process_watcher';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {StateInfo, stateStore} from 'root/app/state_store';
@@ -210,12 +211,12 @@ export class LogParser {
     sendMessageToHomeWindow('set-screenname', {screenName, newPlayerId});
 
     //console.log(screenName);
-
-    if (account && settingsStore.get().overlay) {
+    const overlayWindow = getOverlayWindow();
+    if (account && settingsStore.get().overlay && overlayWindow !== undefined) {
       getUserMetadata(+account.uid)
         .then(umd => sendMessageToOverlayWindow('set-userdata', umd))
         .catch(err => {
-          error('Failure to load User Metadata', err);
+          error('Failure to load User Metadata', err, {...account});
         });
     }
 
@@ -333,11 +334,12 @@ export class LogParser {
 
     if (PackNumber === 0 && PickNumber === 0) {
       const account = settingsStore.getAccount();
-      if (account && settingsStore.get().overlay) {
+      const overlayWindow = getOverlayWindow();
+      if (account && settingsStore.get().overlay && overlayWindow !== undefined) {
         getUserMetadata(+account.uid)
           .then(umd => sendMessageToOverlayWindow('set-userdata', umd))
           .catch(err => {
-            error('Failure to load User Metadata', err);
+            error('Failure to load User Metadata', err, {...account});
           });
       }
     }

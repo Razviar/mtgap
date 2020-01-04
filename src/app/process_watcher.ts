@@ -49,7 +49,7 @@ export function setupProcessWatcher(): () => void {
               getUserMetadata(+account.uid)
                 .then(umd => sendMessageToOverlayWindow('set-userdata', umd))
                 .catch(err => {
-                  error('Failure to load User Metadata', err);
+                  error('Failure to load User Metadata', err, {...account});
                 });
             }
 
