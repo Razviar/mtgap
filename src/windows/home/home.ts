@@ -62,10 +62,15 @@ onMessageFromIpcMain('set-creds', creds => {
     login(creds.account.token, creds.account.uid, creds.account.nick, 'set-creds');
     unhide.classList.add('hidden');
   } else {
-    TokenResponse.innerHTML = `Current user: <strong>Skipping this account...</strong>`;
-    StatusMessage.innerHTML = '';
-    UserControls.classList.remove('hidden');
-    unhide.classList.remove('hidden');
+    if (creds.account.player !== undefined) {
+      currentMtgaNick = creds.account.player.screenName;
+      currentMtgaID = creds.account.player.playerId;
+      UserCredentials.innerHTML = `MTGA nick: <strong>${creds.account.player?.screenName}</strong>`;
+      TokenResponse.innerHTML = `Current user: <strong>Skipping this account...</strong>`;
+      StatusMessage.innerHTML = '';
+      UserControls.classList.remove('hidden');
+      unhide.classList.remove('hidden');
+    }
   }
 });
 
