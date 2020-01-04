@@ -269,9 +269,6 @@ onMessageFromIpcMain('shadow-sync-over', () => {
   ShadowSyncStarter.classList.remove('hidden');
 });
 
-const sss = document.querySelector('[data-button="stop-shadow-sync"]') as HTMLElement;
-sss.classList.remove('hidden');
-
 minimizeButton.addEventListener('click', () => {
   sendMessageToIpcMain('minimize-me', undefined);
 });
