@@ -15,7 +15,7 @@
   },
   "keywords": [],
   "author": {
-    "name": "Rual Ilmarranen",
+    "name": "MTG Arena Pro",
     "email": "ilmarranen@gmail.com"
   },
   "license": "MIT",
@@ -27,8 +27,8 @@
     "axios": "0.19.0",
     "date-fns": "2.8.1",
     "electron-is-dev": "1.1.0",
-    "electron-squirrel-startup": "1.0.0",
-    "error-stack-parser": "^2.0.4",
+    "electron-squirrel-startup": "./electron-squirrel-startup",
+    "error-stack-parser": "2.0.6",
     "lodash": "4.17.15",
     "moment": "2.24.0",
     "pretty-checkbox": "3.0.3",
