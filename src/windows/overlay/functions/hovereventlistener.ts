@@ -6,7 +6,7 @@ export const HoverEventListener = (theCard: Element) => {
   if (!overlayConfig.metaData) {
     return '';
   }
-  const cardsdb = overlayConfig.metaData.allcards;
+  const cardsdb = overlayConfig.allCards;
 
   theCard.addEventListener('mouseenter', (event: Event) => {
     if (!overlayConfig.ovlSettings?.cardhover) {

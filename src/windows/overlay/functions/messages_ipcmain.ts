@@ -83,8 +83,9 @@ export function SetMessages(): void {
   });
 
   onMessageFromIpcMain('set-metadata', meta => {
-    console.log(meta);
     overlayConfig.metaData = meta;
+    overlayConfig.allCards = new Map(meta.allcards);
+    overlayConfig.metaData.allcards = [];
   });
 
   onMessageFromIpcMain('set-userdata', umeta => {
@@ -156,15 +157,16 @@ export function SetMessages(): void {
 
     const SortLikeMTGA = 11;
     const meta = overlayConfig.metaData;
+    const allcards = overlayConfig.allCards;
     const theDeck: {[index: number]: number} = {};
     const forsort: {[index: number]: Card} = {};
 
-    console.log(meta);
+    //console.log(meta);
 
     Object.keys(deck.mainDeck).forEach(MtgaCid => {
       const cid = meta.mtgatoinnerid[+MtgaCid];
       theDeck[+cid] = deck.mainDeck[+MtgaCid];
-      forsort[+cid] = meta.allcards.get(+cid) as Card;
+      forsort[+cid] = allcards.get(+cid) as Card;
     });
     sortcards(forsort, true, SortLikeMTGA).forEach(cid => {
       playerDecks[deck.InternalEventName].mainDeck.push({card: +cid[0], cardnum: theDeck[+cid[0]]});

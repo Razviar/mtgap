@@ -9,10 +9,11 @@ export function updateDeck(highlight: number[]): void {
     return;
   }
   const meta = overlayConfig.metaData;
+  const allcards = overlayConfig.allCards;
   const BasicLand = 34;
 
   currentMatch.myFullDeck.forEach(card => {
-    const TheCard = meta.allcards.get(+card.card);
+    const TheCard = allcards.get(+card.card);
     if (TheCard === undefined) {
       return;
     }
@@ -24,7 +25,7 @@ export function updateDeck(highlight: number[]): void {
   });
   highlight.forEach(mtgaid => {
     const cid = meta.mtgatoinnerid[+mtgaid];
-    const TheCard = meta.allcards.get(cid);
+    const TheCard = allcards.get(cid);
     if (TheCard === undefined) {
       return;
     }

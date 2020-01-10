@@ -20,11 +20,12 @@ export function drawDraft(): void {
       ? sortByWL
       : sortLikeMTGA;
   const meta = overlayConfig.metaData;
+  const allcards = overlayConfig.allCards;
   const forsort: {[index: number]: Card} = {};
 
   currentDraft.currentPack.forEach(card => {
     const cid = meta.mtgatoinnerid[+card];
-    forsort[+cid] = meta.allcards.get(+cid) as Card;
+    forsort[+cid] = allcards.get(+cid) as Card;
   });
   let output = `<div class="deckName"><strong>Pack: ${currentDraft.PackNumber + 1} / Pick: ${currentDraft.PickNumber +
     1}</strong></div>`;

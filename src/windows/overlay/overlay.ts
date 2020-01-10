@@ -47,6 +47,7 @@ export const superclasses = ['sorcery', 'creature', 'land'];
 export const overlayConfig: OverlayConfig = {
   ovlSettings: undefined,
   metaData: undefined,
+  allCards: new Map(),
   currentScale: 1,
   currentOpacity: 1,
   dopplerOpacity: -0.1,

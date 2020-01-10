@@ -7,7 +7,7 @@ export function makeCard(cid: number, num: number, side: boolean, draft?: boolea
   if (!overlayConfig.metaData) {
     return '';
   }
-  const cardsdb = overlayConfig.metaData.allcards;
+  const cardsdb = overlayConfig.allCards;
   const inCollection = userCollection.get(cid);
   const Card = cardsdb.get(cid);
   if (Card === undefined) {

@@ -10,13 +10,14 @@ export function updateOppDeck(highlight: number[]): void {
   }
   const SortLikeMTGA = 11;
   const meta = overlayConfig.metaData;
+  const allcards = overlayConfig.allCards;
   const oppDeck: {[index: number]: number} = {};
   const forsort: {[index: number]: Card} = {};
 
   Object.keys(currentMatch.decks.opponent).forEach(OppMtgaCid => {
     if (Object.keys(meta.mtgatoinnerid).includes(OppMtgaCid)) {
       const cid = meta.mtgatoinnerid[+OppMtgaCid];
-      const theCard = meta.allcards.get(+cid);
+      const theCard = allcards.get(+cid);
       if (theCard === undefined) {
         return;
       }
