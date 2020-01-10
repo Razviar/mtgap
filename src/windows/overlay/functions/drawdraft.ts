@@ -1,7 +1,7 @@
 import {sortcards} from 'root/lib/sortcards';
 import {Card} from 'root/models/cards';
-import {makeCard} from 'root/windows/overlay/functions/drawcard';
 import {HoverEventListener} from 'root/windows/overlay/functions/hovereventlistener';
+import {makeCard} from 'root/windows/overlay/functions/makecard';
 import {currentDraft, overlayConfig, overlayElements, toggleButtonClass} from 'root/windows/overlay/overlay';
 
 export function drawDraft(): void {
@@ -24,7 +24,7 @@ export function drawDraft(): void {
 
   currentDraft.currentPack.forEach(card => {
     const cid = meta.mtgatoinnerid[+card];
-    forsort[+cid] = meta.allcards[+cid];
+    forsort[+cid] = meta.allcards.get(+cid) as Card;
   });
   let output = `<div class="deckName"><strong>Pack: ${currentDraft.PackNumber + 1} / Pick: ${currentDraft.PickNumber +
     1}</strong></div>`;

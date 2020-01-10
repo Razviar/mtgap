@@ -1,6 +1,7 @@
 import {colorforfilter} from 'root/lib/utils';
-import {makeCard} from 'root/windows/overlay/functions/drawcard';
 import {HoverEventListener} from 'root/windows/overlay/functions/hovereventlistener';
+import {makeBasicLand} from 'root/windows/overlay/functions/makebasicland';
+import {makeCard} from 'root/windows/overlay/functions/makecard';
 import {currentMatch, overlayConfig, overlayElements, toggleButtonClass} from 'root/windows/overlay/overlay';
 
 export function drawDeck(): void {
@@ -8,6 +9,11 @@ export function drawDeck(): void {
   currentMatch.myFullDeck.forEach(card => {
     output += makeCard(card.card, card.cardnum, true);
   });
+
+  currentMatch.basicLands.forEach((num, basicLand) => {
+    output += makeBasicLand(basicLand, num, true);
+  });
+
   output += `<div class="deckBottom${
     overlayConfig.ovlSettings?.fontcolor === 2
       ? ' White'

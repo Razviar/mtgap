@@ -39,6 +39,7 @@ export function setupProcessWatcher(): () => void {
 
               getMetadata()
                 .then(md => {
+                  //console.log(md.allcards);
                   sendMessageToOverlayWindow('set-metadata', md);
                   sendMessageToOverlayWindow('set-ovlsettings', ovlSettings);
                   sendMessageToOverlayWindow('set-icosettings', settingsStore.get().icon);

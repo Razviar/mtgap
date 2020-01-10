@@ -9,15 +9,21 @@ export function makeCard(cid: number, num: number, side: boolean, draft?: boolea
   }
   const cardsdb = overlayConfig.metaData.allcards;
   const inCollection = userCollection.get(cid);
-  const name = cardsdb[cid]['name'];
-  const mtgaId = cardsdb[cid]['mtga_id'];
-  const mana = cardsdb[cid]['mana'];
-  const colorarr = cardsdb[cid]['colorarr'];
-  const island = cardsdb[cid]['is_land'];
-  const supercls = cardsdb[cid]['supercls'];
-  const thumb = cardsdb[cid]['art'];
-  const drafteval2 = cardsdb[cid]['drafteval2'];
-  const wlevalDraft = cardsdb[cid]['wleval_draft'];
+  const Card = cardsdb.get(cid);
+  if (Card === undefined) {
+    return '';
+  }
+  const name = Card['name'];
+  const mtgaId = Card['mtga_id'];
+  const mana = Card['mana'];
+  const colorarr = Card['colorarr'];
+  const island = Card['is_land'];
+  const supercls = Card['supercls'];
+  const thumb = Card['art'];
+  const drafteval2 = Card['drafteval2'];
+  const wlevalDraft = Card['wleval_draft'];
+  const type = Card['type'];
+  const BasicLand = 34;
   //const battleusageDraft = cardsdb[cid]['battleusage_draft'];
   let bgcolor = 'linear-gradient(to bottom,';
   let clnum = 0;
@@ -47,7 +53,19 @@ export function makeCard(cid: number, num: number, side: boolean, draft?: boolea
           const n = currentMatch.lands.get(landClr) as number;
           currentMatch.lands.set(landClr, n + num);
         }
+
+        if (+type === BasicLand) {
+          if (!currentMatch.basicLands.has(landClr)) {
+            currentMatch.basicLands.set(landClr, num);
+          } else {
+            const n = currentMatch.basicLands.get(landClr) as number;
+            currentMatch.basicLands.set(landClr, n + num);
+          }
+        }
       });
+    }
+    if (+type === BasicLand) {
+      return '';
     }
   }
 
@@ -148,7 +166,7 @@ export function makeCard(cid: number, num: number, side: boolean, draft?: boolea
   </div>
   <div class="CNameManaWrap">
   <div class="CCmana">
-  ${manas} ${manas !== '' ? '|' : ''} <span class="ms ms-${superclasses[cardsdb[cid]['supercls']]}"></span>
+  ${manas} ${manas !== '' ? '|' : ''} <span class="ms ms-${superclasses[Card['supercls']]}"></span>
   </div>
   <div class="CName">${name}</div>
   </div>

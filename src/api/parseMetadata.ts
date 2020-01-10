@@ -16,7 +16,7 @@ export function parseMetadata(data: AxiosResponse): Metadata {
       datefilterlabels: [],
       types: [],
       archetypes: [],
-      allcards: {},
+      allcards: new Map(),
       mtgatoinnerid: {},
       trackerver: {version: 0, date: 0},
       headerbanners: [],
@@ -113,14 +113,12 @@ export function parseMetadata(data: AxiosResponse): Metadata {
     })
   );
   const allcardsMap = asMap(dataMap.allcards);
-  const allcards: {
-    [index: number]: Card;
-  } = {};
+  const allcards: Map<number, Card> = new Map();
   if (allcardsMap !== undefined) {
     Object.keys(allcardsMap).forEach(elem => {
       const cardElem = asMap(allcardsMap[elem]);
       if (cardElem !== undefined) {
-        allcards[+elem] = {
+        allcards.set(+elem, {
           id: asNumber(cardElem.id, 0),
           doublelink: asNumber(cardElem.doublelink, 0),
           cardid: asString(cardElem.cardid, ''),
@@ -168,7 +166,7 @@ export function parseMetadata(data: AxiosResponse): Metadata {
           TraditionalHistoricBan: asNumber(cardElem.TraditionalHistoricBan, 0),
           StandardBan: asNumber(cardElem.StandardBan, 0),
           HistoricBan: asNumber(cardElem.HistoricBan, 0),
-        };
+        });
       }
     });
   }
@@ -194,6 +192,7 @@ export function parseMetadata(data: AxiosResponse): Metadata {
   const datefilters = asArray<number>(dataMap.datefilters, []);
   const datefilterlabels = asArray<string>(dataMap.datefilterlabels, []);
   const headerbanners = asArray<string>(dataMap.headerbanners, []);
+
   return {
     exps,
     expsorder,

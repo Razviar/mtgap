@@ -1,6 +1,6 @@
 import {TokenCheckRes, TokenRequestRes} from 'root/api/userbytokenid';
 import {Account, LatestSettings, OverlaySettings} from 'root/app/settings-store/settings_store';
-import {CardPlayed} from 'root/models/cards';
+import {CardPlayed, Card} from 'root/models/cards';
 import {Metadata, UserMetadata} from 'root/models/metadata';
 import {UserResult} from 'root/models/userbytokenid';
 

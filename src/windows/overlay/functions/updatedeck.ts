@@ -9,20 +9,27 @@ export function updateDeck(highlight: number[]): void {
     return;
   }
   const meta = overlayConfig.metaData;
+  const BasicLand = 34;
 
   currentMatch.myFullDeck.forEach(card => {
-    const mtgaid = meta.allcards[+card.card].mtga_id;
+    const TheCard = meta.allcards.get(+card.card);
+    if (TheCard === undefined) {
+      return;
+    }
+    const mtgaid = TheCard.type === BasicLand ? TheCard.colorindicator : TheCard.mtga_id;
     const crdTxtEl: HTMLElement | null = document.getElementById(`cardnum${mtgaid}me`);
     if (crdTxtEl !== null) {
-      crdTxtEl.innerHTML = genBattleCardNum(mtgaid);
+      crdTxtEl.innerHTML = genBattleCardNum(mtgaid, TheCard.type === BasicLand);
     }
   });
   highlight.forEach(mtgaid => {
     const cid = meta.mtgatoinnerid[+mtgaid];
-    if (!meta.allcards[+cid]) {
+    const TheCard = meta.allcards.get(cid);
+    if (TheCard === undefined) {
       return;
     }
-    const scls = meta.allcards[+cid].supercls;
+    const hl = TheCard.type === BasicLand ? TheCard.colorindicator : mtgaid.toString();
+    const scls = TheCard.supercls;
     if (!currentMatch.cardsBySuperclassLeft.has(scls.toString())) {
       currentMatch.cardsBySuperclassLeft.set(scls.toString(), 1);
     } else {
@@ -30,11 +37,9 @@ export function updateDeck(highlight: number[]): void {
       currentMatch.cardsBySuperclassLeft.set(scls.toString(), n + 1);
     }
 
-    if (meta.allcards[+cid].is_land === 1) {
+    if (TheCard.is_land === 1) {
       const manajMap = asMap(
-        meta.allcards[+cid].colorarr !== '' && meta.allcards[+cid].colorarr !== '[]'
-          ? jsonParse(meta.allcards[+cid].colorarr)
-          : undefined
+        TheCard.colorarr !== '' && TheCard.colorarr !== '[]' ? jsonParse(TheCard.colorarr) : undefined
       );
 
       if (manajMap !== undefined) {
@@ -45,11 +50,19 @@ export function updateDeck(highlight: number[]): void {
             const n = currentMatch.landsLeft.get(elem) as number;
             currentMatch.landsLeft.set(elem, n + 1);
           }
+          if (+TheCard.type === BasicLand) {
+            if (!currentMatch.basicLandsLeft.has(elem)) {
+              currentMatch.basicLandsLeft.set(elem, 1);
+            } else {
+              const n = currentMatch.basicLandsLeft.get(elem) as number;
+              currentMatch.basicLandsLeft.set(elem, n + 1);
+            }
+          }
         });
       }
     }
 
-    const crdEl: HTMLElement | null = document.getElementById(`card${mtgaid}me`);
+    const crdEl: HTMLElement | null = document.getElementById(`card${hl}me`);
     if (crdEl) {
       crdEl.classList.add('highlightCard');
       setTimeout(() => {

@@ -83,8 +83,8 @@ export function SetMessages(): void {
   });
 
   onMessageFromIpcMain('set-metadata', meta => {
+    console.log(meta);
     overlayConfig.metaData = meta;
-    //console.log(metaData);
   });
 
   onMessageFromIpcMain('set-userdata', umeta => {
@@ -99,13 +99,9 @@ export function SetMessages(): void {
         deckName: umeta.coursedecks[eventName].humanname,
       };
     });
-    //console.log(playerDecks);
   });
 
   onMessageFromIpcMain('match-started', newMatch => {
-    /*console.log('match-started');
-    console.log(newMatch.eventId);
-    console.log(playerDecks);*/
     if (!Object.keys(playerDecks).includes(newMatch.eventId)) {
       return;
     }
@@ -120,7 +116,6 @@ export function SetMessages(): void {
     currentMatch.myFullDeck = playerDecks[newMatch.eventId].mainDeck;
     currentMatch.humanname = playerDecks[newMatch.eventId].deckName;
     drawDeck();
-    //console.log('match-initiated!');
   });
 
   onMessageFromIpcMain('turn-info', dp => {
@@ -164,10 +159,12 @@ export function SetMessages(): void {
     const theDeck: {[index: number]: number} = {};
     const forsort: {[index: number]: Card} = {};
 
+    console.log(meta);
+
     Object.keys(deck.mainDeck).forEach(MtgaCid => {
       const cid = meta.mtgatoinnerid[+MtgaCid];
       theDeck[+cid] = deck.mainDeck[+MtgaCid];
-      forsort[+cid] = meta.allcards[+cid];
+      forsort[+cid] = meta.allcards.get(+cid) as Card;
     });
     sortcards(forsort, true, SortLikeMTGA).forEach(cid => {
       playerDecks[deck.InternalEventName].mainDeck.push({card: +cid[0], cardnum: theDeck[+cid[0]]});

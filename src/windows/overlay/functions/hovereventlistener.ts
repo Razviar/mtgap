@@ -18,8 +18,14 @@ export const HoverEventListener = (theCard: Element) => {
     const cl: HTMLElement = event.target as HTMLElement;
     const cid = cl.getAttribute('data-cid') as string;
     const side = cl.getAttribute('data-side') as string;
+    const Card = cardsdb.get(+cid);
+
+    if (Card === undefined) {
+      return;
+    }
+
     const src = `https://mtgarena.pro/mtg/pict/${
-      cardsdb[+cid].has_hiresimg === 1 ? `mtga/card_${cardsdb[+cid].mtga_id}_EN.png` : cardsdb[+cid].pict
+      Card.has_hiresimg === 1 ? `mtga/card_${Card.mtga_id}_EN.png` : Card.pict
     }`;
     overlayElements.CardHint.innerHTML = `<img src="${src}"/>`;
 

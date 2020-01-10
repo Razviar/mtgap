@@ -20,7 +20,7 @@ export interface Metadata {
   datefilterlabels: string[];
   types: {id: number; is_creature: number; name: string; parent_id: number}[];
   archetypes: {id: number; name: string; supertype: number}[];
-  allcards: {[index: number]: Card};
+  allcards: Map<number, Card>;
   mtgatoinnerid: {[index: number]: number};
   trackerver: {version: number; date: number};
   headerbanners: string[];

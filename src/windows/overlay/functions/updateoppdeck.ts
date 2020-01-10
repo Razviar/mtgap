@@ -1,7 +1,7 @@
 import {sortcards} from 'root/lib/sortcards';
 import {Card} from 'root/models/cards';
-import {makeCard} from 'root/windows/overlay/functions/drawcard';
 import {HoverEventListener} from 'root/windows/overlay/functions/hovereventlistener';
+import {makeCard} from 'root/windows/overlay/functions/makecard';
 import {currentMatch, overlayConfig, overlayElements, toggleButtonClass} from 'root/windows/overlay/overlay';
 
 export function updateOppDeck(highlight: number[]): void {
@@ -16,8 +16,12 @@ export function updateOppDeck(highlight: number[]): void {
   Object.keys(currentMatch.decks.opponent).forEach(OppMtgaCid => {
     if (Object.keys(meta.mtgatoinnerid).includes(OppMtgaCid)) {
       const cid = meta.mtgatoinnerid[+OppMtgaCid];
+      const theCard = meta.allcards.get(+cid);
+      if (theCard === undefined) {
+        return;
+      }
       oppDeck[+cid] = currentMatch.decks.opponent[+OppMtgaCid];
-      forsort[+cid] = meta.allcards[+cid];
+      forsort[+cid] = theCard;
     }
   });
   let output = '';
