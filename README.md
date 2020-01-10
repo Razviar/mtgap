@@ -32,6 +32,11 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 6. Check if antiviruses or firewalls are blocking app traffic, add app to exception.
 
 ## Changelog
+v.2.0.30 released 10/01/2019
+* Basic lands grouping: now if you have 10 different lands in your deck, overlay will show only one row for them.
+* No more desktop shortcut recreation
+* Fixes and optimizations.
+
 v.2.0.29 released 04/01/2019
 * Shadow old logs parsing: now all new users will automatically get synced all logs in MTGA Logs directory, so it will result in getting about month of tracked data right from tracker start.
 * Better multiple accounts handling.
