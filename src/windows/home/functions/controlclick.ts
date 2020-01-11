@@ -1,0 +1,50 @@
+import {currentCreds, HomePageElements} from 'root/windows/home/home';
+import {sendMessageToIpcMain} from 'root/windows/messages';
+
+export function controlClick(event: Event): void {
+  const cl: HTMLElement = event.target as HTMLElement;
+  const button = cl.getAttribute('data-button') as string;
+  switch (button) {
+    case 'skip-acc':
+      HomePageElements.TokenInput.classList.add('hidden');
+      const unhide = document.querySelector('[data-button="unskip-acc"]') as HTMLElement;
+      unhide.classList.remove('hidden');
+      HomePageElements.StatusMessage.innerHTML = 'Skipping this account...';
+      HomePageElements.UserControls.classList.remove('hidden');
+      sendMessageToIpcMain('token-input', {
+        token: `SKIPPING${Math.floor(1000 * Math.random())}`,
+        uid: '',
+        nick: 'Skipping',
+        overlay: false,
+      });
+      break;
+    case 'connect-acc':
+      cl.innerHTML = 'Awaiting...';
+      sendMessageToIpcMain('start-sync', {
+        currentMtgaNick: currentCreds.currentMtgaNick,
+        currentMtgaID: currentCreds.currentMtgaID,
+      });
+      break;
+    case 'unskip-acc':
+      sendMessageToIpcMain('kill-current-token', undefined);
+      break;
+    case 'do-shadow-sync':
+      cl.classList.add('hidden');
+      const sssi = document.querySelector('[data-button="stop-shadow-sync"]') as HTMLElement;
+      sssi.classList.remove('hidden');
+      sendMessageToIpcMain(button, undefined);
+      break;
+    case 'wipe-all':
+    case 'restart-me':
+    case 'stop-tracker':
+    case 'old-log':
+    case 'apply-update':
+    case 'set-log-path':
+    case 'default-log-path':
+    case 'set-mtga-path':
+    case 'default-mtga-path':
+    case 'stop-shadow-sync':
+      sendMessageToIpcMain(button, undefined);
+      break;
+  }
+}
