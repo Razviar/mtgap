@@ -145,14 +145,22 @@ export function SetMessages(): void {
 
   onMessageFromIpcMain('deck-submission', deck => {
     if (!overlayConfig.metaData) {
-      return '';
+      return;
     }
-    if (!Object.keys(playerDecks).includes(deck.InternalEventName)) {
-      playerDecks[deck.InternalEventName] = {mainDeck: [], deckId: deck.deckId, deckName: deck.deckName};
+
+    const PublicEventName = overlayConfig.metaData.formats.find(f => f.format === deck.InternalEventName)
+      ?.PublicEventName;
+
+    if (PublicEventName === undefined) {
+      return;
+    }
+
+    if (!Object.keys(playerDecks).includes(PublicEventName)) {
+      playerDecks[PublicEventName] = {mainDeck: [], deckId: deck.deckId, deckName: deck.deckName};
     } else {
-      playerDecks[deck.InternalEventName].mainDeck = [];
-      playerDecks[deck.InternalEventName].deckId = deck.deckId;
-      playerDecks[deck.InternalEventName].deckName = deck.deckName;
+      playerDecks[PublicEventName].mainDeck = [];
+      playerDecks[PublicEventName].deckId = deck.deckId;
+      playerDecks[PublicEventName].deckName = deck.deckName;
     }
 
     const SortLikeMTGA = 11;
@@ -169,7 +177,7 @@ export function SetMessages(): void {
       forsort[+cid] = allcards.get(+cid) as Card;
     });
     sortcards(forsort, true, SortLikeMTGA).forEach(cid => {
-      playerDecks[deck.InternalEventName].mainDeck.push({card: +cid[0], cardnum: theDeck[+cid[0]]});
+      playerDecks[PublicEventName].mainDeck.push({card: +cid[0], cardnum: theDeck[+cid[0]]});
     });
   });
 
