@@ -3,7 +3,7 @@ import {overlayConfig} from 'root/windows/overlay/overlay';
 
 export function makeBasicLand(landClr: string, num: number, side: boolean): string {
   const BasicLandNames: {[index: string]: string} = {
-    White: 'Plain',
+    White: 'Plains',
     Blue: 'Island',
     Black: 'Swamp',
     Red: 'Mountain',
