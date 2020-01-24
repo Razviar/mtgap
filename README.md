@@ -32,6 +32,11 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 6. Check if antiviruses or firewalls are blocking app traffic, add app to exception.
 
 ## Changelog
+v.2.0.32 released 24/01/2020
+* Turn number tracking. Now tracker will log matches in more detailed way. Frontend update upcoming.
+* Electron & other deps update
+* Some bugfixes
+
 v.2.0.30 released 10/01/2019
 * Basic lands grouping: now if you have 10 different lands in your deck, overlay will show only one row for them.
 * No more desktop shortcut recreation
