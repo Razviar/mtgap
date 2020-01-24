@@ -19,6 +19,9 @@ export function parseEvent(data: string, state: LogFileParsingState, options: Pa
     if (event.name === options.matchStartEvent) {
       handleMatchStartEvent(event, state);
     }
+    if (event.name === options.TurnInfoAllEvent) {
+      handleTurnEvent(event, state);
+    }
   }
   const statefulEvents = events.map(e => logEventToStatefulEvent(e, state));
   for (const event of events) {
@@ -30,7 +33,13 @@ export function parseEvent(data: string, state: LogFileParsingState, options: Pa
 }
 
 export function logEventToStatefulEvent(event: LogEvent, state: LogFileParsingState): StatefulLogEvent {
-  return {...event, userId: state.userId, matchId: state.matchId, timestamp: state.timestamp};
+  return {
+    ...event,
+    userId: state.userId,
+    matchId: state.matchId,
+    timestamp: state.timestamp,
+    turnNumber: state.turnNumber,
+  };
 }
 
 export function handleUserChangeEvent(event: LogEvent, state: LogFileParsingState): void {
@@ -45,8 +54,14 @@ export function handleMatchStartEvent(event: LogEvent, state: LogFileParsingStat
   state.matchId = matchId;
 }
 
+export function handleTurnEvent(event: LogEvent, state: LogFileParsingState): void {
+  const turnNumber = asNumber(extractValue(event.data, ['turnNumber']));
+  state.turnNumber = turnNumber;
+}
+
 export function handleMatchEndEvent(event: LogEvent, state: LogFileParsingState): void {
   state.matchId = undefined;
+  state.turnNumber = undefined;
 }
 
 export function getEventTimestamp(rawEvent: RawLogEvent): number | undefined {

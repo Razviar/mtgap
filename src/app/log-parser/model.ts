@@ -6,6 +6,7 @@ export interface LogFileParsingState {
   userId?: string;
   matchId?: string;
   screenName?: string;
+  turnNumber?: number;
 }
 
 export interface RawLogEvent {
@@ -22,6 +23,7 @@ export interface StatefulLogEvent extends LogEvent {
   timestamp?: number;
   userId?: string;
   matchId?: string;
+  turnNumber?: number;
 }
 
 export interface ParsingMetadata {

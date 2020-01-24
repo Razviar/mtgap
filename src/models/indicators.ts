@@ -15,4 +15,5 @@ export interface ParseResults {
   json: string;
   uid: string;
   matchId: string;
+  turnNumber: number;
 }

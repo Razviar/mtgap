@@ -172,6 +172,7 @@ export class LogParser {
               json,
               uid: e.userId === undefined ? '' : e.userId,
               matchId: e.matchId === undefined ? '' : e.matchId,
+              turnNumber: e.turnNumber === undefined ? 0 : e.turnNumber,
             };
           })
         );
