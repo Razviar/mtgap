@@ -22,6 +22,9 @@ export function parseEvent(data: string, state: LogFileParsingState, options: Pa
     if (event.name === options.TurnInfoAllEvent) {
       handleTurnEvent(event, state);
     }
+    if (event.name === options.PlayersInfoEvent) {
+      handlePlayersInfoEvent(event, state);
+    }
   }
   const statefulEvents = events.map(e => logEventToStatefulEvent(e, state));
   for (const event of events) {
@@ -39,6 +42,7 @@ export function logEventToStatefulEvent(event: LogEvent, state: LogFileParsingSt
     matchId: state.matchId,
     timestamp: state.timestamp,
     turnNumber: state.turnNumber,
+    lifeTotals: {pl1: state.lifeTotals?.pl1, pl2: state.lifeTotals?.pl2},
   };
 }
 
@@ -54,6 +58,12 @@ export function handleMatchStartEvent(event: LogEvent, state: LogFileParsingStat
   state.matchId = matchId;
 }
 
+export function handlePlayersInfoEvent(event: LogEvent, state: LogFileParsingState): void {
+  const pl1 = asNumber(extractValue(event.data, [0, 'lifeTotal']));
+  const pl2 = asNumber(extractValue(event.data, [1, 'lifeTotal']));
+  state.lifeTotals = {pl1, pl2};
+}
+
 export function handleTurnEvent(event: LogEvent, state: LogFileParsingState): void {
   const turnNumber = asNumber(extractValue(event.data, ['turnNumber']));
   state.turnNumber = turnNumber;
@@ -62,6 +72,7 @@ export function handleTurnEvent(event: LogEvent, state: LogFileParsingState): vo
 export function handleMatchEndEvent(event: LogEvent, state: LogFileParsingState): void {
   state.matchId = undefined;
   state.turnNumber = undefined;
+  state.lifeTotals = {pl1: undefined, pl2: undefined};
 }
 
 export function getEventTimestamp(rawEvent: RawLogEvent): number | undefined {

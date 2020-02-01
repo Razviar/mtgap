@@ -7,6 +7,7 @@ export interface LogFileParsingState {
   matchId?: string;
   screenName?: string;
   turnNumber?: number;
+  lifeTotals?: {pl1?: number; pl2?: number};
 }
 
 export interface RawLogEvent {
@@ -24,6 +25,7 @@ export interface StatefulLogEvent extends LogEvent {
   userId?: string;
   matchId?: string;
   turnNumber?: number;
+  lifeTotals?: {pl1?: number; pl2?: number};
 }
 
 export interface ParsingMetadata {
@@ -42,6 +44,7 @@ export interface ParsingMetadata {
   draftMakePickEvent: string;
   draftPickResponseEvent: string;
   TurnInfoAllEvent: string;
+  PlayersInfoEvent: string;
 }
 
 export interface LogSenderParsingMetadata {

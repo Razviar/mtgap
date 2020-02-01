@@ -16,4 +16,5 @@ export interface ParseResults {
   uid: string;
   matchId: string;
   turnNumber: number;
+  lifeTotals: {pl1?: number; pl2?: number};
 }

@@ -173,6 +173,10 @@ export class LogParser {
               uid: e.userId === undefined ? '' : e.userId,
               matchId: e.matchId === undefined ? '' : e.matchId,
               turnNumber: e.turnNumber === undefined ? 0 : e.turnNumber,
+              lifeTotals: {
+                pl1: e.lifeTotals?.pl1 === undefined ? 0 : e.lifeTotals.pl1,
+                pl2: e.lifeTotals?.pl2 === undefined ? 0 : e.lifeTotals.pl2,
+              },
             };
           })
         );
