@@ -184,6 +184,8 @@ export async function parseOldLogs(
         json,
         uid: e.userId === undefined ? '' : e.userId,
         matchId: e.matchId === undefined ? '' : e.matchId,
+        turnNumber: e.turnNumber === undefined ? 0 : e.turnNumber,
+        lifeTotals: e.lifeTotals === undefined ? {pl1: 0, pl2: 0} : e.lifeTotals,
       };
     })
   );

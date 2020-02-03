@@ -20,8 +20,11 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-const processWatcherFn = setupProcessWatcher();
-const processWatcherFnInterval = 500;
+export const ProcessWatching: {processWatcherFn: Function; processWatcherFnInterval: number; interval: number} = {
+  processWatcherFn: setupProcessWatcher(),
+  processWatcherFnInterval: 10000,
+  interval: 0,
+};
 
 function recreateMainWindow(): void {
   //setupRequestIntercept(app);
@@ -39,10 +42,13 @@ function recreateMainWindow(): void {
       sendMessageToHomeWindow('set-version', app.getVersion());
       setCreds('ready-to-show');
       sendSettingsToRenderer();
+      ProcessWatching.interval = setInterval(
+        ProcessWatching.processWatcherFn,
+        ProcessWatching.processWatcherFnInterval
+      );
     });
     setupAutoUpdater();
   });
-  setInterval(processWatcherFn, processWatcherFnInterval);
 }
 
 const gotTheLock = app.requestSingleInstanceLock();

@@ -6,6 +6,7 @@ import {createOverlayWindow, getOverlayWindow, withOverlayWindow} from 'root/app
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {ProcessWatcher} from 'root/app/watchprocess';
 import {error} from 'root/lib/logger';
+import {ProcessWatching} from 'root/main';
 
 const movementSensitivity = 5;
 
@@ -20,14 +21,28 @@ export function setupProcessWatcher(): () => void {
     processWatcher
       .getprocesses()
       .then(MTGApid => {
-        overlayPositioner.findmtga(MTGApid);
         if (MTGApid === -1) {
           if (gameIsRunning) {
             gameIsRunning = false;
             sendMessageToHomeWindow('show-status', {message: 'Game is not running!', color: '#dbb63d'});
             withOverlayWindow(w => w.hide());
+            clearInterval(ProcessWatching.interval);
+            // tslint:disable-next-line: no-magic-numbers
+            ProcessWatching.processWatcherFnInterval = 5000;
+            ProcessWatching.interval = setInterval(
+              ProcessWatching.processWatcherFn,
+              ProcessWatching.processWatcherFnInterval
+            );
           }
         } else {
+          clearInterval(ProcessWatching.interval);
+          // tslint:disable-next-line: no-magic-numbers
+          ProcessWatching.processWatcherFnInterval = 500;
+          ProcessWatching.interval = setInterval(
+            ProcessWatching.processWatcherFn,
+            ProcessWatching.processWatcherFnInterval
+          );
+          overlayPositioner.findmtga(MTGApid);
           gameIsRunning = true;
           const account = settingsStore.getAccount();
 

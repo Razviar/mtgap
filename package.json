@@ -1,7 +1,7 @@
 {
   "name": "mtgaprotracker",
   "productName": "mtgaprotracker",
-  "version": "2.0.33",
+  "version": "2.0.34",
   "description": "MTG Arena Pro Tracker",
   "main": ".webpack/main",
   "scripts": {
@@ -29,6 +29,7 @@
     "electron-is-dev": "1.1.0",
     "electron-squirrel-startup": "./electron-squirrel-startup",
     "error-stack-parser": "2.0.6",
+    "find-process": "^1.4.3",
     "lodash": "4.17.15",
     "moment": "2.24.0",
     "pretty-checkbox": "3.0.3",
