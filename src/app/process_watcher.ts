@@ -28,7 +28,7 @@ export function setupProcessWatcher(): () => void {
             withOverlayWindow(w => w.hide());
             clearInterval(ProcessWatching.interval);
             // tslint:disable-next-line: no-magic-numbers
-            ProcessWatching.processWatcherFnInterval = 5000;
+            ProcessWatching.processWatcherFnInterval = 10000;
             ProcessWatching.interval = setInterval(
               ProcessWatching.processWatcherFn,
               ProcessWatching.processWatcherFnInterval
