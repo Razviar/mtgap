@@ -34,6 +34,7 @@ export function controlClick(event: Event): void {
       sssi.classList.remove('hidden');
       sendMessageToIpcMain(button, undefined);
       break;
+    case 'wipe-position':
     case 'wipe-all':
     case 'restart-me':
     case 'stop-tracker':

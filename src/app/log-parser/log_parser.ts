@@ -16,12 +16,12 @@ import {LogParserEventEmitter} from 'root/app/log_parser_events';
 import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
 import {oldStore} from 'root/app/old_store';
 import {getOverlayWindow} from 'root/app/overlay_window';
-import {gameIsRunning} from 'root/app/process_watcher';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {StateInfo, stateStore} from 'root/app/state_store';
 import {getAccountFromScreenName} from 'root/app/userswitch';
 import {error} from 'root/lib/logger';
 import {asArray, asMap, asNumber, asString, removeUndefined} from 'root/lib/type_utils';
+import {ProcessWatching} from 'root/main';
 
 export class LogParser {
   private shouldStop: boolean = false;
@@ -93,15 +93,21 @@ export class LogParser {
         if (!this.currentState || this.currentState.fileId !== fileId) {
           const [detailedLogEnabled, detailedLogState] = await checkDetailedLogEnabled(path, parsingMetadata);
           if (!detailedLogEnabled) {
-            throw new Error('Enable Detailed Logs!');
+            throw new Error('Enable Detailed Logs in MTGA account settings!');
           }
           nextState = detailedLogState;
 
           oldStore.saveFileID(new Date().getTime(), fileId);
 
-          if (gameIsRunning) {
-            // Updating UI
-            this.emitter.emit('status', 'Awaiting updates...');
+          if (!ProcessWatching.gameRunningState) {
+            ProcessWatching.gameRunningState = true;
+            clearInterval(ProcessWatching.interval);
+            // tslint:disable-next-line: no-magic-numbers
+            ProcessWatching.processWatcherFnInterval = 500;
+            ProcessWatching.interval = setInterval(
+              ProcessWatching.processWatcherFn,
+              ProcessWatching.processWatcherFnInterval
+            );
           }
         } else {
           nextState = this.currentState.state;

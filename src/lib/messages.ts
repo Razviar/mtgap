@@ -27,6 +27,7 @@ export interface Messages {
   'default-mtga-path': undefined;
   'old-log': undefined;
   'wipe-all': undefined;
+  'wipe-position': undefined;
   'restart-me': undefined;
   'check-updates': undefined;
   'stop-tracker': undefined;

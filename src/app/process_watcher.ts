@@ -13,7 +13,6 @@ const movementSensitivity = 5;
 const overlayPositioner = new WindowLocator();
 const processWatcher = new ProcessWatcher('MTGA.exe');
 
-export let gameIsRunning = true;
 let overlayIsPositioned = false;
 
 export function setupProcessWatcher(): () => void {
@@ -22,28 +21,21 @@ export function setupProcessWatcher(): () => void {
       .getprocesses()
       .then(MTGApid => {
         if (MTGApid === -1) {
-          if (gameIsRunning) {
-            gameIsRunning = false;
+          if (ProcessWatching.gameRunningState) {
+            ProcessWatching.gameRunningState = false;
             sendMessageToHomeWindow('show-status', {message: 'Game is not running!', color: '#dbb63d'});
             withOverlayWindow(w => w.hide());
             clearInterval(ProcessWatching.interval);
             // tslint:disable-next-line: no-magic-numbers
-            ProcessWatching.processWatcherFnInterval = 10000;
+            /*ProcessWatching.processWatcherFnInterval = 10000;
             ProcessWatching.interval = setInterval(
               ProcessWatching.processWatcherFn,
               ProcessWatching.processWatcherFnInterval
-            );
+            );*/
           }
         } else {
-          clearInterval(ProcessWatching.interval);
-          // tslint:disable-next-line: no-magic-numbers
-          ProcessWatching.processWatcherFnInterval = 500;
-          ProcessWatching.interval = setInterval(
-            ProcessWatching.processWatcherFn,
-            ProcessWatching.processWatcherFnInterval
-          );
           overlayPositioner.findmtga(MTGApid);
-          gameIsRunning = true;
+          ProcessWatching.gameRunningState = true;
           const account = settingsStore.getAccount();
 
           if (account && settingsStore.get().overlay) {

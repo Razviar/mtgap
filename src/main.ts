@@ -20,10 +20,16 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-export const ProcessWatching: {processWatcherFn: Function; processWatcherFnInterval: number; interval: number} = {
+export const ProcessWatching: {
+  processWatcherFn: Function;
+  processWatcherFnInterval: number;
+  interval: number;
+  gameRunningState: boolean;
+} = {
   processWatcherFn: setupProcessWatcher(),
   processWatcherFnInterval: 10000,
   interval: 0,
+  gameRunningState: true,
 };
 
 function recreateMainWindow(): void {
@@ -50,6 +56,8 @@ function recreateMainWindow(): void {
     setupAutoUpdater();
   });
 }
+
+app.allowRendererProcessReuse = true;
 
 const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {

@@ -432,6 +432,46 @@ export function setupIpcMain(app: App): void {
     app.exit();
   });
 
+  onMessageFromBrowserWindow('wipe-position', () => {
+    const session = settingsStore.getAccount();
+    if (!session) {
+      return;
+    }
+    if (!session.overlaySettings) {
+      session.overlaySettings = {
+        leftdigit: 2,
+        rightdigit: 1,
+        bottomdigit: 3,
+        leftdraftdigit: 3,
+        rightdraftdigit: 1,
+        hidemy: false,
+        hideopp: false,
+        hidezero: false,
+        showcardicon: true,
+        neverhide: false,
+        mydecks: false,
+        cardhover: false,
+        timers: false,
+        savepositiontop: 0,
+        savepositionleft: 0,
+        savepositiontopopp: 0,
+        savepositionleftopp: 0,
+        savescale: 0,
+        opacity: 0,
+        fontcolor: 0,
+        detach: false,
+        hidemain: false,
+      };
+    }
+
+    session.overlaySettings['savepositiontop'] = 0;
+    session.overlaySettings['savepositionleft'] = 0;
+    session.overlaySettings['savepositiontopopp'] = 0;
+    session.overlaySettings['savepositionleftopp'] = 0;
+    settingsStore.save();
+    sendMessageToOverlayWindow('set-ovlsettings', session.overlaySettings);
+  });
+
   onMessageFromBrowserWindow('wipe-all', () => {
     settingsStore.wipe();
     stateStore.wipe();

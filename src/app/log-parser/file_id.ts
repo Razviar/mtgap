@@ -60,7 +60,7 @@ export async function getFileId(
             resolve([id, {...state, bytesRead: bytesRead + jsonStart + json.length + 1}]);
           }
         } catch (err) {
-          reject(new Error('Enable detailed logs and restart MTGA...'));
+          reject(new Error('Enable detailed logs in MTGA account and restart game...'));
         }
         chunkStream.close();
         return;
@@ -69,7 +69,7 @@ export async function getFileId(
     chunkStream.onEnd(() => {
       // This would happen if we can find a valid "file id" event in the log file. Should be very rare since
       // the event is logged very early.
-      reject(new Error('Enable detailed logs and restart MTGA...'));
+      reject(new Error('Enable detailed logs in MTGA account and restart game...'));
       chunkStream.close();
     });
     chunkStream.onError(err => {

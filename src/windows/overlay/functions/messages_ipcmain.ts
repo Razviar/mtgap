@@ -50,10 +50,16 @@ export function SetMessages(): void {
       if (overlayConfig.ovlSettings.savepositionleft !== 0) {
         overlayElements.MainDeckFrame.style.top = `${overlayConfig.ovlSettings.savepositiontop}%`;
         overlayElements.MainDeckFrame.style.left = `${overlayConfig.ovlSettings.savepositionleft}%`;
+      } else {
+        overlayElements.MainDeckFrame.style.top = '15%';
+        overlayElements.MainDeckFrame.style.left = '0px';
       }
       if (overlayConfig.ovlSettings.savepositionleftopp !== 0) {
         overlayElements.OpponentOutFrame.style.top = `${overlayConfig.ovlSettings.savepositiontopopp}%`;
         overlayElements.OpponentOutFrame.style.left = `${overlayConfig.ovlSettings.savepositionleftopp}%`;
+      } else {
+        overlayElements.OpponentOutFrame.style.top = '15%';
+        overlayElements.OpponentOutFrame.style.right = '0px';
       }
       dragger(overlayElements.MainDeckFrame, overlayElements.MoveHandle);
       dragger(overlayElements.OpponentOutFrame, overlayElements.OppMoveHandle);
