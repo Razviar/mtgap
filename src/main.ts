@@ -27,7 +27,7 @@ export const ProcessWatching: {
   gameRunningState: boolean;
 } = {
   processWatcherFn: setupProcessWatcher(),
-  processWatcherFnInterval: 10000,
+  processWatcherFnInterval: 500,
   interval: 0,
   gameRunningState: true,
 };

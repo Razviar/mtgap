@@ -102,8 +102,6 @@ export class LogParser {
           if (!ProcessWatching.gameRunningState) {
             ProcessWatching.gameRunningState = true;
             clearInterval(ProcessWatching.interval);
-            // tslint:disable-next-line: no-magic-numbers
-            ProcessWatching.processWatcherFnInterval = 500;
             ProcessWatching.interval = setInterval(
               ProcessWatching.processWatcherFn,
               ProcessWatching.processWatcherFnInterval

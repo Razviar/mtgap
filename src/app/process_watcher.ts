@@ -26,12 +26,6 @@ export function setupProcessWatcher(): () => void {
             sendMessageToHomeWindow('show-status', {message: 'Game is not running!', color: '#dbb63d'});
             withOverlayWindow(w => w.hide());
             clearInterval(ProcessWatching.interval);
-            // tslint:disable-next-line: no-magic-numbers
-            /*ProcessWatching.processWatcherFnInterval = 10000;
-            ProcessWatching.interval = setInterval(
-              ProcessWatching.processWatcherFn,
-              ProcessWatching.processWatcherFnInterval
-            );*/
           }
         } else {
           overlayPositioner.findmtga(MTGApid);

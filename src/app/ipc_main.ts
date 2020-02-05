@@ -469,7 +469,8 @@ export function setupIpcMain(app: App): void {
     session.overlaySettings['savepositiontopopp'] = 0;
     session.overlaySettings['savepositionleftopp'] = 0;
     settingsStore.save();
-    sendMessageToOverlayWindow('set-ovlsettings', session.overlaySettings);
+    app.relaunch();
+    app.exit();
   });
 
   onMessageFromBrowserWindow('wipe-all', () => {
