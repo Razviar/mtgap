@@ -51,7 +51,8 @@ export function controlClick(event: Event): void {
       if (currentCreds.currentLogState) {
         sendMessageToIpcMain(button, undefined);
       } else {
-        showPrompt('Your log path is fine, no need to tinker with it ;)', 1000);
+        // tslint:disable-next-line: no-magic-numbers
+        showPrompt('Your log path is fine, no need to tinker with it ;)', 2000);
       }
       break;
   }
