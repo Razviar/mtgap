@@ -1,3 +1,4 @@
+import {showPrompt} from 'root/windows/home/functions/showPrompt';
 import {currentCreds, HomePageElements} from 'root/windows/home/home';
 import {sendMessageToIpcMain} from 'root/windows/messages';
 
@@ -40,12 +41,18 @@ export function controlClick(event: Event): void {
     case 'stop-tracker':
     case 'old-log':
     case 'apply-update':
-    case 'set-log-path':
     case 'default-log-path':
     case 'set-mtga-path':
     case 'default-mtga-path':
     case 'stop-shadow-sync':
       sendMessageToIpcMain(button, undefined);
+      break;
+    case 'set-log-path':
+      if (currentCreds.currentLogState) {
+        sendMessageToIpcMain(button, undefined);
+      } else {
+        showPrompt('Your log path is fine, no need to tinker with it ;)', 1000);
+      }
       break;
   }
 }

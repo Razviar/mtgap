@@ -356,6 +356,10 @@ div#UserLinks {
   width: auto !important;
 }
 
+.disabled {
+  opacity: 0.7;
+}
+
 #network-status {
   display: inline-block;
   width: 10px;

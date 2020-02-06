@@ -122,6 +122,7 @@ export interface Messages {
   'opacity-down': undefined;
   'stop-shadow-sync': undefined;
   'shadow-sync-over': undefined;
+  nologfile: undefined;
 }
 
 export enum NetworkStatusMessage {

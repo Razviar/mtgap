@@ -82,6 +82,7 @@ export class LogParser {
       try {
         // File doesn't exist
         if (err) {
+          this.emitter.emit('nologfile', undefined);
           throw new Error('No log file found');
         }
 

@@ -230,4 +230,10 @@ export function installHomeMessages(): void {
     const ShadowSyncStarter = document.querySelector('[data-button="do-shadow-sync"]') as HTMLElement;
     ShadowSyncStarter.classList.remove('hidden');
   });
+
+  onMessageFromIpcMain('nologfile', () => {
+    const unhide = document.querySelector('[data-button="set-log-path"]') as HTMLElement;
+    unhide.classList.remove('disabled');
+    currentCreds.currentLogState = true;
+  });
 }

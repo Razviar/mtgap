@@ -111,6 +111,10 @@ export function createGlobalLogParser(): LogParser {
     }
   });
 
+  logParser.emitter.on('nologfile', () => {
+    sendMessageToHomeWindow('nologfile', undefined);
+  });
+
   logParser.start().catch(err => {
     error('Failure to start parser', err);
   });

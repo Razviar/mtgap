@@ -40,6 +40,7 @@ export const HomePageElements = {
 export const currentCreds = {
   currentMtgaNick: '',
   currentMtgaID: '',
+  currentLogState: false,
 };
 
 installHomeMessages();

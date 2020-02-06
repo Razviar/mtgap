@@ -62,6 +62,24 @@ export function SetMessages(): void {
       opacitySetter(false);
     }
 
+    if (
+      overlayConfig.ovlSettings &&
+      overlayConfig.ovlSettings.savepositionleft === 0 &&
+      overlayConfig.ovlSettings.savepositiontop === 0
+    ) {
+      overlayElements.MainDeckFrame.style.top = '15%';
+      overlayElements.MainDeckFrame.style.left = '0px';
+    }
+
+    if (
+      overlayConfig.ovlSettings &&
+      overlayConfig.ovlSettings.savepositionleftopp === 0 &&
+      overlayConfig.ovlSettings.savepositiontopopp === 0
+    ) {
+      overlayElements.OpponentOutFrame.style.top = '15%';
+      overlayElements.OpponentOutFrame.style.right = '0px';
+    }
+
     if (overlayConfig.ovlSettings?.hidemain) {
       overlayElements.OverlayMenu.classList.add('hidden');
     } else {
