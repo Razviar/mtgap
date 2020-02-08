@@ -8,36 +8,47 @@ export function registerHotkeys(): void {
     return;
   }
 
-  if (!globalShortcut.isRegistered('Alt+Q')) {
-    globalShortcut.register('Alt+Q', () => {
-      sendMessageToOverlayWindow('toggle-me', undefined);
-    });
-    globalShortcut.register('Alt+W', () => {
-      sendMessageToOverlayWindow('toggle-opp', undefined);
-    });
-    globalShortcut.register('Alt+~', () => {
-      sendMessageToOverlayWindow('toggle-all', undefined);
-    });
-    globalShortcut.register('Alt+`', () => {
-      sendMessageToOverlayWindow('toggle-all', undefined);
-    });
-    globalShortcut.register('Alt+A', () => {
-      sendMessageToOverlayWindow('scale-up', undefined);
-    });
-    globalShortcut.register('Alt+S', () => {
-      sendMessageToOverlayWindow('scale-down', undefined);
-    });
-    globalShortcut.register('Alt+E', () => {
-      sendMessageToOverlayWindow('opacity-up', undefined);
-    });
-    globalShortcut.register('Alt+D', () => {
-      sendMessageToOverlayWindow('opacity-down', undefined);
-    });
+  const hotkeyMap = settingsStore.getAccount()?.hotkeysSettings;
+
+  if (hotkeyMap === undefined) {
+    return;
   }
+
+  const HotkeysBinding = {
+    'hk-my-deck': 'toggle-me',
+    'hk-opp-deck': 'toggle-opp',
+    'hk-overlay': 'toggle-all',
+    'hk-inc-size': 'scale-up',
+    'hk-dec-size': 'scale-down',
+    'hk-inc-opac': 'opacity-up',
+    'hk-dec-opac': 'opacity-down',
+  };
+
+  Object.keys(hotkeyMap).forEach(key => {
+    const hotkey = key as
+      | 'hk-my-deck'
+      | 'hk-opp-deck'
+      | 'hk-overlay'
+      | 'hk-inc-size'
+      | 'hk-dec-size'
+      | 'hk-inc-opac'
+      | 'hk-dec-opac';
+    const action = HotkeysBinding[hotkey] as
+      | 'toggle-me'
+      | 'toggle-opp'
+      | 'toggle-all'
+      | 'scale-up'
+      | 'scale-down'
+      | 'opacity-up'
+      | 'opacity-down';
+    if (!globalShortcut.isRegistered(`Alt+${hotkeyMap[hotkey]}`)) {
+      globalShortcut.register(`Alt+${hotkeyMap[hotkey]}`, () => {
+        sendMessageToOverlayWindow(action, undefined);
+      });
+    }
+  });
 }
 
 export function unRegisterHotkeys(): void {
-  if (globalShortcut.isRegistered('Alt+Q')) {
-    globalShortcut.unregisterAll();
-  }
+  globalShortcut.unregisterAll();
 }

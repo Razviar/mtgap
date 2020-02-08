@@ -307,6 +307,43 @@ export function setupIpcMain(app: App): void {
 
   /*OVERLAY SETTINGS END*/
 
+  /*HOTKEY SETTINGS BEGIN*/
+
+  const hkSettings = [
+    'hk-my-deck',
+    'hk-opp-deck',
+    'hk-overlay',
+    'hk-inc-size',
+    'hk-dec-size',
+    'hk-inc-opac',
+    'hk-dec-opac',
+  ];
+
+  hkSettings.forEach(settings => {
+    const set = settings as
+      | 'hk-my-deck'
+      | 'hk-opp-deck'
+      | 'hk-overlay'
+      | 'hk-inc-size'
+      | 'hk-dec-size'
+      | 'hk-inc-opac'
+      | 'hk-dec-opac';
+    onMessageFromBrowserWindow(set, newHotkeyBinding => {
+      const session = settingsStore.getAccount();
+      if (session === undefined) {
+        return;
+      }
+      if (session.hotkeysSettings === undefined) {
+        return;
+      }
+      session.hotkeysSettings[set] = newHotkeyBinding;
+      settingsStore.save();
+      sendMessageToHomeWindow('set-hotkey-map', session.hotkeysSettings);
+    });
+  });
+
+  /*HOTKEY SETTINGS END*/
+
   onMessageFromBrowserWindow('kill-current-token', () => {
     const settings = settingsStore.get();
     const session = settingsStore.getAccount();

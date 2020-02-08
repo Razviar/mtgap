@@ -9,6 +9,7 @@ import {AccountV4, OverlaySettingsV4, SettingsV4} from 'root/app/settings-store/
 import {SettingsV5} from 'root/app/settings-store/v5';
 import {AccountV6, OverlaySettingsV6, SettingsV6} from 'root/app/settings-store/v6';
 import {SettingsV7} from 'root/app/settings-store/v7';
+import {SettingsV8, AccountV7} from 'root/app/settings-store/v8';
 import {error} from 'root/lib/logger';
 import {AnyMap, asBoolean, asMap, asNumber, asNumberString, asString} from 'root/lib/type_utils';
 
@@ -74,9 +75,9 @@ class SettingsStore {
   }
 }
 
-export type LatestSettings = SettingsV7;
+export type LatestSettings = SettingsV8;
 export type OverlaySettings = OverlaySettingsV6;
-export type Account = AccountV6;
+export type Account = AccountV7;
 type AllSettings =
   | SettingsV0
   | SettingsV1
@@ -85,7 +86,8 @@ type AllSettings =
   | SettingsV4
   | SettingsV5
   | SettingsV6
-  | SettingsV7;
+  | SettingsV7
+  | SettingsV8;
 
 export enum Version {
   v0,
@@ -96,6 +98,7 @@ export enum Version {
   v5,
   v6,
   v7,
+  v8,
 }
 
 export interface SettingsBase {
@@ -470,6 +473,30 @@ function asAccountsV6(accountsV4: AccountV4[]): AccountV6[] {
   return res;
 }
 
+function asAccountsV7(accountsV6: AccountV6[]): AccountV7[] {
+  const res: AccountV7[] = [];
+  accountsV6.forEach(acc => {
+    res.push({
+      uid: acc.uid,
+      token: acc.token,
+      nick: acc.nick,
+      overlay: acc.overlay,
+      player: acc.player,
+      overlaySettings: asOverlaySettingsV6(acc.overlaySettings),
+      hotkeysSettings: {
+        'hk-my-deck': 'Q',
+        'hk-opp-deck': 'W',
+        'hk-overlay': '`',
+        'hk-inc-size': 'A',
+        'hk-dec-size': 'S',
+        'hk-inc-opac': 'E',
+        'hk-dec-opac': 'D',
+      },
+    });
+  });
+  return res;
+}
+
 function migrateV0toV1(v0: SettingsV0): SettingsV1 {
   return {
     version: Version.v1,
@@ -582,6 +609,24 @@ function migrateV6toV7(v6: SettingsV6): SettingsV7 {
   };
 }
 
+function migrateV7toV8(v7: SettingsV7): SettingsV8 {
+  return {
+    version: Version.v8,
+    accounts: asAccountsV7(v7.accounts),
+    userToken: v7.userToken,
+    icon: v7.icon,
+    autorun: v7.autorun,
+    minimized: v7.minimized,
+    overlay: v7.overlay,
+    manualUpdate: v7.manualUpdate,
+    awaiting: v7.awaiting,
+    logPath: v7.logPath,
+    mtgaPath: v7.mtgaPath,
+    nohotkeys: v7.nohotkeys,
+    uploads: v7.uploads,
+  };
+}
+
 function parseSettings(settings: AllSettings): LatestSettings {
   // Recursively parse settings and migrate them to arrive at latest version
   switch (settings.version) {
@@ -599,6 +644,8 @@ function parseSettings(settings: AllSettings): LatestSettings {
       return parseSettings(migrateV5toV6(settings));
     case Version.v6:
       return parseSettings(migrateV6toV7(settings));
+    case Version.v7:
+      return parseSettings(migrateV7toV8(settings));
     default:
       return settings;
   }

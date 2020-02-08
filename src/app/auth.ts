@@ -5,6 +5,7 @@ export function setCreds(source: string): void {
   const account = settingsStore.getAccount();
   if (account) {
     sendMessageToHomeWindow('set-creds', {account, source});
+    sendMessageToHomeWindow('set-hotkey-map', account.hotkeysSettings);
     if (!account.overlaySettings) {
       account.overlaySettings = {
         leftdigit: 2,

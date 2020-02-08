@@ -1,5 +1,6 @@
 import {TokenCheckRes, TokenRequestRes} from 'root/api/userbytokenid';
 import {Account, LatestSettings, OverlaySettings} from 'root/app/settings-store/settings_store';
+import {HotkeysSettingsV1} from 'root/app/settings-store/v8';
 import {CardPlayed} from 'root/models/cards';
 import {Metadata, UserMetadata} from 'root/models/metadata';
 import {UserResult} from 'root/models/userbytokenid';
@@ -92,6 +93,14 @@ export interface Messages {
   'set-setting-o-fontcolor': number;
   'set-setting-o-detach': boolean;
   'set-setting-o-hidemain': boolean;
+  'hk-my-deck': string;
+  'hk-opp-deck': string;
+  'hk-overlay': string;
+  'hk-inc-size': string;
+  'hk-dec-size': string;
+  'hk-inc-opac': string;
+  'hk-dec-opac': string;
+  'set-hotkey-map': HotkeysSettingsV1 | undefined;
   'network-status': {
     active: boolean;
     message: NetworkStatusMessage;

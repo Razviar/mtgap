@@ -9,6 +9,7 @@ import 'root/windows/fa-solid-900.woff2';
 import 'root/windows/fontawesome.css';
 import {controlClick} from 'root/windows/home/functions/controlclick';
 import {installHomeMessages} from 'root/windows/home/functions/messages';
+import {setHkClick, hkSetter} from 'root/windows/home/functions/setHkClick';
 import {settingsChecker} from 'root/windows/home/functions/settingsChecker';
 import {tabclick} from 'root/windows/home/functions/tabclick';
 import 'root/windows/home/home.css';
@@ -33,14 +34,21 @@ export const HomePageElements = {
   NetworkStatus: document.getElementById('network-status') as HTMLElement,
   hotkeyMap: document.getElementById('hotkeyMap') as HTMLElement,
   buttons: document.getElementsByClassName('button'),
+  hkSetters: document.getElementsByClassName('setHk'),
   tabs: document.getElementsByClassName('tab'),
   controls: document.getElementsByClassName('controlButton'),
   settings: document.getElementsByClassName('settings'),
 };
-export const currentCreds = {
+export const currentCreds: {
+  currentMtgaNick: string;
+  currentMtgaID: string;
+  currentLogState: boolean;
+  hkBeingSet: string;
+} = {
   currentMtgaNick: '',
   currentMtgaID: '',
   currentLogState: false,
+  hkBeingSet: '',
 };
 
 installHomeMessages();
@@ -65,9 +73,15 @@ Array.from(HomePageElements.controls).forEach(el => {
   el.addEventListener('click', controlClick);
 });
 
+Array.from(HomePageElements.hkSetters).forEach(el => {
+  el.addEventListener('click', setHkClick);
+});
+
 Array.from(HomePageElements.settings).forEach(el => {
   el.addEventListener('change', settingsChecker);
 });
+
+window.addEventListener('keyup', hkSetter, true);
 
 onMessageFromIpcMain('network-status', status => {
   HomePageElements.NetworkStatus.title = `${status.message}${

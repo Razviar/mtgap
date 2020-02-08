@@ -416,6 +416,14 @@ div#hotkeyMap {
   border: solid 1px rgba(183, 171, 169, 0.15);
 }
 
+.disabledHk {
+  opacity: 0.5;
+}
+
+.setHk {
+  cursor: pointer;
+}
+
 .hkDescription {
   display: inline-block;
 }

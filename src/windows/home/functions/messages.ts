@@ -12,6 +12,24 @@ export function installHomeMessages(): void {
     currentCreds.currentMtgaID = data.newPlayerId;
   });
 
+  onMessageFromIpcMain('set-hotkey-map', hkMap => {
+    if (hkMap === undefined) {
+      return;
+    }
+    Object.keys(hkMap).forEach(key => {
+      const btn = key as
+        | 'hk-my-deck'
+        | 'hk-opp-deck'
+        | 'hk-overlay'
+        | 'hk-inc-size'
+        | 'hk-dec-size'
+        | 'hk-inc-opac'
+        | 'hk-dec-opac';
+      const sw = document.querySelector(`[data-hk="${key}"]`) as HTMLSelectElement;
+      sw.innerHTML = hkMap[btn].toUpperCase();
+    });
+  });
+
   onMessageFromIpcMain('set-creds', creds => {
     const unhide = document.querySelector('[data-button="unskip-acc"]') as HTMLElement;
     if (creds.account.nick !== 'Skipping') {
