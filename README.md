@@ -32,6 +32,9 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 6. Check if antiviruses or firewalls are blocking app traffic, add app to exception.
 
 ## Changelog
+v.2.0.36 released 08/02/2020
+* Custom re-binding of hotkeys implemented
+
 v.2.0.35 released 06/02/2020
 * Electron upgraded to v8
 * Reduced CPU usage in idle state to ~0%
