@@ -121,7 +121,10 @@ export class LogParser {
           if (lastEvent.timestamp !== undefined) {
             this.emitter.emit(
               'status',
-              `Log parsed till: ${format(new Date(lastEvent.timestamp), 'h:mm:ss a dd, MMM yyyy')}`
+              `<div class="stringTitle">Log parsed till:</div>${format(
+                new Date(lastEvent.timestamp),
+                'h:mm:ss a dd, MMM yyyy'
+              )}`
             );
           }
         }

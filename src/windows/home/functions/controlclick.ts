@@ -12,6 +12,7 @@ export function controlClick(event: Event): void {
       unhide.classList.remove('hidden');
       HomePageElements.StatusMessage.innerHTML = 'Skipping this account...';
       HomePageElements.UserControls.classList.remove('hidden');
+      HomePageElements.hotkeyMap.classList.remove('hidden');
       sendMessageToIpcMain('token-input', {
         token: `SKIPPING${Math.floor(1000 * Math.random())}`,
         uid: '',

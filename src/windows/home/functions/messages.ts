@@ -7,7 +7,7 @@ import {onMessageFromIpcMain, sendMessageToIpcMain} from 'root/windows/messages'
 
 export function installHomeMessages(): void {
   onMessageFromIpcMain('set-screenname', data => {
-    HomePageElements.UserCredentials.innerHTML = `MTGA nick: <strong>${data.screenName}</strong>`;
+    HomePageElements.UserCredentials.innerHTML = `<div class="stringTitle">MTGA nick:</div><strong>${data.screenName}</strong>`;
     currentCreds.currentMtgaNick = data.screenName;
     currentCreds.currentMtgaID = data.newPlayerId;
   });
@@ -39,8 +39,8 @@ export function installHomeMessages(): void {
       if (creds.account.player !== undefined) {
         currentCreds.currentMtgaNick = creds.account.player.screenName;
         currentCreds.currentMtgaID = creds.account.player.playerId;
-        HomePageElements.UserCredentials.innerHTML = `MTGA nick: <strong>${creds.account.player?.screenName}</strong>`;
-        HomePageElements.TokenResponse.innerHTML = `Current user: <strong>Skipping this account...</strong>`;
+        HomePageElements.UserCredentials.innerHTML = `<div class="stringTitle">MTGA nick:</div><strong>${creds.account.player?.screenName}</strong>`;
+        HomePageElements.TokenResponse.innerHTML = `<div class="stringTitle">Current user:</div><strong>Skipping this account...</strong>`;
         HomePageElements.StatusMessage.innerHTML = '';
         HomePageElements.UserControls.classList.remove('hidden');
         unhide.classList.remove('hidden');
@@ -209,6 +209,7 @@ export function installHomeMessages(): void {
     HomePageElements.TokenInput.classList.remove('hidden');
     HomePageElements.OverlaySwitch.classList.add('hidden');
     HomePageElements.UserControls.classList.add('hidden');
+    HomePageElements.hotkeyMap.classList.add('hidden');
   });
 
   onMessageFromIpcMain('show-update-button', () => {
@@ -219,6 +220,7 @@ export function installHomeMessages(): void {
   onMessageFromIpcMain('sync-process', res => {
     if (res.mode === 'needauth') {
       sendMessageToIpcMain('open-link', `https://mtgarena.pro/sync/?request=${res.request}`);
+      HomePageElements.directSyncLink.innerHTML = `<div class="directSyncLink">https://mtgarena.pro/sync/?request=${res.request}</div>`;
       tokenWaiter(res.request);
     } else if (res.mode === 'hasauth') {
       login(res.token, res.uid, res.nick, 'connect-acc');

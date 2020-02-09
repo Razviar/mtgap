@@ -396,6 +396,19 @@ div#UserLinks {
   }
 }
 
+.directSyncLink {
+  clear: both;
+  display: block;
+  padding: 2px;
+  border: dotted 1px;
+  user-select: all !important;
+}
+
+.stringTitle {
+  display: inline-block;
+  width: 100px;
+}
+
 /*HOTKEYS*/
 
 div#hotkeyMap {

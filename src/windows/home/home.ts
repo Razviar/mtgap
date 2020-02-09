@@ -9,7 +9,7 @@ import 'root/windows/fa-solid-900.woff2';
 import 'root/windows/fontawesome.css';
 import {controlClick} from 'root/windows/home/functions/controlclick';
 import {installHomeMessages} from 'root/windows/home/functions/messages';
-import {setHkClick, hkSetter} from 'root/windows/home/functions/setHkClick';
+import {hkSetter, setHkClick} from 'root/windows/home/functions/setHkClick';
 import {settingsChecker} from 'root/windows/home/functions/settingsChecker';
 import {tabclick} from 'root/windows/home/functions/tabclick';
 import 'root/windows/home/home.css';
@@ -33,6 +33,7 @@ export const HomePageElements = {
   PromptText: document.getElementById('PromptText') as HTMLElement,
   NetworkStatus: document.getElementById('network-status') as HTMLElement,
   hotkeyMap: document.getElementById('hotkeyMap') as HTMLElement,
+  directSyncLink: document.getElementById('directSyncLink') as HTMLElement,
   buttons: document.getElementsByClassName('button'),
   hkSetters: document.getElementsByClassName('setHk'),
   tabs: document.getElementsByClassName('tab'),
