@@ -41,7 +41,7 @@ interface LogParserEvents {
     PickNumber: number;
   };
   'draft-complete': undefined;
-  'turn-info': number;
+  'turn-info': {decisionPlayer: number; turnNumber?: number};
   nologfile: undefined;
 }
 

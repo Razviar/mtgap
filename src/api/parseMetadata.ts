@@ -168,6 +168,7 @@ export function parseMetadata(data: AxiosResponse): Metadata {
             TraditionalHistoricBan: asNumber(cardElem.TraditionalHistoricBan, 0),
             StandardBan: asNumber(cardElem.StandardBan, 0),
             HistoricBan: asNumber(cardElem.HistoricBan, 0),
+            wleval_1sthand: asNumber(cardElem.wleval_1sthand, 0),
           },
         ]);
       }

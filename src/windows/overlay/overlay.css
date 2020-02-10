@@ -113,6 +113,19 @@ a[href^="ftp://"] {
   background-color: rgba(255, 255, 255, 0.3);
 }
 
+.highlightCardBest {
+  background-color: rgba(105, 204, 102, 0.3) !important;
+}
+.highlightCardGood {
+  background-color: rgba(221, 242, 84, 0.3) !important;
+}
+.highlightCardPoor {
+  background-color: rgba(244, 194, 103, 0.3) !important;
+}
+.highlightCardWorst {
+  background-color: rgba(236, 63, 24, 0.3) !important;
+}
+
 .outCard {
   filter: brightness(0.6);
 }
@@ -169,6 +182,23 @@ a[href^="ftp://"] {
 
 .White {
   color: #fff !important;
+}
+
+.FirstHand {
+  font-weight: bold;
+}
+
+.Best {
+  color: rgb(105, 204, 102) !important;
+}
+.Good {
+  color: rgb(221, 242, 84) !important;
+}
+.Poor {
+  color: rgb(244, 194, 103) !important;
+}
+.Worst {
+  color: rgb(236, 63, 24) !important;
 }
 
 .uppernum {

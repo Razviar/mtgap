@@ -116,7 +116,7 @@ export interface Messages {
   };
   'set-ovlsettings': OverlaySettings | undefined;
   'draft-complete': undefined;
-  'turn-info': number;
+  'turn-info': {decisionPlayer: number; turnNumber?: number};
   'error-in-renderer': {
     error: string | Event;
     url: string | undefined;

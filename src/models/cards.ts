@@ -46,6 +46,7 @@ export interface Card {
   TraditionalHistoricBan: number;
   StandardBan: number;
   HistoricBan: number;
+  wleval_1sthand: number;
 }
 
 export interface Cardnfo {

@@ -11,6 +11,9 @@ export function updateDeck(highlight: number[]): void {
   const meta = overlayConfig.metaData;
   const allcards = overlayConfig.allCards;
   const BasicLand = 34;
+  const FirstHandEvals = ['Worst', 'Poor', 'Good', 'Best'];
+  const StepsNumber = 4;
+  const FirstHandEvalStep = (currentMatch.myBestFirstCard - currentMatch.myWorstFirstCard) / StepsNumber;
 
   currentMatch.myFullDeck.forEach(card => {
     const TheCard = allcards.get(+card.card);
@@ -29,6 +32,7 @@ export function updateDeck(highlight: number[]): void {
     if (TheCard === undefined) {
       return;
     }
+
     const hl = TheCard.type === BasicLand ? TheCard.colorindicator : mtgaid.toString();
     const scls = TheCard.supercls;
     if (!currentMatch.cardsBySuperclassLeft.has(scls.toString())) {
@@ -65,14 +69,42 @@ export function updateDeck(highlight: number[]): void {
 
     const crdEl: HTMLElement | null = document.getElementById(`card${hl}me`);
     if (crdEl) {
-      crdEl.classList.add('highlightCard');
-      setTimeout(() => {
-        Array.from(document.getElementsByClassName('highlightCard')).forEach(el => {
-          el.classList.remove('highlightCard');
-        });
-      }, overlayConfig.highlightTimeout);
+      if (currentMatch.TurnNumber === 0) {
+        const FirstHandElement: HTMLElement | null = document.getElementById(`FirstHand${mtgaid}`);
+        if (FirstHandElement) {
+          const positioner =
+            Math.ceil((TheCard.wleval_1sthand - currentMatch.myWorstFirstCard) / FirstHandEvalStep) - 1;
+          if (positioner > 0 && positioner < FirstHandEvals.length) {
+            FirstHandElement.classList.remove('hidden');
+            FirstHandElement.classList.add(FirstHandEvals[positioner]);
+            FirstHandElement.innerHTML += ` (${FirstHandEvals[positioner]})`;
+            crdEl.classList.add(`highlightCard${FirstHandEvals[positioner]}`);
+          }
+        }
+      } else {
+        crdEl.classList.add('highlightCard');
+        setTimeout(() => {
+          Array.from(document.getElementsByClassName('highlightCard')).forEach(el => {
+            el.classList.remove('highlightCard');
+          });
+        }, overlayConfig.highlightTimeout);
+      }
     }
   });
+
+  if (currentMatch.TurnNumber !== 0) {
+    const FirstHandElements = document.getElementsByClassName('FirstHand');
+    const TheDeck = document.getElementsByClassName('DcDrow');
+    Array.from(FirstHandElements).forEach(elem => {
+      elem.classList.add('hidden');
+    });
+    Array.from(TheDeck).forEach(crdEl => {
+      crdEl.classList.remove('highlightCardBest');
+      crdEl.classList.remove('highlightCardGood');
+      crdEl.classList.remove('highlightCardPoor');
+      crdEl.classList.remove('highlightCardWorst');
+    });
+  }
 
   for (let scls = 0; scls <= 2; scls++) {
     const sclsEl: HTMLElement | null = document.getElementById(`scls${scls}`);

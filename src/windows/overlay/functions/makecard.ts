@@ -166,7 +166,11 @@ export function makeCard(cid: number, num: number, side: boolean, draft?: boolea
   </div>
   <div class="CNameManaWrap">
   <div class="CCmana">
-  ${manas} ${manas !== '' ? '|' : ''} <span class="ms ms-${superclasses[Card['supercls']]}"></span>
+  ${manas} ${manas !== '' ? '|' : ''} <span class="ms ms-${superclasses[Card['supercls']]}"></span> ${
+    side
+      ? `<span class="FirstHand hidden" id="FirstHand${mtgaId}">${(100 * Card['wleval_1sthand']).toFixed(1)}%</span>`
+      : ''
+  }
   </div>
   <div class="CName">${name}</div>
   </div>

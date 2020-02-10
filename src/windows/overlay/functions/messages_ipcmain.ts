@@ -138,7 +138,11 @@ export function SetMessages(): void {
   });
 
   onMessageFromIpcMain('turn-info', dp => {
-    currentMatch.switchTimer(dp);
+    currentMatch.TurnNumber = dp.turnNumber !== undefined ? dp.turnNumber : 0;
+    if (!overlayConfig.ovlSettings?.timers) {
+      return;
+    }
+    currentMatch.switchTimer(dp.decisionPlayer);
     if (!overlayConfig.timer) {
       overlayConfig.timer = setInterval(() => {
         currentMatch.tick();

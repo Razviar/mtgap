@@ -89,10 +89,7 @@ export function createGlobalLogParser(): LogParser {
   });
 
   logParser.emitter.on('turn-info', dp => {
-    const account = settingsStore.getAccount();
-    if (account?.overlaySettings?.timers) {
-      sendMessageToOverlayWindow('turn-info', dp);
-    }
+    sendMessageToOverlayWindow('turn-info', dp);
   });
 
   logParser.emitter.on('draft-turn', msg => {

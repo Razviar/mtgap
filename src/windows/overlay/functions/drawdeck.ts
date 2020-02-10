@@ -6,9 +6,24 @@ import {currentMatch, overlayConfig, overlayElements, toggleButtonClass} from 'r
 
 export function drawDeck(): void {
   let output = '';
+  let myBestFirstCard = 0;
+  let myWorstFirstCard = 0;
   currentMatch.myFullDeck.forEach(card => {
+    const FirstHandEval = overlayConfig.allCards.get(card.card)?.wleval_1sthand;
+    if (FirstHandEval !== undefined) {
+      if (FirstHandEval > myBestFirstCard) {
+        myBestFirstCard = FirstHandEval;
+      }
+      if ((FirstHandEval !== 0 && FirstHandEval < myWorstFirstCard) || myWorstFirstCard === 0) {
+        myWorstFirstCard = FirstHandEval;
+      }
+    }
+
     output += makeCard(card.card, card.cardnum, true);
   });
+
+  currentMatch.myBestFirstCard = myBestFirstCard;
+  currentMatch.myWorstFirstCard = myWorstFirstCard;
 
   currentMatch.basicLands.forEach((num, basicLand) => {
     output += makeBasicLand(basicLand, num, true);

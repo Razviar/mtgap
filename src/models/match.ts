@@ -44,6 +44,8 @@ export class Match {
   public instanceIds: CardMappings = {me: {}, opponent: {}};
   public decks: CardMappings = {me: {}, opponent: {}};
   public myFullDeck: {card: number; cardnum: number}[] = [];
+  public myBestFirstCard: number = 0;
+  public myWorstFirstCard: number = 0;
   public humanname: string = '';
   public eventId: string = '';
   public myTeamId: number = 0;
@@ -73,6 +75,8 @@ export class Match {
     this.instanceIds = {me: {}, opponent: {}};
     this.decks = {me: {}, opponent: {}};
     this.myFullDeck = [];
+    this.myBestFirstCard = 0;
+    this.myWorstFirstCard = 0;
     this.humanname = '';
     this.myTeamId = 0;
     this.TurnNumber = 0;

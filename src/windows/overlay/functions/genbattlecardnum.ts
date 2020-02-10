@@ -55,7 +55,7 @@ export function genBattleCardNum(mtgaid: number | string, isBasicLand: boolean):
       ? `<div class="bottomnum">${digitsFilled.get('bottomdigit')}</div>`
       : ''
   }`;
-  if (numleft === 0) {
+  if (numleft === 0 && currentMatch.TurnNumber !== 0) {
     const crdEl: HTMLElement | null = document.getElementById(`card${mtgaid}me`);
     if (crdEl) {
       crdEl.classList.add(overlayConfig.ovlSettings && overlayConfig.ovlSettings.hidezero ? 'hidden' : 'outCard');
