@@ -119,10 +119,10 @@ a[href^="ftp://"] {
 .highlightCardGood {
   background-color: rgba(221, 242, 84, 0.3) !important;
 }
-.highlightCardPoor {
+.highlightCardMaybe {
   background-color: rgba(244, 194, 103, 0.3) !important;
 }
-.highlightCardWorst {
+.highlightCardPoor {
   background-color: rgba(236, 63, 24, 0.3) !important;
 }
 
@@ -194,10 +194,10 @@ a[href^="ftp://"] {
 .Good {
   color: rgb(221, 242, 84) !important;
 }
-.Poor {
+.Maybe {
   color: rgb(244, 194, 103) !important;
 }
-.Worst {
+.Poor {
   color: rgb(236, 63, 24) !important;
 }
 

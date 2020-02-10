@@ -11,7 +11,7 @@ export function updateDeck(highlight: number[]): void {
   const meta = overlayConfig.metaData;
   const allcards = overlayConfig.allCards;
   const BasicLand = 34;
-  const FirstHandEvals = ['Worst', 'Poor', 'Good', 'Best'];
+  const FirstHandEvals = ['Poor', 'Maybe', 'Good', 'Best'];
   const StepsNumber = 4;
   const FirstHandEvalStep = (currentMatch.myBestFirstCard - currentMatch.myWorstFirstCard) / StepsNumber;
 
@@ -77,7 +77,7 @@ export function updateDeck(highlight: number[]): void {
           if (positioner > 0 && positioner < FirstHandEvals.length) {
             FirstHandElement.classList.remove('hidden');
             FirstHandElement.classList.add(FirstHandEvals[positioner]);
-            FirstHandElement.innerHTML += ` (${FirstHandEvals[positioner]})`;
+            FirstHandElement.innerHTML = `${FirstHandElement.innerHTML} (${FirstHandEvals[positioner]})`;
             crdEl.classList.add(`highlightCard${FirstHandEvals[positioner]}`);
           }
         }
