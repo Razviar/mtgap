@@ -31,6 +31,11 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 6. Check if antiviruses or firewalls are blocking app traffic, add app to exception.
 
 ## Changelog
+v.2.0.37 released 10/02/2020
+* NEW: starting hand analysis with color indication of good and bad cards
+* Improved new user expirience. Now if your browser for some reason isn't able to open Sync screen automatically, you will be able to copy the link manually and open it.
+* Better aligment of interface elements. 
+
 v.2.0.36 released 08/02/2020
 * Custom re-binding of hotkeys implemented
 
