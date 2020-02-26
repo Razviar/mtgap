@@ -45,11 +45,10 @@ input#token {
 
 #header {
   vertical-align: middle;
-  background-color: rgba(132, 52, 38, 0.9);
   width: 680px;
   padding: 10px;
   height: 50px;
-  -webkit-app-region: drag;
+  /*-webkit-app-region: drag;*/
 }
 
 .button {
@@ -125,8 +124,15 @@ input#token {
 }
 
 .header {
-  background-color: rgb(54, 34, 30);
   border-bottom: solid 1px #fff;
+}
+
+.mtgaproHeader {
+  background-color: rgba(132, 52, 38, 0.9);
+}
+
+.runeterraHeader {
+  background-color: rgba(59, 43, 87, 0.9);
 }
 
 .white {
@@ -439,4 +445,20 @@ div#hotkeyMap {
 
 .hkDescription {
   display: inline-block;
+}
+
+.gameSwitch {
+  width: 50px;
+  overflow: hidden;
+  position: absolute;
+  left: -25px;
+  top: 10px;
+  cursor: pointer;
+  transition-property: left, filter, box-shadow;
+  transition-duration: 200ms;
+}
+
+.gameSwitch:hover {
+  left: -20px;
+  filter: brightness(1.2) drop-shadow(0px 0px 9px rgba(255, 255, 255, 0.7));
 }

@@ -8,6 +8,7 @@ import 'root/windows/fa-regular-400.woff2';
 import 'root/windows/fa-solid-900.woff2';
 import 'root/windows/fontawesome.css';
 import {controlClick} from 'root/windows/home/functions/controlclick';
+import {gameSwClick} from 'root/windows/home/functions/gameswitch';
 import {installHomeMessages} from 'root/windows/home/functions/messages';
 import {hkSetter, setHkClick} from 'root/windows/home/functions/setHkClick';
 import {settingsChecker} from 'root/windows/home/functions/settingsChecker';
@@ -19,6 +20,11 @@ import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdM3mDbRS.woff2';
 import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdMPmDQ.woff2';
 
 export const HomePageElements = {
+  header: document.getElementById('header') as HTMLElement,
+  titleimg: document.getElementById('titleimg') as HTMLElement,
+  runelogo: document.getElementById('runelogo') as HTMLElement,
+  runeterra: document.getElementById('runeterra') as HTMLElement,
+  mtgapro: document.getElementById('mtgapro') as HTMLElement,
   TokenResponse: document.getElementById('TokenResponse') as HTMLElement,
   TokenInput: document.getElementById('TokenInput') as HTMLElement,
   UserCredentials: document.getElementById('UserCredentials') as HTMLElement,
@@ -39,7 +45,9 @@ export const HomePageElements = {
   tabs: document.getElementsByClassName('tab'),
   controls: document.getElementsByClassName('controlButton'),
   settings: document.getElementsByClassName('settings'),
+  gameSw: document.getElementsByClassName('gameSw'),
 };
+
 export const currentCreds: {
   currentMtgaNick: string;
   currentMtgaID: string;
@@ -76,6 +84,10 @@ Array.from(HomePageElements.controls).forEach(el => {
 
 Array.from(HomePageElements.hkSetters).forEach(el => {
   el.addEventListener('click', setHkClick);
+});
+
+Array.from(HomePageElements.gameSw).forEach(el => {
+  el.addEventListener('click', gameSwClick);
 });
 
 Array.from(HomePageElements.settings).forEach(el => {
