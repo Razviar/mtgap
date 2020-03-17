@@ -9,7 +9,8 @@ import {AccountV4, OverlaySettingsV4, SettingsV4} from 'root/app/settings-store/
 import {SettingsV5} from 'root/app/settings-store/v5';
 import {AccountV6, OverlaySettingsV6, SettingsV6} from 'root/app/settings-store/v6';
 import {SettingsV7} from 'root/app/settings-store/v7';
-import {SettingsV8, AccountV7} from 'root/app/settings-store/v8';
+import {AccountV7, SettingsV8} from 'root/app/settings-store/v8';
+import {AccountV8, SettingsV9} from 'root/app/settings-store/v9';
 import {error} from 'root/lib/logger';
 import {AnyMap, asBoolean, asMap, asNumber, asNumberString, asString} from 'root/lib/type_utils';
 
@@ -60,11 +61,13 @@ class SettingsStore {
   }
 
   public getAccount(): Account | undefined {
+    const game = this.data.lastGame;
     const token = this.data.userToken;
     if (token === undefined) {
       return undefined;
     }
-    return this.data.accounts.find(_ => _.token === token);
+    const gameToken = token[game];
+    return this.data.accounts.find(_ => _.token === gameToken);
   }
 
   public removeAccount(userToken: string): void {
@@ -75,9 +78,9 @@ class SettingsStore {
   }
 }
 
-export type LatestSettings = SettingsV8;
+export type LatestSettings = SettingsV9;
 export type OverlaySettings = OverlaySettingsV6;
-export type Account = AccountV7;
+export type Account = AccountV8;
 type AllSettings =
   | SettingsV0
   | SettingsV1
@@ -87,7 +90,8 @@ type AllSettings =
   | SettingsV5
   | SettingsV6
   | SettingsV7
-  | SettingsV8;
+  | SettingsV8
+  | SettingsV9;
 
 export enum Version {
   v0,
@@ -99,6 +103,7 @@ export enum Version {
   v6,
   v7,
   v8,
+  v9,
 }
 
 export interface SettingsBase {
@@ -497,6 +502,23 @@ function asAccountsV7(accountsV6: AccountV6[]): AccountV7[] {
   return res;
 }
 
+function asAccountsV8(accountsV7: AccountV7[]): AccountV8[] {
+  const res: AccountV8[] = [];
+  accountsV7.forEach(acc => {
+    res.push({
+      uid: acc.uid,
+      token: acc.token,
+      nick: acc.nick,
+      overlay: acc.overlay,
+      player: acc.player,
+      overlaySettings: acc.overlaySettings,
+      hotkeysSettings: acc.hotkeysSettings,
+      game: 'mtga',
+    });
+  });
+  return res;
+}
+
 function migrateV0toV1(v0: SettingsV0): SettingsV1 {
   return {
     version: Version.v1,
@@ -627,6 +649,25 @@ function migrateV7toV8(v7: SettingsV7): SettingsV8 {
   };
 }
 
+function migrateV8toV9(v8: SettingsV8): SettingsV9 {
+  return {
+    version: Version.v9,
+    accounts: asAccountsV8(v8.accounts),
+    userToken: {mtga: v8.userToken},
+    lastGame: 'mtga',
+    icon: v8.icon,
+    autorun: v8.autorun,
+    minimized: v8.minimized,
+    overlay: v8.overlay,
+    manualUpdate: v8.manualUpdate,
+    awaiting: v8.awaiting,
+    logPath: v8.logPath,
+    mtgaPath: v8.mtgaPath,
+    nohotkeys: v8.nohotkeys,
+    uploads: v8.uploads,
+  };
+}
+
 function parseSettings(settings: AllSettings): LatestSettings {
   // Recursively parse settings and migrate them to arrive at latest version
   switch (settings.version) {
@@ -646,6 +687,8 @@ function parseSettings(settings: AllSettings): LatestSettings {
       return parseSettings(migrateV6toV7(settings));
     case Version.v7:
       return parseSettings(migrateV7toV8(settings));
+    case Version.v8:
+      return parseSettings(migrateV8toV9(settings));
     default:
       return settings;
   }

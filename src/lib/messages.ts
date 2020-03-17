@@ -7,9 +7,16 @@ import {UserResult} from 'root/models/userbytokenid';
 
 export interface Messages {
   'start-sync': {currentMtgaNick: string; currentMtgaID: string};
+  'lor-start-sync': undefined;
   'sync-process': TokenRequestRes;
+  'lor-sync-process': TokenRequestRes;
   'token-waiter': string;
+  'lor-token-waiter': string;
   'token-waiter-responce': {
+    res: TokenCheckRes | undefined;
+    request: string;
+  };
+  'lor-token-waiter-responce': {
     res: TokenCheckRes | undefined;
     request: string;
   };
@@ -132,6 +139,7 @@ export interface Messages {
   'stop-shadow-sync': undefined;
   'shadow-sync-over': undefined;
   nologfile: undefined;
+  'game-switch': 'lor' | 'mtga';
 }
 
 export enum NetworkStatusMessage {

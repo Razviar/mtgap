@@ -9,6 +9,7 @@ import 'root/windows/fa-solid-900.woff2';
 import 'root/windows/fontawesome.css';
 import {controlClick} from 'root/windows/home/functions/controlclick';
 import {gameSwClick} from 'root/windows/home/functions/gameswitch';
+import {installLorHomeMessages} from 'root/windows/home/functions/LOR/LORmessages';
 import {installHomeMessages} from 'root/windows/home/functions/messages';
 import {hkSetter, setHkClick} from 'root/windows/home/functions/setHkClick';
 import {settingsChecker} from 'root/windows/home/functions/settingsChecker';
@@ -27,6 +28,7 @@ export const HomePageElements = {
   mtgapro: document.getElementById('mtgapro') as HTMLElement,
   TokenResponse: document.getElementById('TokenResponse') as HTMLElement,
   TokenInput: document.getElementById('TokenInput') as HTMLElement,
+  LorTokenInput: document.getElementById('LorTokenInput') as HTMLElement,
   UserCredentials: document.getElementById('UserCredentials') as HTMLElement,
   StatusMessage: document.getElementById('StatusMessage') as HTMLElement,
   AppVersion: document.getElementById('AppVersion') as HTMLElement,
@@ -40,12 +42,15 @@ export const HomePageElements = {
   NetworkStatus: document.getElementById('network-status') as HTMLElement,
   hotkeyMap: document.getElementById('hotkeyMap') as HTMLElement,
   directSyncLink: document.getElementById('directSyncLink') as HTMLElement,
+  LordirectSyncLink: document.getElementById('LordirectSyncLink') as HTMLElement,
   buttons: document.getElementsByClassName('button'),
   hkSetters: document.getElementsByClassName('setHk'),
   tabs: document.getElementsByClassName('tab'),
   controls: document.getElementsByClassName('controlButton'),
   settings: document.getElementsByClassName('settings'),
   gameSw: document.getElementsByClassName('gameSw'),
+  MtgaTab: document.getElementsByClassName('MtgaTab'),
+  LorTab: document.getElementsByClassName('LorTab'),
 };
 
 export const currentCreds: {
@@ -61,6 +66,7 @@ export const currentCreds: {
 };
 
 installHomeMessages();
+installLorHomeMessages();
 
 HomePageElements.minimizeButton.addEventListener('click', () => {
   sendMessageToIpcMain('minimize-me', undefined);

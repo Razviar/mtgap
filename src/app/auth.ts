@@ -3,6 +3,7 @@ import {settingsStore} from 'root/app/settings-store/settings_store';
 
 export function setCreds(source: string): void {
   const account = settingsStore.getAccount();
+
   if (account) {
     sendMessageToHomeWindow('set-creds', {account, source});
     sendMessageToHomeWindow('set-hotkey-map', account.hotkeysSettings);

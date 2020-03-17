@@ -243,7 +243,11 @@ export class LogParser {
     const settings = settingsStore.get();
     const newAccount = getAccountFromScreenName(screenName);
     if (newAccount !== undefined && newAccount.player) {
-      settings.userToken = newAccount.token;
+      if (settings.userToken !== undefined) {
+        settings.userToken.mtga = newAccount.token;
+      } else {
+        settings.userToken = {mtga: newAccount.token};
+      }
       const userData: UserData = {
         mtgaId: newPlayerId,
         mtgaNick: screenName,

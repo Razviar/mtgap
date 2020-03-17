@@ -18,6 +18,7 @@ export function controlClick(event: Event): void {
         uid: '',
         nick: 'Skipping',
         overlay: false,
+        game: 'mtga',
       });
       break;
     case 'connect-acc':
@@ -26,6 +27,10 @@ export function controlClick(event: Event): void {
         currentMtgaNick: currentCreds.currentMtgaNick,
         currentMtgaID: currentCreds.currentMtgaID,
       });
+      break;
+    case 'lor-connect-acc':
+      cl.innerHTML = 'Awaiting...';
+      sendMessageToIpcMain('lor-start-sync', undefined);
       break;
     case 'unskip-acc':
       sendMessageToIpcMain('kill-current-token', undefined);

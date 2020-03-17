@@ -20,8 +20,13 @@ import {error} from 'root/lib/logger';
 export function setupIpcMain(app: App): void {
   onMessageFromBrowserWindow('token-input', newAccount => {
     const settings = settingsStore.get();
-    if (settings.userToken !== newAccount.token) {
-      settings.userToken = newAccount.token;
+    const game: 'lor' | 'mtga' = newAccount.game;
+    if (!settings.userToken || settings.userToken[game] !== newAccount.token) {
+      if (settings.userToken === undefined) {
+        settings.userToken = {};
+      }
+      settings.userToken[game] = newAccount.token;
+
       settingsStore.removeAccount(newAccount.token);
       settings.accounts.push(newAccount);
 

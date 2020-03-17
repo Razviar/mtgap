@@ -7,12 +7,17 @@ import {NetworkStatusMessage} from 'root/lib/messages';
 
 export type AxiosResponse = any; // tslint:disable-line:no-any
 
-async function makeAxios(method: 'post' | 'get', path: string, config: AxiosRequestConfig): Promise<AxiosResponse> {
+async function makeAxios(
+  method: 'post' | 'get',
+  path: string,
+  config: AxiosRequestConfig,
+  baseURL: string = 'https://mtgarena.pro/'
+): Promise<AxiosResponse> {
   try {
     const res = await axios({
       ...config,
       withCredentials: false,
-      url: `https://mtgarena.pro/${path}`,
+      url: `${baseURL}${path}`,
       method,
     });
     const sendingEvents = path.indexOf('cm_uploadpackfile') > -1;
@@ -26,8 +31,12 @@ async function makeAxios(method: 'post' | 'get', path: string, config: AxiosRequ
   }
 }
 
-async function axiosGet(path: string, config: AxiosRequestConfig = {}): Promise<AxiosResponse> {
-  return makeAxios('get', path, config);
+async function axiosGet(
+  path: string,
+  config: AxiosRequestConfig = {},
+  baseURL: string = 'https://mtgarena.pro/'
+): Promise<AxiosResponse> {
+  return makeAxios('get', path, config, baseURL);
 }
 
 async function axiosPost<T>(path: string, data?: T, config?: AxiosRequestConfig): Promise<AxiosResponse> {

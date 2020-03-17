@@ -35,7 +35,7 @@ export function createGlobalLogParser(): LogParser {
 
   logParser.emitter.on('newdata', data => {
     if (data.events.length > 0) {
-      const userToken = settingsStore.get().userToken;
+      const userToken = settingsStore.get().userToken?.mtga;
       if (userToken !== undefined && userToken.includes('SKIPPING')) {
         sendMessageToHomeWindow('show-status', {message: 'Skipping this account...', color: '#dbb63d'});
         return;

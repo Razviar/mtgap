@@ -1,4 +1,6 @@
+import {activateGame} from 'root/windows/home/functions/gameswitch';
 import {login} from 'root/windows/home/functions/login';
+import {LORlogin} from 'root/windows/home/functions/LOR/LORlogin';
 import {showPrompt} from 'root/windows/home/functions/showPrompt';
 import {tokenWaiter} from 'root/windows/home/functions/tokenWaiter';
 import {updatelinks} from 'root/windows/home/functions/updatelinks';
@@ -32,19 +34,28 @@ export function installHomeMessages(): void {
 
   onMessageFromIpcMain('set-creds', creds => {
     const unhide = document.querySelector('[data-button="unskip-acc"]') as HTMLElement;
-    if (creds.account.nick !== 'Skipping') {
-      login(creds.account.token, creds.account.uid, creds.account.nick, 'set-creds');
-      unhide.classList.add('hidden');
-    } else {
-      if (creds.account.player !== undefined) {
-        currentCreds.currentMtgaNick = creds.account.player.screenName;
-        currentCreds.currentMtgaID = creds.account.player.playerId;
-        HomePageElements.UserCredentials.innerHTML = `<div class="stringTitle">MTGA nick:</div><strong>${creds.account.player?.screenName}</strong>`;
-        HomePageElements.TokenResponse.innerHTML = `<div class="stringTitle">Current user:</div><strong>Skipping this account...</strong>`;
-        HomePageElements.StatusMessage.innerHTML = '';
-        HomePageElements.UserControls.classList.remove('hidden');
-        unhide.classList.remove('hidden');
-      }
+    switch (creds.account.game) {
+      case 'mtga':
+        activateGame('mtga');
+        if (creds.account.nick !== 'Skipping') {
+          login(creds.account.token, creds.account.uid, creds.account.nick, 'set-creds');
+          unhide.classList.add('hidden');
+        } else {
+          if (creds.account.player !== undefined) {
+            currentCreds.currentMtgaNick = creds.account.player.screenName;
+            currentCreds.currentMtgaID = creds.account.player.playerId;
+            HomePageElements.UserCredentials.innerHTML = `<div class="stringTitle">MTGA nick:</div><strong>${creds.account.player?.screenName}</strong>`;
+            HomePageElements.TokenResponse.innerHTML = `<div class="stringTitle">Current user:</div><strong>Skipping this account...</strong>`;
+            HomePageElements.StatusMessage.innerHTML = '';
+            HomePageElements.UserControls.classList.remove('hidden');
+            unhide.classList.remove('hidden');
+          }
+        }
+        break;
+      case 'lor':
+        activateGame('lor');
+        LORlogin(creds.account.token, creds.account.uid, creds.account.nick, 'set-creds');
+        break;
     }
   });
 
@@ -224,6 +235,17 @@ export function installHomeMessages(): void {
       tokenWaiter(res.request);
     } else if (res.mode === 'hasauth') {
       login(res.token, res.uid, res.nick, 'connect-acc');
+    }
+  });
+
+  onMessageFromIpcMain('token-waiter-responce', response => {
+    if (response.res && response.res.token) {
+      login(response.res.token, response.res.uid, response.res.nick);
+      sendMessageToIpcMain('do-shadow-sync', undefined);
+    } else {
+      setTimeout(() => {
+        tokenWaiter(response.request);
+      }, 1000);
     }
   });
 
