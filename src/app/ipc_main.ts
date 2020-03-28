@@ -18,7 +18,7 @@ import {stateStore} from 'root/app/state_store';
 import {error} from 'root/lib/logger';
 
 export function setupIpcMain(app: App): void {
-  onMessageFromBrowserWindow('token-input', newAccount => {
+  onMessageFromBrowserWindow('token-input', (newAccount) => {
     const settings = settingsStore.get();
     const game: 'lor' | 'mtga' = newAccount.game;
     if (!settings.userToken || settings.userToken[game] !== newAccount.token) {
@@ -42,14 +42,14 @@ export function setupIpcMain(app: App): void {
         };
 
         if (!newAccount.token.includes('SKIPPING')) {
-          setuserdata(userData).catch(err => {
+          setuserdata(userData).catch((err) => {
             error('Failure to set user data after a token-input event', err, {...userData});
           });
         }
 
         settings.awaiting = undefined;
-        withLogParser(logParser => {
-          logParser.start().catch(err => {
+        withLogParser((logParser) => {
+          logParser.start().catch((err) => {
             error('Failure to start log parser', err);
           });
         });
@@ -61,45 +61,45 @@ export function setupIpcMain(app: App): void {
     sendSettingsToRenderer();
   });
 
-  onMessageFromBrowserWindow('start-sync', currentMtgaCreds => {
+  onMessageFromBrowserWindow('start-sync', (currentMtgaCreds) => {
     tokenrequest(currentMtgaCreds)
-      .then(res => {
+      .then((res) => {
         sendMessageToHomeWindow('sync-process', res);
       })
-      .catch(err => {
+      .catch((err) => {
         error('Failure to perform tokenrequest', err, {currentMtgaCreds});
       });
   });
 
-  onMessageFromBrowserWindow('token-waiter', request => {
+  onMessageFromBrowserWindow('token-waiter', (request) => {
     tokencheck(request)
-      .then(res => {
+      .then((res) => {
         sendMessageToHomeWindow('token-waiter-responce', {res, request});
       })
-      .catch(err => {
+      .catch((err) => {
         error('Failure to perform tokencheck', err, {request});
       });
   });
 
-  onMessageFromBrowserWindow('get-userbytokenid', token => {
+  onMessageFromBrowserWindow('get-userbytokenid', (token) => {
     userbytokenid(token)
-      .then(res => {
+      .then((res) => {
         sendMessageToHomeWindow('userbytokenid-responce', res);
       })
-      .catch(err => {
+      .catch((err) => {
         error('Failure to perform userbytokenid', err, {token});
       });
   });
 
-  onMessageFromBrowserWindow('minimize-me', () => withHomeWindow(w => w.hide()));
+  onMessageFromBrowserWindow('minimize-me', () => withHomeWindow((w) => w.hide()));
 
-  onMessageFromBrowserWindow('open-link', link => {
-    shell.openExternal(link).catch(err => {
+  onMessageFromBrowserWindow('open-link', (link) => {
+    shell.openExternal(link).catch((err) => {
       error('Failure to open link', err, {link});
     });
   });
 
-  onMessageFromBrowserWindow('set-setting-autorun', newAutorun => {
+  onMessageFromBrowserWindow('set-setting-autorun', (newAutorun) => {
     const settings = settingsStore.get();
     settings.autorun = newAutorun;
     settingsStore.save();
@@ -111,45 +111,45 @@ export function setupIpcMain(app: App): void {
     }
   });
 
-  onMessageFromBrowserWindow('set-setting-minimized', newMinimized => {
+  onMessageFromBrowserWindow('set-setting-minimized', (newMinimized) => {
     const settings = settingsStore.get();
     settings.minimized = newMinimized;
     settingsStore.save();
   });
 
-  onMessageFromBrowserWindow('set-setting-manualupdate', newManualUpdate => {
+  onMessageFromBrowserWindow('set-setting-manualupdate', (newManualUpdate) => {
     const settings = settingsStore.get();
     settings.manualUpdate = newManualUpdate;
     settingsStore.save();
   });
 
-  onMessageFromBrowserWindow('set-setting-overlay', newOverlay => {
+  onMessageFromBrowserWindow('set-setting-overlay', (newOverlay) => {
     const settings = settingsStore.get();
     settings.overlay = newOverlay;
     settingsStore.save();
   });
 
-  onMessageFromBrowserWindow('set-setting-do-uploads', newUploads => {
+  onMessageFromBrowserWindow('set-setting-do-uploads', (newUploads) => {
     const settings = settingsStore.get();
     settings.uploads = newUploads;
     settingsStore.save();
   });
 
-  onMessageFromBrowserWindow('set-setting-disable-hotkeys', newHotkeys => {
+  onMessageFromBrowserWindow('set-setting-disable-hotkeys', (newHotkeys) => {
     const settings = settingsStore.get();
     settings.nohotkeys = newHotkeys;
     settingsStore.save();
     unRegisterHotkeys();
   });
 
-  onMessageFromBrowserWindow('set-setting-icon', newIcon => {
+  onMessageFromBrowserWindow('set-setting-icon', (newIcon) => {
     const settings = settingsStore.get();
     settings.icon = newIcon;
     settingsStore.save();
 
     sendMessageToOverlayWindow('set-icosettings', newIcon);
 
-    withHomeWindow(w => {
+    withHomeWindow((w) => {
       const icon = loadAppIcon(newIcon);
       const newico = nativeImage.createFromPath(join(__dirname, icon));
       w.Tray.setImage(newico);
@@ -171,7 +171,7 @@ export function setupIpcMain(app: App): void {
     'hidemain',
   ];
 
-  overlaySettingsBoolean.forEach(setting => {
+  overlaySettingsBoolean.forEach((setting) => {
     const settingType = setting as
       | 'hidezero'
       | 'showcardicon'
@@ -194,7 +194,7 @@ export function setupIpcMain(app: App): void {
       | 'set-setting-o-timers'
       | 'set-setting-o-detach'
       | 'set-setting-o-hidemain';
-    onMessageFromBrowserWindow(settingName, newOverlaySetting => {
+    onMessageFromBrowserWindow(settingName, (newOverlaySetting) => {
       const session = settingsStore.getAccount();
       if (!session) {
         return;
@@ -246,7 +246,7 @@ export function setupIpcMain(app: App): void {
     'fontcolor',
   ];
 
-  overlaySettingsNumber.forEach(setting => {
+  overlaySettingsNumber.forEach((setting) => {
     const settingType = setting as
       | 'leftdigit'
       | 'rightdigit'
@@ -273,7 +273,7 @@ export function setupIpcMain(app: App): void {
       | 'set-setting-o-savepositiontopopp'
       | 'set-setting-o-savepositionleftopp'
       | 'set-setting-o-fontcolor';
-    onMessageFromBrowserWindow(settingName, newOverlaySetting => {
+    onMessageFromBrowserWindow(settingName, (newOverlaySetting) => {
       const session = settingsStore.getAccount();
       if (!session) {
         return;
@@ -324,7 +324,7 @@ export function setupIpcMain(app: App): void {
     'hk-dec-opac',
   ];
 
-  hkSettings.forEach(settings => {
+  hkSettings.forEach((settings) => {
     const set = settings as
       | 'hk-my-deck'
       | 'hk-opp-deck'
@@ -333,7 +333,7 @@ export function setupIpcMain(app: App): void {
       | 'hk-dec-size'
       | 'hk-inc-opac'
       | 'hk-dec-opac';
-    onMessageFromBrowserWindow(set, newHotkeyBinding => {
+    onMessageFromBrowserWindow(set, (newHotkeyBinding) => {
       const session = settingsStore.getAccount();
       if (session === undefined) {
         return;
@@ -367,7 +367,7 @@ export function setupIpcMain(app: App): void {
 
     settingsStore.save();
 
-    withLogParser(logParser => {
+    withLogParser((logParser) => {
       logParser.stop();
       sendMessageToHomeWindow('new-account', undefined);
     });
@@ -378,7 +378,7 @@ export function setupIpcMain(app: App): void {
   onMessageFromBrowserWindow('set-log-path', () => {
     dialog
       .showOpenDialog({properties: ['openFile'], filters: [{name: 'output_*', extensions: ['txt']}]})
-      .then(log => {
+      .then((log) => {
         if (!log.canceled && log.filePaths[0]) {
           settingsStore.get().logPath = log.filePaths[0];
           settingsStore.save();
@@ -386,7 +386,7 @@ export function setupIpcMain(app: App): void {
           sendSettingsToRenderer();
         }
       })
-      .catch(err => error('Error while showing open file dialog during set-log-path event', err));
+      .catch((err) => error('Error while showing open file dialog during set-log-path event', err));
   });
 
   onMessageFromBrowserWindow('default-log-path', () => {
@@ -399,7 +399,7 @@ export function setupIpcMain(app: App): void {
   onMessageFromBrowserWindow('set-mtga-path', () => {
     dialog
       .showOpenDialog({properties: ['openDirectory']})
-      .then(log => {
+      .then((log) => {
         if (!log.canceled && log.filePaths[0]) {
           settingsStore.get().mtgaPath = log.filePaths[0];
           settingsStore.save();
@@ -414,7 +414,7 @@ export function setupIpcMain(app: App): void {
           sendSettingsToRenderer();
         }
       })
-      .catch(err => error('Error while showing open file dialog during set-mtga-path event', err));
+      .catch((err) => error('Error while showing open file dialog during set-mtga-path event', err));
   });
 
   onMessageFromBrowserWindow('default-mtga-path', () => {
@@ -450,18 +450,18 @@ export function setupIpcMain(app: App): void {
           defaultPath: logpath !== undefined ? join(logpath, ...['MTGA_Data', 'Logs', 'Logs']) : '',
           filters: [{name: 'UTC_Log*', extensions: ['log']}],
         })
-        .then(log => {
+        .then((log) => {
           if (!log.canceled && log.filePaths[0]) {
             parseOldLogsHandler(log.filePaths, 0, 0);
           }
         })
-        .catch(err => error('Error while showing open file dialog during old-log-path event', err));
+        .catch((err) => error('Error while showing open file dialog during old-log-path event', err));
     } else {
       sendMessageToHomeWindow('show-prompt', {message: 'Old logs are already being parsed', autoclose: 1000});
     }
   });
 
-  onMessageFromBrowserWindow('error-in-renderer', err => {
+  onMessageFromBrowserWindow('error-in-renderer', (err) => {
     error('Error in renderer process', err.error, {line: err.line, url: err.url});
   });
 
@@ -538,13 +538,13 @@ export function setupIpcMain(app: App): void {
   });
 
   onMessageFromBrowserWindow('enable-clicks', () => {
-    withOverlayWindow(overlayWindow => {
+    withOverlayWindow((overlayWindow) => {
       overlayWindow.setIgnoreMouseEvents(false);
     });
   });
 
   onMessageFromBrowserWindow('disable-clicks', () => {
-    withOverlayWindow(overlayWindow => {
+    withOverlayWindow((overlayWindow) => {
       overlayWindow.setIgnoreMouseEvents(true, {forward: true});
     });
   });

@@ -15,7 +15,7 @@ export function updateDeck(highlight: number[]): void {
   const StepsNumber = 4;
   const FirstHandEvalStep = (currentMatch.myBestFirstCard - currentMatch.myWorstFirstCard) / StepsNumber;
 
-  currentMatch.myFullDeck.forEach(card => {
+  currentMatch.myFullDeck.forEach((card) => {
     const TheCard = allcards.get(+card.card);
     if (TheCard === undefined) {
       return;
@@ -26,7 +26,7 @@ export function updateDeck(highlight: number[]): void {
       crdTxtEl.innerHTML = genBattleCardNum(mtgaid, TheCard.type === BasicLand);
     }
   });
-  highlight.forEach(mtgaid => {
+  highlight.forEach((mtgaid) => {
     const cid = meta.mtgatoinnerid[+mtgaid];
     const TheCard = allcards.get(cid);
     if (TheCard === undefined) {
@@ -48,7 +48,7 @@ export function updateDeck(highlight: number[]): void {
       );
 
       if (manajMap !== undefined) {
-        Object.keys(manajMap).forEach(elem => {
+        Object.keys(manajMap).forEach((elem) => {
           if (!currentMatch.landsLeft.has(elem)) {
             currentMatch.landsLeft.set(elem, 1);
           } else {
@@ -84,7 +84,7 @@ export function updateDeck(highlight: number[]): void {
       } else {
         crdEl.classList.add('highlightCard');
         setTimeout(() => {
-          Array.from(document.getElementsByClassName('highlightCard')).forEach(el => {
+          Array.from(document.getElementsByClassName('highlightCard')).forEach((el) => {
             el.classList.remove('highlightCard');
           });
         }, overlayConfig.highlightTimeout);
@@ -95,10 +95,10 @@ export function updateDeck(highlight: number[]): void {
   if (currentMatch.TurnNumber !== 0) {
     const FirstHandElements = document.getElementsByClassName('FirstHand');
     const TheDeck = document.getElementsByClassName('DcDrow');
-    Array.from(FirstHandElements).forEach(elem => {
+    Array.from(FirstHandElements).forEach((elem) => {
       elem.classList.add('hidden');
     });
-    Array.from(TheDeck).forEach(crdEl => {
+    Array.from(TheDeck).forEach((crdEl) => {
       crdEl.classList.remove('highlightCardBest');
       crdEl.classList.remove('highlightCardGood');
       crdEl.classList.remove('highlightCardPoor');

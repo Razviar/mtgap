@@ -6,7 +6,7 @@ export const opacityIncrement = 0.1;
 export const scaleIncrement = 0.02;
 
 export function SetHandlers(): void {
-  window.onerror = function(error: string | Event, url: string | undefined, line: number | undefined): void {
+  window.onerror = function (error: string | Event, url: string | undefined, line: number | undefined): void {
     sendMessageToIpcMain('error-in-renderer', {error, url, line});
   };
 

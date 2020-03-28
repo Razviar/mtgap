@@ -69,7 +69,7 @@ export function dragger(dragable: HTMLElement, handle: HTMLElement): void {
       sendMessageToIpcMain('disable-clicks', undefined);
     }
   });
-  handle.addEventListener('mousedown', e => {
+  handle.addEventListener('mousedown', (e) => {
     isMoving = true;
     e.preventDefault();
     // get the mouse cursor position at startup:

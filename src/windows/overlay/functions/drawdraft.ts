@@ -23,14 +23,15 @@ export function drawDraft(): void {
   const allcards = overlayConfig.allCards;
   const forsort: {[index: number]: Card} = {};
 
-  currentDraft.currentPack.forEach(card => {
+  currentDraft.currentPack.forEach((card) => {
     const cid = meta.mtgatoinnerid[+card];
     forsort[+cid] = allcards.get(+cid) as Card;
   });
-  let output = `<div class="deckName"><strong>Pack: ${currentDraft.PackNumber + 1} / Pick: ${currentDraft.PickNumber +
-    1}</strong></div>`;
+  let output = `<div class="deckName"><strong>Pack: ${currentDraft.PackNumber + 1} / Pick: ${
+    currentDraft.PickNumber + 1
+  }</strong></div>`;
 
-  sortcards(forsort, false, Sortby).forEach(cid => {
+  sortcards(forsort, false, Sortby).forEach((cid) => {
     output += makeCard(+cid[0], 1, true, true);
   });
 
@@ -39,7 +40,7 @@ export function drawDraft(): void {
   toggleButtonClass(overlayElements.ToggleMe, overlayElements.MainDeckFrame.classList.contains('hidden'));
 
   const AllCards = document.getElementsByClassName('DcDrow');
-  Array.from(AllCards).forEach(theCard => {
+  Array.from(AllCards).forEach((theCard) => {
     HoverEventListener(theCard);
   });
 }

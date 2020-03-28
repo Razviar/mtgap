@@ -14,7 +14,7 @@ export function updateOppDeck(highlight: number[]): void {
   const oppDeck: {[index: number]: number} = {};
   const forsort: {[index: number]: Card} = {};
 
-  Object.keys(currentMatch.decks.opponent).forEach(OppMtgaCid => {
+  Object.keys(currentMatch.decks.opponent).forEach((OppMtgaCid) => {
     if (Object.keys(meta.mtgatoinnerid).includes(OppMtgaCid)) {
       const cid = meta.mtgatoinnerid[+OppMtgaCid];
       const theCard = allcards.get(+cid);
@@ -27,7 +27,7 @@ export function updateOppDeck(highlight: number[]): void {
   });
   let output = '';
 
-  sortcards(forsort, true, SortLikeMTGA).forEach(cid => {
+  sortcards(forsort, true, SortLikeMTGA).forEach((cid) => {
     output += makeCard(+cid[0], oppDeck[+cid[0]], false);
   });
 
@@ -37,7 +37,7 @@ export function updateOppDeck(highlight: number[]): void {
     toggleButtonClass(overlayElements.ToggleOpp, overlayElements.OpponentOutFrame.classList.contains('hidden'));
   }
 
-  highlight.forEach(mtgaid => {
+  highlight.forEach((mtgaid) => {
     const crdEl: HTMLElement | null = document.getElementById(`card${mtgaid}opp`);
     if (crdEl) {
       crdEl.classList.add('highlightCard');
@@ -45,13 +45,13 @@ export function updateOppDeck(highlight: number[]): void {
   });
 
   setTimeout(() => {
-    Array.from(document.getElementsByClassName('highlightCard')).forEach(el => {
+    Array.from(document.getElementsByClassName('highlightCard')).forEach((el) => {
       el.classList.remove('highlightCard');
     });
   }, overlayConfig.highlightTimeout);
 
   const AllCards = document.getElementsByClassName('DcDrow');
-  Array.from(AllCards).forEach(theCard => {
+  Array.from(AllCards).forEach((theCard) => {
     HoverEventListener(theCard);
   });
 }

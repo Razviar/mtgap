@@ -32,7 +32,7 @@ export function makeCard(cid: number, num: number, side: boolean, draft?: boolea
   const manaj: {[index: string]: number} = {};
 
   if (manajMap !== undefined) {
-    Object.keys(manajMap).forEach(elem => {
+    Object.keys(manajMap).forEach((elem) => {
       manaj[elem] = asNumber(manajMap[elem], 0);
     });
   }
@@ -46,7 +46,7 @@ export function makeCard(cid: number, num: number, side: boolean, draft?: boolea
       currentMatch.cardsBySuperclass.set(supercls.toString(), n + num);
     }
     if (island === 1) {
-      Object.keys(manaj).forEach(landClr => {
+      Object.keys(manaj).forEach((landClr) => {
         if (!currentMatch.lands.has(landClr)) {
           currentMatch.lands.set(landClr, num);
         } else {
@@ -82,7 +82,7 @@ export function makeCard(cid: number, num: number, side: boolean, draft?: boolea
             clnum++;
           } else {
             const splitclrs: string[] = clr.split('/');
-            splitclrs.forEach(cl => {
+            splitclrs.forEach((cl) => {
               bgcolor += (bgcolor !== 'linear-gradient(to bottom,' ? ',' : '') + hexToRgbA(`#${typecolorletter[cl]}`);
               lastcolor = hexToRgbA(`#${typecolorletter[cl]}`);
               clnum++;
@@ -104,7 +104,7 @@ export function makeCard(cid: number, num: number, side: boolean, draft?: boolea
   }
   bgcolor += ') 1 100%';
 
-  color.forEach(clr => {
+  color.forEach((clr) => {
     // tslint:disable-next-line: strict-boolean-expressions
     if (manaj && manaj[clr] > 0 && +island === 0) {
       if (clr !== 'Colorless') {
@@ -125,7 +125,7 @@ export function makeCard(cid: number, num: number, side: boolean, draft?: boolea
   if (draft) {
     const digits: ('leftdraftdigit' | 'rightdraftdigit')[] = ['leftdraftdigit', 'rightdraftdigit'];
     const digitsFilled: Map<string, string> = new Map();
-    digits.forEach(digit => {
+    digits.forEach((digit) => {
       if (!overlayConfig.ovlSettings) {
         return;
       }

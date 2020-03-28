@@ -9,7 +9,7 @@ export function genBattleCardNum(mtgaid: number | string, isBasicLand: boolean):
   const cid = isBasicLand ? 0 : overlayConfig.metaData.mtgatoinnerid[+mtgaid];
   const num = isBasicLand
     ? currentMatch.basicLands.get(mtgaid as string)
-    : currentMatch.myFullDeck.find(fd => fd.card === +cid)?.cardnum;
+    : currentMatch.myFullDeck.find((fd) => fd.card === +cid)?.cardnum;
   if (num === undefined) {
     return '';
   }
@@ -26,7 +26,7 @@ export function genBattleCardNum(mtgaid: number | string, isBasicLand: boolean):
 
   const digits: ('leftdigit' | 'rightdigit' | 'bottomdigit')[] = ['leftdigit', 'rightdigit', 'bottomdigit'];
   const digitsFilled: Map<string, string> = new Map();
-  digits.forEach(digit => {
+  digits.forEach((digit) => {
     if (!overlayConfig.ovlSettings) {
       return;
     }

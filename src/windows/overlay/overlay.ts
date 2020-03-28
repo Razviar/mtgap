@@ -72,7 +72,7 @@ export function toggler(elem: HTMLElement, totoggle: HTMLElement): void {
   });
 }
 
-Array.from(Interactive).forEach(elem => {
+Array.from(Interactive).forEach((elem) => {
   elem.addEventListener('mouseleave', (event: Event) => {
     const e = event as MouseEvent;
     if (e.relatedTarget) {

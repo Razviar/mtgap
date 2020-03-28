@@ -17,7 +17,7 @@ function parseLiveMatch(data: AxiosResponse): LiveMatch {
   const humanname = asString(dataMap.humanname, '');
   const deckstructArr = asArray(dataMap.deckstruct, []);
   const deckstruct = removeUndefined(
-    deckstructArr.map(item => {
+    deckstructArr.map((item) => {
       const itemMap = asMap(item);
       if (itemMap === undefined) {
         error('Error while parsing a deckstruct of a LiveMatch: value is not an object', undefined, {item});
@@ -49,5 +49,7 @@ export async function getUserMetadata(uid: number): Promise<UserMetadata> {
 }
 
 export async function getMetadata(): Promise<Metadata> {
-  return parseMetadata(await Request.get(`mtg/donew2.php?cmd=getmetadata&version=${app.getVersion()}`));
+  return parseMetadata(
+    await Request.get(`mtg/donew2.php?cmd=getmetadata&version=${app.getVersion()}`, {}, 'https://static2.mtgarena.pro/')
+  );
 }

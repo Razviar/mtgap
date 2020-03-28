@@ -67,11 +67,11 @@ class SettingsStore {
       return undefined;
     }
     const gameToken = token[game];
-    return this.data.accounts.find(_ => _.token === gameToken);
+    return this.data.accounts.find((_) => _.token === gameToken);
   }
 
   public removeAccount(userToken: string): void {
-    const accountIndex = this.data.accounts.findIndex(_ => _.token === userToken);
+    const accountIndex = this.data.accounts.findIndex((_) => _.token === userToken);
     if (accountIndex > -1) {
       this.data.accounts.splice(accountIndex, 1);
     }
@@ -420,7 +420,7 @@ function asAccountV0(anyMap: AnyMap): AccountV0[] {
 
 function asAccountsV2(accountsV1: AccountV0[]): AccountV2[] {
   const res: AccountV2[] = [];
-  accountsV1.forEach(accV1 => {
+  accountsV1.forEach((accV1) => {
     res.push({
       uid: accV1.uid,
       token: accV1.token,
@@ -435,7 +435,7 @@ function asAccountsV2(accountsV1: AccountV0[]): AccountV2[] {
 
 function asAccountsV3(accountsV2: AccountV2[]): AccountV3[] {
   const res: AccountV3[] = [];
-  accountsV2.forEach(acc => {
+  accountsV2.forEach((acc) => {
     res.push({
       uid: acc.uid,
       token: acc.token,
@@ -450,7 +450,7 @@ function asAccountsV3(accountsV2: AccountV2[]): AccountV3[] {
 
 function asAccountsV4(accountsV3: AccountV3[]): AccountV4[] {
   const res: AccountV4[] = [];
-  accountsV3.forEach(acc => {
+  accountsV3.forEach((acc) => {
     res.push({
       uid: acc.uid,
       token: acc.token,
@@ -465,7 +465,7 @@ function asAccountsV4(accountsV3: AccountV3[]): AccountV4[] {
 
 function asAccountsV6(accountsV4: AccountV4[]): AccountV6[] {
   const res: AccountV6[] = [];
-  accountsV4.forEach(acc => {
+  accountsV4.forEach((acc) => {
     res.push({
       uid: acc.uid,
       token: acc.token,
@@ -480,7 +480,7 @@ function asAccountsV6(accountsV4: AccountV4[]): AccountV6[] {
 
 function asAccountsV7(accountsV6: AccountV6[]): AccountV7[] {
   const res: AccountV7[] = [];
-  accountsV6.forEach(acc => {
+  accountsV6.forEach((acc) => {
     res.push({
       uid: acc.uid,
       token: acc.token,
@@ -504,7 +504,7 @@ function asAccountsV7(accountsV6: AccountV6[]): AccountV7[] {
 
 function asAccountsV8(accountsV7: AccountV7[]): AccountV8[] {
   const res: AccountV8[] = [];
-  accountsV7.forEach(acc => {
+  accountsV7.forEach((acc) => {
     res.push({
       uid: acc.uid,
       token: acc.token,

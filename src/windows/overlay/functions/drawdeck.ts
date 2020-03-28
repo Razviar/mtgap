@@ -8,7 +8,7 @@ export function drawDeck(): void {
   let output = '';
   let myBestFirstCard = 0;
   let myWorstFirstCard = 0;
-  currentMatch.myFullDeck.forEach(card => {
+  currentMatch.myFullDeck.forEach((card) => {
     const FirstHandEval = overlayConfig.allCards.get(card.card)?.wleval_1sthand;
     if (FirstHandEval !== undefined) {
       if (FirstHandEval > myBestFirstCard) {
@@ -57,7 +57,7 @@ export function drawDeck(): void {
     toggleButtonClass(overlayElements.ToggleMe, overlayElements.MainDeckFrame.classList.contains('hidden'));
   }
   const AllCards = document.getElementsByClassName('DcDrow');
-  Array.from(AllCards).forEach(theCard => {
+  Array.from(AllCards).forEach((theCard) => {
     HoverEventListener(theCard);
   });
 }

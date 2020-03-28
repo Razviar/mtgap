@@ -21,25 +21,25 @@ import {
 } from 'root/windows/overlay/overlay';
 
 export function SetMessages(): void {
-  onMessageFromIpcMain('set-icosettings', ico => {
+  onMessageFromIpcMain('set-icosettings', (ico) => {
     if (ico !== undefined) {
       overlayConfig.icon = ico;
     }
-    Object.keys(icons).forEach(i => {
+    Object.keys(icons).forEach((i) => {
       overlayElements.LogoSpan.classList.remove(`ms-${icons[i]}`);
     });
     overlayElements.LogoSpan.classList.add(`ms-${icons[overlayConfig.icon]}`);
   });
 
-  onMessageFromIpcMain('set-ovlsettings', settings => {
+  onMessageFromIpcMain('set-ovlsettings', (settings) => {
     overlayConfig.ovlSettings = settings;
     const smallpics = document.getElementsByClassName('CardSmallPic');
     if (!overlayConfig.ovlSettings?.showcardicon) {
-      Array.from(smallpics).forEach(pic => {
+      Array.from(smallpics).forEach((pic) => {
         pic.classList.add('picWithNoPic');
       });
     } else {
-      Array.from(smallpics).forEach(pic => {
+      Array.from(smallpics).forEach((pic) => {
         pic.classList.remove('picWithNoPic');
       });
     }
@@ -96,31 +96,32 @@ export function SetMessages(): void {
     overlayConfig.justcreated = false;
   });
 
-  onMessageFromIpcMain('set-zoom', zoom => {
+  onMessageFromIpcMain('set-zoom', (zoom) => {
     sendMessageToIpcMain('set-scale', zoom);
   });
 
-  onMessageFromIpcMain('set-metadata', meta => {
+  onMessageFromIpcMain('set-metadata', (meta) => {
     overlayConfig.metaData = meta;
     overlayConfig.allCards = new Map(meta.allcards);
     overlayConfig.metaData.allcards = [];
   });
 
-  onMessageFromIpcMain('set-userdata', umeta => {
-    Object.keys(umeta.collection).forEach(col => {
+  onMessageFromIpcMain('set-userdata', (umeta) => {
+    Object.keys(umeta.collection).forEach((col) => {
       userCollection.set(+col, umeta.collection[+col].it);
     });
 
-    Object.keys(umeta.coursedecks).forEach(eventName => {
+    Object.keys(umeta.coursedecks).forEach((eventName) => {
       playerDecks[eventName] = {
         mainDeck: umeta.coursedecks[eventName].deckstruct,
         deckId: umeta.coursedecks[eventName].udeck,
         deckName: umeta.coursedecks[eventName].humanname,
       };
     });
+    //console.log(playerDecks);
   });
 
-  onMessageFromIpcMain('match-started', newMatch => {
+  onMessageFromIpcMain('match-started', (newMatch) => {
     if (!Object.keys(playerDecks).includes(newMatch.eventId)) {
       return;
     }
@@ -137,7 +138,7 @@ export function SetMessages(): void {
     drawDeck();
   });
 
-  onMessageFromIpcMain('turn-info', dp => {
+  onMessageFromIpcMain('turn-info', (dp) => {
     currentMatch.TurnNumber = dp.turnNumber !== undefined ? dp.turnNumber : 0;
     if (!overlayConfig.ovlSettings?.timers) {
       return;
@@ -165,12 +166,12 @@ export function SetMessages(): void {
     }
   });
 
-  onMessageFromIpcMain('deck-submission', deck => {
+  onMessageFromIpcMain('deck-submission', (deck) => {
     if (!overlayConfig.metaData) {
       return;
     }
 
-    const PublicEventName = overlayConfig.metaData.formats.find(f => f.format === deck.InternalEventName)
+    const PublicEventName = overlayConfig.metaData.formats.find((f) => f.format === deck.InternalEventName)
       ?.PublicEventName;
 
     if (PublicEventName === undefined) {
@@ -193,21 +194,21 @@ export function SetMessages(): void {
 
     //console.log(meta);
 
-    Object.keys(deck.mainDeck).forEach(MtgaCid => {
+    Object.keys(deck.mainDeck).forEach((MtgaCid) => {
       const cid = meta.mtgatoinnerid[+MtgaCid];
       theDeck[+cid] = deck.mainDeck[+MtgaCid];
       forsort[+cid] = allcards.get(+cid) as Card;
     });
-    sortcards(forsort, true, SortLikeMTGA).forEach(cid => {
+    sortcards(forsort, true, SortLikeMTGA).forEach((cid) => {
       playerDecks[PublicEventName].mainDeck.push({card: +cid[0], cardnum: theDeck[+cid[0]]});
     });
   });
 
-  onMessageFromIpcMain('mulligan', res => {
+  onMessageFromIpcMain('mulligan', (res) => {
     if (res) {
       currentMatch.mulligan();
       const AllCards = document.getElementsByClassName('DcDrow');
-      Array.from(AllCards).forEach(theCard => theCard.classList.remove('outCard'));
+      Array.from(AllCards).forEach((theCard) => theCard.classList.remove('outCard'));
       updateDeck([]);
     }
   });
@@ -229,7 +230,7 @@ export function SetMessages(): void {
     }
   });
 
-  onMessageFromIpcMain('card-played', arg => {
+  onMessageFromIpcMain('card-played', (arg) => {
     //console.log(arg);
     const res = currentMatch.cardplayed({
       grpId: arg.grpId,
@@ -246,7 +247,7 @@ export function SetMessages(): void {
     }
   });
 
-  onMessageFromIpcMain('draft-turn', draft => {
+  onMessageFromIpcMain('draft-turn', (draft) => {
     //console.log(draft);
     currentDraft.isDrafting = true;
     currentDraft.draftStep(draft);
