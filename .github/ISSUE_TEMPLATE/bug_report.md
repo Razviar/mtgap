@@ -7,7 +7,12 @@ assignees: ''
 
 ---
 
-**Your Desktop (please complete the following information):**
+**Detailed context (ISSUES WILL NOT BE INVESIGATED WITHOUT IT!):**
+- Link to your MTGA Pro account
+- Link to page/pages are in question
+- Screenshots of issue if applicable 
+
+**Your Desktop:**
  - OS: [e.g. Windows 10]
  - App Version [e.g. 2.0.22]
 
@@ -20,6 +25,3 @@ Steps to reproduce the behavior:
 2. Click on '....'
 3. Scroll down to '....'
 4. See error
-
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
