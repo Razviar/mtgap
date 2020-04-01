@@ -23,7 +23,7 @@ function parseTokenCheckRes(data: AxiosResponse): TokenCheckRes | undefined {
 
 export async function LORtokencheck(request: string): Promise<TokenCheckRes | undefined> {
   return parseTokenCheckRes(
-    await Request.post<{request: string}>(`lor/donew2.php?cmd=cm_tokencheck&version=${app.getVersion()}`, {
+    await Request.post<{request: string}>(`/lor/donew2.php?cmd=cm_tokencheck&version=${app.getVersion()}`, {
       request,
     })
   );
@@ -43,5 +43,7 @@ function parseTokenRequestRes(data: AxiosResponse): LorTokenRequestRes {
 }
 
 export async function lortokenrequest(): Promise<LorTokenRequestRes> {
-  return parseTokenRequestRes(await Request.post(`lor/donew2.php?cmd=cm_tokenrequest&version=${app.getVersion()}`, {}));
+  return parseTokenRequestRes(
+    await Request.post(`/lor/donew2.php?cmd=cm_tokenrequest&version=${app.getVersion()}`, {})
+  );
 }

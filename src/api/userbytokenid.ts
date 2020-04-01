@@ -25,7 +25,7 @@ function parseTokenCheckRes(data: AxiosResponse): TokenCheckRes | undefined {
 
 export async function tokencheck(request: string): Promise<TokenCheckRes | undefined> {
   return parseTokenCheckRes(
-    await Request.post<{request: string}>(`mtg/donew2.php?cmd=cm_tokencheck&version=${app.getVersion()}`, {
+    await Request.post<{request: string}>(`/mtg/donew2.php?cmd=cm_tokencheck&version=${app.getVersion()}`, {
       request,
     })
   );
@@ -52,7 +52,7 @@ export async function tokenrequest({
   currentMtgaID: string;
 }): Promise<TokenRequestRes> {
   return parseTokenRequestRes(
-    await Request.post(`mtg/donew2.php?cmd=cm_tokenrequest&version=${app.getVersion()}`, {
+    await Request.post(`/mtg/donew2.php?cmd=cm_tokenrequest&version=${app.getVersion()}`, {
       mtgaid: currentMtgaNick,
       mtgaplid: currentMtgaID,
     })
@@ -84,7 +84,7 @@ function parseUserResult(data: AxiosResponse): UserResult {
 
 export async function userbytokenid(cmUserbyTokenid: string): Promise<UserResult> {
   return parseUserResult(
-    await Request.post<UserRequest>(`mtg/donew2.php?cmd=cm_userbytokenid&version=${app.getVersion()}`, {
+    await Request.post<UserRequest>(`/mtg/donew2.php?cmd=cm_userbytokenid&version=${app.getVersion()}`, {
       cm_userbytokenid: cmUserbyTokenid,
     })
   );
@@ -104,9 +104,12 @@ export interface UserData {
 export async function setuserdata(userData: UserData): Promise<UserResult> {
   const usertime = ((-1 * new Date().getTimezoneOffset()) / 60).toString();
   return parseUserResult(
-    await Request.post<UserData & {usertime: string}>(`mtg/donew2.php?cmd=cm_setuserdata&version=${app.getVersion()}`, {
-      ...userData,
-      usertime,
-    })
+    await Request.post<UserData & {usertime: string}>(
+      `/mtg/donew2.php?cmd=cm_setuserdata&version=${app.getVersion()}`,
+      {
+        ...userData,
+        usertime,
+      }
+    )
   );
 }

@@ -11,13 +11,13 @@ async function makeAxios(
   method: 'post' | 'get',
   path: string,
   config: AxiosRequestConfig,
-  baseURL: string = 'https://mtgarena.pro/'
+  baseURL: string = 'https://mtgarena.pro'
 ): Promise<AxiosResponse> {
   try {
     const res = await axios({
       ...config,
       withCredentials: false,
-      url: `${baseURL}${path}`,
+      url: `${baseURL}${path.startsWith('/') ? '' : '/'}${path}`,
       method,
     });
     const sendingEvents = path.indexOf('cm_uploadpackfile') > -1;
@@ -34,7 +34,7 @@ async function makeAxios(
 async function axiosGet(
   path: string,
   config: AxiosRequestConfig = {},
-  baseURL: string = 'https://mtgarena.pro/'
+  baseURL: string = 'https://mtgarena.pro'
 ): Promise<AxiosResponse> {
   return makeAxios('get', path, config, baseURL);
 }

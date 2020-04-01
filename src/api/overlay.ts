@@ -17,7 +17,7 @@ function parseLiveMatch(data: AxiosResponse): LiveMatch {
   const humanname = asString(dataMap.humanname, '');
   const deckstructArr = asArray(dataMap.deckstruct, []);
   const deckstruct = removeUndefined(
-    deckstructArr.map((item) => {
+    deckstructArr.map(item => {
       const itemMap = asMap(item);
       if (itemMap === undefined) {
         error('Error while parsing a deckstruct of a LiveMatch: value is not an object', undefined, {item});
@@ -37,7 +37,7 @@ function parseLiveMatch(data: AxiosResponse): LiveMatch {
 
 export async function getlivematch(matchid: string, uid: string): Promise<LiveMatch> {
   return parseLiveMatch(
-    await Request.post<LiveMatchRequest>(`mtg/donew2.php?cmd=cm_getlivematch&version=${app.getVersion()}`, {
+    await Request.post<LiveMatchRequest>(`/mtg/donew2.php?cmd=cm_getlivematch&version=${app.getVersion()}`, {
       matchid,
       uid,
     })
@@ -45,11 +45,15 @@ export async function getlivematch(matchid: string, uid: string): Promise<LiveMa
 }
 
 export async function getUserMetadata(uid: number): Promise<UserMetadata> {
-  return parseUserMetadata(await Request.get(`mtg/donew2.php?cmd=getuserdata&version=${app.getVersion()}&uid=${uid}`));
+  return parseUserMetadata(await Request.get(`/mtg/donew2.php?cmd=getuserdata&version=${app.getVersion()}&uid=${uid}`));
 }
 
 export async function getMetadata(): Promise<Metadata> {
   return parseMetadata(
-    await Request.get(`mtg/donew2.php?cmd=getmetadata&version=${app.getVersion()}`, {}, 'https://static2.mtgarena.pro/')
+    await Request.get(
+      `/mtg/donew2.php?cmd=getmetadata&version=${app.getVersion()}`,
+      {},
+      'https://static2.mtgarena.pro/'
+    )
   );
 }
