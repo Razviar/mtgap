@@ -251,7 +251,7 @@ export function installHomeMessages(): void {
   });*/
 
   onMessageFromIpcMain('token-waiter-responce', (response) => {
-    if (response.res && response.res.token) {
+    if (response.res && response.res.token && response.res.token !== '') {
       login(response.res.token, response.res.uid, response.res.nick);
       sendMessageToIpcMain('do-shadow-sync', undefined);
     } else {

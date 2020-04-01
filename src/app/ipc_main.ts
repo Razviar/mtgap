@@ -74,9 +74,7 @@ export function setupIpcMain(app: App): void {
   onMessageFromBrowserWindow('token-waiter', (request) => {
     tokencheck(request)
       .then((res) => {
-        if (res?.token !== '') {
-          sendMessageToHomeWindow('token-waiter-responce', {res, request});
-        }
+        sendMessageToHomeWindow('token-waiter-responce', {res, request});
       })
       .catch((err) => {
         error('Failure to perform tokencheck', err, {request}, true);
