@@ -11,6 +11,7 @@ export interface Messages {
   'sync-process': TokenRequestRes;
   'lor-sync-process': TokenRequestRes;
   'token-waiter': string;
+  'need-reset-sync': undefined;
   'lor-token-waiter': string;
   'token-waiter-responce': {
     res: TokenCheckRes | undefined;

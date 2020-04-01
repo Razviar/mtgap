@@ -24,7 +24,7 @@ function getStacktrace(err?: unknown): ErrorWithStack {
   return errorWithStack as ErrorWithStack;
 }
 
-export function error(msg: string, err: unknown, extra: LogProperties = {}): void {
+export function error(msg: string, err: unknown, extra: LogProperties = {}, onlyLocal?: boolean): void {
   const errorWithStack = getStacktrace(err);
   //stacktrace
   const TheTrace = ErrorStackParser.parse(errorWithStack as Error);
@@ -36,22 +36,28 @@ export function error(msg: string, err: unknown, extra: LogProperties = {}): voi
     console.error({msg, err: String(err), type: 'Error', ...extra, stack: errorWithStack.stack}); // tslint:disable-line:no-console
   } else {
     const account = settingsStore.getAccount();
-    errorReport(
-      account?.token,
-      TheError?.fileName,
-      TheError?.lineNumber,
-      TheError?.columnNumber,
-      TheError?.functionName,
-      msg,
-      JSON.stringify({err, stacktrace: errorWithStack.stack, extra})
-    )
-      .then(res => {
-        if (!res) {
+    if (onlyLocal) {
+      log(`${JSON.stringify({date: new Date().toISOString(), msg, err, stacktrace: errorWithStack.stack, extra})}`);
+    } else {
+      errorReport(
+        account?.token,
+        TheError?.fileName,
+        TheError?.lineNumber,
+        TheError?.columnNumber,
+        TheError?.functionName,
+        msg,
+        JSON.stringify({err, stacktrace: errorWithStack.stack, extra})
+      )
+        .then((res) => {
+          if (!res) {
+            log(
+              `${JSON.stringify({date: new Date().toISOString(), msg, err, stacktrace: errorWithStack.stack, extra})}`
+            );
+          }
+        })
+        .catch((_) => {
           log(`${JSON.stringify({date: new Date().toISOString(), msg, err, stacktrace: errorWithStack.stack, extra})}`);
-        }
-      })
-      .catch(_ => {
-        log(`${JSON.stringify({date: new Date().toISOString(), msg, err, stacktrace: errorWithStack.stack, extra})}`);
-      });
+        });
+    }
   }
 }

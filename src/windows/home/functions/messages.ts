@@ -8,17 +8,17 @@ import {currentCreds, HomePageElements} from 'root/windows/home/home';
 import {onMessageFromIpcMain, sendMessageToIpcMain} from 'root/windows/messages';
 
 export function installHomeMessages(): void {
-  onMessageFromIpcMain('set-screenname', data => {
+  onMessageFromIpcMain('set-screenname', (data) => {
     HomePageElements.UserCredentials.innerHTML = `<div class="stringTitle">MTGA nick:</div><strong>${data.screenName}</strong>`;
     currentCreds.currentMtgaNick = data.screenName;
     currentCreds.currentMtgaID = data.newPlayerId;
   });
 
-  onMessageFromIpcMain('set-hotkey-map', hkMap => {
+  onMessageFromIpcMain('set-hotkey-map', (hkMap) => {
     if (hkMap === undefined) {
       return;
     }
-    Object.keys(hkMap).forEach(key => {
+    Object.keys(hkMap).forEach((key) => {
       const btn = key as
         | 'hk-my-deck'
         | 'hk-opp-deck'
@@ -32,7 +32,7 @@ export function installHomeMessages(): void {
     });
   });
 
-  onMessageFromIpcMain('set-creds', creds => {
+  onMessageFromIpcMain('set-creds', (creds) => {
     const unhide = document.querySelector('[data-button="unskip-acc"]') as HTMLElement;
     switch (creds.account.game) {
       case 'mtga':
@@ -59,7 +59,7 @@ export function installHomeMessages(): void {
     }
   });
 
-  onMessageFromIpcMain('set-o-settings', newOSettings => {
+  onMessageFromIpcMain('set-o-settings', (newOSettings) => {
     const overlaySettingsBoolean = [
       'hidezero',
       'showcardicon',
@@ -81,7 +81,7 @@ export function installHomeMessages(): void {
       'fontcolor',
     ];
 
-    overlaySettingsBoolean.forEach(setting => {
+    overlaySettingsBoolean.forEach((setting) => {
       const settingType = setting as
         | 'hidezero'
         | 'showcardicon'
@@ -98,7 +98,7 @@ export function installHomeMessages(): void {
       sw.checked = newOSettings[settingType];
     });
 
-    overlaySettingsNumber.forEach(setting => {
+    overlaySettingsNumber.forEach((setting) => {
       const settingType = setting as
         | 'leftdigit'
         | 'rightdigit'
@@ -109,11 +109,11 @@ export function installHomeMessages(): void {
 
       const sw = document.querySelector(`[data-setting="o-${settingType}"]`) as HTMLSelectElement;
       const opts = sw.options;
-      sw.selectedIndex = Array.from(opts).findIndex(opt => +opt.value === +newOSettings[settingType]);
+      sw.selectedIndex = Array.from(opts).findIndex((opt) => +opt.value === +newOSettings[settingType]);
     });
   });
 
-  onMessageFromIpcMain('set-settings', newSettings => {
+  onMessageFromIpcMain('set-settings', (newSettings) => {
     let output = `<div class="table"><div class='row'>
           <div class='cell header white'><strong>Nick</strong></div>
           <div class='cell header white'><strong>MTGA nick</strong></div>
@@ -121,7 +121,7 @@ export function installHomeMessages(): void {
           <div class='cell header white'><strong>Token</strong></div>
           <div class='cell header white'><strong>Actions</strong></div>
           </div>`;
-    newSettings.accounts.forEach(account => {
+    newSettings.accounts.forEach((account) => {
       output += `<div class='row'>
             <div class='cell'><strong class="white">${account.nick}</strong></div>
             <div class='cell'>${account.player ? account.player.screenName : ''}</div>
@@ -193,22 +193,22 @@ export function installHomeMessages(): void {
     if (newSettings.icon !== undefined) {
       const sw = document.querySelector('[data-setting="icon"]') as HTMLSelectElement;
       const opts = sw.options;
-      sw.selectedIndex = Array.from(opts).findIndex(opt => opt.value === newSettings.icon);
+      sw.selectedIndex = Array.from(opts).findIndex((opt) => opt.value === newSettings.icon);
     }
   });
 
-  onMessageFromIpcMain('set-version', version => {
+  onMessageFromIpcMain('set-version', (version) => {
     HomePageElements.AppVersion.innerHTML = version;
   });
 
-  onMessageFromIpcMain('show-status', arg => {
+  onMessageFromIpcMain('show-status', (arg) => {
     if (HomePageElements.StatusMessage.innerHTML !== arg.message) {
       HomePageElements.StatusMessage.innerHTML = arg.message;
       HomePageElements.StatusMessage.style.color = arg.color;
     }
   });
 
-  onMessageFromIpcMain('show-prompt', arg => {
+  onMessageFromIpcMain('show-prompt', (arg) => {
     showPrompt(arg.message, arg.autoclose);
   });
 
@@ -228,17 +228,18 @@ export function installHomeMessages(): void {
     sw.classList.remove('hidden');
   });
 
-  onMessageFromIpcMain('sync-process', res => {
+  onMessageFromIpcMain('sync-process', (res) => {
     if (res.mode === 'needauth') {
       sendMessageToIpcMain('open-link', `https://mtgarena.pro/sync/?request=${res.request}`);
       HomePageElements.directSyncLink.innerHTML = `<div class="directSyncLink">https://mtgarena.pro/sync/?request=${res.request}</div>`;
       tokenWaiter(res.request);
+      currentCreds.numberOfSyncAttempts = 0;
     } else if (res.mode === 'hasauth') {
       login(res.token, res.uid, res.nick, 'connect-acc');
     }
   });
 
-  onMessageFromIpcMain('token-waiter-responce', response => {
+  /*onMessageFromIpcMain('token-waiter-responce', (response) => {
     if (response.res && response.res.token) {
       login(response.res.token, response.res.uid, response.res.nick);
       sendMessageToIpcMain('do-shadow-sync', undefined);
@@ -247,20 +248,24 @@ export function installHomeMessages(): void {
         tokenWaiter(response.request);
       }, 1000);
     }
-  });
+  });*/
 
-  onMessageFromIpcMain('token-waiter-responce', response => {
+  onMessageFromIpcMain('token-waiter-responce', (response) => {
     if (response.res && response.res.token) {
       login(response.res.token, response.res.uid, response.res.nick);
       sendMessageToIpcMain('do-shadow-sync', undefined);
     } else {
-      setTimeout(() => {
-        tokenWaiter(response.request);
-      }, 1000);
+      const MaxWaitTime = 120;
+      if (currentCreds.numberOfSyncAttempts <= MaxWaitTime) {
+        currentCreds.numberOfSyncAttempts++;
+        setTimeout(() => {
+          tokenWaiter(response.request);
+        }, 1000);
+      }
     }
   });
 
-  onMessageFromIpcMain('userbytokenid-responce', res => {
+  onMessageFromIpcMain('userbytokenid-responce', (res) => {
     if (res.status === 'UNSET_USER') {
       sendMessageToIpcMain('kill-current-token', undefined);
     }

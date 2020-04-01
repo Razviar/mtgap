@@ -58,11 +58,13 @@ export const currentCreds: {
   currentMtgaID: string;
   currentLogState: boolean;
   hkBeingSet: string;
+  numberOfSyncAttempts: number;
 } = {
   currentMtgaNick: '',
   currentMtgaID: '',
   currentLogState: false,
   hkBeingSet: '',
+  numberOfSyncAttempts: 0,
 };
 
 installHomeMessages();
@@ -80,29 +82,29 @@ HomePageElements.PromptWnd.addEventListener('click', () => {
   HomePageElements.PromptWnd.style.display = 'none';
 });
 
-Array.from(HomePageElements.buttons).forEach(el => {
+Array.from(HomePageElements.buttons).forEach((el) => {
   el.addEventListener('click', tabclick);
 });
 
-Array.from(HomePageElements.controls).forEach(el => {
+Array.from(HomePageElements.controls).forEach((el) => {
   el.addEventListener('click', controlClick);
 });
 
-Array.from(HomePageElements.hkSetters).forEach(el => {
+Array.from(HomePageElements.hkSetters).forEach((el) => {
   el.addEventListener('click', setHkClick);
 });
 
-Array.from(HomePageElements.gameSw).forEach(el => {
+Array.from(HomePageElements.gameSw).forEach((el) => {
   el.addEventListener('click', gameSwClick);
 });
 
-Array.from(HomePageElements.settings).forEach(el => {
+Array.from(HomePageElements.settings).forEach((el) => {
   el.addEventListener('change', settingsChecker);
 });
 
 window.addEventListener('keyup', hkSetter, true);
 
-onMessageFromIpcMain('network-status', status => {
+onMessageFromIpcMain('network-status', (status) => {
   HomePageElements.NetworkStatus.title = `${status.message}${
     status.eventsleft !== undefined ? ` (${status.eventsleft} events to upload)` : ''
   }`;
