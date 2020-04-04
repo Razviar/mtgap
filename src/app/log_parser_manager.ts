@@ -33,7 +33,7 @@ export function withLogParser(fn: (logParser: LogParser) => void): void {
 export function createGlobalLogParser(): LogParser {
   logParser = new LogParser();
 
-  logParser.emitter.on('newdata', data => {
+  logParser.emitter.on('newdata', (data) => {
     if (data.events.length > 0) {
       const userToken = settingsStore.get().userToken?.mtga;
       if (userToken !== undefined && userToken.includes('SKIPPING')) {
@@ -44,7 +44,7 @@ export function createGlobalLogParser(): LogParser {
     }
   });
 
-  logParser.emitter.on('language', data => {
+  logParser.emitter.on('language', (data) => {
     const account = settingsStore.getAccount();
     if (account !== undefined && account.player) {
       account.player.language = data;
@@ -52,32 +52,32 @@ export function createGlobalLogParser(): LogParser {
     }
   });
 
-  logParser.emitter.on('error', msg => {
+  logParser.emitter.on('error', (msg) => {
     sendMessageToHomeWindow('show-status', {message: msg, color: '#cc2d2d'});
   });
 
-  logParser.emitter.on('status', msg => {
+  logParser.emitter.on('status', (msg) => {
     sendMessageToHomeWindow('show-status', {message: msg, color: '#22a83a'});
   });
 
-  logParser.emitter.on('deck-submission', msg => {
+  logParser.emitter.on('deck-submission', (msg) => {
     if (settingsStore.get().overlay) {
       sendMessageToOverlayWindow('deck-submission', msg);
     }
   });
-  logParser.emitter.on('match-started', msg => {
+  logParser.emitter.on('match-started', (msg) => {
     //console.log('match-started-recieved!');
     const account = settingsStore.getAccount();
     if (account && settingsStore.get().overlay) {
       sendMessageToOverlayWindow('match-started', {...msg, uid: account.uid});
     }
   });
-  logParser.emitter.on('card-played', msg => {
+  logParser.emitter.on('card-played', (msg) => {
     if (settingsStore.get().overlay) {
       sendMessageToOverlayWindow('card-played', msg);
     }
   });
-  logParser.emitter.on('mulligan', msg => {
+  logParser.emitter.on('mulligan', (msg) => {
     if (settingsStore.get().overlay) {
       sendMessageToOverlayWindow('mulligan', msg);
     }
@@ -88,11 +88,11 @@ export function createGlobalLogParser(): LogParser {
     }
   });
 
-  logParser.emitter.on('turn-info', dp => {
+  logParser.emitter.on('turn-info', (dp) => {
     sendMessageToOverlayWindow('turn-info', dp);
   });
 
-  logParser.emitter.on('draft-turn', msg => {
+  logParser.emitter.on('draft-turn', (msg) => {
     //console.log('match-started-recieved!');
     const account = settingsStore.getAccount();
     if (account && settingsStore.get().overlay) {
@@ -112,7 +112,7 @@ export function createGlobalLogParser(): LogParser {
     sendMessageToHomeWindow('nologfile', undefined);
   });
 
-  logParser.start().catch(err => {
+  logParser.start().catch((err) => {
     error('Failure to start parser', err);
   });
 
@@ -173,7 +173,7 @@ export async function parseOldLogs(
 
   // Filter useless events
   const eventsToSend = removeUndefined(
-    events.map(e => {
+    events.map((e) => {
       if (e.indicator === undefined) {
         return undefined;
       }

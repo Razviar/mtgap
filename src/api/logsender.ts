@@ -35,12 +35,16 @@ export function sendEventsToServer(
 
 // API call to server
 async function uploadpackfile(results: ParseResults[], version: string): Promise<boolean> {
-  const res = await Request.gzip<ParseResults[]>(`/mtg/donew2.php?cmd=cm_uploadpackfile&version=${version}`, results);
-  const resMap = asMap(res);
-  if (resMap === undefined) {
+  try {
+    const res = await Request.gzip<ParseResults[]>(`/mtg/donew2.php?cmd=cm_uploadpackfile&version=${version}`, results);
+    const resMap = asMap(res);
+    if (resMap === undefined) {
+      return false;
+    }
+    return asString(resMap.status, '').toUpperCase() === 'OK';
+  } catch (e) {
     return false;
   }
-  return asString(resMap.status, '').toUpperCase() === 'OK';
 }
 
 // Internal storage of events
@@ -110,7 +114,7 @@ async function sendNextBatch(): Promise<void> {
     const sentBufferParts = internalBuffer.splice(0, currentNumberOfEvents);
     if (sentBufferParts.length > 0) {
       // Filtering old logs to make sure we send state when it's mixed with new logs
-      const filteredSentBufferParts = sentBufferParts.filter(_ => _.fileId !== undefined);
+      const filteredSentBufferParts = sentBufferParts.filter((_) => _.fileId !== undefined);
       if (filteredSentBufferParts.length > 0) {
         const cursor = filteredSentBufferParts[filteredSentBufferParts.length - 1];
         // If no fileId, it means it's an old log, therefore we don't save the state
@@ -127,7 +131,7 @@ async function sendNextBatch(): Promise<void> {
   } catch (e) {
     // Error has occured, slowing down sending rate
     hasErrored = true;
-    error(String(e), e);
+    error(String(e), e, {}, true);
     sendMessageToHomeWindow('show-status', {message: 'Connection Error', color: '#cc2d2d'});
   } finally {
     // If error => slow
@@ -143,7 +147,7 @@ async function sendNextBatch(): Promise<void> {
     isCurrentlySending = false;
 
     // Triggering next sending
-    sendNextBatch().catch(_ => {});
+    sendNextBatch().catch((_) => {});
   }
 }
 
