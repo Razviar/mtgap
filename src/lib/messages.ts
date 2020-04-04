@@ -141,6 +141,8 @@ export interface Messages {
   'shadow-sync-over': undefined;
   nologfile: undefined;
   'game-switch': 'lor' | 'mtga';
+  'show-dev-buttons': undefined;
+  'dev-log': undefined;
 }
 
 export enum NetworkStatusMessage {

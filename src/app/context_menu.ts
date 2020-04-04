@@ -17,13 +17,13 @@ export function createContextMenuForMainWindow(mainWindow: BrowserWindow): Menu 
     Boosters: 'https://mtgarena.pro/boosters/',
   };
 
-  Object.keys(MenuLabels).forEach(label => {
+  Object.keys(MenuLabels).forEach((label) => {
     MenuLinks.push({
       label,
       click: () => {
         shell
           .openExternal(MenuLabels[label])
-          .catch(err =>
+          .catch((err) =>
             error('Error while opening an external link from the context menu', err, {label, url: MenuLabels[label]})
           );
       },

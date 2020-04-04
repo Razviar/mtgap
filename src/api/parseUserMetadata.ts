@@ -39,7 +39,7 @@ export function parseUserMetadata(data: AxiosResponse): UserMetadata {
   }
   const collectionMap = asMap(dataMap.collection);
   if (collectionMap !== undefined) {
-    Object.keys(collectionMap).forEach(elem => {
+    Object.keys(collectionMap).forEach((elem) => {
       const cardElem = asMap(collectionMap[elem]);
       if (cardElem !== undefined) {
         collection[+elem] = {ic: asNumber(cardElem.ic, 0), ir: asNumber(cardElem.ir, 0), it: asNumber(cardElem.it, 0)};
@@ -48,13 +48,13 @@ export function parseUserMetadata(data: AxiosResponse): UserMetadata {
   }
   const usercapabilitiesMap = asMap(dataMap.usercapabilities);
   if (usercapabilitiesMap !== undefined) {
-    Object.keys(usercapabilitiesMap).forEach(elem => {
+    Object.keys(usercapabilitiesMap).forEach((elem) => {
       usercapabilities[elem] = asBoolean(usercapabilitiesMap[elem], false);
     });
   }
   const coursedecksMap = asMap(dataMap.coursedecks);
   if (coursedecksMap !== undefined) {
-    Object.keys(coursedecksMap).forEach(elem => {
+    Object.keys(coursedecksMap).forEach((elem) => {
       const CourseElem = asMap(coursedecksMap[elem]);
       if (CourseElem !== undefined) {
         const udeck = asString(CourseElem.udeck, '');
@@ -66,7 +66,7 @@ export function parseUserMetadata(data: AxiosResponse): UserMetadata {
         }[] = [];
         if (deckstructArr !== undefined) {
           deckstruct = removeUndefined(
-            deckstructArr.map(item => {
+            deckstructArr.map((item) => {
               const itemMap = asMap(item);
               if (itemMap === undefined) {
                 return {card: 0, cardnum: 0};

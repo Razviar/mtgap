@@ -77,6 +77,6 @@ export class LogParserEventEmitter {
     if (listeners === undefined) {
       return;
     }
-    listeners.forEach(listener => listener(data));
+    listeners.forEach((listener) => listener(data));
   }
 }

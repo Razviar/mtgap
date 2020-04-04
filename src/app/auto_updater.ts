@@ -87,7 +87,7 @@ export function setupAutoUpdater(): void {
           active: true,
           message: NetworkStatusMessage.Connected,
         });
-        withHomeWindow(w => {
+        withHomeWindow((w) => {
           if (!w.isVisible()) {
             showNotifi(
               'MTGA Pro Tracker Update',

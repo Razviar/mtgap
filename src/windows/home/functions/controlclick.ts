@@ -51,6 +51,7 @@ export function controlClick(event: Event): void {
     case 'set-mtga-path':
     case 'default-mtga-path':
     case 'stop-shadow-sync':
+    case 'dev-log':
       sendMessageToIpcMain(button, undefined);
       break;
     case 'set-log-path':

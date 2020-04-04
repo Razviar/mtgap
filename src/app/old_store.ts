@@ -31,8 +31,8 @@ class OldStore {
 
   public checkLog(fileId: string, logName: string): boolean {
     return (
-      this.data.fileIds.find(fid => fid.fileId === fileId) !== undefined ||
-      this.data.logNames.find(fid => fid.logName === logName) !== undefined
+      this.data.fileIds.find((fid) => fid.fileId === fileId) !== undefined ||
+      this.data.logNames.find((fid) => fid.logName === logName) !== undefined
     );
   }
 
@@ -61,8 +61,8 @@ class OldStore {
 
   private rotate(): void {
     const rotationPeriod = 2419200000;
-    this.data.fileIds = this.data.fileIds.filter(elem => elem.timestamp >= new Date().getTime() - rotationPeriod);
-    this.data.logNames = this.data.logNames.filter(elem => elem.timestamp >= new Date().getTime() - rotationPeriod);
+    this.data.fileIds = this.data.fileIds.filter((elem) => elem.timestamp >= new Date().getTime() - rotationPeriod);
+    this.data.logNames = this.data.logNames.filter((elem) => elem.timestamp >= new Date().getTime() - rotationPeriod);
     this.save();
   }
 }

@@ -20,7 +20,7 @@ export class WindowLocator {
         const displays = screen.getAllDisplays();
         let width = 0;
         let height = 0;
-        displays.forEach(display => {
+        displays.forEach((display) => {
           if (display.bounds.height > height) {
             height = display.bounds.height;
           }

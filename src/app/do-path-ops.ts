@@ -15,7 +15,7 @@ export function doMtgaPathOps(): void {
       message: 'Please set up path to MTGA folder!',
       autoclose: 1000,
     });
-    withHomeWindow(w => {
+    withHomeWindow((w) => {
       if (!w.isVisible()) {
         showNotifi(
           'Set MTGA folder for Tracker',

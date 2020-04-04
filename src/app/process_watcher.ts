@@ -19,12 +19,12 @@ export function setupProcessWatcher(): () => void {
   const processWatcherFn = () => {
     processWatcher
       .getprocesses()
-      .then(MTGApid => {
+      .then((MTGApid) => {
         if (MTGApid === -1) {
           if (ProcessWatching.gameRunningState) {
             ProcessWatching.gameRunningState = false;
             sendMessageToHomeWindow('show-status', {message: 'Game is not running!', color: '#dbb63d'});
-            withOverlayWindow(w => w.hide());
+            withOverlayWindow((w) => w.hide());
             clearInterval(ProcessWatching.interval);
           }
         } else {
@@ -39,18 +39,18 @@ export function setupProcessWatcher(): () => void {
               overlayWindow = createOverlayWindow();
 
               getMetadata()
-                .then(md => {
+                .then((md) => {
                   //console.log(md.allcards);
                   sendMessageToOverlayWindow('set-metadata', md);
                   sendMessageToOverlayWindow('set-ovlsettings', ovlSettings);
                   sendMessageToOverlayWindow('set-icosettings', settingsStore.get().icon);
                 })
-                .catch(err => {
+                .catch((err) => {
                   error('Failure to load Metadata', err);
                 });
               getUserMetadata(+account.uid)
-                .then(umd => sendMessageToOverlayWindow('set-userdata', umd))
-                .catch(err => {
+                .then((umd) => sendMessageToOverlayWindow('set-userdata', umd))
+                .catch((err) => {
                   error('Failure to load User Metadata', err, {...account});
                 });
             }
@@ -91,7 +91,7 @@ export function setupProcessWatcher(): () => void {
           }
         }
       })
-      .catch(_ => {});
+      .catch((_) => {});
   };
 
   return processWatcherFn;

@@ -24,7 +24,7 @@ export function registerHotkeys(): void {
     'hk-dec-opac': 'opacity-down',
   };
 
-  Object.keys(hotkeyMap).forEach(key => {
+  Object.keys(hotkeyMap).forEach((key) => {
     const hotkey = key as
       | 'hk-my-deck'
       | 'hk-opp-deck'

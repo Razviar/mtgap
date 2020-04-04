@@ -122,7 +122,8 @@ export function createGlobalLogParser(): LogParser {
 export async function parseOldLogs(
   logpath: string,
   parsingMetadata: ParsingMetadata,
-  nextState?: LogFileParsingState
+  nextState?: LogFileParsingState,
+  dev?: boolean
 ): Promise<number> {
   // Check that file exists
   await promisify(stat)(logpath);
@@ -140,8 +141,10 @@ export async function parseOldLogs(
       if (oldStore.checkLog(fileId, logpath)) {
         return 1;
       }
-      oldStore.saveFileID(fileCTime.getTime(), fileId);
-      oldStore.saveLogName(fileCTime.getTime(), logpath);
+      if (!dev) {
+        oldStore.saveFileID(fileCTime.getTime(), fileId);
+        oldStore.saveLogName(fileCTime.getTime(), logpath);
+      }
       currentState = detailedLogState;
       currentState.timestamp = fileCTime.getTime();
     } catch (olde) {
@@ -161,13 +164,15 @@ export async function parseOldLogs(
     return 0;
   }
 
-  for (const event of events) {
-    switch (event.name) {
-      case parsingMetadata.userChangeEvent:
-        if (handleUserChangeEvent(event)) {
-          return 2;
-        }
-        break;
+  if (!dev) {
+    for (const event of events) {
+      switch (event.name) {
+        case parsingMetadata.userChangeEvent:
+          if (handleUserChangeEvent(event)) {
+            return 2;
+          }
+          break;
+      }
     }
   }
 
@@ -193,13 +198,17 @@ export async function parseOldLogs(
 
   // Send events to server
   // console.log(eventsToSend);
-  sendEventsToServer(eventsToSend, parsingMetadata.logSender, newState);
+  if (dev) {
+    console.log(eventsToSend);
+  } else {
+    sendEventsToServer(eventsToSend, parsingMetadata.logSender, newState);
+  }
 
   // Adding small sleep
   await sleep(100);
 
   // Triggering next batch
-  return parseOldLogs(logpath, parsingMetadata, newState);
+  return parseOldLogs(logpath, parsingMetadata, newState, dev);
 }
 
 function handleUserChangeEvent(event: StatefulLogEvent): boolean {

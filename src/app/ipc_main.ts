@@ -461,6 +461,26 @@ export function setupIpcMain(app: App): void {
     }
   });
 
+  onMessageFromBrowserWindow('dev-log', () => {
+    if (!oldLogHandlerStatus.ReadingOldLogs) {
+      const logpath = settingsStore.get().mtgaPath;
+      dialog
+        .showOpenDialog({
+          properties: ['openFile', 'multiSelections'],
+          defaultPath: logpath !== undefined ? join(logpath, ...['MTGA_Data', 'Logs', 'Logs']) : '',
+          filters: [{name: 'UTC_Log*', extensions: ['log']}],
+        })
+        .then((log) => {
+          if (!log.canceled && log.filePaths[0]) {
+            parseOldLogsHandler(log.filePaths, 0, 0, undefined, true);
+          }
+        })
+        .catch((err) => error('Error while showing open file dialog during old-log-path event', err));
+    } else {
+      sendMessageToHomeWindow('show-prompt', {message: 'Old logs are already being parsed', autoclose: 1000});
+    }
+  });
+
   onMessageFromBrowserWindow('error-in-renderer', (err) => {
     error('Error in renderer process', err.error, {line: err.line, url: err.url});
   });

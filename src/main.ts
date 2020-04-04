@@ -1,4 +1,5 @@
 import {app} from 'electron';
+import electronIsDev from 'electron-is-dev';
 
 import {sendSettingsToRenderer, setCreds} from 'root/app/auth';
 import {enableAutoLauncher} from 'root/app/auto_launcher';
@@ -6,8 +7,6 @@ import {setupAutoUpdater} from 'root/app/auto_updater';
 import {doMtgaPathOps} from 'root/app/do-path-ops';
 import {setupIpcMain} from 'root/app/ipc_main';
 import {createGlobalLogParser} from 'root/app/log_parser_manager';
-import {createGlobalLorParser} from 'root/app/lor-tracking/lor_parser_manager';
-import {setupLorIpcMain} from 'root/app/lor_ipc_main';
 import {createMainWindow, withHomeWindow} from 'root/app/main_window';
 import {sendMessageToHomeWindow} from 'root/app/messages';
 import {setupProcessWatcher} from 'root/app/process_watcher';
@@ -39,7 +38,7 @@ function recreateMainWindow(): void {
   createMainWindow();
   doMtgaPathOps();
 
-  withHomeWindow(w => {
+  withHomeWindow((w) => {
     if (settingsStore.get().minimized) {
       w.hide();
     } else if (!w.isVisible()) {
@@ -49,6 +48,9 @@ function recreateMainWindow(): void {
       createGlobalLogParser();
       //createGlobalLorParser();
       sendMessageToHomeWindow('set-version', app.getVersion());
+      if (electronIsDev) {
+        sendMessageToHomeWindow('show-dev-buttons', undefined);
+      }
       setCreds('ready-to-show');
       sendSettingsToRenderer();
       ProcessWatching.interval = setInterval(
@@ -67,7 +69,7 @@ if (!gotTheLock) {
   app.quit();
 } else {
   app.on('second-instance', () => {
-    withHomeWindow(w => {
+    withHomeWindow((w) => {
       if (!w.isVisible()) {
         w.show();
       }
@@ -96,9 +98,9 @@ if (settingsStore.get().autorun) {
 }
 
 setupIpcMain(app);
-setupLorIpcMain(app);
+//setupLorIpcMain(app);
 
-process.on('uncaughtException', err => {
+process.on('uncaughtException', (err) => {
   error('Uncaught error in main process', err);
   app.relaunch();
   app.exit();

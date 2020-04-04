@@ -283,4 +283,10 @@ export function installHomeMessages(): void {
     unhide.classList.remove('disabled');
     currentCreds.currentLogState = true;
   });
+
+  onMessageFromIpcMain('show-dev-buttons', () => {
+    Array.from(document.getElementsByClassName('devButton')).forEach((el) => {
+      el.classList.remove('hidden');
+    });
+  });
 }

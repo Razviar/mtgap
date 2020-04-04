@@ -16,16 +16,16 @@ export function uploadCardData(FilesOfInterest: string[], pathElements: string[]
     }
 
     dirToScan
-      .filter(file => {
+      .filter((file) => {
         let pass = false;
-        FilesOfInterest.forEach(foi => {
+        FilesOfInterest.forEach((foi) => {
           if (file.includes(foi) && !file.includes('.dat')) {
             pass = true;
           }
         });
         return pass;
       })
-      .forEach(interestingFile => {
+      .forEach((interestingFile) => {
         fs.readFile(join(pth, interestingFile), 'utf8', (errr: NodeJS.ErrnoException | null, data: string) => {
           fileUploader(errr, data, interestingFile);
         });
@@ -38,14 +38,14 @@ const fileUploader = (err: NodeJS.ErrnoException | null, data: string, filename:
     error('Failure to read MTGA resources files', err);
   }
   checkFileBeforeUpload(filename)
-    .then(res => {
+    .then((res) => {
       if (res) {
-        doFileUpload(data, filename).catch(errr => {
+        doFileUpload(data, filename).catch((errr) => {
           error('Failure to upload MTGA resources files', errr);
         });
       }
     })
-    .catch(errr => {
+    .catch((errr) => {
       error('Failure to check MTGA resources files status', errr);
     });
 };

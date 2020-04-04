@@ -50,7 +50,7 @@ export function createChunkReader(path: string, start: number): SimpleReadStream
     buffer = chunk.slice(lastLineBreak + 1);
   });
 
-  stream.on('error', err => {
+  stream.on('error', (err) => {
     if (errorHandler) {
       errorHandler(err, byteRead);
     }

@@ -17,7 +17,7 @@ function parseLiveMatch(data: AxiosResponse): LiveMatch {
   const humanname = asString(dataMap.humanname, '');
   const deckstructArr = asArray(dataMap.deckstruct, []);
   const deckstruct = removeUndefined(
-    deckstructArr.map(item => {
+    deckstructArr.map((item) => {
       const itemMap = asMap(item);
       if (itemMap === undefined) {
         error('Error while parsing a deckstruct of a LiveMatch: value is not an object', undefined, {item});

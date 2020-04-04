@@ -7,27 +7,27 @@ import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
 
 export function setupLorIpcMain(app: App): void {
-  onMessageFromBrowserWindow('lor-start-sync', _ => {
+  onMessageFromBrowserWindow('lor-start-sync', (_) => {
     lortokenrequest()
-      .then(res => {
+      .then((res) => {
         sendMessageToHomeWindow('lor-sync-process', res);
       })
-      .catch(err => {
+      .catch((err) => {
         error('Failure to perform LORtokenrequest', err);
       });
   });
 
-  onMessageFromBrowserWindow('lor-token-waiter', request => {
+  onMessageFromBrowserWindow('lor-token-waiter', (request) => {
     LORtokencheck(request)
-      .then(res => {
+      .then((res) => {
         sendMessageToHomeWindow('lor-token-waiter-responce', {res, request});
       })
-      .catch(err => {
+      .catch((err) => {
         error('Failure to perform tokencheck', err, {request});
       });
   });
 
-  onMessageFromBrowserWindow('game-switch', game => {
+  onMessageFromBrowserWindow('game-switch', (game) => {
     const settings = settingsStore.get();
     settings.lastGame = game;
     settingsStore.save();

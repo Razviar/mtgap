@@ -5,11 +5,11 @@ import {withOverlayWindow} from 'root/app/overlay_window';
 import {Message, MessageCallback, Messages, onBridgeMessageGeneric, onMessageGeneric} from 'root/lib/messages';
 
 export function sendMessageToHomeWindow<M extends Message>(message: M, data: Messages[M]): void {
-  withHomeWindow(_ => sendMessageToBrowserWindow(_, message, data));
+  withHomeWindow((_) => sendMessageToBrowserWindow(_, message, data));
 }
 
 export function sendMessageToOverlayWindow<M extends Message>(message: M, data: Messages[M]): void {
-  withOverlayWindow(_ => sendMessageToBrowserWindow(_, message, data));
+  withOverlayWindow((_) => sendMessageToBrowserWindow(_, message, data));
 }
 
 function sendMessageToBrowserWindow<M extends Message>(
@@ -23,7 +23,7 @@ function sendMessageToBrowserWindow<M extends Message>(
 const allCallbacks = new Map<Message, MessageCallback<Message>[]>();
 
 // tslint:disable-next-line: no-any
-ipcMain.on('bridge-message', function<M extends Message>(_: IpcMainEvent, data: any): void {
+ipcMain.on('bridge-message', function <M extends Message>(_: IpcMainEvent, data: any): void {
   onBridgeMessageGeneric(allCallbacks, data);
 });
 

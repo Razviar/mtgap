@@ -23,7 +23,7 @@ export function locateMtgaDir(checkPath: string | undefined): boolean {
 
   try {
     const dir = fs.readdirSync(pth);
-    dir.forEach(file => {
+    dir.forEach((file) => {
       if (file === 'MTGA.exe') {
         result = true;
       }
@@ -46,7 +46,7 @@ export function locateMostRecentDate(): number | undefined {
   const pth = join(mtgaPath, ...['MTGA_Data', 'Logs', 'Logs']);
   try {
     const files = fs.readdirSync(pth);
-    files.forEach(file => {
+    files.forEach((file) => {
       const ctime = fs.statSync(join(pth, file)).ctime;
       if (logDate === undefined || logDate < ctime) {
         logDate = ctime;
@@ -69,8 +69,8 @@ export function getOldLogs(): string[] | undefined {
   const files: string[] = [];
   try {
     fs.readdirSync(pth)
-      .filter(file => file.includes('UTC_Log') && file.includes('.log'))
-      .forEach(file => {
+      .filter((file) => file.includes('UTC_Log') && file.includes('.log'))
+      .forEach((file) => {
         files.push(join(mtgaPath, ...['MTGA_Data', 'Logs', 'Logs'], file));
       });
   } catch (e) {

@@ -91,7 +91,7 @@ export function asStringMap(value: any): Map<string, string> | undefined {
     return undefined;
   }
   const res = new Map<string, string>();
-  Object.keys(map).forEach(key => res.set(key, asString(map[key], '')));
+  Object.keys(map).forEach((key) => res.set(key, asString(map[key], '')));
   return res;
 }
 

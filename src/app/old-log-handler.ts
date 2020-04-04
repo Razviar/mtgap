@@ -11,7 +11,13 @@ export const oldLogHandlerStatus = {
   AbortOldLogs: false,
 };
 
-export function parseOldLogsHandler(logs: string[], index: number, skipped: number, shadow?: boolean): void {
+export function parseOldLogsHandler(
+  logs: string[],
+  index: number,
+  skipped: number,
+  shadow?: boolean,
+  dev?: boolean
+): void {
   oldLogHandlerStatus.ReadingOldLogs = true;
   if (!shadow) {
     sendMessageToHomeWindow('show-prompt', {
@@ -29,13 +35,13 @@ export function parseOldLogsHandler(logs: string[], index: number, skipped: numb
     sendMessageToHomeWindow('show-status', {message: 'Parsing aborted!', color: '#22a83a'});
     oldLogHandlerStatus.ReadingOldLogs = false;
     oldLogHandlerStatus.AbortOldLogs = false;
-    withLogParser(lp => lp.start());
+    withLogParser((lp) => lp.start());
     return;
   }
-  withLogParser(lp => lp.stop());
+  withLogParser((lp) => lp.stop());
   getParsingMetadata(app.getVersion())
-    .then(parsingMetadata =>
-      parseOldLogs(logs[index], parsingMetadata).then(result => {
+    .then((parsingMetadata) =>
+      parseOldLogs(logs[index], parsingMetadata, undefined, dev).then((result) => {
         switch (result) {
           case 0:
           case 1:
@@ -48,9 +54,9 @@ export function parseOldLogsHandler(logs: string[], index: number, skipped: numb
                 showNotifi('MTGA Pro Tracker', 'All old logs have been parsed!');
                 sendMessageToHomeWindow('shadow-sync-over', undefined);
               }
-              withLogParser(lp => lp.start());
+              withLogParser((lp) => lp.start());
             } else {
-              parseOldLogsHandler(logs, index + 1, skipped + result, shadow);
+              parseOldLogsHandler(logs, index + 1, skipped + result, shadow, dev);
             }
             break;
           case 2:
@@ -68,7 +74,7 @@ export function parseOldLogsHandler(logs: string[], index: number, skipped: numb
         }
       })
     )
-    .catch(err => {
+    .catch((err) => {
       error('Error reading old logs', err);
       sendMessageToHomeWindow('shadow-sync-over', undefined);
       oldLogHandlerStatus.ReadingOldLogs = false;

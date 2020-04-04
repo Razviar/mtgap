@@ -43,7 +43,7 @@ export function createOverlayWindow(): BrowserWindow {
     focusable: false,
   });
 
-  overlayWindow.loadURL(OVERLAY_WINDOW_WEBPACK_ENTRY).catch(err =>
+  overlayWindow.loadURL(OVERLAY_WINDOW_WEBPACK_ENTRY).catch((err) =>
     error('Failure to load url in overlay window', err, {
       entry: OVERLAY_WINDOW_WEBPACK_ENTRY,
     })

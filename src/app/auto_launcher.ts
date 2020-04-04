@@ -7,9 +7,9 @@ const AutoLauncher = new AutoLaunch({
 });
 
 export function enableAutoLauncher(): void {
-  AutoLauncher.enable().catch(err => error('Failure to enable auto launcher', err));
+  AutoLauncher.enable().catch((err) => error('Failure to enable auto launcher', err));
 }
 
 export function disableAutoLauncher(): void {
-  AutoLauncher.disable().catch(err => error('Failure to disable auto launcher', err));
+  AutoLauncher.disable().catch((err) => error('Failure to disable auto launcher', err));
 }

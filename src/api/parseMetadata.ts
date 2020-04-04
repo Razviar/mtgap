@@ -31,7 +31,7 @@ export function parseMetadata(data: AxiosResponse): Metadata {
     };
   } = {};
   if (expsMap !== undefined) {
-    Object.keys(expsMap).forEach(elem => {
+    Object.keys(expsMap).forEach((elem) => {
       const expElem = asMap(expsMap[elem]);
       if (expElem !== undefined) {
         const code = asString(expElem.code, '');
@@ -43,7 +43,7 @@ export function parseMetadata(data: AxiosResponse): Metadata {
   }
   const formatsArr = asArray(dataMap.formats, []);
   const formats = removeUndefined(
-    formatsArr.map(item => {
+    formatsArr.map((item) => {
       const itemMap = asMap(item);
       if (itemMap === undefined) {
         return undefined;
@@ -76,7 +76,7 @@ export function parseMetadata(data: AxiosResponse): Metadata {
   );
   const typesArr = asArray(dataMap.types, []);
   const types = removeUndefined(
-    typesArr.map(item => {
+    typesArr.map((item) => {
       const itemMap = asMap(item);
       if (itemMap === undefined) {
         return undefined;
@@ -97,7 +97,7 @@ export function parseMetadata(data: AxiosResponse): Metadata {
   );
   const archetypesArr = asArray(dataMap.archetypes, []);
   const archetypes = removeUndefined(
-    archetypesArr.map(item => {
+    archetypesArr.map((item) => {
       const itemMap = asMap(item);
       if (itemMap === undefined) {
         return undefined;
@@ -115,7 +115,7 @@ export function parseMetadata(data: AxiosResponse): Metadata {
   const allcardsMap = asMap(dataMap.allcards);
   const allcards: [number, Card][] = [];
   if (allcardsMap !== undefined) {
-    Object.keys(allcardsMap).forEach(elem => {
+    Object.keys(allcardsMap).forEach((elem) => {
       const cardElem = asMap(allcardsMap[elem]);
       if (cardElem !== undefined) {
         allcards.push([
@@ -179,7 +179,7 @@ export function parseMetadata(data: AxiosResponse): Metadata {
     [index: number]: number;
   } = {};
   if (mtgatoinneridMap !== undefined) {
-    Object.keys(mtgatoinneridMap).forEach(elem => {
+    Object.keys(mtgatoinneridMap).forEach((elem) => {
       mtgatoinnerid[+elem] = asNumber(mtgatoinneridMap[elem], 0);
     });
   }

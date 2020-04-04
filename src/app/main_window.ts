@@ -50,8 +50,8 @@ export function createMainWindow(): void {
 
   appIcon.setContextMenu(createContextMenuForMainWindow(mainWindow));
   appIcon.on('double-click', () => {
-    withHomeWindow(w => w.show());
-    withHomeWindow(w => w.focus());
+    withHomeWindow((w) => w.show());
+    withHomeWindow((w) => w.focus());
   });
 
   mainWindow.setMenuBarVisibility(false);
@@ -62,10 +62,10 @@ export function createMainWindow(): void {
 
   mainWindow.on('minimize', (event: Electron.Event) => {
     event.preventDefault();
-    withHomeWindow(w => w.hide());
+    withHomeWindow((w) => w.hide());
   });
 
-  mainWindow.loadURL(HOME_WINDOW_WEBPACK_ENTRY).catch(err =>
+  mainWindow.loadURL(HOME_WINDOW_WEBPACK_ENTRY).catch((err) =>
     error('Failure to load url in main window', err, {
       entry: HOME_WINDOW_WEBPACK_ENTRY,
     })
