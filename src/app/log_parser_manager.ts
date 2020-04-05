@@ -1,4 +1,6 @@
-import {stat, statSync} from 'fs';
+import {app} from 'electron';
+import {stat, statSync, writeFileSync} from 'fs';
+import {join} from 'path';
 import {promisify} from 'util';
 
 import {sendEventsToServer} from 'root/api/logsender';
@@ -123,7 +125,8 @@ export async function parseOldLogs(
   logpath: string,
   parsingMetadata: ParsingMetadata,
   nextState?: LogFileParsingState,
-  dev?: boolean
+  dev?: boolean,
+  forceUpload?: boolean
 ): Promise<number> {
   // Check that file exists
   await promisify(stat)(logpath);
@@ -199,7 +202,15 @@ export async function parseOldLogs(
   // Send events to server
   // console.log(eventsToSend);
   if (dev) {
-    console.log(eventsToSend);
+    //console.log(eventsToSend);
+    eventsToSend.forEach((writeEvent) => {
+      const path = join(app.getPath('userData'), 'ParsedLogs', `parsed-data-${writeEvent.indicator}.json`);
+      writeFileSync(path, JSON.stringify(writeEvent), {flag: 'a'});
+    });
+    if (forceUpload) {
+      console.log('doing force upload');
+      sendEventsToServer(eventsToSend, parsingMetadata.logSender, newState, undefined, forceUpload);
+    }
   } else {
     sendEventsToServer(eventsToSend, parsingMetadata.logSender, newState);
   }

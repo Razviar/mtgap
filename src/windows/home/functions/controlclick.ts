@@ -41,6 +41,12 @@ export function controlClick(event: Event): void {
       sssi.classList.remove('hidden');
       sendMessageToIpcMain(button, undefined);
       break;
+    case 'dev-log':
+      sendMessageToIpcMain('dev-log', false);
+      break;
+    case 'dev-log-force':
+      sendMessageToIpcMain('dev-log', true);
+      break;
     case 'wipe-position':
     case 'wipe-all':
     case 'restart-me':
@@ -51,7 +57,6 @@ export function controlClick(event: Event): void {
     case 'set-mtga-path':
     case 'default-mtga-path':
     case 'stop-shadow-sync':
-    case 'dev-log':
       sendMessageToIpcMain(button, undefined);
       break;
     case 'set-log-path':

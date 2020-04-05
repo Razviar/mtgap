@@ -142,7 +142,7 @@ export interface Messages {
   nologfile: undefined;
   'game-switch': 'lor' | 'mtga';
   'show-dev-buttons': undefined;
-  'dev-log': undefined;
+  'dev-log': boolean;
 }
 
 export enum NetworkStatusMessage {

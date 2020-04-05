@@ -52,6 +52,7 @@ export interface LogSenderParsingMetadata {
   slowTimeout: number;
   batchSize: number;
   sendingRates: {[indicator: number]: number};
+  forceUpload?: boolean;
 }
 
 export interface LogParserParsingMetadata {

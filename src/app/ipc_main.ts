@@ -461,7 +461,7 @@ export function setupIpcMain(app: App): void {
     }
   });
 
-  onMessageFromBrowserWindow('dev-log', () => {
+  onMessageFromBrowserWindow('dev-log', (force) => {
     if (!oldLogHandlerStatus.ReadingOldLogs) {
       const logpath = settingsStore.get().mtgaPath;
       dialog
@@ -472,7 +472,7 @@ export function setupIpcMain(app: App): void {
         })
         .then((log) => {
           if (!log.canceled && log.filePaths[0]) {
-            parseOldLogsHandler(log.filePaths, 0, 0, undefined, true);
+            parseOldLogsHandler(log.filePaths, 0, 0, undefined, true, force);
           }
         })
         .catch((err) => error('Error while showing open file dialog during old-log-path event', err));

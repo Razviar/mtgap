@@ -26,7 +26,7 @@ export function parseEvent(data: string, state: LogFileParsingState, options: Pa
       handlePlayersInfoEvent(event, state);
     }
   }
-  const statefulEvents = events.map(e => logEventToStatefulEvent(e, state));
+  const statefulEvents = events.map((e) => logEventToStatefulEvent(e, state));
   for (const event of events) {
     if (event.name === options.matchEndEvent) {
       handleMatchEndEvent(event, state);
@@ -91,7 +91,7 @@ export function getEventTimestamp(rawEvent: RawLogEvent): number | undefined {
 }
 
 export function postProcessEvent(rawEvent: RawLogEvent, options: ParsingMetadata): LogEvent[] {
-  const parsingOptions = options.events.find(o => o.name.toUpperCase() === rawEvent.name.toUpperCase());
+  const parsingOptions = options.events.find((o) => o.name.toUpperCase() === rawEvent.name.toUpperCase());
   if (parsingOptions === undefined) {
     return [];
   }
@@ -142,7 +142,7 @@ export function postProcessEvent(rawEvent: RawLogEvent, options: ParsingMetadata
   }
   if (parsingOptions.subEvents !== undefined) {
     let subEvents: LogEvent[] = [];
-    parsingOptions.subEvents.forEach(subEvent => {
+    parsingOptions.subEvents.forEach((subEvent) => {
       const data = extractValue(rawEvent.data, subEvent.attributesPath);
       if (data !== undefined) {
         subEvents = subEvents.concat(
@@ -216,7 +216,7 @@ export function extractEventData(eventName: string, rawData: any): any | undefin
     return parseAsJSONIfNeeded(dataMap.payload);
   }
   const eventNameUpperCase = eventName.toUpperCase();
-  const eventNameProperty = Object.keys(dataMap).find(attr => attr.toUpperCase() === eventNameUpperCase);
+  const eventNameProperty = Object.keys(dataMap).find((attr) => attr.toUpperCase() === eventNameUpperCase);
   if (eventNameProperty !== undefined) {
     return parseAsJSONIfNeeded(dataMap[eventNameProperty]);
   }

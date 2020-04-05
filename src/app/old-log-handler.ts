@@ -16,7 +16,8 @@ export function parseOldLogsHandler(
   index: number,
   skipped: number,
   shadow?: boolean,
-  dev?: boolean
+  dev?: boolean,
+  forceUpload?: boolean
 ): void {
   oldLogHandlerStatus.ReadingOldLogs = true;
   if (!shadow) {
@@ -41,7 +42,7 @@ export function parseOldLogsHandler(
   withLogParser((lp) => lp.stop());
   getParsingMetadata(app.getVersion())
     .then((parsingMetadata) =>
-      parseOldLogs(logs[index], parsingMetadata, undefined, dev).then((result) => {
+      parseOldLogs(logs[index], parsingMetadata, undefined, dev, forceUpload).then((result) => {
         switch (result) {
           case 0:
           case 1:
@@ -56,7 +57,7 @@ export function parseOldLogsHandler(
               }
               withLogParser((lp) => lp.start());
             } else {
-              parseOldLogsHandler(logs, index + 1, skipped + result, shadow, dev);
+              parseOldLogsHandler(logs, index + 1, skipped + result, shadow, dev, forceUpload);
             }
             break;
           case 2:

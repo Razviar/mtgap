@@ -16,6 +16,7 @@ let logSenderParsingMetadata: LogSenderParsingMetadata = {
   slowTimeout: 5000,
   batchSize: 50,
   sendingRates: {},
+  forceUpload: false,
 };
 
 // Public function to send events to server, non-blocking
@@ -23,9 +24,11 @@ export function sendEventsToServer(
   events: ParseResults[],
   parsingMetadata: LogSenderParsingMetadata,
   state: LogFileParsingState,
-  fileId?: string
+  fileId?: string,
+  forceUpload?: boolean
 ): void {
   logSenderParsingMetadata = parsingMetadata;
+  logSenderParsingMetadata.forceUpload = forceUpload;
   if (events.length === 0) {
     return;
   }
@@ -104,6 +107,9 @@ async function sendNextBatch(): Promise<void> {
 
   try {
     // Uploading data to server
+    if (logSenderParsingMetadata.forceUpload) {
+      console.log(events);
+    }
     const ok = await uploadpackfile(events, app.getVersion());
     if (!ok) {
       sendMessageToHomeWindow('network-status', {active: false, message: NetworkStatusMessage.Disconnected});
