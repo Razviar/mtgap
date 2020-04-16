@@ -29,6 +29,8 @@ export function sendEventsToServer(
 ): void {
   logSenderParsingMetadata = parsingMetadata;
   logSenderParsingMetadata.forceUpload = forceUpload;
+  //console.log(events);
+  //console.log(forceUpload);
   if (events.length === 0) {
     return;
   }

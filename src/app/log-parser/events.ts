@@ -39,7 +39,7 @@ export async function getEvents(
     const allEvents: StatefulLogEvent[] = [];
 
     if (!oldlog && (state.timestamp === undefined || state.timestamp === 1)) {
-      state.timestamp = locateMostRecentDate();
+      state.timestamp = locateMostRecentDate().date;
     }
 
     fileStream.on('data', (chunk: string) => {
@@ -56,7 +56,7 @@ export async function getEvents(
           // If we've found a line break, we have the rest of the event
           currentEvent += res[0];
           chunkCursor += res[0].length;
-          parseEvent(currentEvent, state, options).forEach(e => allEvents.push(e));
+          parseEvent(currentEvent, state, options).forEach((e) => allEvents.push(e));
           if (shouldStopParsing(allEvents, options)) {
             fileStream.close();
             resolve([allEvents, {...state, bytesRead: bytesRead - res[1].length}]);
@@ -105,7 +105,7 @@ export async function getEvents(
             .slice(nextPrefixIndex + eventPrefix.length, lineBreakAfter)
             .split(/\r?\n/, 2)
             .join('');
-          parseEvent(eventString, state, options).forEach(e => allEvents.push(e));
+          parseEvent(eventString, state, options).forEach((e) => allEvents.push(e));
           if (shouldStopParsing(allEvents, options)) {
             fileStream.close();
             resolve([allEvents, {...state, bytesRead: bytesRead - chunk.length + lineBreakAfter}]);
@@ -118,7 +118,7 @@ export async function getEvents(
             nextLineBreakIndex--;
           }
           const eventString = chunk.slice(nextPrefixIndex + eventPrefix.length, nextLineBreakIndex);
-          parseEvent(eventString, state, options).forEach(e => allEvents.push(e));
+          parseEvent(eventString, state, options).forEach((e) => allEvents.push(e));
           if (shouldStopParsing(allEvents, options)) {
             fileStream.close();
             resolve([allEvents, {...state, bytesRead: bytesRead - chunk.length + nextLineBreakIndex}]);
@@ -132,7 +132,7 @@ export async function getEvents(
       fileStream.close();
       resolve([allEvents, {...state, bytesRead}]);
     });
-    fileStream.on('error', err => {
+    fileStream.on('error', (err) => {
       reject(err);
       fileStream.close();
     });

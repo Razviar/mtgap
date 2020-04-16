@@ -97,7 +97,6 @@ export async function userbytokenid(cmUserbyTokenid: string): Promise<UserResult
 export interface UserData {
   mtgaId: string;
   mtgaNick: string;
-  language: string;
   token: string;
 }
 

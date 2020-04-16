@@ -72,7 +72,7 @@ export async function getFileId(
       reject(new Error('Enable detailed logs in MTGA account and restart game...'));
       chunkStream.close();
     });
-    chunkStream.onError(err => {
+    chunkStream.onError((err) => {
       // Generic IO error. Should be very rare.
       reject(err);
       chunkStream.close();

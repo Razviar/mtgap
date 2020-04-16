@@ -43,7 +43,7 @@ export async function checkDetailedLogEnabled(
       resolve([false, {bytesRead: 0}]);
       chunkStream.close();
     });
-    chunkStream.onError(err => {
+    chunkStream.onError((err) => {
       // Generic IO error. Should be very rare.
       reject(err);
       chunkStream.close();

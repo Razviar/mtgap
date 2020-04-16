@@ -32,9 +32,11 @@ export interface ParsingMetadata {
   logSender: LogSenderParsingMetadata;
   logParser: LogParserParsingMetadata;
   detailedLogInfo: DetailedLogParsingMetadata;
+  userLoginData: UserLoginDataParsingMetadata;
   fileId: FileIdParsingMetadata;
   events: EventParsingMetadata[];
   eventPrefix: string; // '[UnityCrossThreadLogger]'
+  accountPrefix: string;
   userChangeEvent: string;
   matchStartEvent: string;
   matchEndEvent: string;
@@ -58,6 +60,12 @@ export interface LogSenderParsingMetadata {
 export interface LogParserParsingMetadata {
   readTimeout: number;
   batchSize: number;
+}
+
+export interface UserLoginDataParsingMetadata {
+  prefix: string;
+  userName: string;
+  userID: string;
 }
 
 export interface DetailedLogParsingMetadata {

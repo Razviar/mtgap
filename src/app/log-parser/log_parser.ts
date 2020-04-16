@@ -22,6 +22,8 @@ import {getAccountFromScreenName} from 'root/app/userswitch';
 import {error} from 'root/lib/logger';
 import {asArray, asMap, asNumber, asString, removeUndefined} from 'root/lib/type_utils';
 import {ProcessWatching} from 'root/main';
+import {locateMostRecentDate} from 'root/app/mtga_dir_ops';
+import {getUserCredentials} from './getusercredentials';
 
 export class LogParser {
   private shouldStop: boolean = false;
@@ -78,7 +80,7 @@ export class LogParser {
       return;
     }
     const path = this.getPath();
-    stat(path, async err => {
+    stat(path, async (err) => {
       try {
         // File doesn't exist
         if (err) {
@@ -87,7 +89,15 @@ export class LogParser {
         }
 
         // Fetching fileId
-        const [fileId] = await getFileId(path, {bytesRead: 0}, parsingMetadata);
+        //const [fileId] = await getFileId(path, {bytesRead: 0}, parsingMetadata);
+        const fileId = locateMostRecentDate().fileId;
+        if (fileId === undefined) {
+          throw new Error('Issue with MTGA path access...');
+        }
+        //console.log(fileId);
+
+        const [userCreds] = await getUserCredentials(path, {bytesRead: 0}, parsingMetadata);
+        this.handleUserChangeEvent(userCreds.AccountID, userCreds.DisplayName);
 
         // Detecting change in fileId
         let nextState: LogFileParsingState;
@@ -115,6 +125,9 @@ export class LogParser {
         // Parsing events
         const [events, newState] = await getEvents(path, nextState, parsingMetadata);
 
+        newState.screenName = userCreds.DisplayName;
+        newState.userId = userCreds.AccountID;
+
         // Send parsing date
         if (events.length > 0) {
           const lastEvent = events[events.length - 1];
@@ -133,12 +146,11 @@ export class LogParser {
           console.log(events);
         }*/
 
+        //console.log(parsingMetadata.matchStartEvent);
+
         // Checking events
         for (const event of events) {
           switch (event.name) {
-            case parsingMetadata.userChangeEvent:
-              this.handleUserChangeEvent(event);
-              break;
             case parsingMetadata.matchStartEvent:
               this.handleMatchStartEvent(event);
               break;
@@ -168,7 +180,7 @@ export class LogParser {
 
         // Filter useless events
         const eventsToSend = removeUndefined(
-          events.map(e => {
+          events.map((e) => {
             if (e.indicator === undefined) {
               return undefined;
             }
@@ -207,28 +219,20 @@ export class LogParser {
     });
   }
 
-  private handleUserChangeEvent(event: StatefulLogEvent): void {
+  private handleUserChangeEvent(newPlayerId: string, screenName: string): void {
     const account = settingsStore.getAccount();
-    const newPlayerId = asString(extractValue(event.data, ['params', 'payloadObject', 'playerId']));
-    const language = asString(
-      extractValue(event.data, ['params', 'payloadObject', 'settings', 'language', 'language'])
-    );
-    const screenName = asString(extractValue(event.data, ['params', 'payloadObject', 'screenName']));
-    if (language !== undefined) {
-      this.emitter.emit('language', language);
+
+    if (this.currentState?.state.userId !== newPlayerId) {
+      sendMessageToHomeWindow('set-screenname', {screenName, newPlayerId});
+      //console.log('setting screename');
     }
-    if (newPlayerId === undefined || language === undefined || screenName === undefined) {
-      error('Encountered invalid user change event', undefined, {...event});
-      return;
-    }
-    sendMessageToHomeWindow('set-screenname', {screenName, newPlayerId});
 
     //console.log(screenName);
     const overlayWindow = getOverlayWindow();
     if (account && settingsStore.get().overlay && overlayWindow !== undefined) {
       getUserMetadata(+account.uid)
-        .then(umd => sendMessageToOverlayWindow('set-userdata', umd))
-        .catch(err => {
+        .then((umd) => sendMessageToOverlayWindow('set-userdata', umd))
+        .catch((err) => {
           error('Failure to load User Metadata', err, {...account});
         });
     }
@@ -251,18 +255,17 @@ export class LogParser {
       const userData: UserData = {
         mtgaId: newPlayerId,
         mtgaNick: screenName,
-        language,
         token: newAccount.token,
       };
       const version = app.getVersion();
-      setuserdata(userData).catch(err =>
+      setuserdata(userData).catch((err) =>
         error('Failure to set user data during a user change event', err, {...userData, version})
       );
       setCreds('userchange');
     } else {
       sendMessageToHomeWindow('new-account', undefined);
       sendMessageToHomeWindow('show-prompt', {message: 'New MTGA account detected!', autoclose: 1000});
-      settings.awaiting = {playerId: newPlayerId, screenName, language};
+      settings.awaiting = {playerId: newPlayerId, screenName};
       this.stop();
     }
 
@@ -270,25 +273,60 @@ export class LogParser {
   }
 
   private handleMatchStartEvent(event: StatefulLogEvent): void {
-    const matchId = asString(extractValue(event.data, ['params', 'payloadObject', 'matchId']));
-    const gameNumber = asNumber(extractValue(event.data, ['params', 'payloadObject', 'gameNumber']));
-    const seatId = asNumber(extractValue(event.data, ['params', 'payloadObject', 'seatId']));
-    const eventId = asString(extractValue(event.data, ['params', 'payloadObject', 'eventId']));
+    //console.log(event);
+    const matchId = asString(extractValue(event.data, ['gameRoomInfo', 'gameRoomConfig', 'matchId']));
+    const state = asString(extractValue(event.data, ['gameRoomInfo', 'stateType']));
+    const eventId = asString(extractValue(event.data, ['gameRoomInfo', 'gameRoomConfig', 'eventId']));
+
+    /*console.log(matchId);
+    console.log(state);
+    console.log(eventId);*/
+
+    if (state === 'MatchGameRoomStateType_Playing') {
+      const players = asArray(extractValue(event.data, ['gameRoomInfo', 'gameRoomConfig', 'reservedPlayers']));
+      if (players === undefined) {
+        error('Encountered invalid match start event', undefined, {...event});
+        return;
+      }
+      let seatId = 0;
+
+      players.forEach((player) => {
+        const userId = asString(extractValue(player, ['userId']));
+        const teamId = asNumber(extractValue(player, ['teamId']));
+        if (userId === this.currentState?.state.userId && teamId !== undefined) {
+          seatId = teamId;
+        }
+      });
+
+      if (matchId === undefined || eventId === undefined) {
+        error('Encountered invalid match start event', undefined, {...event});
+        return;
+      }
+
+      console.log({matchId, gameNumber: 1, seatId, eventId});
+
+      this.emitter.emit('match-started', {matchId, gameNumber: 1, seatId, eventId});
+    }
+
+    /*const matchId = asString(extractValue(event.data, ['payload', 'matchId']));
+    const gameNumber = asNumber(extractValue(event.data, ['payload', 'gameNumber']));
+    const seatId = asNumber(extractValue(event.data, ['payload', 'seatId']));
+    const eventId = asString(extractValue(event.data, ['payload', 'eventId']));
     if (matchId === undefined || gameNumber === undefined || seatId === undefined || eventId === undefined) {
       error('Encountered invalid match start event', undefined, {...event});
       return;
     }
     //console.log('match-started');
-    this.emitter.emit('match-started', {matchId, gameNumber, seatId, eventId});
+    this.emitter.emit('match-started', {matchId, gameNumber, seatId, eventId});*/
   }
 
   private handleMatchEndEvent(event: StatefulLogEvent): void {
-    const matchId = asString(extractValue(event.data, ['params', 'payloadObject', 'matchId']));
+    /*const matchId = asString(extractValue(event.data, ['params', 'payloadObject', 'matchId']));
     if (matchId === undefined) {
       error('Encountered invalid match end event', undefined, {...event});
       return;
-    }
-    this.emitter.emit('match-over', matchId);
+    }*/
+    this.emitter.emit('match-over', undefined);
   }
 
   private handleCardPlayedEvent(event: StatefulLogEvent): void {
@@ -329,7 +367,7 @@ export class LogParser {
     }
     const mainDeck: {[index: number]: number} = {};
     let cid = 0;
-    mainDeckRaw.forEach(deckEl => {
+    mainDeckRaw.forEach((deckEl) => {
       if (+deckEl > 100) {
         cid = +deckEl;
       } else if (cid !== 0) {
@@ -354,8 +392,8 @@ export class LogParser {
       const overlayWindow = getOverlayWindow();
       if (account && settingsStore.get().overlay && overlayWindow !== undefined) {
         getUserMetadata(+account.uid)
-          .then(umd => sendMessageToOverlayWindow('set-userdata', umd))
-          .catch(err => {
+          .then((umd) => sendMessageToOverlayWindow('set-userdata', umd))
+          .catch((err) => {
             error('Failure to load User Metadata', err, {...account});
           });
       }

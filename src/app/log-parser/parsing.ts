@@ -54,7 +54,7 @@ export function handleUserChangeEvent(event: LogEvent, state: LogFileParsingStat
 }
 
 export function handleMatchStartEvent(event: LogEvent, state: LogFileParsingState): void {
-  const matchId = asString(extractValue(event.data, ['params', 'payloadObject', 'matchId']));
+  const matchId = asString(extractValue(event.data, ['gameRoomInfo', 'gameRoomConfig', 'matchId']));
   state.matchId = matchId;
 }
 

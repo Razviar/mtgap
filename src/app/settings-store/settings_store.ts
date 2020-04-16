@@ -119,7 +119,6 @@ export interface SettingsV0 extends SettingsBase {
 export interface Player {
   playerId: string;
   screenName: string;
-  language: string;
 }
 
 function asOverlaySettings(anyMap: AnyMap | undefined): OverlaySettingsV0 | undefined {
@@ -365,13 +364,12 @@ function asPlayer(anyMap: AnyMap | undefined): Player | undefined {
 
   const playerId = asString(anyMap['playerId']);
   const screenName = asString(anyMap['screenName']);
-  const language = asString(anyMap['language']);
 
-  if (playerId === undefined || screenName === undefined || language === undefined) {
+  if (playerId === undefined || screenName === undefined) {
     return undefined;
   }
 
-  return {playerId, screenName, language};
+  return {playerId, screenName};
 }
 
 function asAccountV0(anyMap: AnyMap): AccountV0[] {

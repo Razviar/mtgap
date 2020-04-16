@@ -46,14 +46,6 @@ export function createGlobalLogParser(): LogParser {
     }
   });
 
-  logParser.emitter.on('language', (data) => {
-    const account = settingsStore.getAccount();
-    if (account !== undefined && account.player) {
-      account.player.language = data;
-      settingsStore.save();
-    }
-  });
-
   logParser.emitter.on('error', (msg) => {
     sendMessageToHomeWindow('show-status', {message: msg, color: '#cc2d2d'});
   });
@@ -200,16 +192,19 @@ export async function parseOldLogs(
   );
 
   // Send events to server
-  // console.log(eventsToSend);
+
   if (dev) {
     //console.log(eventsToSend);
-    eventsToSend.forEach((writeEvent) => {
-      const path = join(app.getPath('userData'), 'ParsedLogs', `parsed-data-${writeEvent.indicator}.json`);
-      writeFileSync(path, JSON.stringify(writeEvent), {flag: 'a'});
-    });
     if (forceUpload) {
-      console.log('doing force upload');
+      //console.log('doing force upload');
+      //console.log(eventsToSend);
       sendEventsToServer(eventsToSend, parsingMetadata.logSender, newState, undefined, forceUpload);
+    } else {
+      //console.log(eventsToSend);
+      eventsToSend.forEach((writeEvent) => {
+        const path = join(app.getPath('userData'), 'ParsedLogs', `parsed-data-${writeEvent.indicator}.json`);
+        writeFileSync(path, JSON.stringify(writeEvent), {flag: 'a'});
+      });
     }
   } else {
     sendEventsToServer(eventsToSend, parsingMetadata.logSender, newState);
@@ -219,7 +214,7 @@ export async function parseOldLogs(
   await sleep(100);
 
   // Triggering next batch
-  return parseOldLogs(logpath, parsingMetadata, newState, dev);
+  return parseOldLogs(logpath, parsingMetadata, newState, dev, forceUpload);
 }
 
 function handleUserChangeEvent(event: StatefulLogEvent): boolean {
@@ -239,7 +234,7 @@ function handleUserChangeEvent(event: StatefulLogEvent): boolean {
       message: 'New MTGA account found in the old logs! Please Skip or Sync it and repeat old logs scanning...',
       autoclose: 1000,
     });
-    settings.awaiting = {playerId: newPlayerId, screenName, language};
+    settings.awaiting = {playerId: newPlayerId, screenName};
     settingsStore.save();
     return true;
   }

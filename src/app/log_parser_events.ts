@@ -19,7 +19,7 @@ interface LogParserEvents {
     gameNumber: number;
     eventId: string;
   };
-  'match-over': string;
+  'match-over': undefined;
   'card-played': CardPlayed;
   mulligan: boolean;
   newdata: {
