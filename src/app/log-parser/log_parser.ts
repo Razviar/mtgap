@@ -222,19 +222,19 @@ export class LogParser {
   private handleUserChangeEvent(newPlayerId: string, screenName: string): void {
     const account = settingsStore.getAccount();
 
-    if (this.currentState?.state.userId !== newPlayerId) {
+    if (this.currentState && this.currentState.state.userId !== newPlayerId) {
       sendMessageToHomeWindow('set-screenname', {screenName, newPlayerId});
       //console.log('setting screename');
-    }
 
-    //console.log(screenName);
-    const overlayWindow = getOverlayWindow();
-    if (account && settingsStore.get().overlay && overlayWindow !== undefined) {
-      getUserMetadata(+account.uid)
-        .then((umd) => sendMessageToOverlayWindow('set-userdata', umd))
-        .catch((err) => {
-          error('Failure to load User Metadata', err, {...account});
-        });
+      //console.log(screenName);
+      const overlayWindow = getOverlayWindow();
+      if (account && settingsStore.get().overlay && overlayWindow !== undefined) {
+        getUserMetadata(+account.uid)
+          .then((umd) => sendMessageToOverlayWindow('set-userdata', umd))
+          .catch((err) => {
+            error('Failure to load User Metadata', err, {...account});
+          });
+      }
     }
 
     if (account && account.player && account.player.playerId === newPlayerId) {
