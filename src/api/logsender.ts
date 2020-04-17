@@ -16,6 +16,9 @@ let logSenderParsingMetadata: LogSenderParsingMetadata = {
   slowTimeout: 5000,
   batchSize: 50,
   sendingRates: {},
+  sendOnlyTheLast: {
+    '2': 1,
+  },
   forceUpload: false,
 };
 
@@ -43,6 +46,9 @@ async function uploadpackfile(results: ParseResults[], version: string): Promise
   try {
     const res = await Request.gzip<ParseResults[]>(`/mtg/donew2.php?cmd=cm_uploadpackfile&version=${version}`, results);
     const resMap = asMap(res);
+    /*console.log('!!!');
+    console.log(res);
+    console.log('!!!');*/
     if (resMap === undefined) {
       return false;
     }
@@ -83,15 +89,20 @@ async function sendNextBatch(): Promise<void> {
   // Iterate buffer and take batchSize number of events
   for (const part of internalBuffer) {
     if (events.length === 0 || events.length + part.events.length <= logSenderParsingMetadata.batchSize) {
-      for (const event of part.events) {
+      part.events.forEach((event, evIndex) => {
         let sendingRate = logSenderParsingMetadata.sendingRates[event.indicator] as number | undefined;
+        const onlyLast = logSenderParsingMetadata.sendOnlyTheLast[event.indicator] as number | undefined;
+        let skip = false;
+        if (onlyLast === 1) {
+          //Code to test if this is the latest event of it's kind
+        }
         if (sendingRate === undefined) {
           sendingRate = 1;
         }
-        if (Math.random() <= sendingRate) {
+        if (Math.random() <= sendingRate && !skip) {
           events.push(event);
         }
-      }
+      });
       currentNumberOfEvents++;
     } else {
       break;
@@ -114,6 +125,8 @@ async function sendNextBatch(): Promise<void> {
     }
     const ok = await uploadpackfile(events, app.getVersion());
     if (!ok) {
+      //console.log(ok);
+      //console.log(events);
       sendMessageToHomeWindow('network-status', {active: false, message: NetworkStatusMessage.Disconnected});
       throw new Error("Couldn't send to server");
     }
@@ -139,6 +152,7 @@ async function sendNextBatch(): Promise<void> {
   } catch (e) {
     // Error has occured, slowing down sending rate
     hasErrored = true;
+    console.log(e);
     error(String(e), e, {}, true);
     sendMessageToHomeWindow('show-status', {message: 'Connection Error', color: '#cc2d2d'});
   } finally {
