@@ -89,20 +89,15 @@ async function sendNextBatch(): Promise<void> {
   // Iterate buffer and take batchSize number of events
   for (const part of internalBuffer) {
     if (events.length === 0 || events.length + part.events.length <= logSenderParsingMetadata.batchSize) {
-      part.events.forEach((event, evIndex) => {
+      for (const event of part.events) {
         let sendingRate = logSenderParsingMetadata.sendingRates[event.indicator] as number | undefined;
-        const onlyLast = logSenderParsingMetadata.sendOnlyTheLast[event.indicator] as number | undefined;
-        let skip = false;
-        if (onlyLast === 1) {
-          //Code to test if this is the latest event of it's kind
-        }
         if (sendingRate === undefined) {
           sendingRate = 1;
         }
-        if (Math.random() <= sendingRate && !skip) {
+        if (Math.random() <= sendingRate) {
           events.push(event);
         }
-      });
+      }
       currentNumberOfEvents++;
     } else {
       break;
@@ -152,7 +147,7 @@ async function sendNextBatch(): Promise<void> {
   } catch (e) {
     // Error has occured, slowing down sending rate
     hasErrored = true;
-    console.log(e);
+    //console.log(e);
     error(String(e), e, {}, true);
     sendMessageToHomeWindow('show-status', {message: 'Connection Error', color: '#cc2d2d'});
   } finally {

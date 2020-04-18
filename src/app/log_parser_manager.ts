@@ -1,12 +1,12 @@
 import {app} from 'electron';
 import {stat, statSync, writeFileSync} from 'fs';
-import {join} from 'path';
+import {basename, join} from 'path';
 import {promisify} from 'util';
 
 import {sendEventsToServer} from 'root/api/logsender';
 import {checkDetailedLogEnabled} from 'root/app/log-parser/detailed_log';
 import {getEvents} from 'root/app/log-parser/events';
-import {getFileId} from 'root/app/log-parser/file_id';
+import {getUserCredentials} from 'root/app/log-parser/getusercredentials';
 import {LogParser} from 'root/app/log-parser/log_parser';
 import {LogFileParsingState, ParsingMetadata, StatefulLogEvent} from 'root/app/log-parser/model';
 import {extractValue} from 'root/app/log-parser/parsing';
@@ -129,10 +129,14 @@ export async function parseOldLogs(
     try {
       const fileCTime = statSync(logpath).ctime;
       const [detailedLogEnabled, detailedLogState] = await checkDetailedLogEnabled(logpath, parsingMetadata);
+      const [userCreds] = await getUserCredentials(logpath, {bytesRead: 0}, parsingMetadata);
+      if (handleUserChangeEvent(userCreds.AccountID, userCreds.DisplayName)) {
+        return 2;
+      }
       if (!detailedLogEnabled) {
         return 1;
       }
-      const [fileId] = await getFileId(logpath, {bytesRead: 0}, parsingMetadata);
+      const fileId = basename(logpath);
       if (oldStore.checkLog(fileId, logpath)) {
         return 1;
       }
@@ -141,6 +145,8 @@ export async function parseOldLogs(
         oldStore.saveLogName(fileCTime.getTime(), logpath);
       }
       currentState = detailedLogState;
+      currentState.screenName = userCreds.DisplayName;
+      currentState.userId = userCreds.AccountID;
       currentState.timestamp = fileCTime.getTime();
     } catch (olde) {
       return 1;
@@ -157,18 +163,6 @@ export async function parseOldLogs(
   // Check if end of parsing
   if (events.length === 0) {
     return 0;
-  }
-
-  if (!dev) {
-    for (const event of events) {
-      switch (event.name) {
-        case parsingMetadata.userChangeEvent:
-          if (handleUserChangeEvent(event)) {
-            return 2;
-          }
-          break;
-      }
-    }
   }
 
   // Filter useless events
@@ -217,15 +211,8 @@ export async function parseOldLogs(
   return parseOldLogs(logpath, parsingMetadata, newState, dev, forceUpload);
 }
 
-function handleUserChangeEvent(event: StatefulLogEvent): boolean {
+function handleUserChangeEvent(newPlayerId: string, screenName: string): boolean {
   const settings = settingsStore.get();
-  const newPlayerId = asString(extractValue(event.data, ['params', 'payloadObject', 'playerId']));
-  const language = asString(extractValue(event.data, ['params', 'payloadObject', 'settings', 'language', 'language']));
-  const screenName = asString(extractValue(event.data, ['params', 'payloadObject', 'screenName']));
-  if (newPlayerId === undefined || language === undefined || screenName === undefined) {
-    error('Encountered invalid user change event', undefined, {...event});
-    return false;
-  }
   const newAccount = getAccountFromScreenName(screenName);
   if (newAccount === undefined) {
     sendMessageToHomeWindow('set-screenname', {screenName, newPlayerId});

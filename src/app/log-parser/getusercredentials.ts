@@ -28,7 +28,7 @@ export async function getUserCredentials(
 
         resolve([
           {DisplayName, AccountID},
-          {...state, bytesRead: bytesRead + DisplayNameStart + DisplayName.length + 1},
+          {...state, bytesRead: bytesRead + AccountIDStart + AccountID.length + 1},
         ]);
 
         chunkStream.close();
@@ -38,7 +38,7 @@ export async function getUserCredentials(
     chunkStream.onEnd(() => {
       // This would happen if we can find a valid "file id" event in the log file. Should be very rare since
       // the event is logged very early.
-      reject(new Error('Unable to get user data...'));
+      reject('Awaiting user credentials in log (might take 5-30 seconds)...');
       chunkStream.close();
     });
     chunkStream.onError((err) => {

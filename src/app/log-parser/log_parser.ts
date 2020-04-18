@@ -9,11 +9,12 @@ import {setuserdata, UserData} from 'root/api/userbytokenid';
 import {setCreds} from 'root/app/auth';
 import {checkDetailedLogEnabled} from 'root/app/log-parser/detailed_log';
 import {getEvents} from 'root/app/log-parser/events';
-import {getFileId} from 'root/app/log-parser/file_id';
+import {getUserCredentials} from 'root/app/log-parser/getusercredentials';
 import {LogFileParsingState, ParsingMetadata, StatefulLogEvent} from 'root/app/log-parser/model';
 import {extractValue} from 'root/app/log-parser/parsing';
 import {LogParserEventEmitter} from 'root/app/log_parser_events';
 import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
+import {locateMostRecentDate} from 'root/app/mtga_dir_ops';
 import {oldStore} from 'root/app/old_store';
 import {getOverlayWindow} from 'root/app/overlay_window';
 import {settingsStore} from 'root/app/settings-store/settings_store';
@@ -22,8 +23,6 @@ import {getAccountFromScreenName} from 'root/app/userswitch';
 import {error} from 'root/lib/logger';
 import {asArray, asMap, asNumber, asString, removeUndefined} from 'root/lib/type_utils';
 import {ProcessWatching} from 'root/main';
-import {locateMostRecentDate} from 'root/app/mtga_dir_ops';
-import {getUserCredentials} from './getusercredentials';
 
 export class LogParser {
   private shouldStop: boolean = false;
@@ -80,6 +79,7 @@ export class LogParser {
       return;
     }
     const path = this.getPath();
+    const LogFromMTGAFolder = locateMostRecentDate();
     stat(path, async (err) => {
       try {
         // File doesn't exist
@@ -90,14 +90,18 @@ export class LogParser {
 
         // Fetching fileId
         //const [fileId] = await getFileId(path, {bytesRead: 0}, parsingMetadata);
-        const fileId = locateMostRecentDate().fileId;
-        if (fileId === undefined) {
+        const fileId = LogFromMTGAFolder.fileId;
+        if (fileId === undefined || LogFromMTGAFolder.logPath === undefined) {
           throw new Error('Issue with MTGA path access...');
         }
         //console.log(fileId);
 
-        const [userCreds] = await getUserCredentials(path, {bytesRead: 0}, parsingMetadata);
-        this.handleUserChangeEvent(userCreds.AccountID, userCreds.DisplayName);
+        const [userCreds] = await getUserCredentials(LogFromMTGAFolder.logPath, {bytesRead: 0}, parsingMetadata);
+        //console.log(userCreds);
+
+        if (!this.handleUserChangeEvent(userCreds.AccountID, userCreds.DisplayName)) {
+          throw new Error('Parsing paused: new user account must be synced or skipped');
+        }
 
         // Detecting change in fileId
         let nextState: LogFileParsingState;
@@ -122,11 +126,11 @@ export class LogParser {
           nextState = this.currentState.state;
         }
 
+        nextState.screenName = userCreds.DisplayName;
+        nextState.userId = userCreds.AccountID;
+
         // Parsing events
         const [events, newState] = await getEvents(path, nextState, parsingMetadata);
-
-        newState.screenName = userCreds.DisplayName;
-        newState.userId = userCreds.AccountID;
 
         // Send parsing date
         if (events.length > 0) {
@@ -219,14 +223,13 @@ export class LogParser {
     });
   }
 
-  private handleUserChangeEvent(newPlayerId: string, screenName: string): void {
+  private handleUserChangeEvent(newPlayerId: string, screenName: string): boolean {
     const account = settingsStore.getAccount();
 
-    if (this.currentState && this.currentState.state.userId !== newPlayerId) {
+    if (!this.currentState || this.currentState.state.userId !== newPlayerId) {
       sendMessageToHomeWindow('set-screenname', {screenName, newPlayerId});
-      //console.log('setting screename');
-
-      //console.log(screenName);
+      /*console.log('setting screename');
+      console.log(screenName);*/
       const overlayWindow = getOverlayWindow();
       if (account && settingsStore.get().overlay && overlayWindow !== undefined) {
         getUserMetadata(+account.uid)
@@ -238,7 +241,7 @@ export class LogParser {
     }
 
     if (account && account.player && account.player.playerId === newPlayerId) {
-      return;
+      return true;
     }
 
     sendMessageToHomeWindow('show-status', {message: 'New User Detected!', color: '#dbb63d'});
@@ -270,6 +273,7 @@ export class LogParser {
     }
 
     settingsStore.save();
+    return false;
   }
 
   private handleMatchStartEvent(event: StatefulLogEvent): void {
@@ -303,7 +307,7 @@ export class LogParser {
         return;
       }
 
-      console.log({matchId, gameNumber: 1, seatId, eventId});
+      //console.log({matchId, gameNumber: 1, seatId, eventId});
 
       this.emitter.emit('match-started', {matchId, gameNumber: 1, seatId, eventId});
     }
