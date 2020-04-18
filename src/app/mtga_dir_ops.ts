@@ -7,16 +7,39 @@ import {error} from 'root/lib/logger';
 
 export function locateMtgaDir(checkPath: string | undefined): boolean {
   let pth = '';
-  if (checkPath !== undefined) {
+  if (checkPath !== undefined && fs.existsSync(checkPath)) {
     pth = checkPath;
   } else {
-    const pathElements = ['Wizards of the Coast', 'MTGA'];
     const x64 = process.arch === 'x64' || process.env.hasOwnProperty('PROCESSOR_ARCHITEW6432');
-    const progFiles = process.env[`ProgramFiles${x64 ? '(x86)' : ''}`];
+    const progFiles = process.env['ProgramFiles'];
+
     if (progFiles === undefined) {
       return false;
     }
-    pth = join(progFiles, ...pathElements);
+
+    const MtgaPathLocator = [
+      [progFiles, 'Wizards of the Coast', 'MTGA'],
+      [progFiles, 'Epic Games', 'MagicTheGathering'],
+    ];
+
+    if (x64) {
+      const progFilesx86 = process.env['ProgramFiles(x86)'];
+      if (progFilesx86 !== undefined) {
+        MtgaPathLocator.push([progFilesx86, 'Wizards of the Coast', 'MTGA']);
+        MtgaPathLocator.push([progFilesx86, 'Epic Games', 'MagicTheGathering']);
+      }
+    }
+    let pathFound = false;
+    MtgaPathLocator.forEach((possiblePathElements) => {
+      if (pathFound) {
+        return;
+      }
+      const testPth = join(...possiblePathElements);
+      if (fs.existsSync(testPth)) {
+        pth = testPth;
+        pathFound = true;
+      }
+    });
   }
   let result = false;
   const settings = settingsStore.get();
