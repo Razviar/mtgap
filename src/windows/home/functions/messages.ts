@@ -125,7 +125,6 @@ export function installHomeMessages(): void {
       output += `<div class='row'>
             <div class='cell'><strong class="white">${account.nick}</strong></div>
             <div class='cell'>${account.player ? account.player.screenName : ''}</div>
-            <div class='cell'>${account.player ? account.player.language : ''}</div>
             <div class='cell'>${account.token}</div>
             <div class='cell'><span class="link" data-link="https://mtgarena.pro/sync/">Unlink</span></div>
             </div>`;

@@ -37,7 +37,6 @@ export function setupIpcMain(app: App): void {
         const userData: UserData = {
           mtgaId: awaiting.playerId,
           mtgaNick: awaiting.screenName,
-          language: awaiting.language,
           token: newAccount.token,
         };
 
