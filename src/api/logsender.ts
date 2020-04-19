@@ -22,6 +22,30 @@ let logSenderParsingMetadata: LogSenderParsingMetadata = {
   forceUpload: false,
 };
 
+function clearIndicatorInBuffer(indicator: number): void {
+  for (const buffer of internalBuffer) {
+    buffer.events = buffer.events.filter((event) => event.indicator !== indicator);
+  }
+}
+
+// Network improvement for redundant events
+function filterOnlyLastEvents(events: ParseResults[]): ParseResults[] {
+  const res: ParseResults[] = [];
+  for (const event of events) {
+    if (logSenderParsingMetadata.sendOnlyTheLast.hasOwnProperty(event.indicator)) {
+      // Removing from all events
+      clearIndicatorInBuffer(event.indicator);
+      // Removing from current batch
+      const notLastIndex = res.findIndex((_) => _.indicator === event.indicator);
+      if (notLastIndex > -1) {
+        res.splice(notLastIndex, 1);
+      }
+    }
+    res.push(event);
+  }
+  return res;
+}
+
 // Public function to send events to server, non-blocking
 export function sendEventsToServer(
   events: ParseResults[],
@@ -37,7 +61,7 @@ export function sendEventsToServer(
   if (events.length === 0) {
     return;
   }
-  internalBuffer.push({events, state, fileId});
+  internalBuffer.push({events: filterOnlyLastEvents(events), state, fileId});
   setTimeout(sendNextBatch, logSenderParsingMetadata.fastTimeout);
 }
 

@@ -18,7 +18,7 @@ export function sumOfObject(obj: any): number {
   if (t !== 'object' || obj === null) {
     return 0;
   }
-  Object.keys(obj).forEach(key => (i += parseInt(obj[key], 10)));
+  Object.keys(obj).forEach((key) => (i += parseInt(obj[key], 10)));
   return i;
 }
 

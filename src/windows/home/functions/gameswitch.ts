@@ -29,11 +29,11 @@ export function activateGame(game: string): void {
       HomePageElements.runeterra.classList.add('hidden');
       HomePageElements.header.classList.add('runeterraHeader');
 
-      Array.from(HomePageElements.MtgaTab).forEach(el => {
+      Array.from(HomePageElements.MtgaTab).forEach((el) => {
         el.classList.add('hidden');
       });
 
-      Array.from(HomePageElements.LorTab).forEach(el => {
+      Array.from(HomePageElements.LorTab).forEach((el) => {
         el.classList.remove('hidden');
       });
       break;
@@ -45,11 +45,11 @@ export function activateGame(game: string): void {
       HomePageElements.runeterra.classList.remove('hidden');
       HomePageElements.header.classList.remove('runeterraHeader');
 
-      Array.from(HomePageElements.MtgaTab).forEach(el => {
+      Array.from(HomePageElements.MtgaTab).forEach((el) => {
         el.classList.remove('hidden');
       });
 
-      Array.from(HomePageElements.LorTab).forEach(el => {
+      Array.from(HomePageElements.LorTab).forEach((el) => {
         el.classList.add('hidden');
       });
       break;

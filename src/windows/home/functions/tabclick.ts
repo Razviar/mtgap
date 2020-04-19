@@ -4,7 +4,7 @@ export const tabclick = (event: Event) => {
   const cl: HTMLElement = event.target as HTMLElement;
   const activate = cl.getAttribute('data-activate');
 
-  Array.from(HomePageElements.buttons).forEach(el => {
+  Array.from(HomePageElements.buttons).forEach((el) => {
     const elem = el as HTMLElement;
     const clas = elem.classList;
     if (elem.getAttribute('data-activate') === activate) {
@@ -13,7 +13,7 @@ export const tabclick = (event: Event) => {
       clas.remove('active');
     }
   });
-  Array.from(HomePageElements.tabs).forEach(el => {
+  Array.from(HomePageElements.tabs).forEach((el) => {
     const elem = el as HTMLElement;
     const clas = elem.classList;
     if (elem.id === activate) {
