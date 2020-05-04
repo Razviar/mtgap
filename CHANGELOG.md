@@ -1,3 +1,8 @@
+## v.2.0.44 released 04/05/2020
+* Fixed multiple accounts handling
+* Fixed critical bugs
+* Updated deps
+
 ## v.2.0.39 released 01/04/2020
 * Fixed critical bugs
 * Updated deps
