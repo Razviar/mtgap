@@ -10,6 +10,7 @@ import {setCreds} from 'root/app/auth';
 import {checkDetailedLogEnabled} from 'root/app/log-parser/detailed_log';
 import {getEvents} from 'root/app/log-parser/events';
 import {getUserCredentials} from 'root/app/log-parser/getusercredentials';
+import {initialpositioner} from 'root/app/log-parser/initialpositioner';
 import {LogFileParsingState, ParsingMetadata, StatefulLogEvent} from 'root/app/log-parser/model';
 import {extractValue} from 'root/app/log-parser/parsing';
 import {LogParserEventEmitter} from 'root/app/log_parser_events';
@@ -111,7 +112,7 @@ export class LogParser {
             throw new Error('Enable Detailed Logs in MTGA account settings!');
           }
           nextState = detailedLogState;
-
+          nextState.bytesRead = await initialpositioner(path, userCreds.AccountID, parsingMetadata);
           oldStore.saveFileID(new Date().getTime(), fileId);
 
           if (!ProcessWatching.gameRunningState) {

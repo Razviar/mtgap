@@ -9,13 +9,12 @@ import {getEvents} from 'root/app/log-parser/events';
 import {getUserCredentials} from 'root/app/log-parser/getusercredentials';
 import {LogParser} from 'root/app/log-parser/log_parser';
 import {LogFileParsingState, ParsingMetadata, StatefulLogEvent} from 'root/app/log-parser/model';
-import {extractValue} from 'root/app/log-parser/parsing';
 import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
 import {oldStore} from 'root/app/old_store';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {getAccountFromScreenName} from 'root/app/userswitch';
 import {error} from 'root/lib/logger';
-import {asMap, asString, removeUndefined} from 'root/lib/type_utils';
+import {asMap, removeUndefined} from 'root/lib/type_utils';
 import {sleep} from 'root/lib/utils';
 
 export type MaybeLogParser = LogParser | undefined;
@@ -130,8 +129,10 @@ export async function parseOldLogs(
       const fileCTime = statSync(logpath).ctime;
       const [detailedLogEnabled, detailedLogState] = await checkDetailedLogEnabled(logpath, parsingMetadata);
       const [userCreds] = await getUserCredentials(logpath, {bytesRead: 0}, parsingMetadata);
-      if (handleUserChangeEvent(userCreds.AccountID, userCreds.DisplayName)) {
-        return 2;
+      if (!dev) {
+        if (handleUserChangeEvent(userCreds.AccountID, userCreds.DisplayName)) {
+          return 2;
+        }
       }
       if (!detailedLogEnabled) {
         return 1;

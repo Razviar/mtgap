@@ -38,7 +38,7 @@ export async function getUserCredentials(
     chunkStream.onEnd(() => {
       // This would happen if we can find a valid "file id" event in the log file. Should be very rare since
       // the event is logged very early.
-      reject('Awaiting user credentials in log (might take 5-30 seconds)...');
+      reject('Awaiting user credentials to appear in log...');
       chunkStream.close();
     });
     chunkStream.onError((err) => {

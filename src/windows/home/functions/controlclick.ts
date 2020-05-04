@@ -22,6 +22,9 @@ export function controlClick(event: Event): void {
       });
       break;
     case 'connect-acc':
+      if (currentCreds.currentMtgaNick === '' && currentCreds.currentMtgaID === '') {
+        break;
+      }
       cl.innerHTML = 'Awaiting...';
       sendMessageToIpcMain('start-sync', {
         currentMtgaNick: currentCreds.currentMtgaNick,

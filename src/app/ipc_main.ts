@@ -12,6 +12,7 @@ import {withHomeWindow} from 'root/app/main_window';
 import {onMessageFromBrowserWindow, sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
 import {locateMtgaDir, ShadowLogParse} from 'root/app/mtga_dir_ops';
 import {oldLogHandlerStatus, parseOldLogsHandler} from 'root/app/old-log-handler';
+import {oldStore} from 'root/app/old_store';
 import {withOverlayWindow} from 'root/app/overlay_window';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {stateStore} from 'root/app/state_store';
@@ -536,6 +537,7 @@ export function setupIpcMain(app: App): void {
   onMessageFromBrowserWindow('wipe-all', () => {
     settingsStore.wipe();
     stateStore.wipe();
+    oldStore.wipe();
     sendMessageToHomeWindow('show-prompt', {
       message: 'All settings have been wiped',
       autoclose: 1000,
