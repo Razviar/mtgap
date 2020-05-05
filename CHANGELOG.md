@@ -1,3 +1,8 @@
+## v.2.0.45 released 05/05/2020
+* Fixed Mulligan handling
+* Fixed Accounts tab to display actual data
+* Updated deps
+
 ## v.2.0.44 released 04/05/2020
 * Fixed multiple accounts handling
 * Fixed critical bugs
