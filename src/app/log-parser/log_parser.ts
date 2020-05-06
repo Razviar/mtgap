@@ -165,6 +165,9 @@ export class LogParser {
             case parsingMetadata.cardPlayedEvent:
               this.handleCardPlayedEvent(event);
               break;
+            case parsingMetadata.mulliganEvent:
+              this.handleMulliganEvent(event);
+              break;
             case parsingMetadata.deckSubmissionEvent:
               this.handleDeckSubmissionEvent(event);
               break;
@@ -332,6 +335,13 @@ export class LogParser {
       return;
     }*/
     this.emitter.emit('match-over', undefined);
+  }
+
+  private handleMulliganEvent(event: StatefulLogEvent): void {
+    const mulliganCount = asNumber(extractValue(event.data, ['mulliganCount']));
+    if (mulliganCount !== undefined && mulliganCount > 0) {
+      this.emitter.emit('mulligan', true);
+    }
   }
 
   private handleCardPlayedEvent(event: StatefulLogEvent): void {

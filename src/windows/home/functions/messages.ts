@@ -117,16 +117,15 @@ export function installHomeMessages(): void {
     let output = `<div class="table"><div class='row'>
           <div class='cell header white'><strong>Nick</strong></div>
           <div class='cell header white'><strong>MTGA nick</strong></div>
-          <div class='cell header white'><strong>Language</strong></div>
-          <div class='cell header white'><strong>Token</strong></div>
-          <div class='cell header white'><strong>Actions</strong></div>
+          <div class='cell header white'><strong>MTGA ID</strong></div>
+          <div class='cell header white'><strong>MTGAPro User ID</strong></div>
           </div>`;
     newSettings.accounts.forEach((account) => {
       output += `<div class='row'>
             <div class='cell'><strong class="white">${account.nick}</strong></div>
             <div class='cell'>${account.player ? account.player.screenName : ''}</div>
-            <div class='cell'>${account.token}</div>
-            <div class='cell'><span class="link" data-link="https://mtgarena.pro/sync/">Unlink</span></div>
+            <div class='cell'>${account.player ? account.player.playerId : ''}</div>
+            <div class='cell'>${account.uid}</div>
             </div>`;
     });
     output += '</div>';

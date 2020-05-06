@@ -40,6 +40,7 @@ export interface ParsingMetadata {
   userChangeEvent: string;
   matchStartEvent: string;
   matchEndEvent: string;
+  mulliganEvent: string;
   cardPlayedEvent: string;
   deckSubmissionEvent: string;
   draftStartEvent: string;

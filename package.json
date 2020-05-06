@@ -1,7 +1,7 @@
 {
   "name": "mtgaprotracker",
   "productName": "mtgaprotracker",
-  "version": "2.0.44",
+  "version": "2.0.45",
   "description": "MTG Arena Pro Tracker",
   "main": ".webpack/main",
   "scripts": {
@@ -31,7 +31,7 @@
     "error-stack-parser": "2.0.6",
     "find-process": "1.4.3",
     "lodash": "4.17.15",
-    "moment": "2.25.1",
+    "moment": "2.25.3",
     "npm-check-updates": "^4.1.2",
     "pretty-checkbox": "3.0.3",
     "ps-list": "7.0.0",
