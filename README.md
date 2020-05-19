@@ -26,6 +26,6 @@ App crashes or not starting? No recent updates uploaded? Follow steps:
 1. Make sure you have latest version. It's updated to be compatible with latest MTGA version.
 2. Try to stop tracker and run it again
 3. Try to wipe accounts data and sync again.
-4. Try to locate log file manually (serach for output_log.txt, NOT the logs .log files in MTGA folder inside Program Files!)
+4. Try to locate log file manually (serach for Player.log, NOT the logs .log files in MTGA folder inside Program Files!)
 5. Try to reboot your PC.
 6. Check if antiviruses or firewalls are blocking app traffic, add app to exception.

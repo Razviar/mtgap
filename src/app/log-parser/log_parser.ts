@@ -47,7 +47,7 @@ export class LogParser {
     if (specialpath !== undefined) {
       return specialpath;
     }
-    return join(app.getPath('appData'), 'LocalLow', 'Wizards Of The Coast', 'MTGA', 'output_log.txt').replace(
+    return join(app.getPath('appData'), 'LocalLow', 'Wizards Of The Coast', 'MTGA', 'Player.log').replace(
       'Roaming\\',
       ''
     );
