@@ -122,7 +122,12 @@ export function SetMessages(): void {
   });
 
   onMessageFromIpcMain('match-started', (newMatch) => {
+    let DeckToLoad = newMatch.eventId;
+    //console.log(playerDecks);
     if (!Object.keys(playerDecks).includes(newMatch.eventId)) {
+      DeckToLoad = 'FromMessage';
+    }
+    if (!playerDecks[DeckToLoad]) {
       return;
     }
     currentDraft.isDrafting = false;
@@ -133,8 +138,10 @@ export function SetMessages(): void {
     currentMatch.myTeamId = newMatch.seatId;
     currentMatch.eventId = newMatch.eventId;
     currentMatch.GameNumber = newMatch.gameNumber;
-    currentMatch.myFullDeck = playerDecks[newMatch.eventId].mainDeck;
-    currentMatch.humanname = playerDecks[newMatch.eventId].deckName;
+    currentMatch.myFullDeck = playerDecks['FromMessage']
+      ? playerDecks['FromMessage'].mainDeck
+      : playerDecks[DeckToLoad].mainDeck;
+    currentMatch.humanname = playerDecks[DeckToLoad].deckName;
     drawDeck();
   });
 
@@ -164,6 +171,38 @@ export function SetMessages(): void {
         }
       }, 1000);
     }
+  });
+
+  onMessageFromIpcMain('deck-message', (deck) => {
+    if (!overlayConfig.metaData) {
+      return;
+    }
+
+    if (!Object.keys(playerDecks).includes('FromMessage')) {
+      playerDecks['FromMessage'] = {mainDeck: [], deckId: 'FromMessage', deckName: ''};
+    } else {
+      playerDecks['FromMessage'].mainDeck = [];
+      playerDecks['FromMessage'].deckId = 'FromMessage';
+      playerDecks['FromMessage'].deckName = '';
+    }
+
+    const SortLikeMTGA = 11;
+    const meta = overlayConfig.metaData;
+    const allcards = overlayConfig.allCards;
+    const theDeck: {[index: number]: number} = {};
+    const forsort: {[index: number]: Card} = {};
+
+    //console.log(meta);
+
+    Object.keys(deck).forEach((MtgaCid) => {
+      const cid = meta.mtgatoinnerid[+MtgaCid];
+      theDeck[+cid] = deck[+MtgaCid];
+      forsort[+cid] = allcards.get(+cid) as Card;
+    });
+    sortcards(forsort, true, SortLikeMTGA).forEach((cid) => {
+      playerDecks['FromMessage'].mainDeck.push({card: +cid[0], cardnum: theDeck[+cid[0]]});
+    });
+    console.log(playerDecks);
   });
 
   onMessageFromIpcMain('deck-submission', (deck) => {

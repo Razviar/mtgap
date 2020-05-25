@@ -35,6 +35,7 @@ interface LogParserEvents {
     deckId: string;
     InternalEventName: string;
   };
+  'deck-message': {[index: number]: number};
   'draft-turn': {
     DraftPack: number[];
     PackNumber: number;

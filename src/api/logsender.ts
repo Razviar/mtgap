@@ -66,7 +66,7 @@ export function sendEventsToServer(
 }
 
 // API call to server
-async function uploadpackfile(results: ParseResults[], version: string): Promise<boolean> {
+async function uploadpackfile(results: ParseResults[], version: string): Promise<string | boolean> {
   try {
     const res = await Request.gzip<ParseResults[]>(`/mtg/donew2.php?cmd=cm_uploadpackfile&version=${version}`, results);
     const resMap = asMap(res);
@@ -76,7 +76,7 @@ async function uploadpackfile(results: ParseResults[], version: string): Promise
     if (resMap === undefined) {
       return false;
     }
-    return asString(resMap.status, '').toUpperCase() === 'OK';
+    return asString(resMap.status, '').toUpperCase();
   } catch (e) {
     return false;
   }
@@ -143,7 +143,10 @@ async function sendNextBatch(): Promise<void> {
       console.log(events);
     }
     const ok = await uploadpackfile(events, app.getVersion());
-    if (!ok) {
+    if (ok === 'RESTART') {
+      sendMessageToHomeWindow('restart-me', undefined);
+    }
+    if (ok === false) {
       //console.log(ok);
       //console.log(events);
       sendMessageToHomeWindow('network-status', {active: false, message: NetworkStatusMessage.Disconnected});

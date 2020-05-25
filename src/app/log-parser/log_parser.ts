@@ -12,7 +12,7 @@ import {getEvents} from 'root/app/log-parser/events';
 import {getUserCredentials} from 'root/app/log-parser/getusercredentials';
 import {initialpositioner} from 'root/app/log-parser/initialpositioner';
 import {LogFileParsingState, ParsingMetadata, StatefulLogEvent} from 'root/app/log-parser/model';
-import {extractValue} from 'root/app/log-parser/parsing';
+import {extractValue, parseAsJSONIfNeeded} from 'root/app/log-parser/parsing';
 import {LogParserEventEmitter} from 'root/app/log_parser_events';
 import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
 import {locateMostRecentDate} from 'root/app/mtga_dir_ops';
@@ -156,6 +156,12 @@ export class LogParser {
         // Checking events
         for (const event of events) {
           switch (event.name) {
+            case parsingMetadata.deckMessage:
+              this.handleDeckMessage(event);
+              break;
+            case parsingMetadata.AIPracticeDeckSubmit:
+              this.handleAIPracticeDeckSubmit(event);
+              break;
             case parsingMetadata.matchStartEvent:
               this.handleMatchStartEvent(event);
               break;
@@ -362,6 +368,56 @@ export class LogParser {
       return;
     }
     this.emitter.emit('card-played', {instanceId, grpId, zoneId, visibility, ownerSeatId});
+  }
+
+  private handleDeckMessage(event: StatefulLogEvent): void {
+    const mainDeckRaw = asArray<number>(extractValue(event.data, ['deckCards']));
+    const mainDeck: {[index: number]: number} = {};
+
+    if (mainDeckRaw === undefined) {
+      error('Encountered invalid deck message', undefined, {...event});
+      return;
+    }
+
+    mainDeckRaw.forEach((deckEl) => {
+      // tslint:disable-next-line: strict-type-predicates
+      if (mainDeck[+deckEl] !== undefined) {
+        mainDeck[+deckEl]++;
+      } else {
+        mainDeck[+deckEl] = 1;
+      }
+    });
+    //console.log(mainDeck);
+    this.emitter.emit('deck-message', mainDeck);
+  }
+
+  private handleAIPracticeDeckSubmit(event: StatefulLogEvent): void {
+    const deck = parseAsJSONIfNeeded(asString(extractValue(event.data, ['params', 'deck'])));
+    const mainDeckRaw = asArray<number>(extractValue(deck, ['mainDeck']));
+    const commandZoneGRPIds = asArray<number>(extractValue(deck, ['commandZoneGRPIds']));
+    const deckName = asString(extractValue(deck, ['name']));
+    const deckId = asString(extractValue(deck, ['id']));
+    const InternalEventName = 'AIBotMatch';
+    if (
+      mainDeckRaw === undefined ||
+      commandZoneGRPIds === undefined ||
+      deckName === undefined ||
+      deckId === undefined
+    ) {
+      error('Encountered invalid deck submission event', undefined, {...event});
+      return;
+    }
+    const mainDeck: {[index: number]: number} = {};
+    let cid = 0;
+    mainDeckRaw.forEach((deckEl) => {
+      if (+deckEl > 100) {
+        cid = +deckEl;
+      } else if (cid !== 0) {
+        mainDeck[+cid] = +deckEl;
+      }
+    });
+
+    this.emitter.emit('deck-submission', {mainDeck, commandZoneGRPIds, deckName, deckId, InternalEventName});
   }
 
   private handleDeckSubmissionEvent(event: StatefulLogEvent): void {
