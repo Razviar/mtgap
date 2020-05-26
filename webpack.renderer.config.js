@@ -7,9 +7,7 @@ const {TsConfigPathsPlugin} = require('awesome-typescript-loader');
 const CspHtmlWebpackPlugin = require('csp-html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 
-const nonce = Math.random()
-  .toString()
-  .substr(2);
+const nonce = Math.random().toString().substr(2);
 
 rules.push(
   {
@@ -77,9 +75,11 @@ module.exports = {
         },
       }
     ),
-    new CopyPlugin([
-      {context: 'src/windows', from: '*.woff*', to: 'home_window'},
-      {context: 'src/windows', from: '*.woff*', to: 'overlay_window'},
-    ]),
+    new CopyPlugin({
+      patterns: [
+        {context: 'src/windows', from: '*.woff*', to: 'home_window'},
+        {context: 'src/windows', from: '*.woff*', to: 'overlay_window'},
+      ],
+    }),
   ],
 };
