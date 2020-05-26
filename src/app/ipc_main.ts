@@ -377,7 +377,7 @@ export function setupIpcMain(app: App): void {
 
   onMessageFromBrowserWindow('set-log-path', () => {
     dialog
-      .showOpenDialog({properties: ['openFile'], filters: [{name: 'output_*', extensions: ['txt']}]})
+      .showOpenDialog({properties: ['openFile'], filters: [{name: 'Player', extensions: ['log']}]})
       .then((log) => {
         if (!log.canceled && log.filePaths[0]) {
           settingsStore.get().logPath = log.filePaths[0];
