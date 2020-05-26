@@ -65,6 +65,7 @@ export interface Messages {
     deckId: string;
     InternalEventName: string;
   };
+  'deck-message': {[index: number]: number};
   'set-metadata': Metadata;
   'set-userdata': UserMetadata;
   mulligan: boolean;

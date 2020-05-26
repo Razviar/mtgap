@@ -28,6 +28,7 @@ interface LogParserEvents {
     state: LogFileParsingState;
     fileId: string;
   };
+  'deck-message': {[index: number]: number};
   'deck-submission': {
     commandZoneGRPIds: number[];
     mainDeck: {[index: number]: number};
