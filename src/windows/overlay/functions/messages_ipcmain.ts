@@ -123,7 +123,6 @@ export function SetMessages(): void {
 
   onMessageFromIpcMain('match-started', (newMatch) => {
     let DeckToLoad = newMatch.eventId;
-    //console.log(playerDecks);
     if (!Object.keys(playerDecks).includes(newMatch.eventId)) {
       DeckToLoad = 'FromMessage';
     }
