@@ -201,7 +201,7 @@ export function SetMessages(): void {
     sortcards(forsort, true, SortLikeMTGA).forEach((cid) => {
       playerDecks['FromMessage'].mainDeck.push({card: +cid[0], cardnum: theDeck[+cid[0]]});
     });
-    console.log(playerDecks);
+    //console.log(playerDecks);
   });
 
   onMessageFromIpcMain('deck-submission', (deck) => {
