@@ -39,7 +39,13 @@ export interface ParsingMetadata {
   accountPrefix: string;
   userChangeEvent: string;
   matchStartEvent: string;
+  AIPracticeDeckSubmit: string;
+  deckMessage: string;
+  matchCreatedEvent: string;
   matchEndEvent: string;
+  AIPracticeDeckSubmit: string;
+  deckMessage: string;
+  matchCreatedEvent: string;
   mulliganEvent: string;
   cardPlayedEvent: string;
   deckSubmissionEvent: string;

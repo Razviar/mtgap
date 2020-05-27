@@ -58,6 +58,13 @@ export function createGlobalLogParser(): LogParser {
       sendMessageToOverlayWindow('deck-submission', msg);
     }
   });
+
+  logParser.emitter.on('deck-message', (msg) => {
+    if (settingsStore.get().overlay) {
+      sendMessageToOverlayWindow('deck-message', msg);
+    }
+  });
+
   logParser.emitter.on('match-started', (msg) => {
     //console.log('match-started-recieved!');
     const account = settingsStore.getAccount();

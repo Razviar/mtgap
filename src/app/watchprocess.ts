@@ -10,6 +10,7 @@ export class ProcessWatcher {
   public async getprocesses(): Promise<number> {
     const processes = await psList();
     const res = processes.find((proc) => proc.name === this.pname);
+    //console.log(res);
     if (res) {
       return res.pid;
     } else {

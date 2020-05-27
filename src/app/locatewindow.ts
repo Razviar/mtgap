@@ -9,10 +9,12 @@ export class WindowLocator {
   public findmtga(pid: number): void {
     /*const path = join(app.getPath('userData'), 'debugging.txt');
     fs.appendFileSync(path, JSON.stringify({pid}));*/
+    //console.log('findmtga');
     try {
       const account = settingsStore.getAccount();
 
       if (account === undefined) {
+        //console.log('no account');
         return;
       }
 
@@ -38,8 +40,10 @@ export class WindowLocator {
         const scaleFactor = display.scaleFactor;
         const processes = ourActiveWin.sync();
         //fs.appendFileSync(path, JSON.stringify({scaleFactor, processes}));
+        //console.log(processes);
         if (processes) {
           const pidwin = processes.owner.processId;
+          //console.log(pidwin);
           if (pidwin === pid) {
             const xMargin = 6;
             const yMargin = 30;
@@ -64,9 +68,10 @@ export class WindowLocator {
                 width: Math.round(processes.bounds.width / scaleFactor) - 10,
                 height: Math.round(processes.bounds.height / scaleFactor - heightReduce),
               };
+              //console.log(this.bounds);
             }
-            /*console.log(display);
-          console.log(processes.bounds);*/
+            //console.log(display);
+            //console.log(processes.bounds);
           } else {
             this.bounds = {
               x: 0,
@@ -78,6 +83,7 @@ export class WindowLocator {
         }
       }
     } catch (e) {
+      //console.log(e);
       //fs.appendFileSync(path, e);
     }
   }
