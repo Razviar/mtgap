@@ -1,3 +1,10 @@
+## v.2.0.48 released 05/05/2020
+* New log filename support
+* Ai Bot Matches and Direc Challenge support
+* Deps update (Electron 9)
+* Bug fixes
+* Overall stability improvement
+
 ## v.2.0.45 released 05/05/2020
 * Fixed Mulligan handling
 * Fixed Accounts tab to display actual data
