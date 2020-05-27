@@ -201,7 +201,11 @@ export function SetMessages(): void {
     sortcards(forsort, true, SortLikeMTGA).forEach((cid) => {
       playerDecks['FromMessage'].mainDeck.push({card: +cid[0], cardnum: theDeck[+cid[0]]});
     });
+<<<<<<< .merge_file_a18788
     //console.log(playerDecks);
+=======
+    console.log(playerDecks);
+>>>>>>> .merge_file_a02692
   });
 
   onMessageFromIpcMain('deck-submission', (deck) => {

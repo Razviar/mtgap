@@ -32,8 +32,12 @@
     "ffi-napi": "2.4.6",
     "find-process": "1.4.3",
     "lodash": "4.17.15",
+<<<<<<< HEAD
     "moment": "2.26.0",
     "node-abi": "2.17.0",
+=======
+    "moment": "2.25.3",
+>>>>>>> 65d9c3c793fe30bfffdfec4d398e17b231d50782
     "npm-check-updates": "6.0.1",
     "pretty-checkbox": "3.0.3",
     "ps-list": "7.1.0",
