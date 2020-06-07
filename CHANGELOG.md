@@ -1,3 +1,5 @@
+Please note, that this project, while following numbering syntax, it DOES NOT adhere to Semantic Versioning rules.
+
 ## v.2.0.49 released 07/06/2020
 * Human draft support
 * Deps update
