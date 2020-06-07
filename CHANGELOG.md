@@ -1,4 +1,9 @@
-## v.2.0.48 released 05/05/2020
+## v.2.0.49 released 07/06/2020
+* Human draft support
+* Deps update
+* Bug fixes
+
+## v.2.0.48 released 15/05/2020
 * New log filename support
 * Ai Bot Matches and Direc Challenge support
 * Deps update (Electron 9)
