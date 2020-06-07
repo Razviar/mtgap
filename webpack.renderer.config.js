@@ -75,9 +75,11 @@ module.exports = {
         },
       }
     ),
-    new CopyPlugin([
-      {context: 'src/windows', from: '*.woff*', to: 'home_window'},
-      {context: 'src/windows', from: '*.woff*', to: 'overlay_window'},
-    ]),
+    new CopyPlugin({
+      patterns: [
+        {context: 'src/windows', from: '*.woff*', to: 'home_window'},
+        {context: 'src/windows', from: '*.woff*', to: 'overlay_window'},
+      ],
+    }),
   ],
 };

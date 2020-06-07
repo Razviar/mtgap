@@ -83,7 +83,7 @@ export class WindowLocator {
         }
       }
     } catch (e) {
-      //console.log(e);
+      console.log(e);
       //fs.appendFileSync(path, e);
     }
   }

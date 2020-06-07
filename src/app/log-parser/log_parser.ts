@@ -22,7 +22,7 @@ import {settingsStore} from 'root/app/settings-store/settings_store';
 import {StateInfo, stateStore} from 'root/app/state_store';
 import {getAccountFromScreenName} from 'root/app/userswitch';
 import {error} from 'root/lib/logger';
-import {asArray, asMap, asNumber, asString, removeUndefined} from 'root/lib/type_utils';
+import {asArray, asMap, asNumber, asString, removeUndefined, asBoolean} from 'root/lib/type_utils';
 import {ProcessWatching} from 'root/main';
 
 export class LogParser {
@@ -182,6 +182,12 @@ export class LogParser {
               break;
             case parsingMetadata.draftPickResponseEvent:
               this.handleDraftEvents(event);
+              break;
+            case parsingMetadata.humanDraftEvent:
+              this.handlehumanDraftEvent(event);
+              break;
+            case parsingMetadata.humanDraftPick:
+              this.handlehumandraftMakePickEvents(event);
               break;
             case parsingMetadata.draftMakePickEvent:
               this.handledraftMakePickEvents(event);
@@ -449,6 +455,24 @@ export class LogParser {
     this.emitter.emit('deck-submission', {mainDeck, commandZoneGRPIds, deckName, deckId, InternalEventName});
   }
 
+  private handlehumanDraftEvent(event: StatefulLogEvent): void {
+    const DraftPackString = asString(extractValue(event.data, ['PackCards']))?.split(',');
+    const PackNumber = asNumber(extractValue(event.data, ['SelfPack']));
+    const PickNumber = asNumber(extractValue(event.data, ['SelfPick']));
+    if (PackNumber === undefined || PickNumber === undefined || DraftPackString === undefined) {
+      error('Encountered invalid draft start event', undefined, {...event});
+      return;
+    }
+
+    const DraftPack: number[] = [];
+
+    DraftPackString.forEach((cid) => {
+      DraftPack.push(+cid);
+    });
+
+    this.emitter.emit('draft-turn', {DraftPack, PackNumber, PickNumber});
+  }
+
   private handleDraftEvents(event: StatefulLogEvent): void {
     const DraftPack = asArray<number>(extractValue(event.data, ['DraftPack']), []);
     const PackNumber = asNumber(extractValue(event.data, ['PackNumber']));
@@ -471,6 +495,13 @@ export class LogParser {
     }
 
     this.emitter.emit('draft-turn', {DraftPack, PackNumber, PickNumber});
+  }
+
+  private handlehumandraftMakePickEvents(event: StatefulLogEvent): void {
+    const IsPickingCompleted = asBoolean(extractValue(event.data, ['IsPickingCompleted']));
+    if (IsPickingCompleted) {
+      this.emitter.emit('draft-complete', undefined);
+    }
   }
 
   private handledraftMakePickEvents(event: StatefulLogEvent): void {
