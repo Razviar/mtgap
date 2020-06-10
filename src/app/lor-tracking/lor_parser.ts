@@ -74,7 +74,7 @@ export class LorParser {
     const endpoint = parsingMetadata.events[endpointIndex];
 
     getLorAPI(endpoint.name)
-      .then(res => {
+      .then((res) => {
         console.log(this.currentState.lastEndpoint);
         console.log(endpoint.name);
         console.log(res);
@@ -108,7 +108,7 @@ export class LorParser {
         this.currentState.lastEndpoint = endpointIndex;
         setTimeout(() => this.internalLoop(parsingMetadata), parsingMetadata.logParser.readTimeout);
       })
-      .catch(err => {
+      .catch((err) => {
         error('Failure to get data from API', err);
         this.currentState.lastEndpoint = endpointIndex;
         setTimeout(() => this.internalLoop(parsingMetadata), parsingMetadata.logParser.readTimeout);

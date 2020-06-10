@@ -18,7 +18,7 @@ export function withLogParser(fn: (lorParser: LorParser) => void): void {
 export function createGlobalLorParser(): LorParser {
   lorParser = new LorParser();
 
-  lorParser.start().catch(err => {
+  lorParser.start().catch((err) => {
     error('Failure to start parser', err);
   });
 

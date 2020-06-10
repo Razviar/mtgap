@@ -22,7 +22,7 @@ import {settingsStore} from 'root/app/settings-store/settings_store';
 import {StateInfo, stateStore} from 'root/app/state_store';
 import {getAccountFromScreenName} from 'root/app/userswitch';
 import {error} from 'root/lib/logger';
-import {asArray, asMap, asNumber, asString, removeUndefined, asBoolean} from 'root/lib/type_utils';
+import {asArray, asBoolean, asMap, asNumber, asString, removeUndefined} from 'root/lib/type_utils';
 import {ProcessWatching} from 'root/main';
 
 export class LogParser {

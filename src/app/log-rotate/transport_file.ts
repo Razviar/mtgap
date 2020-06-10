@@ -66,9 +66,7 @@ function logRotate(_file: string, maxSize: number): void {
 
 function getNowDate(): string {
   return `${moment().get('year')}-${_.padStart((moment().get('month') + 1).toString(), 2, '0')}-${_.padStart(
-    moment()
-      .get('date')
-      .toString(),
+    moment().get('date').toString(),
     2,
     '0'
   )}`;
