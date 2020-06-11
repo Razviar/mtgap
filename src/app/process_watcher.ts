@@ -91,7 +91,7 @@ export function setupProcessWatcher(): () => void {
           }
         }
       })
-      .catch((_) => {});
+      .catch((_: Error) => {});
   };
 
   return processWatcherFn;

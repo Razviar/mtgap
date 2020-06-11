@@ -26,11 +26,13 @@ export const ProcessWatching: {
   processWatcherFnInterval: number;
   interval: number;
   gameRunningState: boolean;
+  pid: number;
 } = {
   processWatcherFn: setupProcessWatcher(),
   processWatcherFnInterval: 500,
   interval: 0,
   gameRunningState: true,
+  pid: -1,
 };
 
 function recreateMainWindow(): void {
