@@ -447,7 +447,7 @@ export function setupIpcMain(app: App): void {
       dialog
         .showOpenDialog({
           properties: ['openFile', 'multiSelections'],
-          defaultPath: logpath !== undefined ? join(logpath, ...['MTGA_Data', 'Logs', 'Logs']) : '',
+          defaultPath: logpath !== undefined ? join(logpath, ...['Logs', 'Logs']) : '',
           filters: [{name: 'UTC_Log*', extensions: ['log']}],
         })
         .then((log) => {
@@ -467,7 +467,7 @@ export function setupIpcMain(app: App): void {
       dialog
         .showOpenDialog({
           properties: ['openFile', 'multiSelections'],
-          defaultPath: logpath !== undefined ? join(logpath, ...['MTGA_Data', 'Logs', 'Logs']) : '',
+          defaultPath: logpath !== undefined ? join(logpath, ...['Logs', 'Logs']) : '',
           filters: [{name: 'UTC_Log*', extensions: ['log']}],
         })
         .then((log) => {

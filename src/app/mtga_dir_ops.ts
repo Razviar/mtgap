@@ -4,31 +4,38 @@ import {join} from 'path';
 import {parseOldLogsHandler} from 'root/app/old-log-handler';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
+import {isMac} from 'root/lib/utils';
+import {app} from 'electron';
 
 export function locateMtgaDir(checkPath: string | undefined): boolean {
   let pth = '';
   if (checkPath !== undefined && fs.existsSync(checkPath)) {
     pth = checkPath;
   } else {
-    const x64 = process.arch === 'x64' || process.env.hasOwnProperty('PROCESSOR_ARCHITEW6432');
-    const progFiles = process.env['ProgramFiles'];
+    const MtgaPathLocator: string[][] = [];
 
-    if (progFiles === undefined) {
-      return false;
-    }
+    if (isMac()) {
+      MtgaPathLocator.push([app.getPath('home'), 'Library', 'Application Support', 'com.wizards.mtga']);
+    } else {
+      const x64 = process.arch === 'x64' || process.env.hasOwnProperty('PROCESSOR_ARCHITEW6432');
+      const progFiles = process.env['ProgramFiles'];
 
-    const MtgaPathLocator = [
-      [progFiles, 'Wizards of the Coast', 'MTGA'],
-      [progFiles, 'Epic Games', 'MagicTheGathering'],
-    ];
+      if (progFiles === undefined) {
+        return false;
+      }
 
-    if (x64) {
-      const progFilesx86 = process.env['ProgramFiles(x86)'];
-      if (progFilesx86 !== undefined) {
-        MtgaPathLocator.push([progFilesx86, 'Wizards of the Coast', 'MTGA']);
-        MtgaPathLocator.push([progFilesx86, 'Epic Games', 'MagicTheGathering']);
+      MtgaPathLocator.push([progFiles, 'Wizards of the Coast', 'MTGA']);
+      MtgaPathLocator.push([progFiles, 'Epic Games', 'MagicTheGathering']);
+
+      if (x64) {
+        const progFilesx86 = process.env['ProgramFiles(x86)'];
+        if (progFilesx86 !== undefined) {
+          MtgaPathLocator.push([progFilesx86, 'Wizards of the Coast', 'MTGA']);
+          MtgaPathLocator.push([progFilesx86, 'Epic Games', 'MagicTheGathering']);
+        }
       }
     }
+
     let pathFound = false;
     MtgaPathLocator.forEach((possiblePathElements) => {
       if (pathFound) {
@@ -41,20 +48,26 @@ export function locateMtgaDir(checkPath: string | undefined): boolean {
       }
     });
   }
+
   let result = false;
   const settings = settingsStore.get();
 
-  try {
-    const dir = fs.readdirSync(pth);
-    dir.forEach((file) => {
-      if (file === 'MTGA.exe') {
-        result = true;
-      }
-    });
+  if (isMac()) {
+    result = pth !== '';
     settings.mtgaPath = result ? pth : undefined;
-  } catch (e) {
-    result = false;
-    settings.mtgaPath = undefined;
+  } else {
+    try {
+      const dir = fs.readdirSync(pth);
+      dir.forEach((file) => {
+        if (file === 'MTGA.exe') {
+          result = true;
+        }
+      });
+      settings.mtgaPath = result ? join(pth, 'MTGA_Data') : undefined;
+    } catch (e) {
+      result = false;
+      settings.mtgaPath = undefined;
+    }
   }
 
   return result;
@@ -74,7 +87,7 @@ export function locateMostRecentDate(): MostRecentDate {
   let logDate: Date | undefined;
   let fileId: string | undefined;
   let logPath: string | undefined;
-  const pth = join(mtgaPath, ...['MTGA_Data', 'Logs', 'Logs']);
+  const pth = join(mtgaPath, ...['Logs', 'Logs']);
   try {
     const files = fs.readdirSync(pth);
     files.forEach((file) => {
@@ -98,13 +111,13 @@ export function getOldLogs(): string[] | undefined {
   if (mtgaPath === undefined) {
     return undefined;
   }
-  const pth = join(mtgaPath, ...['MTGA_Data', 'Logs', 'Logs']);
+  const pth = join(mtgaPath, ...['Logs', 'Logs']);
   const files: string[] = [];
   try {
     fs.readdirSync(pth)
       .filter((file) => file.includes('UTC_Log') && file.includes('.log'))
       .forEach((file) => {
-        files.push(join(mtgaPath, ...['MTGA_Data', 'Logs', 'Logs'], file));
+        files.push(join(mtgaPath, ...['Logs', 'Logs'], file));
       });
   } catch (e) {
     error('Error reading files in logs folder', e);

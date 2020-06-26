@@ -1,6 +1,7 @@
 import psList from 'ps-list';
 
 import {ProcessWatching} from 'root/main';
+import {isMac} from 'root/lib/utils';
 
 export class ProcessWatcher {
   private readonly pname: string;
@@ -23,7 +24,7 @@ export class ProcessWatcher {
 
   private async locateMTGApid(): Promise<number> {
     const processes = await psList();
-    const res = processes.find((proc) => proc.name === this.pname);
+    const res = processes.find((proc) => (isMac() ? proc.cmd?.includes(this.pname) : proc.name === this.pname));
     //console.log(res);
     if (res) {
       return res.pid;

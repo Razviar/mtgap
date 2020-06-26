@@ -126,7 +126,7 @@ export function SetMessages(): void {
     if (!Object.keys(playerDecks).includes(newMatch.eventId)) {
       DeckToLoad = 'FromMessage';
     }
-    if (!playerDecks[DeckToLoad]) {
+    if (!playerDecks.hasOwnProperty(DeckToLoad)) {
       return;
     }
     currentDraft.isDrafting = false;
@@ -137,7 +137,7 @@ export function SetMessages(): void {
     currentMatch.myTeamId = newMatch.seatId;
     currentMatch.eventId = newMatch.eventId;
     currentMatch.GameNumber = newMatch.gameNumber;
-    currentMatch.myFullDeck = playerDecks['FromMessage']
+    currentMatch.myFullDeck = playerDecks.hasOwnProperty('FromMessage')
       ? playerDecks['FromMessage'].mainDeck
       : playerDecks[DeckToLoad].mainDeck;
     currentMatch.humanname = playerDecks[DeckToLoad].deckName;
@@ -146,11 +146,11 @@ export function SetMessages(): void {
 
   onMessageFromIpcMain('turn-info', (dp) => {
     currentMatch.TurnNumber = dp.turnNumber !== undefined ? dp.turnNumber : 0;
-    if (!overlayConfig.ovlSettings?.timers) {
+    if (overlayConfig.ovlSettings === undefined || !overlayConfig.ovlSettings.timers) {
       return;
     }
     currentMatch.switchTimer(dp.decisionPlayer);
-    if (!overlayConfig.timer) {
+    if (overlayConfig.timer === undefined) {
       overlayConfig.timer = setInterval(() => {
         currentMatch.tick();
         const me = `${lz(Math.floor(currentMatch.timers.me / 60))}:${lz(currentMatch.timers.me % 60)}`;

@@ -4,6 +4,7 @@ const SRC = path.join(ROOT, 'src');
 const NODE_MODULES = path.join(ROOT, 'node_modules');
 const {TsConfigPathsPlugin} = require('awesome-typescript-loader');
 const {copySync} = require('fs-extra');
+const WebpackHookPlugin = require('webpack-hook-plugin').default;
 
 /*copySync('node_modules/iconv/build/Release/', 'node_modules/iconv/build/Debug/', {
   overwrite: true,
@@ -19,6 +20,11 @@ module.exports = {
   module: {
     rules: require('./webpack.rules'),
   },
+  plugins: [
+    new WebpackHookPlugin({
+      onBuildEnd: ['chmod +x .webpack/main/native_modules/main'],
+    }),
+  ],
   resolve: {
     alias: {
       root: SRC,

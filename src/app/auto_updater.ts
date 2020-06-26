@@ -3,7 +3,7 @@ import electronIsDev from 'electron-is-dev';
 
 import {withHomeWindow} from 'root/app/main_window';
 import {sendMessageToHomeWindow} from 'root/app/messages';
-import {showNotifi} from 'root/app/notification';
+import {showNotification} from 'root/app/notification';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {NetworkStatusMessage} from 'root/lib/messages';
 
@@ -89,7 +89,7 @@ export function setupAutoUpdater(): void {
         });
         withHomeWindow((w) => {
           if (!w.isVisible()) {
-            showNotifi(
+            showNotification(
               'MTGA Pro Tracker Update',
               'Updated is downloaded and ready to be applied. Since you have manual updates switched on, you need to click Apply Update button.'
             );

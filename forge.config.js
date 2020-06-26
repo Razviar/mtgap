@@ -1,10 +1,25 @@
 module.exports = {
   packagerConfig: {
     icon: require('path').resolve(__dirname, 'src/statics/icon'),
+    appBundleId: 'com.mtgarenapro.mtgaprotracker',
+    appCategoryType: 'public.app-category.entertainment',
+    osxSign: {
+      hardenedRuntime: true,
+      'gatekeeper-assess': false,
+      entitlements: 'entitlements.plist',
+      'entitlements-inherit': 'entitlements.plist',
+      'signature-flags': 'library',
+    },
+    osxNotarize: {
+      appBundleId: 'com.mtgarenapro.mtgaprotracker',
+      appleId: process.env.APPLE_ID,
+      appleIdPassword: process.env.APPLE_ID_PASSWORD,
+    },
   },
   publishers: [
     {
       name: '@electron-forge/publisher-github',
+      platforms: ['darwin', 'win32'],
       config: {
         repository: {
           owner: 'Razviar',
@@ -18,6 +33,7 @@ module.exports = {
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
+      platforms: ['win32'],
       config: {
         name: 'mtgaprotracker',
         certificateFile: './cert/mtgapro.p12',
@@ -26,8 +42,12 @@ module.exports = {
       },
     },
     {
-      name: '@electron-forge/maker-zip',
+      name: '@electron-forge/maker-dmg',
       platforms: ['darwin'],
+      config: {
+        name: 'mtgaprotracker',
+        overwrite: true,
+      },
     },
     {
       name: '@electron-forge/maker-deb',

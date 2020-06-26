@@ -1,7 +1,7 @@
 {
   "name": "mtgaprotracker",
   "productName": "mtgaprotracker",
-  "version": "2.0.50",
+  "version": "2.1.0",
   "description": "MTG Arena Pro Tracker",
   "main": ".webpack/main",
   "scripts": {
@@ -23,7 +23,7 @@
     "forge": "./forge.config.js"
   },
   "dependencies": {
-    "@types/find": "npm start0.2.1",
+    "@types/find": "0.2.1",
     "auto-launch": "5.0.5",
     "axios": "0.19.2",
     "date-fns": "2.14.0",
@@ -46,7 +46,7 @@
     "@electron-forge/maker-deb": "6.0.0-beta.51",
     "@electron-forge/maker-rpm": "6.0.0-beta.51",
     "@electron-forge/maker-squirrel": "6.0.0-beta.51",
-    "@electron-forge/maker-zip": "6.0.0-beta.51",
+    "@electron-forge/maker-dmg": "6.0.0-beta.51",
     "@electron-forge/plugin-webpack": "6.0.0-beta.51",
     "@electron-forge/publisher-github": "6.0.0-beta.51",
     "@marshallofsound/webpack-asset-relocator-loader": "0.5.0",
@@ -68,6 +68,7 @@
     "tslint": "6.1.2",
     "tslint-loader": "3.5.4",
     "tslint-plugin-prettier": "2.3.0",
-    "typescript": "3.9.5"
+    "typescript": "3.9.5",
+    "webpack-hook-plugin": "1.0.7"
   }
 }

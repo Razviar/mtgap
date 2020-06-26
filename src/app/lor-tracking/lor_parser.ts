@@ -61,9 +61,9 @@ export class LorParser {
     endpointIndex = this.checkIfExcluded(endpointIndex, parsingMetadata.events.length);
 
     if (this.currentState.currentDelays[endpointIndex] < this.currentState.delayEndpoints[endpointIndex]) {
-      console.log(
-        `${this.currentState.currentDelays[endpointIndex]}/${this.currentState.delayEndpoints[endpointIndex]}`
-      );
+      // console.log(
+      //   `${this.currentState.currentDelays[endpointIndex]}/${this.currentState.delayEndpoints[endpointIndex]}`
+      // );
       this.currentState.currentDelays[endpointIndex]++;
       endpointIndex = endpointIndex < parsingMetadata.events.length - 1 ? endpointIndex + 1 : 0;
       endpointIndex = this.checkIfExcluded(endpointIndex, parsingMetadata.events.length);
@@ -75,9 +75,9 @@ export class LorParser {
 
     getLorAPI(endpoint.name)
       .then((res) => {
-        console.log(this.currentState.lastEndpoint);
-        console.log(endpoint.name);
-        console.log(res);
+        // console.log(this.currentState.lastEndpoint);
+        // console.log(endpoint.name);
+        // console.log(res);
         switch (endpoint.name) {
           case 'positional-rectangles':
             const PlayerName = asString(extractValue(res, ['PlayerName']));
@@ -100,7 +100,7 @@ export class LorParser {
           case 'static-decklist':
             const deckCode = asString(extractValue(res, ['DeckCode']));
             this.currentState.excludeEndpoints.push(0);
-            console.log(deckCode);
+            // console.log(deckCode);
 
             break;
         }

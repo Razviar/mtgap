@@ -12,6 +12,7 @@ import {sendMessageToHomeWindow} from 'root/app/messages';
 import {setupProcessWatcher} from 'root/app/process_watcher';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
+import {isMac} from 'root/lib/utils';
 
 // tslint:disable-next-line: no-var-requires no-unsafe-any no-require-imports
 require('source-map-support').install();
@@ -36,6 +37,8 @@ export const ProcessWatching: {
 };
 
 function recreateMainWindow(): void {
+  // TODO: doesn't work
+  app.setAccessibilitySupportEnabled(false);
   //setupRequestIntercept(app);
   createMainWindow();
   doMtgaPathOps();
@@ -50,6 +53,7 @@ function recreateMainWindow(): void {
       createGlobalLogParser();
       //createGlobalLorParser();
       sendMessageToHomeWindow('set-version', app.getVersion());
+      sendMessageToHomeWindow('startup-title', isMac() ? 'Start tracker on system startup' : 'Start with Windows');
       if (electronIsDev) {
         sendMessageToHomeWindow('show-dev-buttons', undefined);
       }
@@ -104,6 +108,5 @@ setupIpcMain(app);
 
 process.on('uncaughtException', (err) => {
   error('Uncaught error in main process', err);
-  app.relaunch();
   app.exit();
 });

@@ -2,6 +2,7 @@ import {screen} from 'electron';
 
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import ourActiveWin from 'root/our-active-win';
+import {isMac} from 'root/lib/utils';
 
 export class WindowLocator {
   public bounds: {x: number; y: number; width: number; height: number} = {x: 0, y: 0, width: 0, height: 0};
@@ -37,7 +38,7 @@ export class WindowLocator {
         //console.log(this.bounds);
       } else {
         const display = screen.getPrimaryDisplay();
-        const scaleFactor = display.scaleFactor;
+        const scaleFactor = isMac() ? 1 : display.scaleFactor;
         const processes = ourActiveWin.sync();
         //fs.appendFileSync(path, JSON.stringify({scaleFactor, processes}));
         //console.log(processes);
@@ -53,7 +54,10 @@ export class WindowLocator {
               processes.bounds.width === display.bounds.width * scaleFactor &&
               processes.bounds.height === display.bounds.height * scaleFactor
             ) {
-              //console.log('FullScreen!');
+              // console.log('FullScreen!');
+              if (isMac()) {
+                throw new Error('Fullscreen not supported yet!');
+              }
               const monitorNumber = processes.bounds.x / processes.bounds.width;
               this.bounds = {
                 x: monitorNumber * display.bounds.width,
@@ -83,7 +87,7 @@ export class WindowLocator {
         }
       }
     } catch (e) {
-      //console.log(e);
+      // console.log(e);
       //fs.appendFileSync(path, e);
     }
   }

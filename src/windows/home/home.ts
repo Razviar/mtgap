@@ -51,6 +51,7 @@ export const HomePageElements = {
   gameSw: document.getElementsByClassName('gameSw'),
   MtgaTab: document.getElementsByClassName('MtgaTab'),
   LorTab: document.getElementsByClassName('LorTab'),
+  StartupTitle: document.getElementById('startup-title') as HTMLElement,
 };
 
 export const currentCreds: {
