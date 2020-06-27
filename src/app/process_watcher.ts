@@ -7,11 +7,12 @@ import {settingsStore} from 'root/app/settings-store/settings_store';
 import {ProcessWatcher} from 'root/app/watchprocess';
 import {error} from 'root/lib/logger';
 import {ProcessWatching} from 'root/main';
+import {isMac} from 'root/lib/utils';
 
 const movementSensitivity = 5;
 
 const overlayPositioner = new WindowLocator();
-const processWatcher = new ProcessWatcher('MTGA.exe');
+const processWatcher = new ProcessWatcher(isMac() ? 'MTGA.app/Contents/MacOS/MTGA' : 'MTGA.exe');
 
 let overlayIsPositioned = false;
 
@@ -65,7 +66,11 @@ export function setupProcessWatcher(): () => void {
             ) {
               if (!overlayWindow.isVisible()) {
                 registerHotkeys();
-                overlayWindow.show();
+                if (isMac()) {
+                  overlayWindow.restore();
+                } else {
+                  overlayWindow.show();
+                }
               }
               const EtalonHeight = 1144;
               const zoomFactor = overlayPositioner.bounds.height / EtalonHeight;
@@ -81,7 +86,11 @@ export function setupProcessWatcher(): () => void {
             } else {
               if (!overlayWindow.isVisible()) {
                 registerHotkeys();
-                overlayWindow.show();
+                if (isMac()) {
+                  overlayWindow.restore();
+                } else {
+                  overlayWindow.show();
+                }
               }
             }
 

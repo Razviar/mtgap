@@ -1,9 +1,13 @@
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {asMap, asString} from 'root/lib/type_utils';
+import {isMac} from 'root/lib/utils';
 
 // tslint:disable-next-line:no-any
 function loadAppIconInternal(type: string | undefined): any {
   // tslint:disable:no-require-imports
+  if (isMac()) {
+    return require('root/statics/icon.icns');
+  }
   if (type === '') {
     return require('root/statics/icon.ico');
   }

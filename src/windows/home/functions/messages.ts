@@ -287,4 +287,8 @@ export function installHomeMessages(): void {
       el.classList.remove('hidden');
     });
   });
+
+  onMessageFromIpcMain('startup-title', (title) => {
+    HomePageElements.StartupTitle.innerHTML = title;
+  });
 }

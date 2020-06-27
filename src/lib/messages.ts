@@ -144,6 +144,7 @@ export interface Messages {
   'game-switch': 'lor' | 'mtga';
   'show-dev-buttons': undefined;
   'dev-log': boolean;
+  'startup-title': string;
 }
 
 export enum NetworkStatusMessage {

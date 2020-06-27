@@ -3,7 +3,7 @@ import {app} from 'electron';
 import {getParsingMetadata} from 'root/api/getindicators';
 import {parseOldLogs, withLogParser} from 'root/app/log_parser_manager';
 import {sendMessageToHomeWindow} from 'root/app/messages';
-import {showNotifi} from 'root/app/notification';
+import {showNotification} from 'root/app/notification';
 import {error} from 'root/lib/logger';
 
 export const oldLogHandlerStatus = {
@@ -52,7 +52,7 @@ export function parseOldLogsHandler(
                 sendMessageToHomeWindow('show-prompt', {message: 'Parsing complete!', autoclose: 1000});
               } else {
                 sendMessageToHomeWindow('show-status', {message: 'Old logs are uploaded!', color: '#22a83a'});
-                showNotifi('MTGA Pro Tracker', 'All old logs have been parsed!');
+                showNotification('MTGA Pro Tracker', 'All old logs have been parsed!');
                 sendMessageToHomeWindow('shadow-sync-over', undefined);
               }
               withLogParser((lp) => lp.start());
@@ -65,7 +65,7 @@ export function parseOldLogsHandler(
               message: 'Found new user during old logs parsing! Please handle this account and repeat old logs parsing',
               autoclose: 1000,
             });
-            showNotifi(
+            showNotification(
               'MTGA Pro Tracker',
               'Found new user during old logs parsing! Please handle this account and repeat old logs parsing'
             );

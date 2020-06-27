@@ -24,6 +24,7 @@ import {getAccountFromScreenName} from 'root/app/userswitch';
 import {error} from 'root/lib/logger';
 import {asArray, asBoolean, asMap, asNumber, asString, removeUndefined} from 'root/lib/type_utils';
 import {ProcessWatching} from 'root/main';
+import {isMac} from 'root/lib/utils';
 
 export class LogParser {
   private shouldStop: boolean = false;
@@ -46,6 +47,9 @@ export class LogParser {
     const specialpath = settingsStore.get().logPath;
     if (specialpath !== undefined) {
       return specialpath;
+    }
+    if (isMac()) {
+      return join(app.getPath('home'), 'Library', 'Logs', 'Wizards Of The Coast', 'MTGA', 'Player.log');
     }
     return join(app.getPath('appData'), 'LocalLow', 'Wizards Of The Coast', 'MTGA', 'Player.log').replace(
       'Roaming\\',

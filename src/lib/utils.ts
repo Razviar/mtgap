@@ -166,3 +166,7 @@ export async function sleep(ms: number): Promise<void> {
 export function lz(n: number): string {
   return n >= 10 ? n.toString() : `0${n}`;
 }
+
+export function isMac(): boolean {
+  return process.platform === 'darwin';
+}

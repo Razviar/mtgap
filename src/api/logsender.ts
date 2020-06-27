@@ -139,9 +139,9 @@ async function sendNextBatch(): Promise<void> {
 
   try {
     // Uploading data to server
-    if (logSenderParsingMetadata.forceUpload) {
-      console.log(events);
-    }
+    // if (logSenderParsingMetadata.forceUpload) {
+    //   console.log(events);
+    // }
     const ok = await uploadpackfile(events, app.getVersion());
     if (ok === 'RESTART') {
       sendMessageToHomeWindow('restart-me', undefined);
