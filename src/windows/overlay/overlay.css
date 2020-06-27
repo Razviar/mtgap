@@ -34,7 +34,7 @@ a[href^="ftp://"]
   top: 0px;
   left: 0px;
   background-color: rgba(11, 0, 0, 0.5);
-  width: 250px;
+  width: 80px;
   padding-left: 10px;
   padding-bottom: 5px;
 }
@@ -257,11 +257,11 @@ a[href^="ftp://"]
   background-color: rgba(183, 171, 169, 0.1);
   border: solid 1px rgba(183, 171, 169, 0.15);
   display: inline-block;
-  width: 50px;
+  width: 70px;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s linear;
-  margin-right: 5px;
+  margin-top: 3px;
 }
 
 .interfaceButton:hover {

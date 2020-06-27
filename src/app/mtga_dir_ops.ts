@@ -1,3 +1,4 @@
+import {app} from 'electron';
 import fs from 'fs';
 import {join} from 'path';
 
@@ -5,7 +6,6 @@ import {parseOldLogsHandler} from 'root/app/old-log-handler';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
 import {isMac} from 'root/lib/utils';
-import {app} from 'electron';
 
 export function locateMtgaDir(checkPath: string | undefined): boolean {
   let pth = '';
