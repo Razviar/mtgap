@@ -1,7 +1,7 @@
 import psList from 'ps-list';
 
-import {ProcessWatching} from 'root/main';
 import {isMac} from 'root/lib/utils';
+import {ProcessWatching} from 'root/main';
 
 export class ProcessWatcher {
   private readonly pname: string;

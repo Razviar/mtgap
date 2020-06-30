@@ -100,6 +100,10 @@ export function createGlobalLogParser(): LogParser {
     }
   });
 
+  logParser.emitter.on('game-is-closing', () => {
+    //processing of game closure event
+  });
+
   logParser.emitter.on('draft-complete', () => {
     //console.log('match-started-recieved!');
     const account = settingsStore.getAccount();

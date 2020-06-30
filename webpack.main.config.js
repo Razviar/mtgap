@@ -22,7 +22,7 @@ module.exports = {
   },
   plugins: [
     new WebpackHookPlugin({
-      onBuildEnd: ['chmod +x .webpack/main/native_modules/main'],
+      //onBuildEnd: ['chmod +x .webpack/main/native_modules/main'],
     }),
   ],
   resolve: {

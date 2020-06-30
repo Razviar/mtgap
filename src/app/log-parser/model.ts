@@ -53,6 +53,8 @@ export interface ParsingMetadata {
   humanDraftPick: string;
   TurnInfoAllEvent: string;
   PlayersInfoEvent: string;
+  GameBackupClosureEvent: string;
+  GameClosureEvent: string;
 }
 
 export interface LogSenderParsingMetadata {

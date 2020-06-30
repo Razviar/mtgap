@@ -199,6 +199,10 @@ export class LogParser {
             case parsingMetadata.TurnInfoAllEvent:
               this.handleTurnInfoAllEvent(event);
               break;
+            case parsingMetadata.GameBackupClosureEvent:
+            case parsingMetadata.GameClosureEvent:
+              this.handleGameClosureEvent();
+              break;
           }
         }
 
@@ -521,5 +525,9 @@ export class LogParser {
   private handleTurnInfoAllEvent(event: StatefulLogEvent): void {
     const decisionPlayer = asNumber(extractValue(event.data, ['decisionPlayer']), 0);
     this.emitter.emit('turn-info', {decisionPlayer, turnNumber: event.turnNumber});
+  }
+
+  private handleGameClosureEvent(): void {
+    this.emitter.emit('game-is-closing', undefined);
   }
 }

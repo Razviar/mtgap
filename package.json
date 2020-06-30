@@ -37,6 +37,7 @@
     "ps-list": "7.0.0",
     "ref-napi": "1.4.3",
     "ref-struct-napi": "1.1.0",
+    "ref-wchar-napi": "^1.0.2",
     "source-map-support": "0.5.19",
     "update-electron-app": "1.5.0"
   },
