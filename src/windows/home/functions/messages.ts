@@ -291,4 +291,11 @@ export function installHomeMessages(): void {
   onMessageFromIpcMain('startup-title', (title) => {
     HomePageElements.StartupTitle.innerHTML = title;
   });
+
+  onMessageFromIpcMain('hide-hotkeys', () => {
+    const sw = document.querySelector('[data-setting="disable-hotkeys"]') as HTMLInputElement;
+    sw.checked = true;
+    sw.disabled = true;
+    HomePageElements.hotkeyMap.classList.add('hidden');
+  });
 }

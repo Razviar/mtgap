@@ -145,6 +145,7 @@ export interface Messages {
   'show-dev-buttons': undefined;
   'dev-log': boolean;
   'startup-title': string;
+  'hide-hotkeys': undefined;
 }
 
 export enum NetworkStatusMessage {

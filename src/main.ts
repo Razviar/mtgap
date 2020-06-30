@@ -44,6 +44,9 @@ function recreateMainWindow(): void {
       //createGlobalLorParser();
       sendMessageToHomeWindow('set-version', app.getVersion());
       sendMessageToHomeWindow('startup-title', isMac() ? 'Start tracker on system startup' : 'Start with Windows');
+      if (isMac()) {
+        sendMessageToHomeWindow('hide-hotkeys', undefined);
+      }
       if (electronIsDev) {
         sendMessageToHomeWindow('show-dev-buttons', undefined);
       }
