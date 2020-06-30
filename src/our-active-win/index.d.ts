@@ -31,10 +31,9 @@ declare namespace ourActiveWin {
   }
 
   interface MacOSOwner extends BaseOwner {
-    /**
-		Bundle identifier.
-		*/
-    bundleId: number;
+    name: string | undefined;
+    bundleId: string | undefined;
+    path: string | undefined;
   }
 
   interface MacOSResult extends BaseResult {

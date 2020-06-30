@@ -7,6 +7,7 @@ import {getParsingMetadata} from 'root/api/getindicators';
 import {getUserMetadata} from 'root/api/overlay';
 import {setuserdata, UserData} from 'root/api/userbytokenid';
 import {setCreds} from 'root/app/auth';
+import {gameState} from 'root/app/game_state';
 import {checkDetailedLogEnabled} from 'root/app/log-parser/detailed_log';
 import {getEvents} from 'root/app/log-parser/events';
 import {getUserCredentials} from 'root/app/log-parser/getusercredentials';
@@ -23,7 +24,6 @@ import {StateInfo, stateStore} from 'root/app/state_store';
 import {getAccountFromScreenName} from 'root/app/userswitch';
 import {error} from 'root/lib/logger';
 import {asArray, asBoolean, asMap, asNumber, asString, removeUndefined} from 'root/lib/type_utils';
-import {ProcessWatching} from 'root/main';
 import {isMac} from 'root/lib/utils';
 
 export class LogParser {
@@ -118,15 +118,6 @@ export class LogParser {
           nextState = detailedLogState;
           nextState.bytesRead = await initialpositioner(path, userCreds.AccountID, parsingMetadata);
           oldStore.saveFileID(new Date().getTime(), fileId);
-
-          if (!ProcessWatching.gameRunningState) {
-            ProcessWatching.gameRunningState = true;
-            clearInterval(ProcessWatching.interval);
-            ProcessWatching.interval = setInterval(
-              ProcessWatching.processWatcherFn,
-              ProcessWatching.processWatcherFnInterval
-            );
-          }
         } else {
           nextState = this.currentState.state;
         }
@@ -139,6 +130,7 @@ export class LogParser {
 
         // Send parsing date
         if (events.length > 0) {
+          gameState.setRunning(true);
           const lastEvent = events[events.length - 1];
           if (lastEvent.timestamp !== undefined) {
             this.emitter.emit(

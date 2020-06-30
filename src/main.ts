@@ -1,4 +1,4 @@
-import {app} from 'electron';
+import {app, systemPreferences} from 'electron';
 import electronIsDev from 'electron-is-dev';
 
 import {sendSettingsToRenderer, setCreds} from 'root/app/auth';
@@ -6,10 +6,10 @@ import {enableAutoLauncher} from 'root/app/auto_launcher';
 import {setupAutoUpdater} from 'root/app/auto_updater';
 import {doMtgaPathOps} from 'root/app/do-path-ops';
 import {setupIpcMain} from 'root/app/ipc_main';
+import {log} from 'root/app/log-rotate/log_rotate';
 import {createGlobalLogParser} from 'root/app/log_parser_manager';
 import {createMainWindow, withHomeWindow} from 'root/app/main_window';
 import {sendMessageToHomeWindow} from 'root/app/messages';
-import {setupProcessWatcher} from 'root/app/process_watcher';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
 import {isMac} from 'root/lib/utils';
@@ -22,23 +22,10 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-export const ProcessWatching: {
-  processWatcherFn: Function;
-  processWatcherFnInterval: number;
-  interval: number;
-  gameRunningState: boolean;
-  pid: number;
-} = {
-  processWatcherFn: setupProcessWatcher(),
-  processWatcherFnInterval: 500,
-  interval: 0,
-  gameRunningState: true,
-  pid: -1,
-};
+let mainWindowCreated = false;
 
 function recreateMainWindow(): void {
-  // TODO: doesn't work
-  app.setAccessibilitySupportEnabled(false);
+  mainWindowCreated = true;
   //setupRequestIntercept(app);
   createMainWindow();
   doMtgaPathOps();
@@ -59,10 +46,6 @@ function recreateMainWindow(): void {
       }
       setCreds('ready-to-show');
       sendSettingsToRenderer();
-      ProcessWatching.interval = setInterval(
-        ProcessWatching.processWatcherFn,
-        ProcessWatching.processWatcherFnInterval
-      );
     });
     setupAutoUpdater();
   });
@@ -91,12 +74,16 @@ if (!gotTheLock) {
     }
   });
 
-  // ONLY FOR MAC
-  // app.on('activate', () => {
-  //   if (!getMainWindow()) {
-  //     recreateMainWindow();
-  //   }
-  // });
+  if (isMac()) {
+    app.on('activate', () => {
+      log('activate event');
+      if (!mainWindowCreated) {
+        recreateMainWindow();
+      } else {
+        withHomeWindow((w) => w.show());
+      }
+    });
+  }
 }
 
 if (settingsStore.get().autorun) {
