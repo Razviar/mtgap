@@ -1,25 +1,20 @@
 import {screen} from 'electron';
 
-import {settingsStore} from 'root/app/settings-store/settings_store';
-import ourActiveWin from 'root/our-active-win';
+import {AccountV8} from 'root/app/settings-store/v9';
 import {isMac} from 'root/lib/utils';
+import ourActiveWin from 'root/our-active-win';
+import {error} from 'root/lib/logger';
+import {gameState} from 'root/app/game_state';
 
 export class WindowLocator {
   public bounds: {x: number; y: number; width: number; height: number} = {x: 0, y: 0, width: 0, height: 0};
 
-  public findmtga(pid: number): void {
+  public findMtga(account: AccountV8): void {
     /*const path = join(app.getPath('userData'), 'debugging.txt');
     fs.appendFileSync(path, JSON.stringify({pid}));*/
     //console.log('findmtga');
     try {
-      const account = settingsStore.getAccount();
-
-      if (account === undefined) {
-        //console.log('no account');
-        return;
-      }
-
-      if (account.overlaySettings?.detach) {
+      if (account.overlaySettings !== undefined && account.overlaySettings.detach) {
         const displays = screen.getAllDisplays();
         let width = 0;
         let height = 0;
@@ -43,9 +38,12 @@ export class WindowLocator {
         //fs.appendFileSync(path, JSON.stringify({scaleFactor, processes}));
         //console.log(processes);
         if (processes) {
-          const pidwin = processes.owner.processId;
-          //console.log(pidwin);
-          if (pidwin === pid) {
+          // log(JSON.stringify(processes));
+          const isMtgaWindow =
+            processes.platform === 'macos'
+              ? processes.owner.name === 'MTGA' && processes.owner.bundleId === 'com.wizards.mtga'
+              : gameState.getProcessId() === processes.owner.processId;
+          if (isMtgaWindow) {
             const xMargin = 6;
             const yMargin = 30;
             const heightReduce = 38;
@@ -87,6 +85,7 @@ export class WindowLocator {
         }
       }
     } catch (e) {
+      // error('findMtga', e);
       // console.log(e);
       //fs.appendFileSync(path, e);
     }

@@ -42,7 +42,6 @@ interface LogParserEvents {
     PickNumber: number;
   };
   'draft-complete': undefined;
-  'game-is-closing': undefined;
   'turn-info': {decisionPlayer: number; turnNumber?: number};
   nologfile: undefined;
 }

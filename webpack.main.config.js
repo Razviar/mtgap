@@ -20,11 +20,14 @@ module.exports = {
   module: {
     rules: require('./webpack.rules'),
   },
-  plugins: [
-    new WebpackHookPlugin({
-      //onBuildEnd: ['chmod +x .webpack/main/native_modules/main'],
-    }),
-  ],
+  plugins:
+    process.platform === 'darwin'
+      ? [
+          new WebpackHookPlugin({
+            onBuildEnd: ['chmod +x .webpack/main/native_modules/main'],
+          }),
+        ]
+      : [],
   resolve: {
     alias: {
       root: SRC,

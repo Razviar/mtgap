@@ -166,6 +166,10 @@ export function postProcessEvent(rawEvent: RawLogEvent, options: ParsingMetadata
   return [toLogEvent()];
 }
 
+function isClosingEvent(eventName: string): boolean {
+  return eventName === 'FrontDoorConnection.Close' || eventName === 'Client.TcpConnection.Close';
+}
+
 export function parseAsRawEvent(value: string): RawLogEvent | undefined {
   const firstOpenCurlyBraces = value.indexOf('{');
   // No JSON, this is not an event we care about
@@ -175,6 +179,9 @@ export function parseAsRawEvent(value: string): RawLogEvent | undefined {
   // Found a {, we parse the data as JSON
   try {
     const eventName = postProcessEventName(value.slice(0, firstOpenCurlyBraces));
+    if (isClosingEvent(eventName)) {
+      return {name: eventName, data: {}, rawData: {}};
+    }
     const rawData = JSON.parse(value.slice(firstOpenCurlyBraces));
     const data = extractEventData(eventName, rawData);
     if (data === undefined) {

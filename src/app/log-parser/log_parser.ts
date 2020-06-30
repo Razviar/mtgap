@@ -7,6 +7,7 @@ import {getParsingMetadata} from 'root/api/getindicators';
 import {getUserMetadata} from 'root/api/overlay';
 import {setuserdata, UserData} from 'root/api/userbytokenid';
 import {setCreds} from 'root/app/auth';
+import {gameState} from 'root/app/game_state';
 import {checkDetailedLogEnabled} from 'root/app/log-parser/detailed_log';
 import {getEvents} from 'root/app/log-parser/events';
 import {getUserCredentials} from 'root/app/log-parser/getusercredentials';
@@ -23,7 +24,6 @@ import {StateInfo, stateStore} from 'root/app/state_store';
 import {getAccountFromScreenName} from 'root/app/userswitch';
 import {error} from 'root/lib/logger';
 import {asArray, asBoolean, asMap, asNumber, asString, removeUndefined} from 'root/lib/type_utils';
-import {ProcessWatching} from 'root/main';
 import {isMac} from 'root/lib/utils';
 
 export class LogParser {
@@ -65,7 +65,7 @@ export class LogParser {
       }
       this.isRunning = true;
       this.shouldStop = false;
-      const parsingMetadata = await getParsingMetadata(app.getVersion());
+      const parsingMetadata = await getParsingMetadata();
       this.internalLoop(parsingMetadata);
     } catch (e) {
       error('start.getParsingMetadata', e);
@@ -118,15 +118,6 @@ export class LogParser {
           nextState = detailedLogState;
           nextState.bytesRead = await initialpositioner(path, userCreds.AccountID, parsingMetadata);
           oldStore.saveFileID(new Date().getTime(), fileId);
-
-          if (!ProcessWatching.gameRunningState) {
-            ProcessWatching.gameRunningState = true;
-            clearInterval(ProcessWatching.interval);
-            ProcessWatching.interval = setInterval(
-              ProcessWatching.processWatcherFn,
-              ProcessWatching.processWatcherFnInterval
-            );
-          }
         } else {
           nextState = this.currentState.state;
         }
@@ -155,10 +146,11 @@ export class LogParser {
           console.log(events);
         }*/
 
-        console.log(events);
+        //console.log(parsingMetadata.matchStartEvent);
 
         // Checking events
         for (const event of events) {
+          let isClosing = false;
           switch (event.name) {
             case parsingMetadata.deckMessage:
               this.handleDeckMessage(event);
@@ -201,8 +193,12 @@ export class LogParser {
               break;
             case parsingMetadata.GameBackupClosureEvent:
             case parsingMetadata.GameClosureEvent:
-              this.handleGameClosureEvent();
+              isClosing = true;
+              gameState.setRunning(false);
               break;
+          }
+          if (!isClosing && event.timestamp !== undefined && event.timestamp > gameState.getStartTime()) {
+            gameState.setRunning(true);
           }
         }
 
@@ -525,10 +521,5 @@ export class LogParser {
   private handleTurnInfoAllEvent(event: StatefulLogEvent): void {
     const decisionPlayer = asNumber(extractValue(event.data, ['decisionPlayer']), 0);
     this.emitter.emit('turn-info', {decisionPlayer, turnNumber: event.turnNumber});
-  }
-
-  private handleGameClosureEvent(): void {
-    console.log('game-is-closing');
-    this.emitter.emit('game-is-closing', undefined);
   }
 }
