@@ -25,7 +25,9 @@ if (require('electron-squirrel-startup')) {
 let mainWindowCreated = false;
 
 function recreateMainWindow(): void {
-  //log(`${new Date().toISOString()} Trusted ${systemPreferences.isTrustedAccessibilityClient(false)}`);
+  if (isMac()) {
+    log(`${new Date().toISOString()} Trusted ${systemPreferences.isTrustedAccessibilityClient(false)}`);
+  }
   mainWindowCreated = true;
   //setupRequestIntercept(app);
   createMainWindow();
