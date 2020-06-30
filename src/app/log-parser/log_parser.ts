@@ -155,7 +155,7 @@ export class LogParser {
           console.log(events);
         }*/
 
-        //console.log(parsingMetadata.matchStartEvent);
+        console.log(events);
 
         // Checking events
         for (const event of events) {
@@ -528,6 +528,7 @@ export class LogParser {
   }
 
   private handleGameClosureEvent(): void {
+    console.log('game-is-closing');
     this.emitter.emit('game-is-closing', undefined);
   }
 }
