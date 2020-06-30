@@ -26,7 +26,6 @@ const user32 = new Library('User32.dll', {
   // Get window bounds function
   // https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-getwindowrect
   GetWindowRect: ['bool', ['pointer', RectPointer]],
-  GetWindowModuleFileNameA: ['uint', ['pointer', 'pointer', 'uint']],
 });
 
 function windows() {
