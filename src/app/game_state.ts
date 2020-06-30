@@ -27,7 +27,7 @@ class GameState {
     this.startTimeMillis = Date.now();
     this.running = false;
     if (!isMac()) {
-      setInterval(this.checkProcessId, 500);
+      setInterval(() => this.checkProcessId(), 500);
     }
   }
 
@@ -145,6 +145,7 @@ class GameState {
           const res = processes.find((proc) => proc.name === this.processName);
           if (res !== undefined) {
             this.processId = res.pid;
+            this.setRunning(true);
           }
         })
         .catch(() => {});
