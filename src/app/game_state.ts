@@ -1,13 +1,13 @@
 import {getMetadata, getUserMetadata} from 'root/api/overlay';
 import {registerHotkeys, unRegisterHotkeys} from 'root/app/hotkeys';
 import {WindowLocator} from 'root/app/locatewindow';
-import {sendMessageToOverlayWindow} from 'root/app/messages';
+import {sendMessageToOverlayWindow, sendMessageToHomeWindow} from 'root/app/messages';
 import {createOverlayWindow, getOverlayWindow} from 'root/app/overlay_window';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
 import {isMac} from 'root/lib/utils';
-import {log} from 'root/app/log-rotate/log_rotate';
 import psList from 'ps-list';
+
 const movementSensitivity = 5;
 
 const overlayPositioner = new WindowLocator();
@@ -15,6 +15,7 @@ const overlayPositioner = new WindowLocator();
 let overlayIsPositioned = false;
 
 class GameState {
+  private startTimeMillis: number;
   private running: boolean;
   private overlayInterval: NodeJS.Timeout | undefined;
   private processId: number | undefined;
@@ -23,10 +24,15 @@ class GameState {
   private readonly processName = 'MTGA.exe';
 
   constructor() {
+    this.startTimeMillis = Date.now();
     this.running = false;
     if (!isMac()) {
       setInterval(this.checkProcessId, 500);
     }
+  }
+
+  public getStartTime(): number {
+    return this.startTimeMillis;
   }
 
   public setRunning(running: boolean): void {
@@ -36,6 +42,7 @@ class GameState {
     } else if (this.running && !running) {
       this.running = running;
       this.stopOverlay();
+      sendMessageToHomeWindow('show-status', {message: 'Game is not running!', color: '#dbb63d'});
     }
   }
 

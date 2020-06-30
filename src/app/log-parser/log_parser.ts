@@ -65,7 +65,7 @@ export class LogParser {
       }
       this.isRunning = true;
       this.shouldStop = false;
-      const parsingMetadata = await getParsingMetadata(app.getVersion());
+      const parsingMetadata = await getParsingMetadata();
       this.internalLoop(parsingMetadata);
     } catch (e) {
       error('start.getParsingMetadata', e);
@@ -130,7 +130,6 @@ export class LogParser {
 
         // Send parsing date
         if (events.length > 0) {
-          gameState.setRunning(true);
           const lastEvent = events[events.length - 1];
           if (lastEvent.timestamp !== undefined) {
             this.emitter.emit(
@@ -151,6 +150,7 @@ export class LogParser {
 
         // Checking events
         for (const event of events) {
+          let isClosing = false;
           switch (event.name) {
             case parsingMetadata.deckMessage:
               this.handleDeckMessage(event);
@@ -193,8 +193,12 @@ export class LogParser {
               break;
             case parsingMetadata.GameBackupClosureEvent:
             case parsingMetadata.GameClosureEvent:
-              this.handleGameClosureEvent();
+              isClosing = true;
+              gameState.setRunning(false);
               break;
+          }
+          if (!isClosing && event.timestamp !== undefined && event.timestamp > gameState.getStartTime()) {
+            gameState.setRunning(true);
           }
         }
 
@@ -517,9 +521,5 @@ export class LogParser {
   private handleTurnInfoAllEvent(event: StatefulLogEvent): void {
     const decisionPlayer = asNumber(extractValue(event.data, ['decisionPlayer']), 0);
     this.emitter.emit('turn-info', {decisionPlayer, turnNumber: event.turnNumber});
-  }
-
-  private handleGameClosureEvent(): void {
-    this.emitter.emit('game-is-closing', undefined);
   }
 }
