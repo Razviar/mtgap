@@ -66,6 +66,7 @@ function recreateMainWindow(): void {
           sendMessageToHomeWindow('screen-recording-authorized', authorized);
         });
       } else {
+        sendMessageToHomeWindow('screen-recording-authorized', true);
         initTrackerAndUi();
       }
     });
