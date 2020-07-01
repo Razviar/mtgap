@@ -52,6 +52,9 @@ export const HomePageElements = {
   MtgaTab: document.getElementsByClassName('MtgaTab'),
   LorTab: document.getElementsByClassName('LorTab'),
   StartupTitle: document.getElementById('startup-title') as HTMLElement,
+  OverlayDenied: document.getElementById('overlay-denied') as HTMLElement,
+  OverlayAuthorized: document.getElementById('overlay-authorized') as HTMLElement,
+  EnableScreenRecording: document.querySelector('[data-button="enable-screen-recording"]') as HTMLElement,
 };
 
 export const currentCreds: {
@@ -104,6 +107,10 @@ Array.from(HomePageElements.settings).forEach((el) => {
 });
 
 window.addEventListener('keyup', hkSetter, true);
+
+HomePageElements.EnableScreenRecording.addEventListener('click', () => {
+  sendMessageToIpcMain('enable-screen-recording', undefined);
+});
 
 onMessageFromIpcMain('network-status', (status) => {
   HomePageElements.NetworkStatus.title = `${status.message}${

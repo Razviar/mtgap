@@ -1,4 +1,4 @@
-import {app, systemPreferences} from 'electron';
+import {app} from 'electron';
 import electronIsDev from 'electron-is-dev';
 
 import {sendSettingsToRenderer, setCreds} from 'root/app/auth';
@@ -13,6 +13,7 @@ import {sendMessageToHomeWindow} from 'root/app/messages';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
 import {isMac} from 'root/lib/utils';
+import {permissionManager} from 'root/app/permission_manager';
 
 // tslint:disable-next-line: no-var-requires no-unsafe-any no-require-imports
 require('source-map-support').install();
@@ -24,10 +25,19 @@ if (require('electron-squirrel-startup')) {
 
 let mainWindowCreated = false;
 
-function recreateMainWindow(): void {
-  if (isMac()) {
-    log(`${new Date().toISOString()} Trusted ${systemPreferences.isTrustedAccessibilityClient(false)}`);
+permissionManager.init();
+
+function initTrackerAndUi(): void {
+  createGlobalLogParser();
+  //createGlobalLorParser();
+  if (electronIsDev) {
+    sendMessageToHomeWindow('show-dev-buttons', undefined);
   }
+  setCreds('ready-to-show');
+  sendSettingsToRenderer();
+}
+
+function recreateMainWindow(): void {
   mainWindowCreated = true;
   //setupRequestIntercept(app);
   createMainWindow();
@@ -40,18 +50,25 @@ function recreateMainWindow(): void {
       w.once('ready-to-show', () => w.show());
     }
     w.webContents.on('did-finish-load', () => {
-      createGlobalLogParser();
-      //createGlobalLorParser();
       sendMessageToHomeWindow('set-version', app.getVersion());
       sendMessageToHomeWindow('startup-title', isMac() ? 'Start tracker on system startup' : 'Start with Windows');
       if (isMac()) {
         sendMessageToHomeWindow('hide-hotkeys', undefined);
+        permissionManager.requireAccessibility();
+        permissionManager.on('accessibility', (authorized) => {
+          if (authorized) {
+            initTrackerAndUi();
+          } else {
+            app.relaunch();
+            app.exit();
+          }
+        });
+        permissionManager.on('screenRecording', (authorized) => {
+          sendMessageToHomeWindow('screen-recording-authorized', authorized);
+        });
+      } else {
+        initTrackerAndUi();
       }
-      if (electronIsDev) {
-        sendMessageToHomeWindow('show-dev-buttons', undefined);
-      }
-      setCreds('ready-to-show');
-      sendSettingsToRenderer();
     });
     setupAutoUpdater();
   });

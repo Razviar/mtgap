@@ -21,14 +21,12 @@ class GameState {
   private processId: number | undefined;
 
   private readonly refreshMillis = 500;
-  private readonly processName = 'MTGA.exe';
+  private readonly processName = isMac() ? 'MTGA.app/Contents/MacOS/MTGA' : 'MTGA.exe';
 
   constructor() {
     this.startTimeMillis = Date.now();
     this.running = false;
-    if (!isMac()) {
-      setInterval(() => this.checkProcessId(), 500);
-    }
+    setInterval(() => this.checkProcessId(), 500);
   }
 
   public getStartTime(): number {
@@ -142,7 +140,9 @@ class GameState {
     } else {
       psList()
         .then((processes) => {
-          const res = processes.find((proc) => proc.name === this.processName);
+          const res = processes.find((proc) =>
+            isMac() ? proc.cmd?.includes(this.processName) : proc.name === this.processName
+          );
           if (res !== undefined) {
             this.processId = res.pid;
             this.setRunning(true);

@@ -3,7 +3,6 @@ import {screen} from 'electron';
 import {AccountV8} from 'root/app/settings-store/v9';
 import {isMac} from 'root/lib/utils';
 import ourActiveWin from 'root/our-active-win';
-import {error} from 'root/lib/logger';
 import {gameState} from 'root/app/game_state';
 
 export class WindowLocator {

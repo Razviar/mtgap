@@ -146,6 +146,8 @@ export interface Messages {
   'dev-log': boolean;
   'startup-title': string;
   'hide-hotkeys': undefined;
+  'screen-recording-authorized': boolean;
+  'enable-screen-recording': undefined;
 }
 
 export enum NetworkStatusMessage {

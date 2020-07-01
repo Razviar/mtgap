@@ -17,6 +17,7 @@ import {withOverlayWindow} from 'root/app/overlay_window';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {stateStore} from 'root/app/state_store';
 import {error} from 'root/lib/logger';
+import {permissionManager} from 'root/app/permission_manager';
 
 export function setupIpcMain(app: App): void {
   onMessageFromBrowserWindow('token-input', (newAccount) => {
@@ -568,5 +569,9 @@ export function setupIpcMain(app: App): void {
     withOverlayWindow((overlayWindow) => {
       overlayWindow.setIgnoreMouseEvents(true, {forward: true});
     });
+  });
+
+  onMessageFromBrowserWindow('enable-screen-recording', () => {
+    permissionManager.requireScreenRecording();
   });
 }

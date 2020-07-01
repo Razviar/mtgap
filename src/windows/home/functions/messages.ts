@@ -298,4 +298,14 @@ export function installHomeMessages(): void {
     sw.disabled = true;
     HomePageElements.hotkeyMap.classList.add('hidden');
   });
+
+  onMessageFromIpcMain('screen-recording-authorized', (authorized) => {
+    if (authorized) {
+      HomePageElements.OverlayDenied.classList.add('hidden');
+      HomePageElements.OverlayAuthorized.classList.remove('hidden');
+    } else {
+      HomePageElements.OverlayDenied.classList.remove('hidden');
+      HomePageElements.OverlayAuthorized.classList.add('hidden');
+    }
+  });
 }

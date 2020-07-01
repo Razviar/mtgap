@@ -33,7 +33,7 @@
   <div class="tab activetab" id="general">
     <div id="TokenResponse"></div>
     <div id="UserCredentials"></div>
-    <div id="StatusMessage">Launching tracker...</div>
+    <div id="StatusMessage">Tracker requires Accessibility system permissions...</div>
     <div class="LorTab hidden">
       <div id="LorTokenInput">
         <h2>Linking New Account</h2>
@@ -236,98 +236,105 @@
     </div>
   </div>
   <div class="tab" id="overlay">
-    <div id="OverlaySwitch" class="pretty p-smooth p-switch p-slim">
-      <input class="settings" data-setting="overlay" type="checkbox" value="1" />
-      <div class="state p-success">
-        <label><strong>Enable Overlay</strong></label>
+    <div id="overlay-denied" class="hidden">
+      <div class="overlay-permission-message">Overlay requires Screen Recording system permissions...</div>
+      <div class="interfaceButton controlButton" id="brightButton" data-button="enable-screen-recording">Enable
+        Permissions</div>
+    </div>
+    <div id="overlay-authorized" class="hidden">
+      <div id="OverlaySwitch" class="pretty p-smooth p-switch p-slim">
+        <input class="settings" data-setting="overlay" type="checkbox" value="1" />
+        <div class="state p-success">
+          <label><strong>Enable Overlay</strong></label>
+        </div>
       </div>
-    </div>
-    Font color:
-    <select class="settings" data-setting="o-fontcolor">
-      <option value="0">Dark Grey</option>
-      <option value="1">Light Grey</option>
-      <option value="2">White</option>
-    </select>
-    <div class="pretty p-smooth p-switch p-slim">
-      <input class="settings" data-setting="o-detach" type="checkbox" value="1" />
-      <div class="state p-success"><label>Detach Overlay from MTGA</label></div>
-    </div>
-    <div class="pretty p-smooth p-switch p-slim">
-      <input class="settings" data-setting="o-hidemain" type="checkbox" value="1" />
-      <div class="state p-success"><label>Hide overlay menu</label></div>
-    </div>
+      Font color:
+      <select class="settings" data-setting="o-fontcolor">
+        <option value="0">Dark Grey</option>
+        <option value="1">Light Grey</option>
+        <option value="2">White</option>
+      </select>
+      <div class="pretty p-smooth p-switch p-slim">
+        <input class="settings" data-setting="o-detach" type="checkbox" value="1" />
+        <div class="state p-success"><label>Detach Overlay from MTGA</label></div>
+      </div>
+      <div class="pretty p-smooth p-switch p-slim">
+        <input class="settings" data-setting="o-hidemain" type="checkbox" value="1" />
+        <div class="state p-success"><label>Hide overlay menu</label></div>
+      </div>
 
-    <h2>Combat mode</h2>
-    Left digit:
-    <select class="settings" data-setting="o-leftdigit">
-      <option value="1">Cards Left In deck</option>
-      <option value="2">Cards Total In deck</option>
-      <option value="3">Draw Chance</option>
-      <option value="4">Disable</option>
-    </select>
-    Right Digit:
-    <select class="settings" data-setting="o-rightdigit">
-      <option value="1">Cards Left In deck</option>
-      <option value="2">Cards Total In deck</option>
-      <option value="3">Draw Chance</option>
-      <option value="4">Disable</option>
-    </select>
-    Bottom Digit:
-    <select class="settings" data-setting="o-bottomdigit">
-      <option value="1">Cards Left In deck</option>
-      <option value="2">Cards Total In deck</option>
-      <option value="3">Draw Chance</option>
-      <option value="4">Disable</option>
-    </select>
-    <h2>Draft Mode</h2>
-    Left Digit:
-    <select class="settings" data-setting="o-leftdraftdigit">
-      <option value="1">Draft Eval by Picks</option>
-      <option value="2">Draft Eval by W/L</option>
-      <option value="3">In Collection</option>
-      <option value="4">Disable</option>
-    </select>
-    Right Digit:
-    <select class="settings" data-setting="o-rightdraftdigit">
-      <option value="1">Draft Eval by Picks</option>
-      <option value="2">Draft Eval by W/L</option>
-      <option value="3">In Collection</option>
-      <option value="4">Disable</option>
-    </select>
-    <small>Cards are sorted by Left digit parameter</small>
-    <h2>Preferences</h2>
+      <h2>Combat mode</h2>
+      Left digit:
+      <select class="settings" data-setting="o-leftdigit">
+        <option value="1">Cards Left In deck</option>
+        <option value="2">Cards Total In deck</option>
+        <option value="3">Draw Chance</option>
+        <option value="4">Disable</option>
+      </select>
+      Right Digit:
+      <select class="settings" data-setting="o-rightdigit">
+        <option value="1">Cards Left In deck</option>
+        <option value="2">Cards Total In deck</option>
+        <option value="3">Draw Chance</option>
+        <option value="4">Disable</option>
+      </select>
+      Bottom Digit:
+      <select class="settings" data-setting="o-bottomdigit">
+        <option value="1">Cards Left In deck</option>
+        <option value="2">Cards Total In deck</option>
+        <option value="3">Draw Chance</option>
+        <option value="4">Disable</option>
+      </select>
+      <h2>Draft Mode</h2>
+      Left Digit:
+      <select class="settings" data-setting="o-leftdraftdigit">
+        <option value="1">Draft Eval by Picks</option>
+        <option value="2">Draft Eval by W/L</option>
+        <option value="3">In Collection</option>
+        <option value="4">Disable</option>
+      </select>
+      Right Digit:
+      <select class="settings" data-setting="o-rightdraftdigit">
+        <option value="1">Draft Eval by Picks</option>
+        <option value="2">Draft Eval by W/L</option>
+        <option value="3">In Collection</option>
+        <option value="4">Disable</option>
+      </select>
+      <small>Cards are sorted by Left digit parameter</small>
+      <h2>Preferences</h2>
 
-    <div class="pretty p-smooth p-switch p-slim">
-      <input class="settings" data-setting="o-showcardicon" type="checkbox" value="1" />
-      <div class="state p-success"><label>Show card icon</label></div>
-    </div>
-    <div class="pretty p-smooth p-switch p-slim">
-      <input class="settings" data-setting="o-neverhide" type="checkbox" value="1" />
-      <div class="state p-success"><label>Don't hide overlay</label></div>
-    </div>
-    <div class="pretty p-smooth p-switch p-slim" title="Not implemented yet">
-      <input class="settings" data-setting="o-mydecks" type="checkbox" value="1" disabled />
-      <div class="state p-success"><label>Show My Decks between battles</label></div>
-    </div>
-    <div class="pretty p-smooth p-switch p-slim">
-      <input class="settings" data-setting="o-cardhover" type="checkbox" value="1" />
-      <div class="state p-success"><label>Show card image on hover</label></div>
-    </div>
-    <div class="pretty p-smooth p-switch p-slim" title="Not implemented yet">
-      <input class="settings" data-setting="o-timers" type="checkbox" value="1" />
-      <div class="state p-success"><label>Show timers</label></div>
-    </div>
-    <div class="pretty p-smooth p-switch p-slim">
-      <input class="settings" data-setting="o-hidezero" type="checkbox" value="1" />
-      <div class="state p-success"><label>Hide 0 cards</label></div>
-    </div>
-    <div class="pretty p-smooth p-switch p-slim">
-      <input class="settings" data-setting="o-hidemy" type="checkbox" value="1" />
-      <div class="state p-success"><label>Hide my deck</label></div>
-    </div>
-    <div class="pretty p-smooth p-switch p-slim">
-      <input class="settings" data-setting="o-hideopp" type="checkbox" value="1" />
-      <div class="state p-success"><label>Hide opponent deck</label></div>
+      <div class="pretty p-smooth p-switch p-slim">
+        <input class="settings" data-setting="o-showcardicon" type="checkbox" value="1" />
+        <div class="state p-success"><label>Show card icon</label></div>
+      </div>
+      <div class="pretty p-smooth p-switch p-slim">
+        <input class="settings" data-setting="o-neverhide" type="checkbox" value="1" />
+        <div class="state p-success"><label>Don't hide overlay</label></div>
+      </div>
+      <div class="pretty p-smooth p-switch p-slim" title="Not implemented yet">
+        <input class="settings" data-setting="o-mydecks" type="checkbox" value="1" disabled />
+        <div class="state p-success"><label>Show My Decks between battles</label></div>
+      </div>
+      <div class="pretty p-smooth p-switch p-slim">
+        <input class="settings" data-setting="o-cardhover" type="checkbox" value="1" />
+        <div class="state p-success"><label>Show card image on hover</label></div>
+      </div>
+      <div class="pretty p-smooth p-switch p-slim" title="Not implemented yet">
+        <input class="settings" data-setting="o-timers" type="checkbox" value="1" />
+        <div class="state p-success"><label>Show timers</label></div>
+      </div>
+      <div class="pretty p-smooth p-switch p-slim">
+        <input class="settings" data-setting="o-hidezero" type="checkbox" value="1" />
+        <div class="state p-success"><label>Hide 0 cards</label></div>
+      </div>
+      <div class="pretty p-smooth p-switch p-slim">
+        <input class="settings" data-setting="o-hidemy" type="checkbox" value="1" />
+        <div class="state p-success"><label>Hide my deck</label></div>
+      </div>
+      <div class="pretty p-smooth p-switch p-slim">
+        <input class="settings" data-setting="o-hideopp" type="checkbox" value="1" />
+        <div class="state p-success"><label>Hide opponent deck</label></div>
+      </div>
     </div>
   </div>
   <div class="tab" id="accounts"></div>
