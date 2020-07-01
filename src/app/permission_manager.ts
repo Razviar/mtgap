@@ -1,4 +1,3 @@
-import {getAuthStatus, askForScreenCaptureAccess} from 'node-mac-permissions';
 import {systemPreferences} from 'electron';
 import {PermissionEventEmitter, PermissionEvents, PermissionListener} from 'root/app/permission_events';
 import {isMac} from 'root/lib/utils';
@@ -19,12 +18,12 @@ class PermissionManager extends PermissionEventEmitter {
   }
 
   private checkAuthStatus(): void {
-    const isAccessibilityOk = getAuthStatus('accessibility') === 'authorized';
+    const isAccessibilityOk = require('node-mac-permissions').getAuthStatus('accessibility') === 'authorized';
     if (this.isAccessibilityOk !== isAccessibilityOk) {
       this.isAccessibilityOk = isAccessibilityOk;
       this.emit('accessibility', isAccessibilityOk);
     }
-    const isScreenRecordingOk = getAuthStatus('screen') === 'authorized';
+    const isScreenRecordingOk = require('node-mac-permissions').getAuthStatus('screen') === 'authorized';
     if (this.isScreenRecordingOk !== isScreenRecordingOk) {
       this.isScreenRecordingOk = isScreenRecordingOk;
       this.emit('screenRecording', isScreenRecordingOk);
@@ -39,7 +38,7 @@ class PermissionManager extends PermissionEventEmitter {
 
   public requireScreenRecording(): void {
     if (isMac()) {
-      askForScreenCaptureAccess();
+      require('node-mac-permissions').askForScreenCaptureAccess();
     }
   }
 
