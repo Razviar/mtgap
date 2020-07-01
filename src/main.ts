@@ -6,7 +6,6 @@ import {enableAutoLauncher} from 'root/app/auto_launcher';
 import {setupAutoUpdater} from 'root/app/auto_updater';
 import {doMtgaPathOps} from 'root/app/do-path-ops';
 import {setupIpcMain} from 'root/app/ipc_main';
-import {log} from 'root/app/log-rotate/log_rotate';
 import {createGlobalLogParser} from 'root/app/log_parser_manager';
 import {createMainWindow, withHomeWindow} from 'root/app/main_window';
 import {sendMessageToHomeWindow} from 'root/app/messages';
@@ -99,7 +98,6 @@ if (!gotTheLock) {
 
   if (isMac()) {
     app.on('activate', () => {
-      log('activate event');
       if (!mainWindowCreated) {
         recreateMainWindow();
       } else {
