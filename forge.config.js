@@ -47,6 +47,8 @@ module.exports = {
       config: {
         name: 'mtgaprotracker',
         overwrite: true,
+        background: './dmg-background.tiff',
+        icon: './src/statics/icon.icns',
       },
     },
     {
