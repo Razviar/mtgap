@@ -136,6 +136,7 @@ class GameState {
         process.kill(this.processId, 0);
       } catch {
         this.processId = undefined;
+        this.setRunning(false);
       }
     } else {
       psList()

@@ -10,11 +10,11 @@ module.exports = {
       'entitlements-inherit': 'entitlements.plist',
       'signature-flags': 'library',
     },
-    // osxNotarize: {
-    //   appBundleId: 'com.mtgarenapro.mtgaprotracker',
-    //   appleId: process.env.APPLE_ID,
-    //   appleIdPassword: process.env.APPLE_ID_PASSWORD,
-    // },
+    osxNotarize: {
+      appBundleId: 'com.mtgarenapro.mtgaprotracker',
+      appleId: process.env.APPLE_ID,
+      appleIdPassword: process.env.APPLE_ID_PASSWORD,
+    },
   },
   publishers: [
     {
