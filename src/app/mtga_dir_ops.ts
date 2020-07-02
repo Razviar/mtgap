@@ -17,23 +17,14 @@ export function locateMtgaDir(checkPath: string | undefined): boolean {
     if (isMac()) {
       MtgaPathLocator.push([app.getPath('home'), 'Library', 'Application Support', 'com.wizards.mtga']);
     } else {
-      const x64 = process.arch === 'x64' || process.env.hasOwnProperty('PROCESSOR_ARCHITEW6432');
       const progFiles = process.env['ProgramFiles'];
 
       if (progFiles === undefined) {
         return false;
       }
 
-      MtgaPathLocator.push([progFiles, 'Wizards of the Coast', 'MTGA']);
-      MtgaPathLocator.push([progFiles, 'Epic Games', 'MagicTheGathering']);
-
-      if (x64) {
-        const progFilesx86 = process.env['ProgramFiles(x86)'];
-        if (progFilesx86 !== undefined) {
-          MtgaPathLocator.push([progFilesx86, 'Wizards of the Coast', 'MTGA']);
-          MtgaPathLocator.push([progFilesx86, 'Epic Games', 'MagicTheGathering']);
-        }
-      }
+      MtgaPathLocator.push([progFiles, 'Wizards of the Coast', 'MTGA', 'MTGA_Data']);
+      MtgaPathLocator.push([progFiles, 'Epic Games', 'MagicTheGathering', 'MTGA_Data']);
     }
 
     let pathFound = false;
@@ -49,26 +40,10 @@ export function locateMtgaDir(checkPath: string | undefined): boolean {
     });
   }
 
-  let result = false;
+  const result = pth !== '';
   const settings = settingsStore.get();
-
-  if (isMac()) {
-    result = pth !== '';
-    settings.mtgaPath = result ? pth : undefined;
-  } else {
-    try {
-      const dir = fs.readdirSync(pth);
-      dir.forEach((file) => {
-        if (file === 'MTGA.exe') {
-          result = true;
-        }
-      });
-      settings.mtgaPath = result ? join(pth, 'MTGA_Data') : undefined;
-    } catch (e) {
-      result = false;
-      settings.mtgaPath = undefined;
-    }
-  }
+  settings.mtgaPath = result ? pth : undefined;
+  settingsStore.save();
 
   return result;
 }
