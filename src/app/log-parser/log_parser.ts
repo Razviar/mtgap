@@ -97,7 +97,7 @@ export class LogParser {
         //const [fileId] = await getFileId(path, {bytesRead: 0}, parsingMetadata);
         const fileId = LogFromMTGAFolder.fileId;
         if (fileId === undefined || LogFromMTGAFolder.logPath === undefined) {
-          throw new Error('Please set correct MTGA path in Settings...');
+          throw new Error('Please set correct MTGA/MTGA_Data path in Settings...');
         }
         //console.log(fileId);
 
