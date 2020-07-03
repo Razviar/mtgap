@@ -6,6 +6,7 @@ class PermissionManager extends PermissionEventEmitter {
   private fetchInterval: NodeJS.Timeout | undefined;
   private isAccessibilityOk = !isMac();
   private isScreenRecordingOk = !isMac();
+  private canShowInvitation = true;
 
   private readonly fetchMillis = 1000;
 
@@ -32,7 +33,8 @@ class PermissionManager extends PermissionEventEmitter {
 
   public requireAccessibility(): void {
     if (isMac()) {
-      systemPreferences.isTrustedAccessibilityClient(true);
+      systemPreferences.isTrustedAccessibilityClient(this.canShowInvitation);
+      this.canShowInvitation = false;
     }
   }
 

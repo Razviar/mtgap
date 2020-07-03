@@ -2,10 +2,9 @@ import {globalShortcut} from 'electron';
 
 import {sendMessageToOverlayWindow} from 'root/app/messages';
 import {settingsStore} from 'root/app/settings-store/settings_store';
-import {isMac} from 'root/lib/utils';
 
 export function registerHotkeys(): void {
-  if (settingsStore.get().nohotkeys || isMac()) {
+  if (settingsStore.get().nohotkeys) {
     return;
   }
 

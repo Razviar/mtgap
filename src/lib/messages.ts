@@ -102,6 +102,7 @@ export interface Messages {
   'set-setting-o-fontcolor': number;
   'set-setting-o-detach': boolean;
   'set-setting-o-hidemain': boolean;
+  'set-setting-o-interactive': boolean;
   'hk-my-deck': string;
   'hk-opp-deck': string;
   'hk-overlay': string;
@@ -145,7 +146,6 @@ export interface Messages {
   'show-dev-buttons': undefined;
   'dev-log': boolean;
   'startup-title': string;
-  'hide-hotkeys': undefined;
   'screen-recording-authorized': boolean;
   'enable-screen-recording': undefined;
 }

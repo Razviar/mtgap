@@ -292,13 +292,6 @@ export function installHomeMessages(): void {
     HomePageElements.StartupTitle.innerHTML = title;
   });
 
-  onMessageFromIpcMain('hide-hotkeys', () => {
-    const sw = document.querySelector('[data-setting="disable-hotkeys"]') as HTMLInputElement;
-    sw.checked = true;
-    sw.disabled = true;
-    HomePageElements.hotkeyMap.classList.add('hidden');
-  });
-
   onMessageFromIpcMain('screen-recording-authorized', (authorized) => {
     if (authorized) {
       HomePageElements.OverlayDenied.classList.add('hidden');

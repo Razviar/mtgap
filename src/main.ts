@@ -52,7 +52,6 @@ function recreateMainWindow(): void {
       sendMessageToHomeWindow('set-version', app.getVersion());
       sendMessageToHomeWindow('startup-title', isMac() ? 'Start tracker on system startup' : 'Start with Windows');
       if (isMac()) {
-        sendMessageToHomeWindow('hide-hotkeys', undefined);
         permissionManager.requireAccessibility();
         permissionManager.on('accessibility', (authorized) => {
           if (authorized) {

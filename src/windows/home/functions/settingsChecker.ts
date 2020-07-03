@@ -79,5 +79,8 @@ export function settingsChecker(event: Event): void {
     case 'o-hidemain':
       sendMessageToIpcMain('set-setting-o-hidemain', cl.checked);
       break;
+    case 'o-interactive':
+      sendMessageToIpcMain('set-setting-o-interactive', cl.checked);
+      break;
   }
 }

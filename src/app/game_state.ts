@@ -88,7 +88,7 @@ class GameState {
             if (!overlayWindow.isVisible()) {
               registerHotkeys();
               if (isMac()) {
-                overlayWindow.restore();
+                overlayWindow.showInactive();
               } else {
                 overlayWindow.show();
               }
@@ -108,7 +108,7 @@ class GameState {
             if (!overlayWindow.isVisible()) {
               registerHotkeys();
               if (isMac()) {
-                overlayWindow.restore();
+                overlayWindow.showInactive();
               } else {
                 overlayWindow.show();
               }
@@ -127,6 +127,10 @@ class GameState {
     if (this.overlayInterval !== undefined) {
       clearInterval(this.overlayInterval);
       this.overlayInterval = undefined;
+    }
+    const overlayWindow = getOverlayWindow();
+    if (overlayWindow) {
+      overlayWindow.hide();
     }
   }
 

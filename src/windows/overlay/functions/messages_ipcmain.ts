@@ -19,8 +19,9 @@ import {
   toggleButtonClass,
   userCollection,
 } from 'root/windows/overlay/overlay';
+import {OverlaySettings} from 'root/app/settings-store/settings_store';
 
-export function SetMessages(): void {
+export function SetMessages(setInteractiveHandler: (overlaySettings: OverlaySettings | undefined) => void): void {
   onMessageFromIpcMain('set-icosettings', (ico) => {
     if (ico !== undefined) {
       overlayConfig.icon = ico;
@@ -33,6 +34,7 @@ export function SetMessages(): void {
 
   onMessageFromIpcMain('set-ovlsettings', (settings) => {
     overlayConfig.ovlSettings = settings;
+    setInteractiveHandler(settings);
     const smallpics = document.getElementsByClassName('CardSmallPic');
     if (!overlayConfig.ovlSettings?.showcardicon) {
       Array.from(smallpics).forEach((pic) => {

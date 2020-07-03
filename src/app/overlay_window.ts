@@ -49,7 +49,7 @@ export function createOverlayWindow(): BrowserWindow {
     })
   );
   overlayWindow.setMenuBarVisibility(false);
-  overlayWindow.setIgnoreMouseEvents(true, {forward: true});
   overlayWindow.webContents.openDevTools({mode: 'detach'});
+  overlayWindow.setIgnoreMouseEvents(true, {forward: true});
   return overlayWindow;
 }

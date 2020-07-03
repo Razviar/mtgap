@@ -40,7 +40,9 @@ export class WindowLocator {
           // log(JSON.stringify(processes));
           const isMtgaWindow =
             processes.platform === 'macos'
-              ? processes.owner.name === 'MTGA' && processes.owner.bundleId === 'com.wizards.mtga'
+              ? processes.owner.name === 'MTGA' &&
+                processes.title === 'MTGA' &&
+                processes.owner.bundleId === 'com.wizards.mtga'
               : gameState.getProcessId() === processes.owner.processId;
           if (isMtgaWindow) {
             const xMargin = 6;

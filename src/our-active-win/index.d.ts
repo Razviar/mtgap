@@ -39,6 +39,7 @@ declare namespace ourActiveWin {
   interface MacOSResult extends BaseResult {
     platform: 'macos';
 
+    title: string | undefined;
     owner: MacOSOwner;
   }
 

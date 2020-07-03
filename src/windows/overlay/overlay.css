@@ -270,6 +270,10 @@ a[href^="ftp://"]
   color: #fff;
 }
 
+.no-hover {
+  pointer-events: none;
+}
+
 .HandleRight {
   width: 25px;
   height: 25px;

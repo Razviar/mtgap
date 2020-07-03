@@ -18,6 +18,7 @@ import {settingsStore} from 'root/app/settings-store/settings_store';
 import {stateStore} from 'root/app/state_store';
 import {error} from 'root/lib/logger';
 import {permissionManager} from 'root/app/permission_manager';
+import {isMac} from 'root/lib/utils';
 
 export function setupIpcMain(app: App): void {
   onMessageFromBrowserWindow('token-input', (newAccount) => {
@@ -170,6 +171,7 @@ export function setupIpcMain(app: App): void {
     'cardhover',
     'detach',
     'hidemain',
+    'interactive',
   ];
 
   overlaySettingsBoolean.forEach((setting) => {
@@ -183,7 +185,8 @@ export function setupIpcMain(app: App): void {
       | 'mydecks'
       | 'cardhover'
       | 'detach'
-      | 'hidemain';
+      | 'hidemain'
+      | 'interactive';
     const settingName = `set-setting-o-${settingType}` as
       | 'set-setting-o-hidezero'
       | 'set-setting-o-hidemy'
@@ -194,7 +197,8 @@ export function setupIpcMain(app: App): void {
       | 'set-setting-o-cardhover'
       | 'set-setting-o-timers'
       | 'set-setting-o-detach'
-      | 'set-setting-o-hidemain';
+      | 'set-setting-o-hidemain'
+      | 'set-setting-o-interactive';
     onMessageFromBrowserWindow(settingName, (newOverlaySetting) => {
       const session = settingsStore.getAccount();
       if (!session) {
@@ -224,6 +228,7 @@ export function setupIpcMain(app: App): void {
           fontcolor: 0,
           detach: false,
           hidemain: false,
+          interactive: !isMac(),
         };
       }
       session.overlaySettings[settingType] = newOverlaySetting;
@@ -303,6 +308,7 @@ export function setupIpcMain(app: App): void {
           fontcolor: 0,
           detach: false,
           hidemain: false,
+          interactive: !isMac(),
         };
       }
       session.overlaySettings[settingType] = newOverlaySetting;
@@ -524,6 +530,7 @@ export function setupIpcMain(app: App): void {
         fontcolor: 0,
         detach: false,
         hidemain: false,
+        interactive: !isMac(),
       };
     }
 

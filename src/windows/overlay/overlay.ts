@@ -14,6 +14,7 @@ import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdMPmDQ.woff2';
 import {SetMessages} from 'root/windows/overlay/functions/messages_ipcmain';
 import {SetHandlers} from 'root/windows/overlay/functions/sethandlers';
 import 'root/windows/overlay/overlay.css';
+import {OverlaySettings} from 'root/app/settings-store/settings_store';
 
 export const overlayElements = {
   MainOut: document.getElementById('MainOut') as HTMLElement,
@@ -65,27 +66,39 @@ export function toggleButtonClass(el: HTMLElement, state: boolean): void {
   }
 }
 
-export function toggler(elem: HTMLElement, totoggle: HTMLElement): void {
+function toggler(elem: HTMLElement, totoggle: HTMLElement): void {
   totoggle.addEventListener('click', () => {
     elem.classList.contains('hidden') ? elem.classList.remove('hidden') : elem.classList.add('hidden');
     toggleButtonClass(totoggle, elem.classList.contains('hidden'));
   });
 }
 
-Array.from(Interactive).forEach((elem) => {
-  elem.addEventListener('mouseleave', (event: Event) => {
-    const e = event as MouseEvent;
-    if (e.relatedTarget) {
-      sendMessageToIpcMain('disable-clicks', undefined);
-    }
-  });
+const mouseLeaveHandler = (event: Event) => {
+  const e = event as MouseEvent;
+  if (e.relatedTarget) {
+    sendMessageToIpcMain('disable-clicks', undefined);
+  }
+};
+const mouseEnterHandler = () => {
+  sendMessageToIpcMain('enable-clicks', undefined);
+};
 
-  elem.addEventListener('mouseenter', () => {
-    sendMessageToIpcMain('enable-clicks', undefined);
-  });
+SetMessages((ovlSettings: OverlaySettings | undefined) => {
+  if (ovlSettings !== undefined && ovlSettings.interactive) {
+    Array.from(Interactive).forEach((elem) => {
+      elem.addEventListener('mouseleave', mouseLeaveHandler);
+      elem.addEventListener('mouseenter', mouseEnterHandler);
+      elem.classList.remove('no-hover');
+    });
+    SetHandlers();
+    toggler(overlayElements.OpponentOutFrame, overlayElements.ToggleOpp);
+    toggler(overlayElements.MainDeckFrame, overlayElements.ToggleMe);
+  } else {
+    Array.from(Interactive).forEach((elem) => {
+      elem.removeEventListener('mouseleave', mouseLeaveHandler);
+      elem.removeEventListener('mouseenter', mouseEnterHandler);
+      elem.classList.add('no-hover');
+    });
+    sendMessageToIpcMain('disable-clicks', undefined);
+  }
 });
-
-SetHandlers();
-SetMessages();
-toggler(overlayElements.OpponentOutFrame, overlayElements.ToggleOpp);
-toggler(overlayElements.MainDeckFrame, overlayElements.ToggleMe);
