@@ -405,10 +405,10 @@ export function setupIpcMain(app: App): void {
           settingsStore.get().mtgaPath = log.filePaths[0];
           settingsStore.save();
           if (locateMtgaDir(log.filePaths[0])) {
-            sendMessageToHomeWindow('show-prompt', {message: 'MTGA path have been updated!', autoclose: 1000});
+            sendMessageToHomeWindow('show-prompt', {message: 'MTGA_Data path have been updated!', autoclose: 1000});
           } else {
             sendMessageToHomeWindow('show-prompt', {
-              message: 'Bad MTGA path, please set it correctly',
+              message: 'Bad MTGA/MTGA_Data path, please set it correctly',
               autoclose: 1000,
             });
           }
@@ -424,7 +424,7 @@ export function setupIpcMain(app: App): void {
     if (locateMtgaDir(undefined)) {
       sendMessageToHomeWindow('show-prompt', {message: 'MTGA path have been set to default!', autoclose: 1000});
     } else {
-      sendMessageToHomeWindow('show-prompt', {message: 'Bad MTGA path, please set it correctly', autoclose: 1000});
+      sendMessageToHomeWindow('show-prompt', {message: 'Bad MTGA path, please set it correctly', autoclose: 3000});
     }
     sendSettingsToRenderer();
   });

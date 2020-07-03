@@ -40,9 +40,24 @@ export function locateMtgaDir(checkPath: string | undefined): boolean {
     });
   }
 
-  const result = pth !== '';
+  let result = false;
   const settings = settingsStore.get();
-  settings.mtgaPath = result ? pth : undefined;
+  try {
+    if (fs.existsSync(join(pth, 'Logs', 'Logs'))) {
+      result = true;
+      settings.mtgaPath = pth;
+    } else if (fs.existsSync(join(pth, 'MTGA_Data', 'Logs', 'Logs'))) {
+      result = true;
+      settings.mtgaPath = join(pth, 'MTGA_Data');
+    } else {
+      result = false;
+      settings.mtgaPath = undefined;
+    }
+  } catch (e) {
+    result = false;
+    settings.mtgaPath = undefined;
+  }
+
   settingsStore.save();
 
   return result;

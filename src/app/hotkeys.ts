@@ -9,10 +9,18 @@ export function registerHotkeys(): void {
     return;
   }
 
-  const hotkeyMap = settingsStore.getAccount()?.hotkeysSettings;
+  let hotkeyMap = settingsStore.getAccount()?.hotkeysSettings;
 
   if (hotkeyMap === undefined) {
-    return;
+    hotkeyMap = {
+      'hk-my-deck': 'Q',
+      'hk-opp-deck': 'W',
+      'hk-overlay': '`',
+      'hk-inc-size': 'A',
+      'hk-dec-size': 'S',
+      'hk-inc-opac': 'E',
+      'hk-dec-opac': 'D',
+    };
   }
 
   const HotkeysBinding = {
@@ -42,10 +50,12 @@ export function registerHotkeys(): void {
       | 'scale-down'
       | 'opacity-up'
       | 'opacity-down';
-    if (!globalShortcut.isRegistered(`Alt+${hotkeyMap[hotkey]}`)) {
-      globalShortcut.register(`Alt+${hotkeyMap[hotkey]}`, () => {
-        sendMessageToOverlayWindow(action, undefined);
-      });
+    if (hotkeyMap && hotkeyMap[hotkey]) {
+      if (!globalShortcut.isRegistered(`Alt+${hotkeyMap[hotkey]}`)) {
+        globalShortcut.register(`Alt+${hotkeyMap[hotkey]}`, () => {
+          sendMessageToOverlayWindow(action, undefined);
+        });
+      }
     }
   });
 }

@@ -6,6 +6,18 @@ export function setCreds(source: string): void {
 
   if (account) {
     sendMessageToHomeWindow('set-creds', {account, source});
+    if (!account.hotkeysSettings) {
+      account.hotkeysSettings = {
+        'hk-my-deck': 'Q',
+        'hk-opp-deck': 'W',
+        'hk-overlay': '`',
+        'hk-inc-size': 'A',
+        'hk-dec-size': 'S',
+        'hk-inc-opac': 'E',
+        'hk-dec-opac': 'D',
+      };
+      settingsStore.save();
+    }
     sendMessageToHomeWindow('set-hotkey-map', account.hotkeysSettings);
     if (!account.overlaySettings) {
       account.overlaySettings = {
