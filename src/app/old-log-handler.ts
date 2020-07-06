@@ -40,7 +40,7 @@ export function parseOldLogsHandler(
     return;
   }
   withLogParser((lp) => lp.stop());
-  getParsingMetadata(app.getVersion())
+  getParsingMetadata()
     .then((parsingMetadata) =>
       parseOldLogs(logs[index], parsingMetadata, undefined, dev, forceUpload).then((result) => {
         switch (result) {

@@ -147,7 +147,7 @@ export class LogParser {
         }*/
 
         //console.log(parsingMetadata.matchStartEvent);
-
+        //console.log(parsingMetadata.humanDraftEvent);
         // Checking events
         for (const event of events) {
           let isClosing = false;

@@ -1,7 +1,7 @@
 {
   "name": "mtgaprotracker",
   "productName": "mtgaprotracker",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "description": "MTG Arena Pro Tracker",
   "main": ".webpack/main",
   "scripts": {
@@ -55,7 +55,7 @@
     "@types/ffi-napi": "2.4.2",
     "@types/lodash": "4.14.155",
     "awesome-typescript-loader": "5.2.1",
-    "copy-webpack-plugin": "6.0.2",
+    "copy-webpack-plugin": "6.0.3",
     "csp-html-webpack-plugin": "4.0.0",
     "css-loader": "3.6.0",
     "dotenv-webpack": "1.8.0",
@@ -70,7 +70,7 @@
     "tslint": "6.1.2",
     "tslint-loader": "3.5.4",
     "tslint-plugin-prettier": "2.3.0",
-    "typescript": "3.9.5",
+    "typescript": "3.9.6",
     "webpack-hook-plugin": "1.0.7"
   }
 }

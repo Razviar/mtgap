@@ -173,6 +173,10 @@ export async function parseOldLogs(
     return 0;
   }
 
+  if (dev) {
+    console.log(events);
+  }
+
   // Filter useless events
   const eventsToSend = removeUndefined(
     events.map((e) => {

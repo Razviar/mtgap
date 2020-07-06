@@ -216,6 +216,7 @@ export function extractEventData(eventName: string, rawData: any): any | undefin
   // - on the `request` attribute. This is generally (but not exclusively) found on "==> ***" events
   // - on the `payload` attribute. This is generally (but not exclusively) found on "<== ***" events
   // - on an attribute that is the `eventName`, but camel cased
+  // - as first layer of JSON
   if (dataMap.request !== undefined) {
     return parseAsJSONIfNeeded(dataMap.request);
   }
@@ -227,7 +228,7 @@ export function extractEventData(eventName: string, rawData: any): any | undefin
   if (eventNameProperty !== undefined) {
     return parseAsJSONIfNeeded(dataMap[eventNameProperty]);
   }
-  return undefined;
+  return parseAsJSONIfNeeded(dataMap);
 }
 
 // tslint:disable-next-line:no-any
