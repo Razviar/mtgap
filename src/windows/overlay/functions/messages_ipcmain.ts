@@ -302,16 +302,24 @@ export function SetMessages(setInteractiveHandler: (overlaySettings: OverlaySett
   });
 
   onMessageFromIpcMain('toggle-me', () => {
-    overlayElements.MainDeckFrame.classList.contains('hidden')
-      ? overlayElements.MainDeckFrame.classList.remove('hidden')
-      : overlayElements.MainDeckFrame.classList.add('hidden');
+    const hideActive = overlayConfig.ovlSettings?.hidemy ? false : true;
+    sendMessageToIpcMain('set-setting-o-hidemy', hideActive);
+    if (!hideActive) {
+      overlayElements.MainDeckFrame.classList.remove('hidden');
+    } else {
+      overlayElements.MainDeckFrame.classList.add('hidden');
+    }
     toggleButtonClass(overlayElements.ToggleMe, overlayElements.MainDeckFrame.classList.contains('hidden'));
   });
 
   onMessageFromIpcMain('toggle-opp', () => {
-    overlayElements.OpponentOutFrame.classList.contains('hidden')
-      ? overlayElements.OpponentOutFrame.classList.remove('hidden')
-      : overlayElements.OpponentOutFrame.classList.add('hidden');
+    const hideActive = overlayConfig.ovlSettings?.hideopp ? false : true;
+    sendMessageToIpcMain('set-setting-o-hideopp', hideActive);
+    if (!hideActive) {
+      overlayElements.OpponentOutFrame.classList.remove('hidden');
+    } else {
+      overlayElements.OpponentOutFrame.classList.add('hidden');
+    }
     toggleButtonClass(overlayElements.ToggleOpp, overlayElements.OpponentOutFrame.classList.contains('hidden'));
   });
 

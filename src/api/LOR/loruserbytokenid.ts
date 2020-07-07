@@ -1,6 +1,7 @@
 import {app} from 'electron';
 
 import {AxiosResponse, Request} from 'root/app/request';
+import {isMac} from 'root/lib/utils';
 
 //
 // tokencheck
@@ -23,9 +24,12 @@ function parseTokenCheckRes(data: AxiosResponse): TokenCheckRes | undefined {
 
 export async function LORtokencheck(request: string): Promise<TokenCheckRes | undefined> {
   return parseTokenCheckRes(
-    await Request.post<{request: string}>(`/lor/donew2.php?cmd=cm_tokencheck&version=${app.getVersion()}`, {
-      request,
-    })
+    await Request.post<{request: string}>(
+      `/lor/donew2.php?cmd=cm_tokencheck&version=${app.getVersion()}${isMac() ? 'm' : 'w'}`,
+      {
+        request,
+      }
+    )
   );
 }
 
@@ -44,6 +48,6 @@ function parseTokenRequestRes(data: AxiosResponse): LorTokenRequestRes {
 
 export async function lortokenrequest(): Promise<LorTokenRequestRes> {
   return parseTokenRequestRes(
-    await Request.post(`/lor/donew2.php?cmd=cm_tokenrequest&version=${app.getVersion()}`, {})
+    await Request.post(`/lor/donew2.php?cmd=cm_tokenrequest&version=${app.getVersion()}${isMac() ? 'm' : 'w'}`, {})
   );
 }

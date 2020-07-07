@@ -7,7 +7,7 @@ import {stateStore} from 'root/app/state_store';
 import {error} from 'root/lib/logger';
 import {NetworkStatusMessage} from 'root/lib/messages';
 import {asMap, asString} from 'root/lib/type_utils';
-import {sleep} from 'root/lib/utils';
+import {sleep, isMac} from 'root/lib/utils';
 import {ParseResults} from 'root/models/indicators';
 
 // Constants
@@ -68,7 +68,10 @@ export function sendEventsToServer(
 // API call to server
 async function uploadpackfile(results: ParseResults[], version: string): Promise<string | boolean> {
   try {
-    const res = await Request.gzip<ParseResults[]>(`/mtg/donew2.php?cmd=cm_uploadpackfile&version=${version}`, results);
+    const res = await Request.gzip<ParseResults[]>(
+      `/mtg/donew2.php?cmd=cm_uploadpackfile&version=${version}${isMac() ? 'm' : 'w'}`,
+      results
+    );
     const resMap = asMap(res);
     /*console.log('!!!');
     console.log(res);

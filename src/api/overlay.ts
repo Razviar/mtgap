@@ -7,6 +7,7 @@ import {error} from 'root/lib/logger';
 import {asArray, asMap, asNumber, asString, removeUndefined} from 'root/lib/type_utils';
 import {LiveMatch, LiveMatchRequest} from 'root/models/match';
 import {Metadata, UserMetadata} from 'root/models/metadata';
+import {isMac} from 'root/lib/utils';
 
 function parseLiveMatch(data: AxiosResponse): LiveMatch {
   const dataMap = asMap(data);
@@ -37,21 +38,26 @@ function parseLiveMatch(data: AxiosResponse): LiveMatch {
 
 export async function getlivematch(matchid: string, uid: string): Promise<LiveMatch> {
   return parseLiveMatch(
-    await Request.post<LiveMatchRequest>(`/mtg/donew2.php?cmd=cm_getlivematch&version=${app.getVersion()}`, {
-      matchid,
-      uid,
-    })
+    await Request.post<LiveMatchRequest>(
+      `/mtg/donew2.php?cmd=cm_getlivematch&version=${app.getVersion()}${isMac() ? 'm' : 'w'}`,
+      {
+        matchid,
+        uid,
+      }
+    )
   );
 }
 
 export async function getUserMetadata(uid: number): Promise<UserMetadata> {
-  return parseUserMetadata(await Request.get(`/mtg/donew2.php?cmd=getuserdata&version=${app.getVersion()}&uid=${uid}`));
+  return parseUserMetadata(
+    await Request.get(`/mtg/donew2.php?cmd=getuserdata&version=${app.getVersion()}${isMac() ? 'm' : 'w'}&uid=${uid}`)
+  );
 }
 
 export async function getMetadata(): Promise<Metadata> {
   return parseMetadata(
     await Request.get(
-      `/mtg/donew2.php?cmd=getmetadata&version=${app.getVersion()}`,
+      `/mtg/donew2.php?cmd=getmetadata&version=${app.getVersion()}${isMac() ? 'm' : 'w'}`,
       {},
       'https://static2.mtgarena.pro/'
     )

@@ -3,6 +3,7 @@ import {app} from 'electron';
 import {AxiosResponse, Request} from 'root/app/request';
 import {asMap, asString} from 'root/lib/type_utils';
 import {UserRequest, UserResult} from 'root/models/userbytokenid';
+import {isMac} from 'root/lib/utils';
 
 //
 // tokencheck
@@ -25,9 +26,12 @@ function parseTokenCheckRes(data: AxiosResponse): TokenCheckRes | undefined {
 
 export async function tokencheck(request: string): Promise<TokenCheckRes | undefined> {
   return parseTokenCheckRes(
-    await Request.post<{request: string}>(`/mtg/donew2.php?cmd=cm_tokencheck&version=${app.getVersion()}`, {
-      request,
-    })
+    await Request.post<{request: string}>(
+      `/mtg/donew2.php?cmd=cm_tokencheck&version=${app.getVersion()}${isMac() ? 'm' : 'w'}`,
+      {
+        request,
+      }
+    )
   );
 }
 
@@ -52,7 +56,7 @@ export async function tokenrequest({
   currentMtgaID: string;
 }): Promise<TokenRequestRes> {
   return parseTokenRequestRes(
-    await Request.post(`/mtg/donew2.php?cmd=cm_tokenrequest&version=${app.getVersion()}`, {
+    await Request.post(`/mtg/donew2.php?cmd=cm_tokenrequest&version=${app.getVersion()}${isMac() ? 'm' : 'w'}`, {
       mtgaid: currentMtgaNick,
       mtgaplid: currentMtgaID,
     })
@@ -84,9 +88,12 @@ function parseUserResult(data: AxiosResponse): UserResult {
 
 export async function userbytokenid(cmUserbyTokenid: string): Promise<UserResult> {
   return parseUserResult(
-    await Request.post<UserRequest>(`/mtg/donew2.php?cmd=cm_userbytokenid&version=${app.getVersion()}`, {
-      cm_userbytokenid: cmUserbyTokenid,
-    })
+    await Request.post<UserRequest>(
+      `/mtg/donew2.php?cmd=cm_userbytokenid&version=${app.getVersion()}${isMac() ? 'm' : 'w'}`,
+      {
+        cm_userbytokenid: cmUserbyTokenid,
+      }
+    )
   );
 }
 
@@ -104,7 +111,7 @@ export async function setuserdata(userData: UserData): Promise<UserResult> {
   const usertime = ((-1 * new Date().getTimezoneOffset()) / 60).toString();
   return parseUserResult(
     await Request.post<UserData & {usertime: string}>(
-      `/mtg/donew2.php?cmd=cm_setuserdata&version=${app.getVersion()}`,
+      `/mtg/donew2.php?cmd=cm_setuserdata&version=${app.getVersion()}${isMac() ? 'm' : 'w'}`,
       {
         ...userData,
         usertime,
