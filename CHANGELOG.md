@@ -1,4 +1,9 @@
 Please note, that this project, while following numbering syntax, it DOES NOT adhere to Semantic Versioning rules.
+## v.2.1.6 released 07/07/2020
+* Implemented macOS X support and fixed numerous Mac compatibility issues
+* Fixed regressions connected to Mac implementation
+* Fixed human draft
+* Fixed hotkeys issue with hiding own or opponent deck with hotkeys
 
 ## v.2.0.49 released 07/06/2020
 * Human draft support
