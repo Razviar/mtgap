@@ -167,7 +167,7 @@ export function postProcessEvent(rawEvent: RawLogEvent, options: ParsingMetadata
 }
 
 function isClosingEvent(eventName: string): boolean {
-  return eventName === 'FrontDoorConnection.Close' || eventName === 'Client.TcpConnection.Close';
+  return ['FrontDoorConnection.Close', 'Client.TcpConnection.Close', 'FrontDoorConnection.Open'].includes(eventName);
 }
 
 export function parseAsRawEvent(value: string): RawLogEvent | undefined {

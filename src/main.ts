@@ -27,7 +27,7 @@ let mainWindowCreated = false;
 permissionManager.init();
 
 function initTrackerAndUi(): void {
-  createGlobalLogParser();
+  createGlobalLogParser(electronIsDev);
   //createGlobalLorParser();
   if (electronIsDev) {
     sendMessageToHomeWindow('show-dev-buttons', undefined);

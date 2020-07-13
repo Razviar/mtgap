@@ -31,7 +31,7 @@ export function withLogParser(fn: (logParser: LogParser) => void): void {
   fn(logParser);
 }
 
-export function createGlobalLogParser(): LogParser {
+export function createGlobalLogParser(dev?: boolean): LogParser {
   logParser = new LogParser();
 
   logParser.emitter.on('newdata', (data) => {
@@ -40,6 +40,9 @@ export function createGlobalLogParser(): LogParser {
       if (userToken !== undefined && userToken.includes('SKIPPING')) {
         sendMessageToHomeWindow('show-status', {message: 'Skipping this account...', color: '#dbb63d'});
         return;
+      }
+      if (dev) {
+        console.log(data.events);
       }
       sendEventsToServer(data.events, data.parsingMetadata.logSender, data.state, data.fileId);
     }
