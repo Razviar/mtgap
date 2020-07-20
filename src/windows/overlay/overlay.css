@@ -84,7 +84,7 @@ a[href^="ftp://"]
   font-family: 'Titillium Web', sans-serif;
   line-height: 20px !important;
   overflow: hidden;
-  width: 175px;
+  width: 155px;
   white-space: nowrap;
   text-overflow: ellipsis;
   text-align: left !important;
@@ -163,9 +163,9 @@ a[href^="ftp://"]
   font-weight: bold;
   margin-top: 0;
   float: right;
-  width: 50px;
+  width: 90px;
   height: 30px !important;
-  text-align: center;
+  text-align: right;
   filter: brightness(1.4);
 }
 

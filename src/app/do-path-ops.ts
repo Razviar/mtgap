@@ -26,6 +26,6 @@ export function doMtgaPathOps(): void {
   }
   if (settingsStore.get().uploads && mtgaPath !== undefined) {
     uploadCardData(['data_loc_', 'data_cards_'], [mtgaPath, 'Downloads', 'Data']);
-    uploadCardData(['loc_Events_', 'loc_Decks'], [mtgaPath, 'Downloads', 'Loc']);
+    uploadCardData(['loc_Events_', 'loc_Decks_'], [mtgaPath, 'Downloads', 'Loc']);
   }
 }
