@@ -42,7 +42,8 @@ export function createGlobalLogParser(dev?: boolean): LogParser {
         return;
       }
       if (dev) {
-        console.log(data.events);
+        //console.log(data.events);
+        console.log('There will be sent this number of events: ', data.events.length);
       }
       sendEventsToServer(data.events, data.parsingMetadata.logSender, data.state, data.fileId);
     }

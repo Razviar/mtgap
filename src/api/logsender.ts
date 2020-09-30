@@ -7,7 +7,7 @@ import {stateStore} from 'root/app/state_store';
 import {error} from 'root/lib/logger';
 import {NetworkStatusMessage} from 'root/lib/messages';
 import {asMap, asString} from 'root/lib/type_utils';
-import {sleep, isMac} from 'root/lib/utils';
+import {isMac, sleep} from 'root/lib/utils';
 import {ParseResults} from 'root/models/indicators';
 
 // Constants

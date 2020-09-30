@@ -102,7 +102,7 @@ export class LogParser {
         //console.log(fileId);
 
         const [userCreds] = await getUserCredentials(LogFromMTGAFolder.logPath, {bytesRead: 0}, parsingMetadata);
-        //console.log(userCreds);
+        //console.log('!!!', userCreds);
 
         if (!this.handleUserChangeEvent(userCreds.AccountID, userCreds.DisplayName)) {
           throw new Error('Parsing paused: new user account must be synced or skipped');
