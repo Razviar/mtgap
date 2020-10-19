@@ -117,9 +117,11 @@ export class LogParser {
           }
           nextState = detailedLogState;
           nextState.bytesRead = await initialpositioner(path, userCreds.AccountID, parsingMetadata);
+          //console.log(nextState);
           oldStore.saveFileID(new Date().getTime(), fileId);
         } else {
           nextState = this.currentState.state;
+          //console.log('reading on without initialpositioner:', nextState.bytesRead);
         }
 
         nextState.screenName = userCreds.DisplayName;

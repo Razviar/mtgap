@@ -44,6 +44,10 @@ export function createGlobalLogParser(dev?: boolean): LogParser {
       if (dev) {
         //console.log(data.events);
         console.log('There will be sent this number of events: ', data.events.length);
+        if (data && data.events && data.events[0]) {
+          console.log('This is user ID:', data.events[0].uid);
+        }
+        console.log(data.events.filter((ev) => ev.indicator === 1));
       }
       sendEventsToServer(data.events, data.parsingMetadata.logSender, data.state, data.fileId);
     }
