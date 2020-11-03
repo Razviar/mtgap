@@ -54,9 +54,6 @@ export class WindowLocator {
               processes.bounds.height === display.bounds.height * scaleFactor
             ) {
               // console.log('FullScreen!');
-              if (isMac()) {
-                throw new Error('Fullscreen not supported yet!');
-              }
               const monitorNumber = processes.bounds.x / processes.bounds.width;
               this.bounds = {
                 x: monitorNumber * display.bounds.width,

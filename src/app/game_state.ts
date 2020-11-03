@@ -7,6 +7,7 @@ import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
 import {isMac} from 'root/lib/utils';
 import psList from 'ps-list';
+import {BrowserWindow} from 'electron';
 
 const movementSensitivity = 5;
 
@@ -48,6 +49,22 @@ class GameState {
     return this.processId ?? -1;
   }
 
+  private showOverlay(overlayWindow: BrowserWindow): void {
+    registerHotkeys();
+    if (!overlayWindow.isVisible()) {
+      if (isMac()) {
+        overlayWindow.showInactive();
+      } else {
+        overlayWindow.show();
+      }
+    }
+  }
+
+  private hideOverlay(overlayWindow: BrowserWindow): void {
+    unRegisterHotkeys();
+    overlayWindow.hide();
+  }
+
   private startOverlay(): void {
     if (this.overlayInterval === undefined) {
       this.overlayInterval = setInterval(() => {
@@ -85,14 +102,7 @@ class GameState {
               Math.abs(overlayWindow.getBounds().height - overlayPositioner.bounds.height) > movementSensitivity ||
               !overlayIsPositioned)
           ) {
-            if (!overlayWindow.isVisible()) {
-              registerHotkeys();
-              if (isMac()) {
-                overlayWindow.showInactive();
-              } else {
-                overlayWindow.show();
-              }
-            }
+            this.showOverlay(overlayWindow);
             const EtalonHeight = 1144;
             const zoomFactor = overlayPositioner.bounds.height / EtalonHeight;
             sendMessageToOverlayWindow('set-zoom', zoomFactor);
@@ -102,21 +112,9 @@ class GameState {
             (overlayPositioner.bounds.width === 0 && (!ovlSettings || !ovlSettings.neverhide)) ||
             !overlayIsPositioned
           ) {
-            unRegisterHotkeys();
-            overlayWindow.hide();
+            this.hideOverlay(overlayWindow);
           } else {
-            if (!overlayWindow.isVisible()) {
-              registerHotkeys();
-              if (isMac()) {
-                overlayWindow.showInactive();
-              } else {
-                overlayWindow.show();
-              }
-            }
-          }
-
-          if (overlayWindow.isVisible()) {
-            overlayWindow.setAlwaysOnTop(true, 'screen-saver');
+            this.showOverlay(overlayWindow);
           }
         }
       }, this.refreshMillis);
