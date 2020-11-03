@@ -51,5 +51,7 @@ export function createOverlayWindow(): BrowserWindow {
   overlayWindow.setMenuBarVisibility(false);
   overlayWindow.webContents.openDevTools({mode: 'detach'});
   overlayWindow.setIgnoreMouseEvents(true, {forward: true});
+  overlayWindow.setVisibleOnAllWorkspaces(true, {visibleOnFullScreen: true});
+  overlayWindow.setAlwaysOnTop(true, 'screen-saver');
   return overlayWindow;
 }

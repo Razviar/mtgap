@@ -6,7 +6,11 @@ import {isMac} from 'root/lib/utils';
 function loadAppIconInternal(type: string | undefined): any {
   // tslint:disable:no-require-imports
   if (isMac()) {
-    return require('root/statics/icon.icns');
+    require('root/statics/mac-icon@2x.png');
+    require('root/statics/mac-icon@3x.png');
+    require('root/statics/mac-icon@4x.png');
+    require('root/statics/mac-icon@5x.png');
+    return require('root/statics/mac-icon.png');
   }
   if (type === '') {
     return require('root/statics/icon.ico');
