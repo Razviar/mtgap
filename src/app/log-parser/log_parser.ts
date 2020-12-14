@@ -1,5 +1,6 @@
 import {format} from 'date-fns';
 import {app} from 'electron';
+import electronIsDev from 'electron-is-dev';
 import {stat} from 'fs';
 import {join} from 'path';
 
@@ -195,6 +196,10 @@ export class LogParser {
               break;
             case parsingMetadata.GameBackupClosureEvent:
             case parsingMetadata.GameClosureEvent:
+              if (electronIsDev) {
+                console.log('Closure Event Happening');
+                console.log(event);
+              }
               isClosing = true;
               gameState.setRunning(false);
               break;
