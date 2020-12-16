@@ -152,8 +152,8 @@ export class LogParser {
         //console.log(parsingMetadata.matchStartEvent);
         //console.log(parsingMetadata.humanDraftEvent);
         // Checking events
+        let isClosing = false;
         for (const event of events) {
-          let isClosing = false;
           switch (event.name) {
             case parsingMetadata.deckMessage:
               this.handleDeckMessage(event);

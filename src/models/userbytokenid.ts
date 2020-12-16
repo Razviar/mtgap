@@ -5,4 +5,5 @@ export interface UserResult {
 
 export interface UserRequest {
   cm_userbytokenid: string;
+  usertime: string;
 }

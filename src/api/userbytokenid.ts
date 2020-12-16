@@ -87,11 +87,13 @@ function parseUserResult(data: AxiosResponse): UserResult {
 }
 
 export async function userbytokenid(cmUserbyTokenid: string): Promise<UserResult> {
+  const usertime = ((-1 * new Date().getTimezoneOffset()) / 60).toString();
   return parseUserResult(
     await Request.post<UserRequest>(
       `/mtg/donew2.php?cmd=cm_userbytokenid&version=${app.getVersion()}${isMac() ? 'm' : 'w'}`,
       {
         cm_userbytokenid: cmUserbyTokenid,
+        usertime,
       }
     )
   );
@@ -109,6 +111,7 @@ export interface UserData {
 
 export async function setuserdata(userData: UserData): Promise<UserResult> {
   const usertime = ((-1 * new Date().getTimezoneOffset()) / 60).toString();
+  console.log('usertime', usertime);
   return parseUserResult(
     await Request.post<UserData & {usertime: string}>(
       `/mtg/donew2.php?cmd=cm_setuserdata&version=${app.getVersion()}${isMac() ? 'm' : 'w'}`,
