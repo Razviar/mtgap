@@ -53,7 +53,7 @@
     "@electron-forge/publisher-github": "6.0.0-beta.54",
     "@marshallofsound/webpack-asset-relocator-loader": "0.5.0",
     "@types/auto-launch": "5.0.1",
-    "@types/ffi-napi": "2.4.2npm ",
+    "@types/ffi-napi": "2.4.2",
     "@types/lodash": "4.14.165",
     "awesome-typescript-loader": "5.2.1",
     "copy-webpack-plugin": "6.2.1",
