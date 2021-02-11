@@ -14,6 +14,7 @@ assignees: ''
 
 **Your Desktop:**
  - OS: [e.g. Windows 10]
+ - App type: Standalone or Overwolf
  - App Version [e.g. 2.0.22]
 
 **Describe the bug**
