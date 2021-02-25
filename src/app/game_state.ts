@@ -55,7 +55,7 @@ class GameState {
       if (isMac()) {
         overlayWindow.showInactive();
       } else {
-        overlayWindow.show();
+        setTimeout(overlayWindow.show.bind(overlayWindow), 400);
       }
     }
   }

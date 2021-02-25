@@ -9,10 +9,10 @@ import {setupIpcMain} from 'root/app/ipc_main';
 import {createGlobalLogParser} from 'root/app/log_parser_manager';
 import {createMainWindow, withHomeWindow} from 'root/app/main_window';
 import {sendMessageToHomeWindow} from 'root/app/messages';
+import {permissionManager} from 'root/app/permission_manager';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
 import {isMac} from 'root/lib/utils';
-import {permissionManager} from 'root/app/permission_manager';
 
 // tslint:disable-next-line: no-var-requires no-unsafe-any no-require-imports
 require('source-map-support').install();
@@ -88,7 +88,7 @@ if (!gotTheLock) {
     });
   });
 
-  app.on('ready', recreateMainWindow);
+  app.on('ready', () => setTimeout(recreateMainWindow, 500));
 
   app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {

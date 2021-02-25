@@ -1,7 +1,7 @@
 {
   "name": "mtgaprotracker",
   "productName": "mtgaprotracker",
-  "version": "2.1.15",
+  "version": "2.1.16",
   "description": "MTG Arena Pro Tracker",
   "main": ".webpack/main",
   "scripts": {
@@ -31,7 +31,7 @@
     "error-stack-parser": "2.0.6",
     "ffi-napi": "2.4.6",
     "find-process": "1.4.4",
-    "lodash": "4.17.20",
+    "lodash": "4.17.21",
     "moment": "2.29.1",
     "node-abi": "2.19.3",
     "node-mac-permissions": "2.2.0",
@@ -60,7 +60,7 @@
     "csp-html-webpack-plugin": "5.1.0",
     "css-loader": "5.0.2",
     "dotenv-webpack": "6.0.0",
-    "electron": "11.2.3",
+    "electron": "11.3.0",
     "file-loader": "6.2.0",
     "fs-extra": "9.1.0",
     "node-loader": "1.0.2",

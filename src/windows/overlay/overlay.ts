@@ -1,5 +1,6 @@
 // tslint:disable: no-unsafe-any no-import-side-effect
 // tslint:disable: no-magic-numbers
+import {OverlaySettings} from 'root/app/settings-store/settings_store';
 import {Draft} from 'root/models/draft';
 import {DeckStrorage, Match} from 'root/models/match';
 import {OverlayConfig} from 'root/models/overlay';
@@ -14,7 +15,6 @@ import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdMPmDQ.woff2';
 import {SetMessages} from 'root/windows/overlay/functions/messages_ipcmain';
 import {SetHandlers} from 'root/windows/overlay/functions/sethandlers';
 import 'root/windows/overlay/overlay.css';
-import {OverlaySettings} from 'root/app/settings-store/settings_store';
 
 export const overlayElements = {
   MainOut: document.getElementById('MainOut') as HTMLElement,
