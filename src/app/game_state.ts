@@ -106,8 +106,13 @@ class GameState {
             const EtalonHeight = 1144;
             const zoomFactor = overlayPositioner.bounds.height / EtalonHeight;
             sendMessageToOverlayWindow('set-zoom', zoomFactor);
-            overlayWindow.setBounds(overlayPositioner.bounds);
-            overlayIsPositioned = true;
+            try {
+              overlayWindow.setBounds(overlayPositioner.bounds);
+              overlayIsPositioned = true;
+            } catch (err) {
+              error("couldn't set overlay bounds, hiding overlay for now", err);
+              this.hideOverlay(overlayWindow);
+            }
           } else if (
             (overlayPositioner.bounds.width === 0 && (!ovlSettings || !ovlSettings.neverhide)) ||
             !overlayIsPositioned
