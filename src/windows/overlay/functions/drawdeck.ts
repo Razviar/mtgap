@@ -8,6 +8,9 @@ export function drawDeck(): void {
   let output = '';
   let myBestFirstCard = 0;
   let myWorstFirstCard = 0;
+  currentMatch.totalCards = 0;
+  currentMatch.cardsBySuperclass.clear();
+  currentMatch.cardsBySuperclassLeft.clear();
   currentMatch.lands.clear();
   currentMatch.landsLeft.clear();
   currentMatch.basicLands.clear();
