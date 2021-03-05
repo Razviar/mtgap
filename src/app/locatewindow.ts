@@ -47,11 +47,10 @@ export class WindowLocator {
           if (isMtgaWindow) {
             const xMargin = 6;
             const yMargin = 30;
-            const heightReduce = 38;
             if (
               processes.bounds.y === 0 &&
-              processes.bounds.width === display.bounds.width * scaleFactor &&
-              processes.bounds.height === display.bounds.height * scaleFactor
+              processes.bounds.width === display.bounds.width &&
+              processes.bounds.height === display.bounds.height
             ) {
               // console.log('FullScreen!');
               const monitorNumber = processes.bounds.x / processes.bounds.width;
@@ -63,10 +62,10 @@ export class WindowLocator {
               };
             } else {
               this.bounds = {
-                x: Math.round(processes.bounds.x / scaleFactor) + xMargin,
-                y: Math.round(processes.bounds.y / scaleFactor) + yMargin,
-                width: Math.round(processes.bounds.width / scaleFactor) - 10,
-                height: Math.round(processes.bounds.height / scaleFactor - heightReduce),
+                x: processes.bounds.x + xMargin,
+                y: processes.bounds.y + yMargin,
+                width: processes.bounds.width,
+                height: processes.bounds.height,
               };
               //console.log(this.bounds);
             }
