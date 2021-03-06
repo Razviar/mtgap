@@ -2,6 +2,7 @@ import {BrowserWindow} from 'electron';
 import electronIsDev from 'electron-is-dev';
 
 import {error} from 'root/lib/logger';
+import {isMac} from 'root/lib/utils';
 
 export type MaybeBrowserWindow = BrowserWindow | undefined;
 let overlayWindow: MaybeBrowserWindow;
@@ -41,6 +42,7 @@ export function createOverlayWindow(): BrowserWindow {
     transparent: true,
     alwaysOnTop: true,
     focusable: false,
+    acceptFirstMouse: isMac(),
   });
 
   overlayWindow.loadURL(OVERLAY_WINDOW_WEBPACK_ENTRY).catch((err) =>
