@@ -29,7 +29,7 @@ import {isMac} from 'root/lib/utils';
 
 export class LogParser {
   private shouldStop: boolean = false;
-  private isRunning: boolean = false;
+  public isRunning: boolean = false;
   private currentState?: StateInfo;
 
   public emitter = new LogParserEventEmitter();
@@ -200,8 +200,10 @@ export class LogParser {
                 console.log('Closure Event Happening');
                 console.log(event);
               }
-              isClosing = true;
-              gameState.setRunning(false);
+              if (isMac()) {
+                isClosing = true;
+                gameState.setRunning(false);
+              }
               break;
           }
           if (!isClosing && event.timestamp !== undefined && event.timestamp > gameState.getStartTime()) {

@@ -1,12 +1,13 @@
 import {screen} from 'electron';
 
+import {gameState} from 'root/app/game_state';
 import {AccountV8} from 'root/app/settings-store/v9';
 import {isMac} from 'root/lib/utils';
 import ourActiveWin from 'root/our-active-win';
-import {gameState} from 'root/app/game_state';
 
 export class WindowLocator {
   public bounds: {x: number; y: number; width: number; height: number} = {x: 0, y: 0, width: 0, height: 0};
+  public isFullscreen: boolean = false;
 
   public findMtga(account: AccountV8): void {
     /*const path = join(app.getPath('userData'), 'debugging.txt');
@@ -43,7 +44,7 @@ export class WindowLocator {
               ? processes.owner.name === 'MTGA' &&
                 processes.title === 'MTGA' &&
                 processes.owner.bundleId === 'com.wizards.mtga'
-              : gameState.getProcessId() === processes.owner.processId;
+              : processes.title === 'MTGA' && gameState.getProcessId() === processes.owner.processId;
           if (isMtgaWindow) {
             const xMargin = 6;
             const yMargin = 30;
@@ -52,7 +53,8 @@ export class WindowLocator {
               processes.bounds.width === display.bounds.width &&
               processes.bounds.height === display.bounds.height
             ) {
-              // console.log('FullScreen!');
+              //console.log('FullScreen!');
+              this.isFullscreen = true;
               const monitorNumber = processes.bounds.x / processes.bounds.width;
               this.bounds = {
                 x: monitorNumber * display.bounds.width,
@@ -61,6 +63,7 @@ export class WindowLocator {
                 height: display.bounds.height,
               };
             } else {
+              this.isFullscreen = false;
               this.bounds = {
                 x: processes.bounds.x + xMargin,
                 y: processes.bounds.y + yMargin,

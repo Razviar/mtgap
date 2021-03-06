@@ -1,33 +1,42 @@
+import {BrowserWindow} from 'electron';
+import electronIsDev from 'electron-is-dev';
+import psList from 'ps-list';
+
 import {getMetadata, getUserMetadata} from 'root/api/overlay';
 import {registerHotkeys, unRegisterHotkeys} from 'root/app/hotkeys';
 import {WindowLocator} from 'root/app/locatewindow';
-import {sendMessageToOverlayWindow, sendMessageToHomeWindow} from 'root/app/messages';
+import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
 import {createOverlayWindow, getOverlayWindow} from 'root/app/overlay_window';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
 import {isMac} from 'root/lib/utils';
-import psList from 'ps-list';
-import {BrowserWindow} from 'electron';
-
-const movementSensitivity = 5;
-
-const overlayPositioner = new WindowLocator();
-
-let overlayIsPositioned = false;
+import {withLogParser} from './log_parser_manager';
 
 class GameState {
-  private startTimeMillis: number;
+  private readonly startTimeMillis: number;
   private running: boolean;
   private overlayInterval: NodeJS.Timeout | undefined;
   private processId: number | undefined;
-
-  private readonly refreshMillis = 500;
+  private refreshMillis = 500;
   private readonly processName = isMac() ? 'MTGA.app/Contents/MacOS/MTGA' : 'MTGA.exe';
+  private readonly movementSensitivity = 5;
+  private readonly overlayPositioner = new WindowLocator();
+  private overlayIsPositioned = false;
+  public isFullscreen: boolean = false;
 
   constructor() {
     this.startTimeMillis = Date.now();
     this.running = false;
-    setInterval(() => this.checkProcessId(), 500);
+    setInterval(() => this.checkProcessId(), this.refreshMillis);
+  }
+
+  public setRefreshRate(refreshRate: number): void {
+    this.refreshMillis = refreshRate;
+    if (this.overlayInterval !== undefined) {
+      clearInterval(this.overlayInterval);
+      this.overlayInterval = undefined;
+    }
+    this.startOverlay();
   }
 
   public getStartTime(): number {
@@ -38,9 +47,31 @@ class GameState {
     if (!this.running && running) {
       this.running = true;
       this.startOverlay();
+      if (!isMac()) {
+        withLogParser((logParser) => {
+          if (!logParser.isRunning) {
+            if (electronIsDev) {
+              console.log('Starting parser...');
+            }
+            logParser.start().catch((err) => {
+              error('Failure to start log parser', err);
+            });
+          }
+        });
+      }
     } else if (this.running && !running) {
       this.running = running;
       this.stopOverlay();
+      if (!isMac()) {
+        withLogParser((logParser) => {
+          if (logParser.isRunning) {
+            if (electronIsDev) {
+              console.log('stopping parser...');
+            }
+            logParser.stop();
+          }
+        });
+      }
       sendMessageToHomeWindow('show-status', {message: 'Game is not running!', color: '#dbb63d'});
     }
   }
@@ -65,64 +96,79 @@ class GameState {
     overlayWindow.hide();
   }
 
-  private startOverlay(): void {
-    if (this.overlayInterval === undefined) {
-      this.overlayInterval = setInterval(() => {
-        const account = settingsStore.getAccount();
+  private overlayPositionSetter(): void {
+    const account = settingsStore.getAccount();
 
-        if (account && settingsStore.get().overlay) {
-          overlayPositioner.findMtga(account);
-          const ovlSettings = account.overlaySettings;
-          let overlayWindow = getOverlayWindow();
-
-          if (!overlayWindow) {
-            overlayWindow = createOverlayWindow();
-            getMetadata()
-              .then((md) => {
-                //console.log(md.allcards);
-                sendMessageToOverlayWindow('set-metadata', md);
-                sendMessageToOverlayWindow('set-ovlsettings', ovlSettings);
-                sendMessageToOverlayWindow('set-icosettings', settingsStore.get().icon);
-              })
-              .catch((err) => {
-                error('Failure to load Metadata', err);
-              });
-            getUserMetadata(+account.uid)
-              .then((umd) => sendMessageToOverlayWindow('set-userdata', umd))
-              .catch((err) => {
-                error('Failure to load User Metadata', err, {...account});
-              });
+    if (account && settingsStore.get().overlay) {
+      this.overlayPositioner.findMtga(account);
+      if (this.isFullscreen !== this.overlayPositioner.isFullscreen) {
+        this.isFullscreen = this.overlayPositioner.isFullscreen;
+        if (this.isFullscreen) {
+          if (this.refreshMillis !== 2000) {
+            this.setRefreshRate(2000);
           }
-
-          if (
-            overlayPositioner.bounds.width !== 0 &&
-            (Math.abs(overlayWindow.getBounds().x - overlayPositioner.bounds.x) > movementSensitivity ||
-              Math.abs(overlayWindow.getBounds().y - overlayPositioner.bounds.y) > movementSensitivity ||
-              Math.abs(overlayWindow.getBounds().width - overlayPositioner.bounds.width) > movementSensitivity ||
-              Math.abs(overlayWindow.getBounds().height - overlayPositioner.bounds.height) > movementSensitivity ||
-              !overlayIsPositioned)
-          ) {
-            this.showOverlay(overlayWindow);
-            const EtalonHeight = 1144;
-            const zoomFactor = overlayPositioner.bounds.height / EtalonHeight;
-            sendMessageToOverlayWindow('set-zoom', zoomFactor);
-            try {
-              overlayWindow.setBounds(overlayPositioner.bounds);
-              overlayIsPositioned = true;
-            } catch (err) {
-              error("couldn't set overlay bounds, hiding overlay for now", err);
-              this.hideOverlay(overlayWindow);
-            }
-          } else if (
-            (overlayPositioner.bounds.width === 0 && (!ovlSettings || !ovlSettings.neverhide)) ||
-            !overlayIsPositioned
-          ) {
-            this.hideOverlay(overlayWindow);
-          } else {
-            this.showOverlay(overlayWindow);
+        } else {
+          if (this.refreshMillis !== 500) {
+            this.setRefreshRate(500);
           }
         }
-      }, this.refreshMillis);
+      }
+      const ovlSettings = account.overlaySettings;
+      let overlayWindow = getOverlayWindow();
+
+      if (!overlayWindow) {
+        overlayWindow = createOverlayWindow();
+        getMetadata()
+          .then((md) => {
+            //console.log(md.allcards);
+            sendMessageToOverlayWindow('set-metadata', md);
+            sendMessageToOverlayWindow('set-ovlsettings', ovlSettings);
+            sendMessageToOverlayWindow('set-icosettings', settingsStore.get().icon);
+          })
+          .catch((err) => {
+            error('Failure to load Metadata', err);
+          });
+        getUserMetadata(+account.uid)
+          .then((umd) => sendMessageToOverlayWindow('set-userdata', umd))
+          .catch((err) => {
+            error('Failure to load User Metadata', err, {...account});
+          });
+      }
+
+      if (
+        this.overlayPositioner.bounds.width !== 0 &&
+        (Math.abs(overlayWindow.getBounds().x - this.overlayPositioner.bounds.x) > this.movementSensitivity ||
+          Math.abs(overlayWindow.getBounds().y - this.overlayPositioner.bounds.y) > this.movementSensitivity ||
+          Math.abs(overlayWindow.getBounds().width - this.overlayPositioner.bounds.width) > this.movementSensitivity ||
+          Math.abs(overlayWindow.getBounds().height - this.overlayPositioner.bounds.height) >
+            this.movementSensitivity ||
+          !this.overlayIsPositioned)
+      ) {
+        this.showOverlay(overlayWindow);
+        const EtalonHeight = 1144;
+        const zoomFactor = this.overlayPositioner.bounds.height / EtalonHeight;
+        sendMessageToOverlayWindow('set-zoom', zoomFactor);
+        try {
+          overlayWindow.setBounds(this.overlayPositioner.bounds);
+          this.overlayIsPositioned = true;
+        } catch (err) {
+          error("couldn't set overlay bounds, hiding overlay for now", err);
+          this.hideOverlay(overlayWindow);
+        }
+      } else if (
+        (this.overlayPositioner.bounds.width === 0 && (!ovlSettings || !ovlSettings.neverhide)) ||
+        !this.overlayIsPositioned
+      ) {
+        this.hideOverlay(overlayWindow);
+      } else {
+        this.showOverlay(overlayWindow);
+      }
+    }
+  }
+
+  private startOverlay(): void {
+    if (this.overlayInterval === undefined) {
+      this.overlayInterval = setInterval(this.overlayPositionSetter.bind(this), this.refreshMillis);
     }
   }
 

@@ -16,6 +16,7 @@ import {getAccountFromScreenName} from 'root/app/userswitch';
 import {error} from 'root/lib/logger';
 import {asMap, removeUndefined} from 'root/lib/type_utils';
 import {sleep} from 'root/lib/utils';
+import electronIsDev from 'electron-is-dev';
 
 export type MaybeLogParser = LogParser | undefined;
 let logParser: MaybeLogParser;
@@ -119,6 +120,10 @@ export function createGlobalLogParser(dev?: boolean): LogParser {
   logParser.emitter.on('nologfile', () => {
     sendMessageToHomeWindow('nologfile', undefined);
   });
+
+  if (electronIsDev) {
+    console.log('Starting parser from Global...');
+  }
 
   logParser.start().catch((err) => {
     error('Failure to start parser', err);

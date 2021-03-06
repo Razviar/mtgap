@@ -43,15 +43,12 @@ declare namespace ourActiveWin {
     owner: MacOSOwner;
   }
 
-  interface LinuxResult extends BaseResult {
-    platform: 'linux';
-  }
-
   interface WindowsResult extends BaseResult {
     platform: 'windows';
+    title: string | undefined;
   }
 
-  type Result = MacOSResult | LinuxResult | WindowsResult;
+  type Result = MacOSResult | WindowsResult;
 }
 
 declare const ourActiveWin: {

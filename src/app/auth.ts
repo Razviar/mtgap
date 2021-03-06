@@ -1,5 +1,6 @@
 import {sendMessageToHomeWindow} from 'root/app/messages';
 import {settingsStore} from 'root/app/settings-store/settings_store';
+import {isMac} from 'root/lib/utils';
 
 export function setCreds(source: string): void {
   const account = settingsStore.getAccount();
@@ -43,6 +44,7 @@ export function setCreds(source: string): void {
         fontcolor: 0,
         detach: false,
         hidemain: false,
+        interactive: !isMac(),
       };
       settingsStore.save();
     }
