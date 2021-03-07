@@ -90,3 +90,8 @@ out/
 dist/
 conf/conf.env
 cert/
+
+#getFrontWindow
+src/getFrontWindow/.vs
+src/getFrontWindow/bin
+src/getFrontWindow/obj
