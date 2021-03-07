@@ -41,7 +41,7 @@ export function createOverlayWindow(): BrowserWindow {
     resizable: false,
     transparent: true,
     alwaysOnTop: true,
-    focusable: false,
+    focusable: isMac(),
     acceptFirstMouse: isMac(),
   });
 
