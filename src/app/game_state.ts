@@ -1,6 +1,7 @@
 import {BrowserWindow} from 'electron';
 import electronIsDev from 'electron-is-dev';
 import psList from 'ps-list';
+import {withLogParser} from './log_parser_manager';
 
 import {getMetadata, getUserMetadata} from 'root/api/overlay';
 import {registerHotkeys, unRegisterHotkeys} from 'root/app/hotkeys';
@@ -10,7 +11,6 @@ import {createOverlayWindow, getOverlayWindow} from 'root/app/overlay_window';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
 import {isMac} from 'root/lib/utils';
-import {withLogParser} from './log_parser_manager';
 
 class GameState {
   private readonly startTimeMillis: number;
@@ -19,7 +19,7 @@ class GameState {
   private processId: number | undefined;
   private refreshMillis = 500;
   private readonly processName = isMac() ? 'MTGA.app/Contents/MacOS/MTGA' : 'MTGA.exe';
-  private readonly movementSensitivity = 5;
+  private readonly movementSensitivity = 1;
   private readonly overlayPositioner = new WindowLocator();
   private overlayIsPositioned = false;
   public isFullscreen: boolean = false;
@@ -81,8 +81,11 @@ class GameState {
   }
 
   private showOverlay(overlayWindow: BrowserWindow): void {
-    registerHotkeys();
+    /*if (electronIsDev) {
+      console.log('Showing Overlay');
+    }*/
     if (!overlayWindow.isVisible()) {
+      registerHotkeys();
       if (isMac()) {
         overlayWindow.showInactive();
       } else {
@@ -96,20 +99,25 @@ class GameState {
     overlayWindow.hide();
   }
 
-  private overlayPositionSetter(): void {
+  public overlayPositionSetter(onlySetPosition?: boolean): void {
     const account = settingsStore.getAccount();
-
+    /*if (electronIsDev) {
+      console.log('Doing positioning!');
+    }*/
     if (account && settingsStore.get().overlay) {
-      this.overlayPositioner.findMtga(account);
-      if (this.isFullscreen !== this.overlayPositioner.isFullscreen) {
-        this.isFullscreen = this.overlayPositioner.isFullscreen;
-        if (this.isFullscreen) {
-          if (this.refreshMillis !== 2000) {
-            this.setRefreshRate(2000);
-          }
-        } else {
-          if (this.refreshMillis !== 500) {
-            this.setRefreshRate(500);
+      if (!onlySetPosition) {
+        this.overlayPositioner.findMtga(account, !isMac());
+
+        if (this.isFullscreen !== this.overlayPositioner.isFullscreen) {
+          this.isFullscreen = this.overlayPositioner.isFullscreen;
+          if (this.isFullscreen) {
+            if (this.refreshMillis !== 2000) {
+              this.setRefreshRate(2000);
+            }
+          } else {
+            if (this.refreshMillis !== 500) {
+              this.setRefreshRate(500);
+            }
           }
         }
       }
@@ -134,7 +142,9 @@ class GameState {
             error('Failure to load User Metadata', err, {...account});
           });
       }
-
+      /*if (electronIsDev) {
+        console.log('Got new bounds', this.overlayPositioner.bounds);
+      }*/
       if (
         this.overlayPositioner.bounds.width !== 0 &&
         (Math.abs(overlayWindow.getBounds().x - this.overlayPositioner.bounds.x) > this.movementSensitivity ||
@@ -167,8 +177,16 @@ class GameState {
   }
 
   private startOverlay(): void {
-    if (this.overlayInterval === undefined) {
-      this.overlayInterval = setInterval(this.overlayPositionSetter.bind(this), this.refreshMillis);
+    if (!isMac()) {
+      //console.log('Starting Overlay new way!');
+      this.overlayPositionSetter(false);
+    } else if (this.overlayInterval === undefined) {
+      this.overlayInterval = setInterval(
+        (() => {
+          this.overlayPositionSetter(false);
+        }).bind(this),
+        this.refreshMillis
+      );
     }
   }
 
@@ -203,6 +221,10 @@ class GameState {
           }
         })
         .catch(() => {});
+    }
+
+    if (this.overlayPositioner.SpawnedProcess && !this.running) {
+      this.overlayPositioner.killSpawnedProcess();
     }
   }
 }

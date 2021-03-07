@@ -1,3 +1,4 @@
+import {ChildProcessWithoutNullStreams} from 'child_process';
 import {screen} from 'electron';
 
 import {gameState} from 'root/app/game_state';
@@ -8,8 +9,77 @@ import ourActiveWin from 'root/our-active-win';
 export class WindowLocator {
   public bounds: {x: number; y: number; width: number; height: number} = {x: 0, y: 0, width: 0, height: 0};
   public isFullscreen: boolean = false;
+  public SpawnedProcess: ChildProcessWithoutNullStreams | undefined;
 
-  public findMtga(account: AccountV8): void {
+  private countBindings(processes: ourActiveWin.Result): void {
+    const display = screen.getPrimaryDisplay();
+    const xMargin = 6;
+    const yMargin = 30;
+    if (
+      processes.bounds.y === 0 &&
+      processes.bounds.width === display.bounds.width &&
+      processes.bounds.height === display.bounds.height
+    ) {
+      //console.log('FullScreen!');
+      this.isFullscreen = true;
+      const monitorNumber = processes.bounds.x / processes.bounds.width;
+      this.bounds = {
+        x: monitorNumber * display.bounds.width,
+        y: 0,
+        width: display.bounds.width,
+        height: display.bounds.height,
+      };
+    } else {
+      this.isFullscreen = false;
+      this.bounds = {
+        x: processes.bounds.x + xMargin,
+        y: processes.bounds.y + yMargin,
+        width: processes.bounds.width,
+        height: processes.bounds.height,
+      };
+      gameState.overlayPositionSetter(true);
+      //console.log(this.bounds);
+    }
+    //console.log(display);
+    //console.log(processes.bounds);
+  }
+
+  public ProcessData(stdout: any): void {
+    try {
+      const raw = stdout.toString();
+      raw.split('\n').map((line: string) => {
+        if (line.indexOf('{') !== -1 && line.indexOf('}') !== -1) {
+          const processes = JSON.parse(line) as ourActiveWin.Result;
+          //console.log(processes);
+          const isMtgaWindow = processes.title === 'MTGA' && gameState.getProcessId() === processes.owner.processId;
+          if (isMtgaWindow) {
+            this.countBindings(processes);
+          } else {
+            this.bounds = {
+              x: 0,
+              y: 0,
+              width: 0,
+              height: 0,
+            };
+            gameState.overlayPositionSetter(true);
+            //console.log(this.bounds);
+          }
+        }
+      });
+    } catch (error) {
+      /*console.log(stdout.toString());
+      console.error(error);*/
+      //throw new Error('Error parsing window data');
+    }
+  }
+
+  public killSpawnedProcess(): void {
+    if (this.SpawnedProcess) {
+      this.SpawnedProcess.kill();
+    }
+  }
+
+  public findMtga(account: AccountV8, hook?: boolean): void {
     /*const path = join(app.getPath('userData'), 'debugging.txt');
     fs.appendFileSync(path, JSON.stringify({pid}));*/
     //console.log('findmtga');
@@ -31,57 +101,15 @@ export class WindowLocator {
           height,
         };
         //console.log(this.bounds);
+      } else if (hook && !isMac()) {
+        this.SpawnedProcess = ourActiveWin.launch();
+        if (this.SpawnedProcess) {
+          this.SpawnedProcess.stdout.on('data', this.ProcessData.bind(this));
+        }
       } else {
-        const display = screen.getPrimaryDisplay();
-        const scaleFactor = isMac() ? 1 : display.scaleFactor;
         const processes = ourActiveWin.sync();
-        //fs.appendFileSync(path, JSON.stringify({scaleFactor, processes}));
-        //console.log(processes);
         if (processes) {
-          // log(JSON.stringify(processes));
-          const isMtgaWindow =
-            processes.platform === 'macos'
-              ? processes.owner.name === 'MTGA' &&
-                processes.title === 'MTGA' &&
-                processes.owner.bundleId === 'com.wizards.mtga'
-              : processes.title === 'MTGA' && gameState.getProcessId() === processes.owner.processId;
-          if (isMtgaWindow) {
-            const xMargin = 6;
-            const yMargin = 30;
-            if (
-              processes.bounds.y === 0 &&
-              processes.bounds.width === display.bounds.width &&
-              processes.bounds.height === display.bounds.height
-            ) {
-              //console.log('FullScreen!');
-              this.isFullscreen = true;
-              const monitorNumber = processes.bounds.x / processes.bounds.width;
-              this.bounds = {
-                x: monitorNumber * display.bounds.width,
-                y: 0,
-                width: display.bounds.width,
-                height: display.bounds.height,
-              };
-            } else {
-              this.isFullscreen = false;
-              this.bounds = {
-                x: processes.bounds.x + xMargin,
-                y: processes.bounds.y + yMargin,
-                width: processes.bounds.width,
-                height: processes.bounds.height,
-              };
-              //console.log(this.bounds);
-            }
-            //console.log(display);
-            //console.log(processes.bounds);
-          } else {
-            this.bounds = {
-              x: 0,
-              y: 0,
-              width: 0,
-              height: 0,
-            };
-          }
+          this.countBindings(processes);
         }
       }
     } catch (e) {
