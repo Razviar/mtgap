@@ -115,19 +115,20 @@ namespace getFrontWindow
                 {
                     activeWindowHandle = GetForegroundWindow();
                     uint threadID = GetWindowThreadProcessId(activeWindowHandle, out processID);
-                    RECT rct;
-                    GetWindowRect(activeWindowHandle, out rct);
-                    Bounds result = new Bounds { x = rct.left < 0 ? 0 : rct.left, y = rct.top < 0 ? 0 : rct.top, width = rct.right - (rct.left < 0 ? 0 : rct.left), height = rct.bottom - (rct.top < 0 ? 0 : rct.top) };
-
                     int length = GetWindowTextLength(activeWindowHandle);
                     StringBuilder sb = new StringBuilder(length + 1);
                     GetWindowText(activeWindowHandle, sb, sb.Capacity);
                     string title = sb.ToString();
-                    output = new ForegroundWindowOutput { platform = "windows", id = (int)activeWindowHandle, owner = { processId = processID }, bounds = result, title = title };
-                    string json = new JavaScriptSerializer().Serialize(output);
-                    
+                   
                     if (title == @"MTGA")
                     {
+                        RECT rct;
+                        GetWindowRect(activeWindowHandle, out rct);
+                        Bounds result = new Bounds { x = rct.left < 0 ? 0 : rct.left, y = rct.top < 0 ? 0 : rct.top, width = rct.right - (rct.left < 0 ? 0 : rct.left), height = rct.bottom - (rct.top < 0 ? 0 : rct.top) };
+
+                        output = new ForegroundWindowOutput { platform = "windows", id = (int)activeWindowHandle, owner = { processId = processID }, bounds = result, title = title };
+                        string json = new JavaScriptSerializer().Serialize(output);
+
                         Console.WriteLine(json);
                         deleTargetMoved = new WinEventDelegate(TargetMoved);
                         deleForegroundChanged = new WinEventDelegate(ForegroundChanged);
