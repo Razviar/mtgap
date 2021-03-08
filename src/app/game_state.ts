@@ -27,6 +27,7 @@ class GameState {
   constructor() {
     this.startTimeMillis = Date.now();
     this.running = false;
+    this.checkProcessId();
   }
 
   public setRefreshRate(refreshRate: number): void {
