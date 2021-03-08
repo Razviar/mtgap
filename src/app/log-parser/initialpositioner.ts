@@ -1,6 +1,7 @@
 import fs from 'fs';
 
 import {ParsingMetadata} from 'root/app/log-parser/model';
+import {gameState} from '../game_state';
 
 export async function initialpositioner(path: string, AccountID: string, options: ParsingMetadata): Promise<number> {
   //console.log(path);
@@ -38,6 +39,7 @@ export async function initialpositioner(path: string, AccountID: string, options
         resolve(meaningfulBytesRead);
       } else {
         //console.log('rejecting');
+        gameState.setRunning(true);
         reject('Awaiting user credentials to appear in log...');
       }
       stream.close();

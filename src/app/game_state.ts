@@ -1,7 +1,6 @@
 import {BrowserWindow} from 'electron';
 import electronIsDev from 'electron-is-dev';
 import psList from 'ps-list';
-import {withLogParser} from './log_parser_manager';
 
 import {getMetadata, getUserMetadata} from 'root/api/overlay';
 import {registerHotkeys, unRegisterHotkeys} from 'root/app/hotkeys';
@@ -16,6 +15,7 @@ class GameState {
   private readonly startTimeMillis: number;
   private running: boolean;
   private overlayInterval: NodeJS.Timeout | undefined;
+  private psListInterval: NodeJS.Timeout | undefined;
   private processId: number | undefined;
   private refreshMillis = 500;
   private readonly processName = isMac() ? 'MTGA.app/Contents/MacOS/MTGA' : 'MTGA.exe';
@@ -27,7 +27,6 @@ class GameState {
   constructor() {
     this.startTimeMillis = Date.now();
     this.running = false;
-    setInterval(() => this.checkProcessId(), this.refreshMillis);
   }
 
   public setRefreshRate(refreshRate: number): void {
@@ -47,30 +46,13 @@ class GameState {
     if (!this.running && running) {
       this.running = true;
       this.startOverlay();
-      if (!isMac()) {
-        withLogParser((logParser) => {
-          if (!logParser.isRunning) {
-            if (electronIsDev) {
-              console.log('Starting parser...');
-            }
-            logParser.start().catch((err) => {
-              error('Failure to start log parser', err);
-            });
-          }
-        });
-      }
+      this.psListInterval = setInterval(() => this.checkProcessId(), this.refreshMillis);
     } else if (this.running && !running) {
       this.running = running;
       this.stopOverlay();
-      if (!isMac()) {
-        withLogParser((logParser) => {
-          if (logParser.isRunning) {
-            if (electronIsDev) {
-              console.log('stopping parser...');
-            }
-            logParser.stop();
-          }
-        });
+      if (this.psListInterval) {
+        clearInterval(this.psListInterval);
+        this.psListInterval = undefined;
       }
       sendMessageToHomeWindow('show-status', {message: 'Game is not running!', color: '#dbb63d'});
     }
@@ -174,7 +156,7 @@ class GameState {
             this.hideOverlay(overlayWindow);
           }
         } else {
-            this.hideOverlay(overlayWindow);
+          this.hideOverlay(overlayWindow);
         }
       } else {
         this.showOverlay(overlayWindow);
@@ -216,6 +198,7 @@ class GameState {
         this.setRunning(false);
       }
     } else {
+      console.log('pinging psList');
       psList()
         .then((processes) => {
           const res = processes.find((proc) =>

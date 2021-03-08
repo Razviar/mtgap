@@ -1,5 +1,6 @@
 import {createChunkReader} from 'root/app/log-parser/chunk_reader';
 import {LogFileOperationResult, LogFileParsingState, ParsingMetadata} from 'root/app/log-parser/model';
+import {gameState} from '../game_state';
 
 export async function getUserCredentials(
   path: string,
@@ -38,6 +39,7 @@ export async function getUserCredentials(
     chunkStream.onEnd(() => {
       // This would happen if we can find a valid "file id" event in the log file. Should be very rare since
       // the event is logged very early.
+      gameState.setRunning(true);
       reject('Awaiting user credentials to appear in log...');
       chunkStream.close();
     });
