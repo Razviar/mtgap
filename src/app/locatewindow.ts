@@ -37,9 +37,9 @@ export class WindowLocator {
         width: processes.bounds.width,
         height: processes.bounds.height,
       };
-      gameState.overlayPositionSetter(true);
       //console.log(this.bounds);
     }
+    gameState.overlayPositionSetter(true);
     //console.log(display);
     //console.log(processes.bounds);
   }
@@ -47,6 +47,7 @@ export class WindowLocator {
   public ProcessData(stdout: any): void {
     try {
       const raw = stdout.toString();
+      //console.log(raw);
       raw.split('\n').map((line: string) => {
         if (line.indexOf('{') !== -1 && line.indexOf('}') !== -1) {
           const processes = JSON.parse(line) as ourActiveWin.Result;
