@@ -169,7 +169,13 @@ class GameState {
         (this.overlayPositioner.bounds.width === 0 && (!ovlSettings || !ovlSettings.neverhide)) ||
         !this.overlayIsPositioned
       ) {
-        this.hideOverlay(overlayWindow);
+        if (isMac()) {
+          if (!overlayWindow.isFocused()) {
+            this.hideOverlay(overlayWindow);
+          }
+        } else {
+            this.hideOverlay(overlayWindow);
+        }
       } else {
         this.showOverlay(overlayWindow);
       }
