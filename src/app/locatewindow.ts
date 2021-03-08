@@ -44,27 +44,33 @@ export class WindowLocator {
     //console.log(processes.bounds);
   }
 
+  private isMtgaWindow(process: ourActiveWin.Result): boolean {
+    return process.title === 'MTGA' && gameState.getProcessId() === process.owner.processId;
+  }
+
+  private handleProcessRead(process: ourActiveWin.Result | undefined): void {
+    if (process && this.isMtgaWindow(process)) {
+      this.countBindings(process);
+    } else {
+      this.bounds = {
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+      };
+      gameState.overlayPositionSetter(true);
+      //console.log(this.bounds);
+    }
+  }
+
   public ProcessData(stdout: any): void {
     try {
       const raw = stdout.toString();
       //console.log(raw);
       raw.split('\n').map((line: string) => {
         if (line.indexOf('{') !== -1 && line.indexOf('}') !== -1) {
-          const processes = JSON.parse(line) as ourActiveWin.Result;
-          //console.log(processes);
-          const isMtgaWindow = processes.title === 'MTGA' && gameState.getProcessId() === processes.owner.processId;
-          if (isMtgaWindow) {
-            this.countBindings(processes);
-          } else {
-            this.bounds = {
-              x: 0,
-              y: 0,
-              width: 0,
-              height: 0,
-            };
-            gameState.overlayPositionSetter(true);
-            //console.log(this.bounds);
-          }
+          const process = JSON.parse(line) as ourActiveWin.Result;
+          this.handleProcessRead(process);
         }
       });
     } catch (error) {
@@ -108,10 +114,8 @@ export class WindowLocator {
           this.SpawnedProcess.stdout.on('data', this.ProcessData.bind(this));
         }
       } else {
-        const processes = ourActiveWin.sync();
-        if (processes) {
-          this.countBindings(processes);
-        }
+        const process = ourActiveWin.sync();
+        this.handleProcessRead(process);
       }
     } catch (e) {
       // error('findMtga', e);
