@@ -43,6 +43,7 @@ export function createOverlayWindow(): BrowserWindow {
     alwaysOnTop: true,
     focusable: isMac(),
     acceptFirstMouse: isMac(),
+    enableLargerThanScreen: isMac(),
   });
 
   overlayWindow.loadURL(OVERLAY_WINDOW_WEBPACK_ENTRY).catch((err) =>
