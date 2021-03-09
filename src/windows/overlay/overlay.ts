@@ -10,6 +10,7 @@ import 'root/windows/keyrune.woff2';
 import 'root/windows/mana.css';
 import 'root/windows/mana.woff2';
 import {sendMessageToIpcMain} from 'root/windows/messages';
+import {Message} from 'root/lib/messages';
 import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdM3mDbRS.woff2';
 import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdMPmDQ.woff2';
 import {SetMessages} from 'root/windows/overlay/functions/messages_ipcmain';
@@ -66,11 +67,10 @@ export function toggleButtonClass(el: HTMLElement, state: boolean): void {
   }
 }
 
-function toggler(elem: HTMLElement, totoggle: HTMLElement): void {
-  totoggle.addEventListener('click', () => {
-    elem.classList.contains('hidden') ? elem.classList.remove('hidden') : elem.classList.add('hidden');
-    toggleButtonClass(totoggle, elem.classList.contains('hidden'));
-  });
+function toggler(totoggle: HTMLElement, action: Message): void {
+  totoggle.onclick = () => {
+    sendMessageToIpcMain(action, undefined);
+  };
 }
 
 const mouseLeaveHandler = (event: Event) => {
@@ -91,8 +91,8 @@ SetMessages((ovlSettings: OverlaySettings | undefined) => {
       elem.classList.remove('no-hover');
     });
     SetHandlers();
-    toggler(overlayElements.OpponentOutFrame, overlayElements.ToggleOpp);
-    toggler(overlayElements.MainDeckFrame, overlayElements.ToggleMe);
+    toggler(overlayElements.ToggleOpp, 'toggle-opp');
+    toggler(overlayElements.ToggleMe, 'toggle-me');
   } else {
     Array.from(Interactive).forEach((elem) => {
       elem.removeEventListener('mouseleave', mouseLeaveHandler);
