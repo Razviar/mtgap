@@ -3,6 +3,7 @@ import {screen} from 'electron';
 import {gameState} from 'root/app/game_state';
 import {AccountV8} from 'root/app/settings-store/v9';
 import {isMac} from 'root/lib/utils';
+import {getOverlayWindow} from 'root/app/overlay_window';
 import ourActiveWin from 'root/our-active-win';
 
 export class WindowLocator {
@@ -46,6 +47,12 @@ export class WindowLocator {
                 processes.owner.bundleId === 'com.wizards.mtga'
               : processes.title === 'MTGA' && gameState.getProcessId() === processes.owner.processId;
           if (isMtgaWindow) {
+            if (isMac()) {
+              const overlayWindow = getOverlayWindow();
+              if (overlayWindow && !overlayWindow.isFocused()) {
+                overlayWindow.focus();
+              }
+            }
             const xMargin = 6;
             const yMargin = 30;
             if (
