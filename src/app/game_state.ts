@@ -10,16 +10,16 @@ import {createOverlayWindow, getOverlayWindow} from 'root/app/overlay_window';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
 import {isMac} from 'root/lib/utils';
-import {withLogParser} from './log_parser_manager';
 
 class GameState {
   private readonly startTimeMillis: number;
   private running: boolean;
   private overlayInterval: NodeJS.Timeout | undefined;
+  private psListInterval: NodeJS.Timeout | undefined;
   private processId: number | undefined;
   private refreshMillis = 500;
   private readonly processName = isMac() ? 'MTGA.app/Contents/MacOS/MTGA' : 'MTGA.exe';
-  private readonly movementSensitivity = 5;
+  private readonly movementSensitivity = 1;
   private readonly overlayPositioner = new WindowLocator();
   private overlayIsPositioned = false;
   public isFullscreen: boolean = false;
@@ -27,7 +27,7 @@ class GameState {
   constructor() {
     this.startTimeMillis = Date.now();
     this.running = false;
-    setInterval(() => this.checkProcessId(), this.refreshMillis);
+    this.checkProcessId();
   }
 
   public setRefreshRate(refreshRate: number): void {
@@ -47,30 +47,13 @@ class GameState {
     if (!this.running && running) {
       this.running = true;
       this.startOverlay();
-      if (!isMac()) {
-        withLogParser((logParser) => {
-          if (!logParser.isRunning) {
-            if (electronIsDev) {
-              console.log('Starting parser...');
-            }
-            logParser.start().catch((err) => {
-              error('Failure to start log parser', err);
-            });
-          }
-        });
-      }
+      this.psListInterval = setInterval(() => this.checkProcessId(), this.refreshMillis);
     } else if (this.running && !running) {
       this.running = running;
       this.stopOverlay();
-      if (!isMac()) {
-        withLogParser((logParser) => {
-          if (logParser.isRunning) {
-            if (electronIsDev) {
-              console.log('stopping parser...');
-            }
-            logParser.stop();
-          }
-        });
+      if (this.psListInterval) {
+        clearInterval(this.psListInterval);
+        this.psListInterval = undefined;
       }
       sendMessageToHomeWindow('show-status', {message: 'Game is not running!', color: '#dbb63d'});
     }
@@ -81,8 +64,11 @@ class GameState {
   }
 
   private showOverlay(overlayWindow: BrowserWindow): void {
-    registerHotkeys();
+    /*if (electronIsDev) {
+      console.log('Showing Overlay');
+    }*/
     if (!overlayWindow.isVisible()) {
+      registerHotkeys();
       if (isMac()) {
         overlayWindow.showInactive();
       } else {
@@ -96,20 +82,25 @@ class GameState {
     overlayWindow.hide();
   }
 
-  private overlayPositionSetter(): void {
+  public overlayPositionSetter(onlySetPosition?: boolean): void {
     const account = settingsStore.getAccount();
-
+    /*if (electronIsDev) {
+      console.log('Doing positioning!');
+    }*/
     if (account && settingsStore.get().overlay) {
-      this.overlayPositioner.findMtga(account);
-      if (this.isFullscreen !== this.overlayPositioner.isFullscreen) {
-        this.isFullscreen = this.overlayPositioner.isFullscreen;
-        if (this.isFullscreen) {
-          if (this.refreshMillis !== 2000) {
-            this.setRefreshRate(2000);
-          }
-        } else {
-          if (this.refreshMillis !== 500) {
-            this.setRefreshRate(500);
+      if (!onlySetPosition) {
+        this.overlayPositioner.findMtga(account, !isMac());
+
+        if (this.isFullscreen !== this.overlayPositioner.isFullscreen) {
+          this.isFullscreen = this.overlayPositioner.isFullscreen;
+          if (this.isFullscreen) {
+            if (this.refreshMillis !== 2000) {
+              this.setRefreshRate(2000);
+            }
+          } else {
+            if (this.refreshMillis !== 500) {
+              this.setRefreshRate(500);
+            }
           }
         }
       }
@@ -134,7 +125,9 @@ class GameState {
             error('Failure to load User Metadata', err, {...account});
           });
       }
-
+      if (electronIsDev) {
+        console.log('Got new bounds', this.overlayPositioner.bounds);
+      }
       if (
         this.overlayPositioner.bounds.width !== 0 &&
         (Math.abs(overlayWindow.getBounds().x - this.overlayPositioner.bounds.x) > this.movementSensitivity ||
@@ -164,7 +157,7 @@ class GameState {
             this.hideOverlay(overlayWindow);
           }
         } else {
-            this.hideOverlay(overlayWindow);
+          this.hideOverlay(overlayWindow);
         }
       } else {
         this.showOverlay(overlayWindow);
@@ -173,8 +166,16 @@ class GameState {
   }
 
   private startOverlay(): void {
-    if (this.overlayInterval === undefined) {
-      this.overlayInterval = setInterval(this.overlayPositionSetter.bind(this), this.refreshMillis);
+    if (!isMac()) {
+      //console.log('Starting Overlay new way!');
+      this.overlayPositionSetter(false);
+    } else if (this.overlayInterval === undefined) {
+      this.overlayInterval = setInterval(
+        (() => {
+          this.overlayPositionSetter(false);
+        }).bind(this),
+        this.refreshMillis
+      );
     }
   }
 
@@ -198,6 +199,7 @@ class GameState {
         this.setRunning(false);
       }
     } else {
+      console.log('pinging psList');
       psList()
         .then((processes) => {
           const res = processes.find((proc) =>
@@ -209,6 +211,10 @@ class GameState {
           }
         })
         .catch(() => {});
+    }
+
+    if (this.overlayPositioner.SpawnedProcess && !this.running) {
+      this.overlayPositioner.killSpawnedProcess();
     }
   }
 }

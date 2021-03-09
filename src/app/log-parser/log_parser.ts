@@ -200,8 +200,8 @@ export class LogParser {
                 console.log('Closure Event Happening');
                 console.log(event);
               }
+              isClosing = true;
               if (isMac()) {
-                isClosing = true;
                 gameState.setRunning(false);
               }
               break;

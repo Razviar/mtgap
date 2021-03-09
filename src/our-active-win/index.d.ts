@@ -76,6 +76,10 @@ declare const ourActiveWin: {
 	```
 	*/
   sync(): ourActiveWin.Result | undefined;
+  /**Get stream 
+  @returns The active window metadata.*/
+
+  launch(): ChildProcessWithoutNullStreams;
 };
 
 export = ourActiveWin;
