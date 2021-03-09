@@ -46,8 +46,8 @@ export function SetHandlers(): void {
     sendMessageToIpcMain('error-in-renderer', {error, url, line});
   };
 
-  overlayElements.TransparencyHandle.addEventListener('click', handlerTransparencyHandle);
-  overlayElements.scaleIn.addEventListener('click', handlerscaleIn);
-  overlayElements.scaleOut.addEventListener('click', handlerscaleOut);
-  overlayElements.Collapser.addEventListener('click', handlerCollapser);
+  overlayElements.TransparencyHandle.onclick = handlerTransparencyHandle;
+  overlayElements.scaleIn.onclick = handlerscaleIn;
+  overlayElements.scaleOut.onclick = handlerscaleOut;
+  overlayElements.Collapser.onclick = handlerCollapser;
 }
