@@ -71,6 +71,7 @@ export function installHomeMessages(): void {
       'cardhover',
       'detach',
       'hidemain',
+      'interactive',
     ];
     const overlaySettingsNumber = [
       'leftdigit',
