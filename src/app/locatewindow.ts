@@ -4,7 +4,6 @@ import {screen} from 'electron';
 import {gameState} from 'root/app/game_state';
 import {AccountV8} from 'root/app/settings-store/v9';
 import {isMac} from 'root/lib/utils';
-import {getOverlayWindow} from 'root/app/overlay_window';
 import ourActiveWin from 'root/our-active-win';
 
 export class WindowLocator {
@@ -13,12 +12,6 @@ export class WindowLocator {
   public SpawnedProcess: ChildProcessWithoutNullStreams | undefined;
 
   private countBindings(processes: ourActiveWin.Result): void {
-    if (isMac()) {
-      const overlayWindow = getOverlayWindow();
-      if (overlayWindow && !overlayWindow.isFocused()) {
-        overlayWindow.focus();
-      }
-    }
     const display = screen.getPrimaryDisplay();
     const xMargin = 6;
     const yMargin = 30;

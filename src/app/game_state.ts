@@ -128,6 +128,11 @@ class GameState {
       if (electronIsDev) {
         console.log('Got new bounds', this.overlayPositioner.bounds);
       }
+      if (isMac()) {
+        if (!overlayWindow.isFocused()) {
+          overlayWindow.focus();
+        }
+      }
       if (
         this.overlayPositioner.bounds.width !== 0 &&
         (Math.abs(overlayWindow.getBounds().x - this.overlayPositioner.bounds.x) > this.movementSensitivity ||
