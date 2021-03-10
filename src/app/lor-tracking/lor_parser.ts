@@ -24,7 +24,7 @@ export class LorParser {
   public async start(): Promise<void> {
     try {
       if (this.isRunning) {
-        error('Trying to start the parser while still running', undefined);
+        console.log('Trying to start the parser while still running');
         return;
       }
       this.isRunning = true;
