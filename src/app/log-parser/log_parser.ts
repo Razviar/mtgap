@@ -31,6 +31,8 @@ export class LogParser {
   private shouldStop: boolean = false;
   public isRunning: boolean = false;
   private currentState?: StateInfo;
+  private internalLoopTimeout: number = 0;
+  private parsingMetadata: ParsingMetadata | undefined;
 
   public emitter = new LogParserEventEmitter();
 
@@ -41,6 +43,17 @@ export class LogParser {
         screenName: this.currentState.state.screenName,
         newPlayerId: '',
       });
+    }
+  }
+
+  public async changeParserFreq(timeout: number | undefined): Promise<void> {
+    if (!timeout) {
+      if (!this.parsingMetadata) {
+        this.parsingMetadata = await getParsingMetadata();
+      }
+      this.internalLoopTimeout = this.parsingMetadata.logParser.readTimeout;
+    } else {
+      this.internalLoopTimeout = timeout;
     }
   }
 
@@ -66,8 +79,9 @@ export class LogParser {
       }
       this.isRunning = true;
       this.shouldStop = false;
-      const parsingMetadata = await getParsingMetadata();
-      this.internalLoop(parsingMetadata);
+      this.parsingMetadata = await getParsingMetadata();
+      this.internalLoopTimeout = 2000;
+      this.internalLoop(this.parsingMetadata);
     } catch (e) {
       error('start.getParsingMetadata', e);
       this.emitter.emit('error', String(e));
@@ -243,11 +257,11 @@ export class LogParser {
         this.currentState = {fileId, state: newState};
 
         // Triggering next batch
-        const timeout = eventsToSend.length === 0 ? parsingMetadata.logParser.readTimeout : 0;
+        const timeout = eventsToSend.length === 0 ? this.internalLoopTimeout : 0;
         setTimeout(() => this.internalLoop(parsingMetadata), timeout);
       } catch (e) {
         this.emitter.emit('error', String(e));
-        setTimeout(() => this.internalLoop(parsingMetadata), parsingMetadata.logParser.readTimeout);
+        setTimeout(() => this.internalLoop(parsingMetadata), this.internalLoopTimeout);
       }
     });
   }

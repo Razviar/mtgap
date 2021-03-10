@@ -10,6 +10,7 @@ import {createOverlayWindow, getOverlayWindow} from 'root/app/overlay_window';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
 import {isMac} from 'root/lib/utils';
+import {withLogParser} from './log_parser_manager';
 
 class GameState {
   private readonly startTimeMillis: number;
@@ -48,6 +49,11 @@ class GameState {
       this.running = true;
       this.startOverlay();
       this.psListInterval = setInterval(() => this.checkProcessId(), this.refreshMillis);
+      withLogParser((logParser) => {
+        logParser.changeParserFreq(undefined).catch((err) => {
+          error('Failure to start log parser', err);
+        });
+      });
     } else if (this.running && !running) {
       this.running = running;
       this.stopOverlay();
@@ -55,6 +61,11 @@ class GameState {
         clearInterval(this.psListInterval);
         this.psListInterval = undefined;
       }
+      withLogParser((logParser) => {
+        logParser.changeParserFreq(2000).catch((err) => {
+          error('Failure to start log parser', err);
+        });
+      });
       sendMessageToHomeWindow('show-status', {message: 'Game is not running!', color: '#dbb63d'});
     }
   }
@@ -125,9 +136,9 @@ class GameState {
             error('Failure to load User Metadata', err, {...account});
           });
       }
-      if (electronIsDev) {
+      /*if (electronIsDev) {
         console.log('Got new bounds', this.overlayPositioner.bounds);
-      }
+      }*/
       if (isMac()) {
         if (!overlayWindow.isFocused()) {
           overlayWindow.focus();
