@@ -45,6 +45,7 @@ class GameState {
   }
 
   public setRunning(running: boolean): void {
+    //console.log('setRunning', running);
     if (!this.running && running) {
       this.running = true;
       this.startOverlay();
@@ -206,7 +207,7 @@ class GameState {
     }
   }
 
-  private checkProcessId(): void {
+  public checkProcessId(): void {
     if (this.processId !== undefined) {
       try {
         process.kill(this.processId, 0);
@@ -215,7 +216,7 @@ class GameState {
         this.setRunning(false);
       }
     } else {
-      console.log('pinging psList');
+      //console.log('pinging psList');
       psList()
         .then((processes) => {
           const res = processes.find((proc) =>

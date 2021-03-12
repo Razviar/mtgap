@@ -22,7 +22,7 @@ import {oldStore} from 'root/app/old_store';
 import {getOverlayWindow} from 'root/app/overlay_window';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {StateInfo, stateStore} from 'root/app/state_store';
-import {getAccountFromScreenName} from 'root/app/userswitch';
+import {getAccountFromPlayerId, getAccountFromScreenName} from 'root/app/userswitch';
 import {error} from 'root/lib/logger';
 import {asArray, asBoolean, asMap, asNumber, asString, removeUndefined} from 'root/lib/type_utils';
 import {isMac} from 'root/lib/utils';
@@ -33,6 +33,7 @@ export class LogParser {
   private currentState?: StateInfo;
   private internalLoopTimeout: number = 0;
   private parsingMetadata: ParsingMetadata | undefined;
+  private currentFileId: string = '';
 
   public emitter = new LogParserEventEmitter();
 
@@ -115,9 +116,23 @@ export class LogParser {
           throw new Error('Please set correct MTGA/MTGA_Data path in Settings...');
         }
         //console.log(fileId);
+        if (fileId !== this.currentFileId) {
+          gameState.checkProcessId();
+          this.currentFileId = fileId;
+        }
 
         const [userCreds] = await getUserCredentials(LogFromMTGAFolder.logPath, {bytesRead: 0}, parsingMetadata);
-        //console.log('!!!', userCreds);
+        /*console.log('!!!', userCreds);
+        console.log(this.currentState);*/
+
+        if (userCreds.DisplayName === undefined) {
+          const locationAttempt = getAccountFromPlayerId(userCreds.AccountID);
+          if (locationAttempt && locationAttempt.player) {
+            userCreds.DisplayName = locationAttempt.player.screenName;
+          } else {
+            throw new Error('Please play 1 match (even with Sparky) to get started!');
+          }
+        }
 
         if (!this.handleUserChangeEvent(userCreds.AccountID, userCreds.DisplayName)) {
           throw new Error('Parsing paused: new user account must be synced or skipped');
@@ -131,7 +146,7 @@ export class LogParser {
             throw new Error('Enable Detailed Logs in MTGA account settings!');
           }
           nextState = detailedLogState;
-          nextState.bytesRead = await initialpositioner(path, userCreds.AccountID, parsingMetadata);
+          nextState.bytesRead = await initialpositioner(path, userCreds.DisplayName, parsingMetadata);
           //console.log(nextState);
           oldStore.saveFileID(new Date().getTime(), fileId);
         } else {

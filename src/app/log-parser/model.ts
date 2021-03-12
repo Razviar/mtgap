@@ -37,6 +37,7 @@ export interface ParsingMetadata {
   events: EventParsingMetadata[];
   eventPrefix: string; // '[UnityCrossThreadLogger]'
   accountPrefix: string;
+  screenNamePrefix: string;
   userChangeEvent: string;
   matchStartEvent: string;
   AIPracticeDeckSubmit: string;

@@ -1,9 +1,8 @@
 import fs from 'fs';
 
 import {ParsingMetadata} from 'root/app/log-parser/model';
-import {gameState} from '../game_state';
 
-export async function initialpositioner(path: string, AccountID: string, options: ParsingMetadata): Promise<number> {
+export async function initialpositioner(path: string, DisplayName: string, options: ParsingMetadata): Promise<number> {
   //console.log(path);
   return new Promise<number>((resolve, reject) => {
     const stream = fs.createReadStream(path, {
@@ -16,7 +15,7 @@ export async function initialpositioner(path: string, AccountID: string, options
     let meaningfulBytesRead = 0;
     let bytesRead = 0;
     stream.on('data', (chunk: string) => {
-      const userLoginPosition = chunk.lastIndexOf(`${options.userLoginData.userID}${AccountID}`);
+      const userLoginPosition = chunk.lastIndexOf(`Logged in successfully. Display Name: ${DisplayName}`);
       //console.log('Reading chunks...', bytesRead, chunk.length);
       lastchunk = chunk;
       if (userLoginPosition === -1) {
@@ -39,8 +38,8 @@ export async function initialpositioner(path: string, AccountID: string, options
         resolve(meaningfulBytesRead);
       } else {
         //console.log('rejecting');
-        gameState.setRunning(true);
-        reject('Awaiting user credentials to appear in log...');
+        //gameState.setRunning(true);
+        resolve(0);
       }
       stream.close();
     });

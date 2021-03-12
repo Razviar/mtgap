@@ -149,9 +149,12 @@ export async function parseOldLogs(
       const fileCTime = statSync(logpath).ctime;
       const [detailedLogEnabled, detailedLogState] = await checkDetailedLogEnabled(logpath, parsingMetadata);
       const [userCreds] = await getUserCredentials(logpath, {bytesRead: 0}, parsingMetadata);
+      if (userCreds.DisplayName === undefined) {
+        return 1;
+      }
       if (!dev) {
-        if (handleUserChangeEvent(userCreds.AccountID, userCreds.DisplayName)) {
-          return 2;
+        if (getAccountFromScreenName(userCreds.DisplayName) === undefined) {
+          return 1;
         }
       }
       if (!detailedLogEnabled) {
@@ -234,21 +237,4 @@ export async function parseOldLogs(
 
   // Triggering next batch
   return parseOldLogs(logpath, parsingMetadata, newState, dev, forceUpload);
-}
-
-function handleUserChangeEvent(newPlayerId: string, screenName: string): boolean {
-  const settings = settingsStore.get();
-  const newAccount = getAccountFromScreenName(screenName);
-  if (newAccount === undefined) {
-    sendMessageToHomeWindow('set-screenname', {screenName, newPlayerId});
-    sendMessageToHomeWindow('new-account', undefined);
-    sendMessageToHomeWindow('show-prompt', {
-      message: 'New MTGA account found in the old logs! Please Skip or Sync it and repeat old logs scanning...',
-      autoclose: 1000,
-    });
-    settings.awaiting = {playerId: newPlayerId, screenName};
-    settingsStore.save();
-    return true;
-  }
-  return false;
 }
