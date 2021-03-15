@@ -1,6 +1,6 @@
 import {countOfObject, hexToRgbA, jsonParse, sumOfObject} from 'root/lib/func';
 import {asMap, asNumber} from 'root/lib/type_utils';
-import {color, manafont, typecolorletter} from 'root/lib/utils';
+import {color, manafont, typecolorletter, cardSuperclass} from 'root/lib/utils';
 import {currentMatch, overlayConfig, superclasses, userCollection} from 'root/windows/overlay/overlay';
 
 export function makeCard(cid: number, num: number, side: boolean, draft?: boolean): string {
@@ -18,7 +18,7 @@ export function makeCard(cid: number, num: number, side: boolean, draft?: boolea
   const mana = Card['mana'];
   const colorarr = Card['colorarr'];
   const island = Card['is_land'];
-  const supercls = Card['supercls'];
+  const supercls = cardSuperclass(Card);
   const thumb = Card['art'];
   const drafteval2 = Card['drafteval2'];
   const wlevalDraft = Card['wleval_draft'];
@@ -166,7 +166,7 @@ export function makeCard(cid: number, num: number, side: boolean, draft?: boolea
   </div>
   <div class="CNameManaWrap">
   <div class="CCmana">
-  ${manas} ${manas !== '' ? '|' : ''} <span class="ms ms-${superclasses[Card['supercls']]}"></span> ${
+  ${manas} ${manas !== '' ? '|' : ''} <span class="ms ms-${superclasses[supercls]}"></span> ${
     side
       ? `<span class="FirstHand hidden" id="FirstHand${mtgaId}">${(100 * Card['wleval_1sthand']).toFixed(1)}%</span>`
       : ''
