@@ -1,5 +1,8 @@
 // Welcome to the kingdom of chaos
 // tslint:disable: no-magic-numbers
+
+import {Card} from "root/models/cards";
+
 // tslint:disable: no-any
 export const types = ['Aggro', 'Mid-Range', 'Control'];
 export const typecolor = ['bfb66b', '4693b9', '5e5b5a', 'c35d3a', '448359', 'ababab', 'ababab'];
@@ -43,7 +46,16 @@ export const superclassfont: {[index: string]: string} = {
   Creature: 'creature',
   Land: 'land',
 };
-export const supercls = ['Non-Creature', 'Creature', 'Land'];
+
+export function cardSuperclass(card: Card): number {
+  if (card['is_land'] === 1) {
+    return 2;
+  } else if (card['txttype'].includes('Creature')) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
 
 export const selectStyles = {
   control: () => ({

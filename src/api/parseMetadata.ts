@@ -147,7 +147,6 @@ export function parseMetadata(data: AxiosResponse): Metadata {
             mtga_id: asNumber(cardElem.mtga_id, 0),
             is_collectible: asNumber(cardElem.is_collectible, 0),
             reprint: asNumber(cardElem.reprint, 0),
-            supercls: asNumber(cardElem.supercls, 0),
             draftrate: asNumber(cardElem.draftrate, 0),
             drafteval: asNumber(cardElem.drafteval, 0),
             is_land: asNumber(cardElem.is_land, 0),

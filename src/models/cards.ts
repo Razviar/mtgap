@@ -25,7 +25,6 @@ export interface Card {
   mtga_id: number;
   is_collectible: number;
   reprint: number;
-  supercls: number;
   draftrate: number;
   drafteval: number;
   is_land: number;
