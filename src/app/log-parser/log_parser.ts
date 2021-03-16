@@ -115,6 +115,11 @@ export class LogParser {
         if (fileId === undefined || LogFromMTGAFolder.logPath === undefined) {
           throw new Error('Please set correct MTGA/MTGA_Data path in Settings...');
         }
+
+        const [detailedLogEnabled, detailedLogState] = await checkDetailedLogEnabled(path, parsingMetadata);
+        if (!detailedLogEnabled) {
+          throw new Error('Enable Detailed Logs in MTGA account settings!');
+        }
         //console.log(fileId);
         if (fileId !== this.currentFileId) {
           gameState.checkProcessId();
@@ -141,10 +146,6 @@ export class LogParser {
         // Detecting change in fileId
         let nextState: LogFileParsingState;
         if (!this.currentState || this.currentState.fileId !== fileId) {
-          const [detailedLogEnabled, detailedLogState] = await checkDetailedLogEnabled(path, parsingMetadata);
-          if (!detailedLogEnabled) {
-            throw new Error('Enable Detailed Logs in MTGA account settings!');
-          }
           nextState = detailedLogState;
           nextState.bytesRead = await initialpositioner(path, userCreds.DisplayName, parsingMetadata);
           //console.log(nextState);
