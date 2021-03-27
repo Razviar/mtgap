@@ -97,6 +97,7 @@ if (!gotTheLock) {
   });
 
   if (isMac()) {
+    app.dock.hide();
     app.on('activate', () => {
       if (!mainWindowCreated) {
         recreateMainWindow();

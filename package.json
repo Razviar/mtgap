@@ -11,7 +11,8 @@
     "publish": "electron-forge publish",
     "lint": "tslint -c tslint.json -p tsconfig.json --fix --format verbose",
     "compile": "tsc",
-    "watch": "tsc -w"
+    "watch": "tsc -w",
+    "clean": "rm -rf .webpack node_modules out package-lock.json"
   },
   "keywords": [],
   "author": {
