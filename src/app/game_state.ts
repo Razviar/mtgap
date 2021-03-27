@@ -18,6 +18,7 @@ class GameState {
   private overlayInterval: NodeJS.Timeout | undefined;
   private psListInterval: NodeJS.Timeout | undefined;
   private processId: number | undefined;
+  private badErrorHappening: boolean = false;
   private refreshMillis = 500;
   private readonly processName = isMac() ? 'MTGA.app/Contents/MacOS/MTGA' : 'MTGA.exe';
   private readonly movementSensitivity = 1;
@@ -45,7 +46,7 @@ class GameState {
   }
 
   public setRunning(running: boolean): void {
-    //console.log('setRunning', running);
+    //console.log('setRunning', running, this.running, this.badErrorHappening);
     if (!this.running && running) {
       this.running = true;
       this.startOverlay();
@@ -67,6 +68,11 @@ class GameState {
           error('Failure to start log parser', err);
         });
       });
+      if (this.badErrorHappening) {
+        //console.log('switching off bad error mode');
+        this.processId = undefined;
+        this.badErrorHappening = false;
+      }
       sendMessageToHomeWindow('show-status', {message: 'Game is not running!', color: '#dbb63d'});
     }
   }
@@ -208,23 +214,44 @@ class GameState {
   }
 
   public checkProcessId(): void {
-    if (this.processId !== undefined) {
+    if (this.processId !== undefined && !this.badErrorHappening) {
       try {
+        //console.log('trying to kill', this.processId);
         process.kill(this.processId, 0);
-      } catch {
-        this.processId = undefined;
-        this.setRunning(false);
+      } catch (e: any) {
+        if (e && e.code && e.code === 'ESRCH') {
+          //console.log('got good error');
+          this.processId = undefined;
+          this.badErrorHappening = false;
+          this.setRunning(false);
+        } else {
+          this.badErrorHappening = true;
+          //console.log('got bad error');
+        }
       }
     } else {
-      //console.log('pinging psList');
+      if (electronIsDev) {
+        //console.log('pinging psList');
+      }
       psList()
         .then((processes) => {
           const res = processes.find((proc) =>
             isMac() ? proc.cmd?.includes(this.processName) : proc.name === this.processName
           );
           if (res !== undefined) {
-            this.processId = res.pid;
+            //console.log('found MTGA');
+            if (!this.badErrorHappening) {
+              //console.log('setting PID');
+              this.processId = res.pid;
+            }
             this.setRunning(true);
+          } else {
+            //console.log('not found MTGA');
+            if (this.badErrorHappening) {
+              //console.log('not found MTGA, doing what needs to be done');
+              this.processId = undefined;
+              this.setRunning(false);
+            }
           }
         })
         .catch(() => {});

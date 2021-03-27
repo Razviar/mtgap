@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -24,6 +25,12 @@ namespace getFrontWindow
 
         [DllImport("user32.dll", SetLastError = false)]
         internal static extern bool UnhookWinEvent(IntPtr hWinEventHook);
+
+        [DllImport("advapi32.dll", SetLastError = true)]
+        private static extern bool OpenProcessToken(IntPtr ProcessHandle, uint DesiredAccess, out IntPtr TokenHandle);
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool CloseHandle(IntPtr hObject);
 
         public delegate void WinEventDelegate(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
 
@@ -58,6 +65,7 @@ namespace getFrontWindow
             public string title;
             public Owner owner;
             public Bounds bounds;
+            public bool admin;
         }
 
         private const uint EVENT_OBJECT_LOCATIONCHANGE = 0x800B;
@@ -74,6 +82,21 @@ namespace getFrontWindow
         public static WinEventDelegate deleForegroundChanged = null;
         public static IntPtr[] hook=new IntPtr[3];
         public static ForegroundWindowOutput output;
+
+        private static bool GetProcessUser(uint ProcessID)
+        {
+            try
+            {
+                Process process = Process.GetProcessById(Convert.ToInt32(ProcessID));
+                IntPtr TokenHandle = IntPtr.Zero;
+                OpenProcessToken(process.Handle, 0x0008, out TokenHandle);
+                return false;
+            }
+            catch(Exception e)
+            {
+                return true;
+            }
+        }
 
         static void TargetMoved(IntPtr hWinEventHook, uint eventType, IntPtr lParam, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
@@ -126,7 +149,8 @@ namespace getFrontWindow
                         GetWindowRect(activeWindowHandle, out rct);
                         Bounds result = new Bounds { x = rct.left < 0 ? 0 : rct.left, y = rct.top < 0 ? 0 : rct.top, width = rct.right - (rct.left < 0 ? 0 : rct.left), height = rct.bottom - (rct.top < 0 ? 0 : rct.top) };
 
-                        output = new ForegroundWindowOutput { platform = "windows", id = (int)activeWindowHandle, owner = { processId = processID }, bounds = result, title = title };
+                        output = new ForegroundWindowOutput { platform = "windows", id = (int)activeWindowHandle, owner = { processId = processID }, bounds = result, title = title, admin = GetProcessUser(processID) };
+
                         string json = new JavaScriptSerializer().Serialize(output);
 
                         Console.WriteLine(json);

@@ -39,6 +39,21 @@ a[href^="ftp://"]
   padding-bottom: 5px;
 }
 
+#RestartWarning {
+  position: absolute;
+  bottom: 51px;
+  left: 50%;
+  background-color: rgba(125, 59, 20, 0.5);
+  color: #fff;
+  border: rgba(125, 59, 20, 1) solid 1px;
+  width: 490px;
+  height: 85px;
+  padding-bottom: 5px;
+  padding-top: 20px;
+  transform: translate(-50%, 0);
+  text-align: center;
+}
+
 .hidden {
   display: none !important;
 }

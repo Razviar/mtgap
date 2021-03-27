@@ -231,9 +231,7 @@ export class LogParser {
                 console.log(event);
               }
               isClosing = true;
-              if (isMac()) {
-                gameState.setRunning(false);
-              }
+              gameState.setRunning(false);
               break;
           }
           if (!isClosing && event.timestamp !== undefined && event.timestamp > gameState.getStartTime()) {

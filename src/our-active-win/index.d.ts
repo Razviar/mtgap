@@ -28,6 +28,7 @@ declare namespace ourActiveWin {
 		App that owns the window.
 		*/
     owner: BaseOwner;
+    admin: boolean;
   }
 
   interface MacOSOwner extends BaseOwner {

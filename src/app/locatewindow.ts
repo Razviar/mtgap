@@ -5,6 +5,7 @@ import {gameState} from 'root/app/game_state';
 import {AccountV8} from 'root/app/settings-store/v9';
 import {isMac} from 'root/lib/utils';
 import ourActiveWin from 'root/our-active-win';
+import {sendMessageToOverlayWindow} from './messages';
 
 export class WindowLocator {
   public bounds: {x: number; y: number; width: number; height: number} = {x: 0, y: 0, width: 0, height: 0};
@@ -51,6 +52,7 @@ export class WindowLocator {
   private handleProcessRead(process: ourActiveWin.Result | undefined): void {
     if (process && this.isMtgaWindow(process)) {
       this.countBindings(process);
+      sendMessageToOverlayWindow('need-to-restart-mtga', process.admin);
     } else {
       this.bounds = {
         x: 0,

@@ -356,4 +356,15 @@ export function SetMessages(setInteractiveHandler: (overlaySettings: OverlaySett
       opacitySetter(true);
     }
   });
+  onMessageFromIpcMain('need-to-restart-mtga', (state) => {
+    if (state) {
+      if (overlayElements.RestartWarning.classList.contains('hidden')) {
+        overlayElements.RestartWarning.classList.remove('hidden');
+      }
+    } else {
+      if (!overlayElements.RestartWarning.classList.contains('hidden')) {
+        overlayElements.RestartWarning.classList.add('hidden');
+      }
+    }
+  });
 }
