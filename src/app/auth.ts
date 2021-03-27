@@ -16,6 +16,7 @@ export function setCreds(source: string): void {
         'hk-dec-size': 'S',
         'hk-inc-opac': 'E',
         'hk-dec-opac': 'D',
+        'hk-restart-mtga': 'R',
       };
       settingsStore.save();
     }

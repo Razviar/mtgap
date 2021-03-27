@@ -19,6 +19,7 @@ export function registerHotkeys(): void {
       'hk-dec-size': 'S',
       'hk-inc-opac': 'E',
       'hk-dec-opac': 'D',
+      'hk-restart-mtga': 'R',
     };
   }
 
@@ -30,6 +31,7 @@ export function registerHotkeys(): void {
     'hk-dec-size': 'scale-down',
     'hk-inc-opac': 'opacity-up',
     'hk-dec-opac': 'opacity-down',
+    'hk-restart-mtga': 'restart-mtga',
   };
 
   Object.keys(hotkeyMap).forEach((key) => {
@@ -40,7 +42,8 @@ export function registerHotkeys(): void {
       | 'hk-inc-size'
       | 'hk-dec-size'
       | 'hk-inc-opac'
-      | 'hk-dec-opac';
+      | 'hk-dec-opac'
+      | 'hk-restart-mtga';
     const action = HotkeysBinding[hotkey] as
       | 'toggle-me'
       | 'toggle-opp'
@@ -48,7 +51,8 @@ export function registerHotkeys(): void {
       | 'scale-up'
       | 'scale-down'
       | 'opacity-up'
-      | 'opacity-down';
+      | 'opacity-down'
+      | 'restart-mtga';
     if (hotkeyMap && hotkeyMap[hotkey]) {
       if (!globalShortcut.isRegistered(`Alt+${hotkeyMap[hotkey]}`)) {
         globalShortcut.register(`Alt+${hotkeyMap[hotkey]}`, () => {

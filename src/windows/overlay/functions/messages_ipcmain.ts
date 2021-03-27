@@ -367,4 +367,7 @@ export function SetMessages(setInteractiveHandler: (overlaySettings: OverlaySett
       }
     }
   });
+  onMessageFromIpcMain('restart-mtga', () => {
+    sendMessageToIpcMain('restart-mtga-now', undefined);
+  });
 }

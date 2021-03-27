@@ -1,6 +1,8 @@
 import {BrowserWindow} from 'electron';
 import electronIsDev from 'electron-is-dev';
 import psList from 'ps-list';
+import {exec, execFile} from 'child_process';
+import {join} from 'path';
 
 import {getMetadata, getUserMetadata} from 'root/api/overlay';
 import {registerHotkeys, unRegisterHotkeys} from 'root/app/hotkeys';
@@ -9,7 +11,7 @@ import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/mess
 import {createOverlayWindow, getOverlayWindow} from 'root/app/overlay_window';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
-import {isMac} from 'root/lib/utils';
+import {isMac, sleep} from 'root/lib/utils';
 import {withLogParser} from './log_parser_manager';
 
 class GameState {
@@ -259,6 +261,21 @@ class GameState {
 
     if (this.overlayPositioner.SpawnedProcess && !this.running) {
       this.overlayPositioner.killSpawnedProcess();
+    }
+  }
+
+  public async doMTGARestart(): Promise<void> {
+    try {
+      let mtgaPath = settingsStore.get().mtgaPath;
+      if (this.processId && mtgaPath) {
+        exec(`wmic process where "ProcessID=${this.processId}" delete`).unref();
+        await sleep(500);
+        execFile(join(mtgaPath, '..', 'MTGA.exe')).unref();
+        await sleep(500);
+        this.checkProcessId();
+      }
+    } catch (e: any) {
+      console.log(e);
     }
   }
 }

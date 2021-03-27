@@ -19,6 +19,7 @@ import {stateStore} from 'root/app/state_store';
 import {error} from 'root/lib/logger';
 import {permissionManager} from 'root/app/permission_manager';
 import {isMac} from 'root/lib/utils';
+import {gameState} from './game_state';
 
 export function setupIpcMain(app: App): void {
   onMessageFromBrowserWindow('token-input', (newAccount) => {
@@ -580,5 +581,10 @@ export function setupIpcMain(app: App): void {
 
   onMessageFromBrowserWindow('enable-screen-recording', () => {
     permissionManager.requireScreenRecording();
+  });
+
+  onMessageFromBrowserWindow('restart-mtga-now', () => {
+    console.log('restart-mtga');
+    gameState.doMTGARestart();
   });
 }

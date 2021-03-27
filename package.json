@@ -1,7 +1,7 @@
 {
   "name": "mtgaprotracker",
   "productName": "mtgaprotracker",
-  "version": "2.1.23",
+  "version": "2.1.24",
   "description": "MTG Arena Pro Tracker",
   "main": ".webpack/main",
   "scripts": {

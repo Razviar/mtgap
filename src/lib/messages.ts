@@ -110,6 +110,9 @@ export interface Messages {
   'hk-dec-size': string;
   'hk-inc-opac': string;
   'hk-dec-opac': string;
+  'hk-restart-mtga': string;
+  'restart-mtga': undefined;
+  'restart-mtga-now': undefined;
   'set-hotkey-map': HotkeysSettingsV1 | undefined;
   'network-status': {
     active: boolean;

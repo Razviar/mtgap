@@ -3,6 +3,8 @@ import {readFileSync, writeFileSync} from 'fs';
 import {join} from 'path';
 
 import {AccountV0, OverlaySettingsV0, SettingsV1} from 'root/app/settings-store/v0';
+import {AccountV9, OverlaySettingsV7, SettingsV10} from 'root/app/settings-store/v10';
+import {AccountV10, SettingsV11} from 'root/app/settings-store/v11';
 import {AccountV2, OverlaySettingsV2, SettingsV2} from 'root/app/settings-store/v2';
 import {AccountV3, OverlaySettingsV3, SettingsV3} from 'root/app/settings-store/v3';
 import {AccountV4, OverlaySettingsV4, SettingsV4} from 'root/app/settings-store/v4';
@@ -13,7 +15,6 @@ import {AccountV7, SettingsV8} from 'root/app/settings-store/v8';
 import {AccountV8, SettingsV9} from 'root/app/settings-store/v9';
 import {error} from 'root/lib/logger';
 import {AnyMap, asBoolean, asMap, asNumber, asNumberString, asString} from 'root/lib/type_utils';
-import {SettingsV10, OverlaySettingsV7, AccountV9} from 'root/app/settings-store/v10';
 import {isMac} from 'root/lib/utils';
 
 type StorePath = string & {_: 'StorePath'};
@@ -80,9 +81,9 @@ class SettingsStore {
   }
 }
 
-export type LatestSettings = SettingsV10;
+export type LatestSettings = SettingsV11;
 export type OverlaySettings = OverlaySettingsV7;
-export type Account = AccountV9;
+export type Account = AccountV10;
 type AllSettings =
   | SettingsV0
   | SettingsV1
@@ -94,7 +95,8 @@ type AllSettings =
   | SettingsV7
   | SettingsV8
   | SettingsV9
-  | SettingsV10;
+  | SettingsV10
+  | SettingsV11;
 
 export enum Version {
   v0,
@@ -108,6 +110,7 @@ export enum Version {
   v8,
   v9,
   v10,
+  v11,
 }
 
 export interface SettingsBase {
@@ -594,6 +597,32 @@ function asAccountsV9(accountsV8: AccountV8[]): AccountV9[] {
   return res;
 }
 
+function asAccountsV10(accountsV9: AccountV9[]): AccountV10[] {
+  const res: AccountV10[] = [];
+  accountsV9.forEach((acc) => {
+    res.push({
+      uid: acc.uid,
+      token: acc.token,
+      nick: acc.nick,
+      overlay: acc.overlay,
+      player: acc.player,
+      overlaySettings: asOverlaySettingsV7(acc.overlaySettings),
+      hotkeysSettings: {
+        'hk-my-deck': acc.hotkeysSettings?.['hk-my-deck'] !== undefined ? acc.hotkeysSettings?.['hk-my-deck'] : 'Q',
+        'hk-opp-deck': acc.hotkeysSettings?.['hk-opp-deck'] !== undefined ? acc.hotkeysSettings?.['hk-opp-deck'] : 'W',
+        'hk-overlay': acc.hotkeysSettings?.['hk-overlay'] !== undefined ? acc.hotkeysSettings?.['hk-overlay'] : '`',
+        'hk-inc-size': acc.hotkeysSettings?.['hk-inc-size'] !== undefined ? acc.hotkeysSettings?.['hk-inc-size'] : 'A',
+        'hk-dec-size': acc.hotkeysSettings?.['hk-dec-size'] !== undefined ? acc.hotkeysSettings?.['hk-dec-size'] : 'S',
+        'hk-inc-opac': acc.hotkeysSettings?.['hk-inc-opac'] !== undefined ? acc.hotkeysSettings?.['hk-inc-opac'] : 'E',
+        'hk-dec-opac': acc.hotkeysSettings?.['hk-dec-opac'] !== undefined ? acc.hotkeysSettings?.['hk-dec-opac'] : 'D',
+        'hk-restart-mtga': 'R',
+      },
+      game: 'mtga',
+    });
+  });
+  return res;
+}
+
 function migrateV0toV1(v0: SettingsV0): SettingsV1 {
   return {
     version: Version.v1,
@@ -762,6 +791,25 @@ function migrateV9toV10(v9: SettingsV9): SettingsV10 {
   };
 }
 
+function migrateV10toV11(v10: SettingsV10): SettingsV11 {
+  return {
+    version: Version.v11,
+    accounts: asAccountsV10(v10.accounts),
+    userToken: {mtga: v10.userToken?.mtga, lor: v10.userToken?.lor},
+    lastGame: 'mtga',
+    icon: v10.icon,
+    autorun: v10.autorun,
+    minimized: v10.minimized,
+    overlay: v10.overlay,
+    manualUpdate: v10.manualUpdate,
+    awaiting: v10.awaiting,
+    logPath: v10.logPath,
+    mtgaPath: v10.mtgaPath,
+    nohotkeys: v10.nohotkeys,
+    uploads: v10.uploads,
+  };
+}
+
 function parseSettings(settings: AllSettings): LatestSettings {
   // Recursively parse settings and migrate them to arrive at latest version
   switch (settings.version) {
@@ -785,6 +833,8 @@ function parseSettings(settings: AllSettings): LatestSettings {
       return parseSettings(migrateV8toV9(settings));
     case Version.v9:
       return parseSettings(migrateV9toV10(settings));
+    case Version.v10:
+      return parseSettings(migrateV10toV11(settings));
     default:
       return settings;
   }
