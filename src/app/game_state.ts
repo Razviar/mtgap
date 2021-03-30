@@ -269,9 +269,10 @@ class GameState {
       let mtgaPath = settingsStore.get().mtgaPath;
       if (this.processId && mtgaPath) {
         exec(`wmic process where "ProcessID=${this.processId}" delete`).unref();
-        await sleep(500);
+        this.setRunning(false);
+        await sleep(1000);
         execFile(join(mtgaPath, '..', 'MTGA.exe')).unref();
-        await sleep(500);
+        await sleep(1000);
         this.checkProcessId();
       }
     } catch (e: any) {

@@ -226,12 +226,14 @@ export class LogParser {
               break;
             case parsingMetadata.GameBackupClosureEvent:
             case parsingMetadata.GameClosureEvent:
-              if (electronIsDev) {
-                console.log('Closure Event Happening');
-                console.log(event);
+              if (isMac()) {
+                if (electronIsDev) {
+                  console.log('Closure Event Happening');
+                  console.log(event);
+                }
+                isClosing = true;
+                gameState.setRunning(false);
               }
-              isClosing = true;
-              gameState.setRunning(false);
               break;
           }
           if (!isClosing && event.timestamp !== undefined && event.timestamp > gameState.getStartTime()) {
