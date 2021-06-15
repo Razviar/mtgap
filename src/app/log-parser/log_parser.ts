@@ -27,6 +27,8 @@ import {error} from 'root/lib/logger';
 import {asArray, asBoolean, asMap, asNumber, asString, removeUndefined} from 'root/lib/type_utils';
 import {isMac} from 'root/lib/utils';
 
+const TWO_SECONDS = 2000;
+
 export class LogParser {
   private shouldStop: boolean = false;
   public isRunning: boolean = false;
@@ -48,7 +50,7 @@ export class LogParser {
   }
 
   public async changeParserFreq(timeout: number | undefined): Promise<void> {
-    if (!timeout) {
+    if (timeout === undefined) {
       if (!this.parsingMetadata) {
         this.parsingMetadata = await getParsingMetadata();
       }
@@ -75,13 +77,14 @@ export class LogParser {
   public async start(): Promise<void> {
     try {
       if (this.isRunning) {
+        // tslint:disable-next-line: no-console
         console.log('Trying to start the parser while still running');
         return;
       }
       this.isRunning = true;
       this.shouldStop = false;
       this.parsingMetadata = await getParsingMetadata();
-      this.internalLoopTimeout = 2000;
+      this.internalLoopTimeout = TWO_SECONDS;
       this.internalLoop(this.parsingMetadata);
     } catch (e) {
       error('start.getParsingMetadata', e);
@@ -228,7 +231,9 @@ export class LogParser {
             case parsingMetadata.GameClosureEvent:
               if (isMac()) {
                 if (electronIsDev) {
+                  // tslint:disable-next-line: no-console
                   console.log('Closure Event Happening');
+                  // tslint:disable-next-line: no-console
                   console.log(event);
                 }
                 isClosing = true;

@@ -1,5 +1,5 @@
-import {SettingsBase, Version, Player} from 'root/app/settings-store/settings_store';
-import {OverlaySettingsV7} from './v10';
+import {Player, SettingsBase, Version} from 'root/app/settings-store/settings_store';
+import {OverlaySettingsV7} from 'root/app/settings-store/v10';
 
 export interface SettingsV11 extends SettingsBase {
   version: Version.v11;

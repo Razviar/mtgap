@@ -14,6 +14,8 @@ import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
 import {isMac} from 'root/lib/utils';
 
+const HALF_SECOND = 500;
+
 // tslint:disable-next-line: no-var-requires no-unsafe-any no-require-imports
 require('source-map-support').install();
 
@@ -88,7 +90,7 @@ if (!gotTheLock) {
     });
   });
 
-  app.on('ready', () => setTimeout(recreateMainWindow, 500));
+  app.on('ready', () => setTimeout(recreateMainWindow, HALF_SECOND));
 
   app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {

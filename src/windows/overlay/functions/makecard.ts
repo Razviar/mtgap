@@ -1,6 +1,6 @@
 import {countOfObject, hexToRgbA, jsonParse, sumOfObject} from 'root/lib/func';
 import {asMap, asNumber} from 'root/lib/type_utils';
-import {color, manafont, typecolorletter, cardSuperclass} from 'root/lib/utils';
+import {cardSuperclass, color, manafont, typecolorletter} from 'root/lib/utils';
 import {currentMatch, overlayConfig, superclasses, userCollection} from 'root/windows/overlay/overlay';
 
 export function makeCard(cid: number, num: number, side: boolean, draft?: boolean): string {

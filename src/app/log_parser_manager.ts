@@ -1,4 +1,5 @@
 import {app} from 'electron';
+import electronIsDev from 'electron-is-dev';
 import {stat, statSync, writeFileSync} from 'fs';
 import {basename, join} from 'path';
 import {promisify} from 'util';
@@ -16,7 +17,6 @@ import {getAccountFromScreenName} from 'root/app/userswitch';
 import {error} from 'root/lib/logger';
 import {asMap, removeUndefined} from 'root/lib/type_utils';
 import {sleep} from 'root/lib/utils';
-import electronIsDev from 'electron-is-dev';
 
 export type MaybeLogParser = LogParser | undefined;
 let logParser: MaybeLogParser;
@@ -44,10 +44,13 @@ export function createGlobalLogParser(dev?: boolean): LogParser {
       }
       if (dev) {
         //console.log(data.events);
+        // tslint:disable-next-line: no-console
         console.log('There will be sent this number of events: ', data.events.length);
-        if (data && data.events && data.events[0]) {
+        if (data.events.length > 0) {
+          // tslint:disable-next-line: no-console
           console.log('This is user ID:', data.events[0].uid);
         }
+        // tslint:disable-next-line: no-console no-magic-numbers
         console.log(data.events.filter((ev) => ev.indicator === 15));
       }
       sendEventsToServer(data.events, data.parsingMetadata.logSender, data.state, data.fileId);
@@ -122,6 +125,7 @@ export function createGlobalLogParser(dev?: boolean): LogParser {
   });
 
   if (electronIsDev) {
+    // tslint:disable-next-line: no-console
     console.log('Starting parser from Global...');
   }
 
@@ -190,6 +194,7 @@ export async function parseOldLogs(
   }
 
   if (dev) {
+    // tslint:disable-next-line: no-console
     console.log(events);
   }
 

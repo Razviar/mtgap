@@ -1,7 +1,7 @@
 // Welcome to the kingdom of chaos
 // tslint:disable: no-magic-numbers
 
-import {Card} from "root/models/cards";
+import {Card} from 'root/models/cards';
 
 // tslint:disable: no-any
 export const types = ['Aggro', 'Mid-Range', 'Control'];

@@ -2,8 +2,8 @@ import {app} from 'electron';
 
 import {AxiosResponse, Request} from 'root/app/request';
 import {asMap, asString} from 'root/lib/type_utils';
-import {UserRequest, UserResult} from 'root/models/userbytokenid';
 import {isMac} from 'root/lib/utils';
+import {UserRequest, UserResult} from 'root/models/userbytokenid';
 
 //
 // tokencheck
@@ -86,13 +86,13 @@ function parseUserResult(data: AxiosResponse): UserResult {
   return {status, data: dataString};
 }
 
-export async function userbytokenid(cm_userbytokenid: string): Promise<UserResult> {
+export async function userbytokenid(tokenid: string): Promise<UserResult> {
   const usertime = ((-1 * new Date().getTimezoneOffset()) / 60).toString();
   return parseUserResult(
     await Request.post<UserRequest>(
       `/mtg/donew2.php?cmd=cm_userbytokenid&version=${app.getVersion()}${isMac() ? 'm' : 'w'}`,
       {
-        cm_userbytokenid,
+        cm_userbytokenid: tokenid,
         usertime,
       }
     )

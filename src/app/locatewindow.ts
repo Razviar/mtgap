@@ -2,10 +2,10 @@ import {ChildProcessWithoutNullStreams} from 'child_process';
 import {screen} from 'electron';
 
 import {gameState} from 'root/app/game_state';
+import {sendMessageToOverlayWindow} from 'root/app/messages';
 import {AccountV8} from 'root/app/settings-store/v9';
 import {isMac} from 'root/lib/utils';
 import ourActiveWin from 'root/our-active-win';
-import {sendMessageToOverlayWindow} from './messages';
 
 export class WindowLocator {
   public bounds: {x: number; y: number; width: number; height: number} = {x: 0, y: 0, width: 0, height: 0};
@@ -65,9 +65,9 @@ export class WindowLocator {
     }
   }
 
-  public ProcessData(stdout: any): void {
+  public ProcessData(stdout: unknown): void {
     try {
-      const raw = stdout.toString();
+      const raw = String(stdout);
       //console.log(raw);
       raw.split('\n').map((line: string) => {
         if (line.indexOf('{') !== -1 && line.indexOf('}') !== -1) {

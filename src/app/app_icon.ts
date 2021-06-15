@@ -5,17 +5,17 @@ import {isMac} from 'root/lib/utils';
 // tslint:disable-next-line:no-any
 function loadAppIconInternal(type: string | undefined): any {
   // tslint:disable:no-require-imports
-  if (!type) {
+  if (type === undefined) {
     type = '';
   }
   if (isMac()) {
-    require('root/statics/mac/mac-icon' + type + '@2x.png');
-    require('root/statics/mac/mac-icon' + type + '@3x.png');
-    require('root/statics/mac/mac-icon' + type + '@4x.png');
-    require('root/statics/mac/mac-icon' + type + '@5x.png');
-    return require('root/statics/mac/mac-icon' + type + '.png');
+    require(`root/statics/mac/mac-icon${type}@2x.png`);
+    require(`root/statics/mac/mac-icon${type}@3x.png`);
+    require(`root/statics/mac/mac-icon${type}@4x.png`);
+    require(`root/statics/mac/mac-icon${type}@5x.png`);
+    return require(`root/statics/mac/mac-icon${type}.png`);
   }
-  return require('root/statics/icon' + type + '.ico');
+  return require(`root/statics/icon${type}.ico`);
   // tslint:enable:no-require-imports
 }
 

@@ -1,4 +1,4 @@
-import {SettingsBase, Version, Player} from 'root/app/settings-store/settings_store';
+import {Player, SettingsBase, Version} from 'root/app/settings-store/settings_store';
 import {HotkeysSettingsV1} from 'root/app/settings-store/v8';
 
 export interface SettingsV10 extends SettingsBase {

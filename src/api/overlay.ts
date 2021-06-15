@@ -5,9 +5,9 @@ import {parseUserMetadata} from 'root/api/parseUserMetadata';
 import {AxiosResponse, Request} from 'root/app/request';
 import {error} from 'root/lib/logger';
 import {asArray, asMap, asNumber, asString, removeUndefined} from 'root/lib/type_utils';
+import {isMac} from 'root/lib/utils';
 import {LiveMatch, LiveMatchRequest} from 'root/models/match';
 import {Metadata, UserMetadata} from 'root/models/metadata';
-import {isMac} from 'root/lib/utils';
 
 function parseLiveMatch(data: AxiosResponse): LiveMatch {
   const dataMap = asMap(data);

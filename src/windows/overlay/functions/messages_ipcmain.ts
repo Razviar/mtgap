@@ -1,3 +1,4 @@
+import {OverlaySettings} from 'root/app/settings-store/settings_store';
 import {sortcards} from 'root/lib/sortcards';
 import {lz} from 'root/lib/utils';
 import {Card} from 'root/models/cards';
@@ -19,7 +20,6 @@ import {
   toggleButtonClass,
   userCollection,
 } from 'root/windows/overlay/overlay';
-import {OverlaySettings} from 'root/app/settings-store/settings_store';
 
 export function SetMessages(setInteractiveHandler: (overlaySettings: OverlaySettings | undefined) => void): void {
   onMessageFromIpcMain('set-icosettings', (ico) => {

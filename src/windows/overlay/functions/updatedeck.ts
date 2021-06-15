@@ -1,6 +1,6 @@
 import {jsonParse, sumOfObject} from 'root/lib/func';
 import {asMap} from 'root/lib/type_utils';
-import {colorforfilter, manafont, typecolorletter, cardSuperclass} from 'root/lib/utils';
+import {cardSuperclass, colorforfilter, manafont, typecolorletter} from 'root/lib/utils';
 import {genBattleCardNum} from 'root/windows/overlay/functions/genbattlecardnum';
 import {currentMatch, overlayConfig, superclasses} from 'root/windows/overlay/overlay';
 

@@ -1,4 +1,5 @@
 import {systemPreferences} from 'electron';
+
 import {PermissionEventEmitter, PermissionEvents, PermissionListener} from 'root/app/permission_events';
 import {isMac} from 'root/lib/utils';
 
@@ -19,11 +20,13 @@ class PermissionManager extends PermissionEventEmitter {
   }
 
   private checkAuthStatus(): void {
+    // tslint:disable-next-line: no-require-imports no-unsafe-any
     const isAccessibilityOk = require('node-mac-permissions').getAuthStatus('accessibility') === 'authorized';
     if (this.isAccessibilityOk !== isAccessibilityOk) {
       this.isAccessibilityOk = isAccessibilityOk;
       this.emit('accessibility', isAccessibilityOk);
     }
+    // tslint:disable-next-line: no-require-imports no-unsafe-any
     const isScreenRecordingOk = require('node-mac-permissions').getAuthStatus('screen') === 'authorized';
     if (this.isScreenRecordingOk !== isScreenRecordingOk) {
       this.isScreenRecordingOk = isScreenRecordingOk;
@@ -40,6 +43,7 @@ class PermissionManager extends PermissionEventEmitter {
 
   public requireScreenRecording(): void {
     if (isMac()) {
+      // tslint:disable-next-line: no-require-imports no-unsafe-any
       require('node-mac-permissions').askForScreenCaptureAccess();
     }
   }

@@ -6,6 +6,7 @@ import {loadAppIcon} from 'root/app/app_icon';
 import {sendSettingsToRenderer} from 'root/app/auth';
 import {disableAutoLauncher, enableAutoLauncher} from 'root/app/auto_launcher';
 import {checkForUpdates, quitAndInstall} from 'root/app/auto_updater';
+import {gameState} from 'root/app/game_state';
 import {unRegisterHotkeys} from 'root/app/hotkeys';
 import {withLogParser} from 'root/app/log_parser_manager';
 import {withHomeWindow} from 'root/app/main_window';
@@ -14,12 +15,11 @@ import {locateMtgaDir, ShadowLogParse} from 'root/app/mtga_dir_ops';
 import {oldLogHandlerStatus, parseOldLogsHandler} from 'root/app/old-log-handler';
 import {oldStore} from 'root/app/old_store';
 import {withOverlayWindow} from 'root/app/overlay_window';
+import {permissionManager} from 'root/app/permission_manager';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {stateStore} from 'root/app/state_store';
 import {error} from 'root/lib/logger';
-import {permissionManager} from 'root/app/permission_manager';
 import {isMac} from 'root/lib/utils';
-import {gameState} from './game_state';
 
 export function setupIpcMain(app: App): void {
   onMessageFromBrowserWindow('token-input', (newAccount) => {
@@ -584,7 +584,8 @@ export function setupIpcMain(app: App): void {
   });
 
   onMessageFromBrowserWindow('restart-mtga-now', () => {
+    // tslint:disable-next-line: no-console
     console.log('restart-mtga');
-    gameState.doMTGARestart();
+    gameState.doMTGARestart().catch();
   });
 }

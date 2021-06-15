@@ -1,18 +1,21 @@
+import {exec, execFile} from 'child_process';
 import {BrowserWindow} from 'electron';
 import electronIsDev from 'electron-is-dev';
-import psList from 'ps-list';
-import {exec, execFile} from 'child_process';
 import {join} from 'path';
+import psList from 'ps-list';
 
 import {getMetadata, getUserMetadata} from 'root/api/overlay';
 import {registerHotkeys, unRegisterHotkeys} from 'root/app/hotkeys';
 import {WindowLocator} from 'root/app/locatewindow';
+import {withLogParser} from 'root/app/log_parser_manager';
 import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
 import {createOverlayWindow, getOverlayWindow} from 'root/app/overlay_window';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
 import {isMac, sleep} from 'root/lib/utils';
-import {withLogParser} from './log_parser_manager';
+
+const HALF_SECOND = 500;
+const TWO_SECONDS = 2000;
 
 class GameState {
   private readonly startTimeMillis: number;
@@ -66,7 +69,7 @@ class GameState {
         this.psListInterval = undefined;
       }
       withLogParser((logParser) => {
-        logParser.changeParserFreq(2000).catch((err) => {
+        logParser.changeParserFreq(TWO_SECONDS).catch((err) => {
           error('Failure to start log parser', err);
         });
       });
@@ -92,7 +95,7 @@ class GameState {
       if (isMac()) {
         overlayWindow.showInactive();
       } else {
-        setTimeout(overlayWindow.show.bind(overlayWindow), 400);
+        setTimeout(overlayWindow.show.bind(overlayWindow), HALF_SECOND - 100);
       }
     }
   }
@@ -114,12 +117,12 @@ class GameState {
         if (this.isFullscreen !== this.overlayPositioner.isFullscreen) {
           this.isFullscreen = this.overlayPositioner.isFullscreen;
           if (this.isFullscreen) {
-            if (this.refreshMillis !== 2000) {
-              this.setRefreshRate(2000);
+            if (this.refreshMillis !== TWO_SECONDS) {
+              this.setRefreshRate(TWO_SECONDS);
             }
           } else {
-            if (this.refreshMillis !== 500) {
-              this.setRefreshRate(500);
+            if (this.refreshMillis !== HALF_SECOND) {
+              this.setRefreshRate(HALF_SECOND);
             }
           }
         }
@@ -195,12 +198,9 @@ class GameState {
       //console.log('Starting Overlay new way!');
       this.overlayPositionSetter(false);
     } else if (this.overlayInterval === undefined) {
-      this.overlayInterval = setInterval(
-        (() => {
-          this.overlayPositionSetter(false);
-        }).bind(this),
-        this.refreshMillis
-      );
+      this.overlayInterval = setInterval(() => {
+        this.overlayPositionSetter(false);
+      }, this.refreshMillis);
     }
   }
 
@@ -215,13 +215,17 @@ class GameState {
     }
   }
 
+  private hasOwnProperty<X extends {}, Y extends PropertyKey>(obj: X, prop: Y): obj is X & Record<Y, unknown> {
+    return obj.hasOwnProperty(prop);
+  }
+
   public checkProcessId(): void {
     if (this.processId !== undefined && !this.badErrorHappening) {
       try {
         //console.log('trying to kill', this.processId);
         process.kill(this.processId, 0);
-      } catch (e: any) {
-        if (e && e.code && e.code === 'ESRCH') {
+      } catch (e: unknown) {
+        if (e instanceof Object && this.hasOwnProperty(e, 'code') && e.code === 'ESRCH') {
           //console.log('got good error');
           this.processId = undefined;
           this.badErrorHappening = false;
@@ -266,8 +270,8 @@ class GameState {
 
   public async doMTGARestart(): Promise<void> {
     try {
-      let mtgaPath = settingsStore.get().mtgaPath;
-      if (this.processId && mtgaPath) {
+      const mtgaPath = settingsStore.get().mtgaPath;
+      if (this.processId !== undefined && mtgaPath !== undefined) {
         exec(`wmic process where "ProcessID=${this.processId}" delete`).unref();
         this.setRunning(false);
         await sleep(1000);
@@ -275,7 +279,8 @@ class GameState {
         await sleep(1000);
         this.checkProcessId();
       }
-    } catch (e: any) {
+    } catch (e) {
+      // tslint:disable-next-line: no-console
       console.log(e);
     }
   }
