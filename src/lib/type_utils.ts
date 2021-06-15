@@ -134,3 +134,7 @@ export interface FlatObject {
 export type Untrusted<T> = {
   [P in keyof T]: any; // tslint:disable-line:no-any
 };
+
+export function hasOwnProperty<X extends {}, Y extends PropertyKey>(obj: X, prop: Y): obj is X & Record<Y, unknown> {
+  return obj.hasOwnProperty(prop);
+}

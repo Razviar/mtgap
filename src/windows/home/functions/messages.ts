@@ -1,3 +1,5 @@
+import {Message} from 'root/lib/messages';
+import {hasOwnProperty} from 'root/lib/type_utils';
 import {activateGame} from 'root/windows/home/functions/gameswitch';
 import {login} from 'root/windows/home/functions/login';
 import {LORlogin} from 'root/windows/home/functions/LOR/LORlogin';
@@ -60,57 +62,52 @@ export function installHomeMessages(): void {
   });
 
   onMessageFromIpcMain('set-o-settings', (newOSettings) => {
-    const overlaySettingsBoolean = [
-      'hidezero',
-      'showcardicon',
-      'hidemy',
-      'hideopp',
-      'timers',
-      'neverhide',
-      'mydecks',
-      'cardhover',
-      'detach',
-      'hidemain',
-      'interactive',
+    const overlaySettingsBoolean: Message[] = [
+      'set-setting-o-hidezero',
+      'set-setting-o-showcardicon',
+      'set-setting-o-hidemy',
+      'set-setting-o-hideopp',
+      'set-setting-o-timers',
+      'set-setting-o-neverhide',
+      'set-setting-o-mydecks',
+      'set-setting-o-cardhover',
+      'set-setting-o-detach',
+      'set-setting-o-hidemain',
+      'set-setting-o-interactive',
     ];
-    const overlaySettingsNumber = [
-      'leftdigit',
-      'rightdigit',
-      'leftdraftdigit',
-      'rightdraftdigit',
-      'bottomdigit',
-      'fontcolor',
+    const overlaySettingsNumber: Message[] = [
+      'set-setting-o-leftdigit',
+      'set-setting-o-rightdigit',
+      'set-setting-o-leftdraftdigit',
+      'set-setting-o-rightdraftdigit',
+      'set-setting-o-bottomdigit',
+      'set-setting-o-fontcolor',
     ];
 
-    overlaySettingsBoolean.forEach((setting) => {
-      const settingType = setting as
-        | 'hidezero'
-        | 'showcardicon'
-        | 'hidemy'
-        | 'hideopp'
-        | 'timers'
-        | 'neverhide'
-        | 'mydecks'
-        | 'cardhover'
-        | 'detach'
-        | 'hidemain';
-
+    overlaySettingsBoolean.forEach((settingName) => {
+      const settingType = settingName.split('set-setting-o-')[1] ?? '';
       const sw = document.querySelector(`[data-setting="o-${settingType}"]`) as HTMLInputElement;
-      sw.checked = newOSettings[settingType];
+      if (hasOwnProperty(newOSettings, settingType)) {
+        const value = newOSettings[settingType];
+        if (typeof value === 'boolean') {
+          sw.checked = value;
+        }
+      }
     });
 
-    overlaySettingsNumber.forEach((setting) => {
-      const settingType = setting as
-        | 'leftdigit'
-        | 'rightdigit'
-        | 'bottomdigit'
-        | 'rightdraftdigit'
-        | 'leftdraftdigit'
-        | 'fontcolor';
-
+    overlaySettingsNumber.forEach((settingName) => {
+      const settingType = settingName.split('set-setting-o-')[1] ?? '';
       const sw = document.querySelector(`[data-setting="o-${settingType}"]`) as HTMLSelectElement;
       const opts = sw.options;
-      sw.selectedIndex = Array.from(opts).findIndex((opt) => +opt.value === +newOSettings[settingType]);
+      sw.selectedIndex = Array.from(opts).findIndex((opt) => {
+        if (hasOwnProperty(newOSettings, settingType)) {
+          const value = newOSettings[settingType];
+          if (typeof value === 'number') {
+            return +opt.value === value;
+          }
+        }
+        return false;
+      });
     });
   });
 

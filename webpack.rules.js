@@ -16,30 +16,14 @@ module.exports = [
   },
   {
     test: /\.tsx?$/,
-    exclude: /(node_modules|.webpack)/,
-    loaders: [
-      {
-        loader: 'awesome-typescript-loader',
-        options: {
-          transpileOnly: true,
-        },
+    exclude: /(node_modules|\.webpack)/,
+    use: {
+      loader: 'ts-loader',
+      options: {
+        transpileOnly: true,
       },
-    ],
+    },
   },
-  // {
-  //   test: /\.tsx?$/,
-  //   exclude: /(node_modules|.webpack)/,
-  //   loaders: [
-  //     {
-  //       loader: 'tslint-loader',
-  //       options: {
-  //         tsConfigFile: 'tsconfig.json',
-  //         typeCheck: true,
-  //         formatter: 'verbose',
-  //       },
-  //     },
-  //   ],
-  // },
   {
     test: /\.(png|ico|svg|jpg|gif|icns)$/,
     use: [

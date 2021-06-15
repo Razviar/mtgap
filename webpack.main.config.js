@@ -2,13 +2,7 @@ const path = require('path');
 const ROOT = path.resolve(__dirname);
 const SRC = path.join(ROOT, 'src');
 const NODE_MODULES = path.join(ROOT, 'node_modules');
-const {TsConfigPathsPlugin} = require('awesome-typescript-loader');
-const {copySync} = require('fs-extra');
 const WebpackHookPlugin = require('webpack-hook-plugin').default;
-
-/*copySync('node_modules/iconv/build/Release/', 'node_modules/iconv/build/Debug/', {
-  overwrite: true,
-});*/
 
 module.exports = {
   /**
@@ -32,8 +26,7 @@ module.exports = {
     alias: {
       root: SRC,
     },
-    extensions: ['.js', '.ts', '.tsx'],
+    extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],
     modules: [NODE_MODULES],
-    plugins: [TsConfigPathsPlugin],
   },
 };

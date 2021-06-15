@@ -1,9 +1,9 @@
 const rules = require('./webpack.rules');
+const plugins = require('./webpack.plugins');
 const path = require('path');
 const ROOT = path.resolve(__dirname);
 const SRC = path.join(ROOT, 'src');
 const NODE_MODULES = path.join(ROOT, 'node_modules');
-const {TsConfigPathsPlugin} = require('awesome-typescript-loader');
 const CspHtmlWebpackPlugin = require('csp-html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 
@@ -42,16 +42,17 @@ rules.push(
 
 module.exports = {
   // Put your normal webpack config below here
+  devtool: 'source-map',
   module: {
     rules,
   },
+  plugins: plugins,
   resolve: {
     alias: {
       root: SRC,
     },
-    extensions: ['.js', '.ts', '.tsx'],
+    extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.woff', '.woff2', '.ttf', '.eot', '.svg'],
     modules: [NODE_MODULES],
-    plugins: [TsConfigPathsPlugin],
   },
   plugins: [
     new CspHtmlWebpackPlugin(

@@ -12,6 +12,7 @@ import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/mess
 import {createOverlayWindow, getOverlayWindow} from 'root/app/overlay_window';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
+import {hasOwnProperty} from 'root/lib/type_utils';
 import {isMac, sleep} from 'root/lib/utils';
 
 const HALF_SECOND = 500;
@@ -215,17 +216,13 @@ class GameState {
     }
   }
 
-  private hasOwnProperty<X extends {}, Y extends PropertyKey>(obj: X, prop: Y): obj is X & Record<Y, unknown> {
-    return obj.hasOwnProperty(prop);
-  }
-
   public checkProcessId(): void {
     if (this.processId !== undefined && !this.badErrorHappening) {
       try {
         //console.log('trying to kill', this.processId);
         process.kill(this.processId, 0);
       } catch (e: unknown) {
-        if (e instanceof Object && this.hasOwnProperty(e, 'code') && e.code === 'ESRCH') {
+        if (e instanceof Object && hasOwnProperty(e, 'code') && e.code === 'ESRCH') {
           //console.log('got good error');
           this.processId = undefined;
           this.badErrorHappening = false;

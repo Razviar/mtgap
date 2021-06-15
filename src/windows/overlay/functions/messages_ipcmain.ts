@@ -211,8 +211,9 @@ export function SetMessages(setInteractiveHandler: (overlaySettings: OverlaySett
       return;
     }
 
-    const PublicEventName = overlayConfig.metaData.formats.find((f) => f.format === deck.InternalEventName)
-      ?.PublicEventName;
+    const PublicEventName = overlayConfig.metaData.formats.find(
+      (f) => f.format === deck.InternalEventName
+    )?.PublicEventName;
 
     if (PublicEventName === undefined) {
       return;
