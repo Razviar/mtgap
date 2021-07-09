@@ -28,12 +28,14 @@ export async function getUserCredentials(
           AccountID = chunk.slice(AccountIDStart + options.userLoginData.userID.length).split('"', 2)[0];
         }
 
-        const screenNameRealPrefix = options.screenNamePrefix.replace('{PLAYERID}', AccountID);
+        //const screenNameRealPrefix = options.screenNamePrefix.replace('{PLAYERID}', AccountID);
+        const screenNameRealPrefix = 'Logged in successfully. Display Name: ';
         const screenNameIndex = chunk.indexOf(screenNameRealPrefix);
+        //console.log('screenNameIndex', screenNameIndex);
         if (screenNameIndex !== -1) {
           const screenNameLocator = screenNameIndex + screenNameRealPrefix.length;
-          const DisplayNameStart = chunk.indexOf(options.userLoginData.userName, screenNameLocator);
-          DisplayName = chunk.slice(DisplayNameStart + options.userLoginData.userName.length).split('"', 2)[0];
+          DisplayName = chunk.slice(screenNameLocator).split('\n', 2)[0];
+          //console.log('DisplayName', DisplayName);
         }
 
         if (DisplayName !== '' && AccountID !== '') {
@@ -54,7 +56,7 @@ export async function getUserCredentials(
             {...state, bytesRead: 0},
           ]);
         } else {
-          reject('Awaiting User ID to appear in log...');
+          reject('Awaiting User ID to appear in log. Normally this takes up to 30 seconds...');
         }
         stream.close();
       });

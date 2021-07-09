@@ -121,7 +121,7 @@ export class LogParser {
 
         const [detailedLogEnabled, detailedLogState] = await checkDetailedLogEnabled(path, parsingMetadata);
         if (!detailedLogEnabled) {
-          throw new Error('Enable Detailed Logs in MTGA account settings!');
+          throw new Error('Please enable Detailed Logs in MTGA account settings!');
         }
         //console.log(fileId);
         if (fileId !== this.currentFileId) {
@@ -138,12 +138,14 @@ export class LogParser {
           if (locationAttempt && locationAttempt.player) {
             userCreds.DisplayName = locationAttempt.player.screenName;
           } else {
-            throw new Error('Please play 1 match (even with Sparky) to get started!');
+            throw new Error(
+              'Please logout and login again in MTGA account so we could pick up your Screen Name from the log! In the Game, go to <Options> -> <Log Out> -> then Login again. Please keep Tracker running during this procedure. Once logged out, you will see <Awaiting User ID> message, that is normal.'
+            );
           }
         }
 
         if (!this.handleUserChangeEvent(userCreds.AccountID, userCreds.DisplayName)) {
-          throw new Error('Parsing paused: new user account must be synced or skipped');
+          throw new Error('Parsing paused: newly detected user account must be synced or skipped');
         }
 
         // Detecting change in fileId
