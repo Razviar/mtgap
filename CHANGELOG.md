@@ -1,5 +1,5 @@
 Please note, that this project, while following numbering syntax, it DOES NOT adhere to Semantic Versioning rules.
-## v.v2.1.26 released 09/07/2021
+## v.2.1.26 released 09/07/2021
 - Updated deps
 - Fixed account sync issue
 
