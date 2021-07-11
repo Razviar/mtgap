@@ -56,7 +56,7 @@ export async function getEvents(
           // If we've found a line break, we have the rest of the event
           currentEvent += res[0];
           chunkCursor += res[0].length;
-          parseEvent(currentEvent, state, options).forEach((e) => allEvents.push(e));
+          parseEvent(currentEvent, state, options, oldlog).forEach((e) => allEvents.push(e));
           if (shouldStopParsing(allEvents, options)) {
             fileStream.close();
             resolve([allEvents, {...state, bytesRead: bytesRead - res[1].length}]);

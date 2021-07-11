@@ -1,7 +1,12 @@
 import {LogEvent, LogFileParsingState, ParsingMetadata, RawLogEvent, StatefulLogEvent} from 'root/app/log-parser/model';
 import {asArray, asMap, asNumber, asString} from 'root/lib/type_utils';
 
-export function parseEvent(data: string, state: LogFileParsingState, options: ParsingMetadata): StatefulLogEvent[] {
+export function parseEvent(
+  data: string,
+  state: LogFileParsingState,
+  options: ParsingMetadata,
+  oldlog?: boolean
+): StatefulLogEvent[] {
   const rawEvent = parseAsRawEvent(data);
   if (rawEvent === undefined) {
     return [];

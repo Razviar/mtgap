@@ -34,7 +34,7 @@ export async function getUserCredentials(
         //console.log('screenNameIndex', screenNameIndex);
         if (screenNameIndex !== -1) {
           const screenNameLocator = screenNameIndex + screenNameRealPrefix.length;
-          DisplayName = chunk.slice(screenNameLocator).split('\n', 2)[0];
+          DisplayName = chunk.slice(screenNameLocator).split('\n', 2)[0].replace('\r', '');
           //console.log('DisplayName', DisplayName);
         }
 

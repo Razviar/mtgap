@@ -139,7 +139,7 @@ export class LogParser {
             userCreds.DisplayName = locationAttempt.player.screenName;
           } else {
             throw new Error(
-              'Please logout and login again in MTGA account so we could pick up your Screen Name from the log! In the Game, go to <Options> -> <Log Out> -> then Login again. Please keep Tracker running during this procedure. Once logged out, you will see <Awaiting User ID> message, that is normal.'
+              'Please logout and login again in MTGA account so we could pick up your Screen Name from the log! In the Game, go to [Options] -> [Log Out] -> then [Login] again. Please keep Tracker running during this procedure. Once logged out, you will see <Awaiting User ID> message, that is normal.'
             );
           }
         }
