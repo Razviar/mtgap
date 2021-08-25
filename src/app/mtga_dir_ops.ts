@@ -86,13 +86,14 @@ export function locateMostRecentDate(): MostRecentDate {
       if (logDate === undefined || logDate < ctime) {
         logDate = ctime;
         fileId = file;
+        //console.log(logDate);
       }
     });
   } catch (e) {
     error('Error reading files in logs folder', e);
   }
 
-  //console.log(fileId);
+  //console.log('returning', logDate?.getTime());
   return {date: logDate?.getTime(), fileId, logPath};
 }
 

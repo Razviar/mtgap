@@ -38,7 +38,7 @@ export async function getEvents(
     let currentEvent: string | undefined;
     const allEvents: StatefulLogEvent[] = [];
 
-    if (!oldlog && (state.timestamp === undefined || state.timestamp === 1)) {
+    if (!oldlog && (state.timestamp === undefined || state.timestamp === 1 || state.timestamp < 0)) {
       state.timestamp = locateMostRecentDate().date;
     }
 

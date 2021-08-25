@@ -12,7 +12,8 @@ export function parseEvent(
     return [];
   }
   const timestamp = getEventTimestamp(rawEvent);
-  if (timestamp !== undefined) {
+  //console.log('timestamp', state.timestamp);
+  if (timestamp !== undefined && +timestamp > 0) {
     state.timestamp = timestamp;
   }
   const events = postProcessEvent(rawEvent, options);
@@ -82,16 +83,21 @@ export function handleMatchEndEvent(event: LogEvent, state: LogFileParsingState)
 
 export function getEventTimestamp(rawEvent: RawLogEvent): number | undefined {
   const timeFromRawData = asNumber(extractValue(rawEvent.rawData, ['timestamp']));
+  //console.log('timeFromRawData', timeFromRawData);
   if (timeFromRawData !== undefined) {
     const epoch = 621355968000000000;
-    return Math.floor((timeFromRawData - epoch) / (10 * 1000));
+    return +timeFromRawData > epoch
+      ? Math.floor((timeFromRawData - epoch) / (10 * 1000))
+      : Math.floor((timeFromRawData - epoch) / 1000);
   }
   const timeFromData = asString(extractValue(rawEvent.data, ['params', 'payloadObject', 'timestamp']));
+  //console.log('timeFromData', timeFromData);
   if (timeFromData !== undefined) {
     try {
       return Date.parse(timeFromData);
     } catch {}
   }
+  //console.log('returning undefined');
   return undefined;
 }
 

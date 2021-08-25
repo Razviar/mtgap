@@ -4,8 +4,7 @@ import {LogFileOperationResult, LogFileParsingState, ParsingMetadata} from 'root
 
 export async function getUserCredentials(
   path: string,
-  state: LogFileParsingState,
-  options: ParsingMetadata
+  state: LogFileParsingState
 ): Promise<LogFileOperationResult<{DisplayName: string | undefined; AccountID: string}>> {
   return new Promise<LogFileOperationResult<{DisplayName: string | undefined; AccountID: string}>>(
     (resolve, reject) => {
@@ -20,22 +19,25 @@ export async function getUserCredentials(
       let AccountID = '';
       stream.on('data', (chunk: string) => {
         // Parse each event on the chunk until we find the one we use to identify the log file
-
-        const accountPrefixIndex = chunk.indexOf(options.accountPrefix);
+        const accountPrefix = '"authenticateResponse": ';
+        const userID = '"clientId": "';
+        const accountPrefixIndex = chunk.indexOf(accountPrefix);
         if (accountPrefixIndex !== -1) {
-          const accountIdLocator = accountPrefixIndex + options.accountPrefix.length;
-          const AccountIDStart = chunk.indexOf(options.userLoginData.userID, accountIdLocator);
-          AccountID = chunk.slice(AccountIDStart + options.userLoginData.userID.length).split('"', 2)[0];
-        }
+          const accountIdLocator = accountPrefixIndex + accountPrefix.length;
+          const AccountIDStart = chunk.indexOf(userID, accountIdLocator);
+          AccountID = chunk.slice(AccountIDStart + userID.length).split('"', 2)[0];
 
-        //const screenNameRealPrefix = options.screenNamePrefix.replace('{PLAYERID}', AccountID);
-        const screenNameRealPrefix = 'Logged in successfully. Display Name: ';
-        const screenNameIndex = chunk.indexOf(screenNameRealPrefix);
-        //console.log('screenNameIndex', screenNameIndex);
-        if (screenNameIndex !== -1) {
-          const screenNameLocator = screenNameIndex + screenNameRealPrefix.length;
-          DisplayName = chunk.slice(screenNameLocator).split('\n', 2)[0].replace('\r', '');
-          //console.log('DisplayName', DisplayName);
+          //console.log('AccountID', AccountID);
+
+          //const screenNameRealPrefix = options.screenNamePrefix.replace('{PLAYERID}', AccountID);
+          const screenNameRealPrefix = '"screenName": "';
+          const screenNameIndex = chunk.indexOf(screenNameRealPrefix, accountPrefixIndex);
+          //console.log('screenNameIndex', screenNameIndex);
+          if (screenNameIndex !== -1) {
+            const screenNameLocator = screenNameIndex + screenNameRealPrefix.length;
+            DisplayName = chunk.slice(screenNameLocator).split('"', 2)[0];
+            //console.log('DisplayName', DisplayName);
+          }
         }
 
         if (DisplayName !== '' && AccountID !== '') {
@@ -56,7 +58,7 @@ export async function getUserCredentials(
             {...state, bytesRead: 0},
           ]);
         } else {
-          reject('Awaiting User ID to appear in log. Normally this takes up to 30 seconds...');
+          reject('Awaiting User ID. Please play a match to get it.');
         }
         stream.close();
       });

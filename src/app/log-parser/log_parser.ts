@@ -129,7 +129,7 @@ export class LogParser {
           this.currentFileId = fileId;
         }
 
-        const [userCreds] = await getUserCredentials(LogFromMTGAFolder.logPath, {bytesRead: 0}, parsingMetadata);
+        const [userCreds] = await getUserCredentials(LogFromMTGAFolder.logPath, {bytesRead: 0});
         /*console.log('!!!', userCreds);
         console.log(this.currentState);*/
 
@@ -138,9 +138,7 @@ export class LogParser {
           if (locationAttempt && locationAttempt.player) {
             userCreds.DisplayName = locationAttempt.player.screenName;
           } else {
-            throw new Error(
-              'Please logout and login again in MTGA account so we could pick up your Screen Name from the log! In the Game, go to [Options] -> [Log Out] -> then [Login] again. Please keep Tracker running during this procedure. Once logged out, you will see <Awaiting User ID> message, that is normal.'
-            );
+            throw new Error('Awaiting User ID to appear in log. This will happen after the first match you play.');
           }
         }
 
@@ -169,6 +167,7 @@ export class LogParser {
         // Send parsing date
         if (events.length > 0) {
           const lastEvent = events[events.length - 1];
+          //console.log(events);
           if (lastEvent.timestamp !== undefined) {
             this.emitter.emit(
               'status',
