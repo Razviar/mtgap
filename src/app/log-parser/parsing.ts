@@ -229,11 +229,20 @@ export function extractEventData(eventName: string, rawData: any): any | undefin
   // - on an attribute that is the `eventName`, but camel cased
   // - as first layer of JSON for Draft.Notify
   if (dataMap.request !== undefined) {
-    return parseAsJSONIfNeeded(dataMap.request);
+    const requestExtracted = parseAsJSONIfNeeded(dataMap.request);
+    if (requestExtracted.Payload !== undefined) {
+      return parseAsJSONIfNeeded(requestExtracted.Payload);
+    } else {
+      return requestExtracted;
+    }
   }
   if (dataMap.payload !== undefined) {
     return parseAsJSONIfNeeded(dataMap.payload);
   }
+  if (dataMap.Payload !== undefined) {
+    return parseAsJSONIfNeeded(dataMap.payload);
+  }
+
   const eventNameUpperCase = eventName.toUpperCase();
   const eventNameProperty = Object.keys(dataMap).find((attr) => attr.toUpperCase() === eventNameUpperCase);
   if (eventNameProperty !== undefined) {
@@ -253,7 +262,9 @@ export function parseAsJSONIfNeeded(data: any): any {
   if (typeof data === 'string' && data.length > 0 && data[0] === '{') {
     try {
       return JSON.parse(data);
-    } catch (err) {}
+    } catch (err) {
+      console.log('Error parsing JSON', err);
+    }
   }
   return data;
 }

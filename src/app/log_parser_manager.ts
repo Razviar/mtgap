@@ -152,7 +152,7 @@ export async function parseOldLogs(
     try {
       const fileCTime = statSync(logpath).ctime;
       const [detailedLogEnabled, detailedLogState] = await checkDetailedLogEnabled(logpath, parsingMetadata);
-      const [userCreds] = await getUserCredentials(logpath, {bytesRead: 0}, parsingMetadata);
+      const [userCreds] = await getUserCredentials(logpath, {bytesRead: 0});
       if (userCreds.DisplayName === undefined) {
         return 1;
       }

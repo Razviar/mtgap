@@ -196,10 +196,7 @@ export class LogParser {
               this.handleAIPracticeDeckSubmit(event);
               break;
             case parsingMetadata.matchStartEvent:
-              this.handleMatchStartEvent(event);
-              break;
-            case parsingMetadata.matchEndEvent:
-              this.handleMatchEndEvent(event);
+              this.handleMatchStartOrEndEvent(event);
               break;
             case parsingMetadata.cardPlayedEvent:
               this.handleCardPlayedEvent(event);
@@ -228,7 +225,6 @@ export class LogParser {
             case parsingMetadata.TurnInfoAllEvent:
               this.handleTurnInfoAllEvent(event);
               break;
-            case parsingMetadata.GameBackupClosureEvent:
             case parsingMetadata.GameClosureEvent:
               if (isMac()) {
                 if (electronIsDev) {
@@ -341,7 +337,7 @@ export class LogParser {
     return false;
   }
 
-  private handleMatchStartEvent(event: StatefulLogEvent): void {
+  private handleMatchStartOrEndEvent(event: StatefulLogEvent): void {
     //console.log(event);
     const matchId = asString(extractValue(event.data, ['gameRoomInfo', 'gameRoomConfig', 'matchId']));
     const state = asString(extractValue(event.data, ['gameRoomInfo', 'stateType']));
@@ -375,27 +371,9 @@ export class LogParser {
       //console.log({matchId, gameNumber: 1, seatId, eventId});
 
       this.emitter.emit('match-started', {matchId, gameNumber: 1, seatId, eventId});
+    } else if (state === 'MatchGameRoomStateType_MatchCompleted') {
+      this.emitter.emit('match-over', undefined);
     }
-
-    /*const matchId = asString(extractValue(event.data, ['payload', 'matchId']));
-    const gameNumber = asNumber(extractValue(event.data, ['payload', 'gameNumber']));
-    const seatId = asNumber(extractValue(event.data, ['payload', 'seatId']));
-    const eventId = asString(extractValue(event.data, ['payload', 'eventId']));
-    if (matchId === undefined || gameNumber === undefined || seatId === undefined || eventId === undefined) {
-      error('Encountered invalid match start event', undefined, {...event});
-      return;
-    }
-    //console.log('match-started');
-    this.emitter.emit('match-started', {matchId, gameNumber, seatId, eventId});*/
-  }
-
-  private handleMatchEndEvent(event: StatefulLogEvent): void {
-    /*const matchId = asString(extractValue(event.data, ['params', 'payloadObject', 'matchId']));
-    if (matchId === undefined) {
-      error('Encountered invalid match end event', undefined, {...event});
-      return;
-    }*/
-    this.emitter.emit('match-over', undefined);
   }
 
   private handleMulliganEvent(event: StatefulLogEvent): void {
@@ -476,11 +454,11 @@ export class LogParser {
   }
 
   private handleDeckSubmissionEvent(event: StatefulLogEvent): void {
-    const mainDeckRaw = asArray<number>(extractValue(event.data, ['CourseDeck', 'mainDeck']));
-    const commandZoneGRPIds = asArray<number>(extractValue(event.data, ['CourseDeck', 'commandZoneGRPIds']));
-    const deckName = asString(extractValue(event.data, ['CourseDeck', 'name']));
-    const deckId = asString(extractValue(event.data, ['CourseDeck', 'id']));
-    const InternalEventName = asString(extractValue(event.data, ['InternalEventName']));
+    const mainDeckRaw = asArray<{cardId: number; quantity: number}>(extractValue(event.data, ['Deck', 'MainDeck']));
+    const commandZoneGRPIds = asArray<number>(extractValue(event.data, ['Deck', 'CommandZone']));
+    const deckName = asString(extractValue(event.data, ['Summary', 'Name']));
+    const deckId = asString(extractValue(event.data, ['Summary', 'DeckId']));
+    const InternalEventName = asString(extractValue(event.data, ['EventName']));
     if (
       mainDeckRaw === undefined ||
       commandZoneGRPIds === undefined ||
@@ -488,19 +466,22 @@ export class LogParser {
       deckId === undefined ||
       InternalEventName === undefined
     ) {
-      error('Encountered invalid deck submission event', undefined, {...event});
+      error(
+        'Encountered invalid deck submission event',
+        {mainDeckRaw, commandZoneGRPIds, deckName, deckId, InternalEventName},
+        {...event}
+      );
       return;
     }
     const mainDeck: {[index: number]: number} = {};
     let cid = 0;
     mainDeckRaw.forEach((deckEl) => {
-      if (+deckEl > 100) {
-        cid = +deckEl;
-      } else if (cid !== 0) {
-        mainDeck[+cid] = +deckEl;
+      if (+deckEl.cardId > 100) {
+        cid = +deckEl.cardId;
+        mainDeck[+cid] = +deckEl.quantity;
       }
     });
-
+    //console.log('deck-submission', {mainDeck, commandZoneGRPIds, deckName, deckId, InternalEventName});
     this.emitter.emit('deck-submission', {mainDeck, commandZoneGRPIds, deckName, deckId, InternalEventName});
   }
 
