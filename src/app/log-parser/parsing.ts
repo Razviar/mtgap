@@ -12,7 +12,8 @@ export function parseEvent(
     return [];
   }
   const timestamp = getEventTimestamp(rawEvent);
-  //console.log('timestamp', state.timestamp);
+  //console.log(rawEvent);
+  //console.log('got-timestamp', timestamp);
   if (timestamp !== undefined && +timestamp > 0) {
     state.timestamp = timestamp;
   }
@@ -83,12 +84,11 @@ export function handleMatchEndEvent(event: LogEvent, state: LogFileParsingState)
 
 export function getEventTimestamp(rawEvent: RawLogEvent): number | undefined {
   const timeFromRawData = asNumber(extractValue(rawEvent.rawData, ['timestamp']));
-  //console.log('timeFromRawData', timeFromRawData);
+  /*console.log('---------------------');
+  console.log('timeFromRawData', timeFromRawData);*/
   if (timeFromRawData !== undefined) {
     const epoch = 621355968000000000;
-    return +timeFromRawData > epoch
-      ? Math.floor((timeFromRawData - epoch) / (10 * 1000))
-      : Math.floor((timeFromRawData - epoch) / 1000);
+    return +timeFromRawData > epoch ? Math.floor((timeFromRawData - epoch) / (10 * 1000)) : Math.floor(timeFromRawData);
   }
   const timeFromData = asString(extractValue(rawEvent.data, ['params', 'payloadObject', 'timestamp']));
   //console.log('timeFromData', timeFromData);
@@ -97,6 +97,14 @@ export function getEventTimestamp(rawEvent: RawLogEvent): number | undefined {
       return Date.parse(timeFromData);
     } catch {}
   }
+  if (rawEvent.name == '==> LogBusinessEvents') {
+    if (rawEvent.data !== undefined && rawEvent.data.EventTime !== undefined) {
+      try {
+        return Date.parse(rawEvent.data.EventTime);
+      } catch {}
+    }
+  }
+
   //console.log('returning undefined');
   return undefined;
 }
