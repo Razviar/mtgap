@@ -84,8 +84,12 @@ export async function getEvents(
 
         // We've found a line break, but we are not done yet. Sometimes the events print the JSON info
         // on the next line, so we check for that as well.
-        if (chunk[nextLineBreakIndex + 1] === '{') {
+
+        if (chunk[nextLineBreakIndex + 1] === '{' || chunk[nextLineBreakIndex + 1] === '<') {
           let lineBreakAfter = chunk.indexOf('\n', nextLineBreakIndex + 1);
+          if (chunk[nextLineBreakIndex + 1] === '<') {
+            lineBreakAfter = chunk.indexOf('\n', lineBreakAfter + 1);
+          }
           if (lineBreakAfter === -1) {
             // Ok... this means we are dealing with an event that has JSON info on the next line, but we
             // don't have all the JSON in this chunk.
@@ -93,8 +97,8 @@ export async function getEvents(
             // of this chunk.
             currentEvent = chunk
               .slice(nextPrefixIndex + eventPrefix.length, chunk.length)
-              .split(/\r?\n/, 2)
-              .join('');
+              .split(/\r?\n/)
+              .join(chunk[nextLineBreakIndex + 1] === '<' ? ' ' : '');
             return;
           }
           // If the line break had a carriage return, we go back one character
@@ -103,8 +107,8 @@ export async function getEvents(
           }
           const eventString = chunk
             .slice(nextPrefixIndex + eventPrefix.length, lineBreakAfter)
-            .split(/\r?\n/, 2)
-            .join('');
+            .split(/\r?\n/)
+            .join(chunk[nextLineBreakIndex + 1] === '<' ? ' ' : '');
           parseEvent(eventString, state, options).forEach((e) => allEvents.push(e));
           if (shouldStopParsing(allEvents, options)) {
             fileStream.close();

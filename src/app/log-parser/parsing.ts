@@ -192,17 +192,21 @@ function isClosingEvent(eventName: string): boolean {
 export function parseAsRawEvent(value: string): RawLogEvent | undefined {
   const firstOpenCurlyBraces = value.indexOf('{');
   const firstOpenRoundBraces = value.indexOf('(');
-  const nameLimiter =
-    firstOpenRoundBraces !== -1 && firstOpenRoundBraces < firstOpenCurlyBraces
-      ? firstOpenRoundBraces
-      : firstOpenCurlyBraces;
   // No JSON, this is not an event we care about
   if (firstOpenCurlyBraces === -1) {
     return undefined;
   }
   // Found a {, we parse the data as JSON
   try {
-    const eventName = postProcessEventName(value.slice(0, nameLimiter));
+    const nameLimiter =
+      firstOpenRoundBraces !== -1 && firstOpenRoundBraces < firstOpenCurlyBraces
+        ? firstOpenRoundBraces
+        : firstOpenCurlyBraces;
+    const protoName = value.slice(0, nameLimiter);
+    const eventName = postProcessEventName(protoName);
+
+    console.log('eventName', {protoName, firstOpenCurlyBraces, firstOpenRoundBraces, eventName});
+
     if (isClosingEvent(eventName)) {
       return {name: eventName, data: {}, rawData: {}};
     }
@@ -223,8 +227,11 @@ const timedMessageRegex = /^[0-9]{1,4}[\/.:-][0-9]{1,4}[\/.:-][0-9]{1,4}/;
 export function postProcessEventName(message: string): string {
   // Some messages are time based. For those we only care of the last part
   if (message.match(timedMessageRegex)) {
-    const fragments = message.split(' ');
-    return fragments[fragments.length - 1].trim();
+    const fragments = message.trim().split(' ');
+    const processedName = `${message.includes('==>') ? '==> ' : message.includes('<==') ? '<== ' : ''}${fragments[
+      fragments.length - 1
+    ].trim()}`;
+    return processedName;
   }
   // For the other, we trim the whitespaces. Can't hurt.
   return message.trim();
