@@ -191,13 +191,18 @@ function isClosingEvent(eventName: string): boolean {
 
 export function parseAsRawEvent(value: string): RawLogEvent | undefined {
   const firstOpenCurlyBraces = value.indexOf('{');
+  const firstOpenRoundBraces = value.indexOf('(');
+  const nameLimiter =
+    firstOpenRoundBraces !== -1 && firstOpenRoundBraces < firstOpenCurlyBraces
+      ? firstOpenRoundBraces
+      : firstOpenCurlyBraces;
   // No JSON, this is not an event we care about
   if (firstOpenCurlyBraces === -1) {
     return undefined;
   }
   // Found a {, we parse the data as JSON
   try {
-    const eventName = postProcessEventName(value.slice(0, firstOpenCurlyBraces));
+    const eventName = postProcessEventName(value.slice(0, nameLimiter));
     if (isClosingEvent(eventName)) {
       return {name: eventName, data: {}, rawData: {}};
     }
