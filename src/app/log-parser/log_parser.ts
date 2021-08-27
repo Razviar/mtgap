@@ -219,9 +219,6 @@ export class LogParser {
             case parsingMetadata.humanDraftPick:
               this.handlehumandraftMakePickEvents(event);
               break;
-            case parsingMetadata.draftMakePickEvent:
-              this.handledraftMakePickEvents(event);
-              break;
             case parsingMetadata.TurnInfoAllEvent:
               this.handleTurnInfoAllEvent(event);
               break;
@@ -507,6 +504,7 @@ export class LogParser {
     const DraftPack = asArray<number>(extractValue(event.data, ['DraftPack']), []);
     const PackNumber = asNumber(extractValue(event.data, ['PackNumber']));
     const PickNumber = asNumber(extractValue(event.data, ['PickNumber']));
+    const DraftStatus = asString(extractValue(event.data, ['DraftStatus']));
     if (PackNumber === undefined || PickNumber === undefined) {
       error('Encountered invalid draft start event', undefined, {...event});
       return;
@@ -525,21 +523,15 @@ export class LogParser {
     }
 
     this.emitter.emit('draft-turn', {DraftPack, PackNumber, PickNumber});
+
+    if (DraftStatus === 'Completed') {
+      this.emitter.emit('draft-complete', undefined);
+    }
   }
 
   private handlehumandraftMakePickEvents(event: StatefulLogEvent): void {
     const IsPickingCompleted = asBoolean(extractValue(event.data, ['IsPickingCompleted']));
     if (IsPickingCompleted) {
-      this.emitter.emit('draft-complete', undefined);
-    }
-  }
-
-  private handledraftMakePickEvents(event: StatefulLogEvent): void {
-    const PackNumber = asNumber(extractValue(event.data, ['PackNumber']));
-    const PickNumber = asNumber(extractValue(event.data, ['PickNumber']));
-    const PacksInDraft = 2;
-    const CardsInPack = 13;
-    if (PackNumber === PacksInDraft || PickNumber === CardsInPack) {
       this.emitter.emit('draft-complete', undefined);
     }
   }
