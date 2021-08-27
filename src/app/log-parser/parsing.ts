@@ -205,7 +205,7 @@ export function parseAsRawEvent(value: string): RawLogEvent | undefined {
     const protoName = value.slice(0, nameLimiter);
     const eventName = postProcessEventName(protoName);
 
-    console.log('eventName', {protoName, firstOpenCurlyBraces, firstOpenRoundBraces, eventName});
+    //console.log('eventName', {protoName, firstOpenCurlyBraces, firstOpenRoundBraces, eventName});
 
     if (isClosingEvent(eventName)) {
       return {name: eventName, data: {}, rawData: {}};
