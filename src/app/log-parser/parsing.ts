@@ -205,13 +205,14 @@ export function parseAsRawEvent(value: string): RawLogEvent | undefined {
     const protoName = value.slice(0, nameLimiter);
     const eventName = postProcessEventName(protoName);
 
-    //console.log('eventName', {protoName, firstOpenCurlyBraces, firstOpenRoundBraces, eventName});
-
     if (isClosingEvent(eventName)) {
       return {name: eventName, data: {}, rawData: {}};
     }
     const rawData = JSON.parse(value.slice(firstOpenCurlyBraces));
     const data = extractEventData(eventName, rawData);
+    /*if (eventName == '<== BotDraft_DraftPick') {
+      console.log('eventName', {protoName, firstOpenCurlyBraces, firstOpenRoundBraces, eventName, value, rawData});
+    }*/
     if (data === undefined) {
       return undefined;
     }
@@ -240,6 +241,7 @@ export function postProcessEventName(message: string): string {
 // tslint:disable-next-line:no-any
 export function extractEventData(eventName: string, rawData: any): any | undefined {
   const dataMap = asMap(rawData);
+
   if (dataMap === undefined) {
     return undefined;
   }
@@ -260,7 +262,7 @@ export function extractEventData(eventName: string, rawData: any): any | undefin
     return parseAsJSONIfNeeded(dataMap.payload);
   }
   if (dataMap.Payload !== undefined) {
-    return parseAsJSONIfNeeded(dataMap.payload);
+    return parseAsJSONIfNeeded(dataMap.Payload);
   }
 
   const eventNameUpperCase = eventName.toUpperCase();
