@@ -1,4 +1,8 @@
 Please note, that this project, while following numbering syntax, it DOES NOT adhere to Semantic Versioning rules.
+## v2.1.34 released 27/08/2021
+- Updated parser to match MTGA log changes
+- Fixed related bugs
+
 ## v.2.1.26 released 09/07/2021
 - Updated deps
 - Fixed account sync issue
