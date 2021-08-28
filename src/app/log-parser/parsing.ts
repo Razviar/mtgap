@@ -8,11 +8,12 @@ export function parseEvent(
   oldlog?: boolean
 ): StatefulLogEvent[] {
   const rawEvent = parseAsRawEvent(data);
+
   if (rawEvent === undefined) {
     return [];
   }
   const timestamp = getEventTimestamp(rawEvent);
-  //console.log(rawEvent);
+
   //console.log('got-timestamp', timestamp);
   if (timestamp !== undefined && +timestamp > 0) {
     state.timestamp = timestamp;
@@ -210,8 +211,16 @@ export function parseAsRawEvent(value: string): RawLogEvent | undefined {
     }
     const rawData = JSON.parse(value.slice(firstOpenCurlyBraces));
     const data = extractEventData(eventName, rawData);
-    /*if (eventName == '<== BotDraft_DraftPick') {
-      console.log('eventName', {protoName, firstOpenCurlyBraces, firstOpenRoundBraces, eventName, value, rawData});
+    /*if (eventName == '<== Event_GetCourses') {
+      console.log('eventName', {
+        protoName,
+        firstOpenCurlyBraces,
+        firstOpenRoundBraces,
+        eventName,
+        value,
+        rawData,
+        data,
+      });
     }*/
     if (data === undefined) {
       return undefined;
@@ -249,7 +258,7 @@ export function extractEventData(eventName: string, rawData: any): any | undefin
   // - on the `request` attribute. This is generally (but not exclusively) found on "==> ***" events
   // - on the `payload` attribute. This is generally (but not exclusively) found on "<== ***" events
   // - on an attribute that is the `eventName`, but camel cased
-  // - as first layer of JSON for Draft.Notify
+  // - as first layer of JSON
   if (dataMap.request !== undefined) {
     const requestExtracted = parseAsJSONIfNeeded(dataMap.request);
     if (requestExtracted.Payload !== undefined) {
@@ -270,11 +279,8 @@ export function extractEventData(eventName: string, rawData: any): any | undefin
   if (eventNameProperty !== undefined) {
     return parseAsJSONIfNeeded(dataMap[eventNameProperty]);
   }
-  if (eventName === 'Draft.Notify') {
-    return parseAsJSONIfNeeded(dataMap);
-  } else {
-    return undefined;
-  }
+
+  return parseAsJSONIfNeeded(dataMap);
 }
 
 // tslint:disable-next-line:no-any

@@ -153,30 +153,35 @@ export async function parseOldLogs(
       const fileCTime = statSync(logpath).ctime;
       const [detailedLogEnabled, detailedLogState] = await checkDetailedLogEnabled(logpath, parsingMetadata);
       const [userCreds] = await getUserCredentials(logpath, {bytesRead: 0});
-      if (userCreds.DisplayName === undefined) {
-        return 1;
-      }
       if (!dev) {
-        if (getAccountFromScreenName(userCreds.DisplayName) === undefined) {
+        if (userCreds.DisplayName === undefined) {
           return 1;
         }
-      }
-      if (!detailedLogEnabled) {
-        return 1;
-      }
-      const fileId = basename(logpath);
-      if (oldStore.checkLog(fileId, logpath)) {
-        return 1;
-      }
-      if (!dev) {
-        oldStore.saveFileID(fileCTime.getTime(), fileId);
-        oldStore.saveLogName(fileCTime.getTime(), logpath);
+        if (!dev) {
+          if (getAccountFromScreenName(userCreds.DisplayName) === undefined) {
+            return 1;
+          }
+        }
+        if (!detailedLogEnabled) {
+          return 1;
+        }
+        const fileId = basename(logpath);
+        if (oldStore.checkLog(fileId, logpath)) {
+          return 1;
+        }
+        if (!dev) {
+          oldStore.saveFileID(fileCTime.getTime(), fileId);
+          oldStore.saveLogName(fileCTime.getTime(), logpath);
+        }
       }
       currentState = detailedLogState;
       currentState.screenName = userCreds.DisplayName;
       currentState.userId = userCreds.AccountID;
       currentState.timestamp = fileCTime.getTime();
     } catch (olde) {
+      if (dev) {
+        console.log(olde);
+      }
       return 1;
     }
   } else {
