@@ -33,7 +33,6 @@ export async function getEvents(
       start: state.bytesRead,
     });
 
-    const eventPrefix = options.eventPrefix;
     let bytesRead = state.bytesRead;
     let currentEvent: string | undefined;
     const allEvents: StatefulLogEvent[] = [];
@@ -69,7 +68,18 @@ export async function getEvents(
       // We loop until we are done reading events (ie. reached the end of the chunk)
       while (true) {
         // If we arrive here, there are no event currently being parsed, so we look for the event prefix
-        const nextPrefixIndex = chunk.indexOf(eventPrefix, chunkCursor);
+        const prefIndex = chunk.indexOf(options.eventPrefix, chunkCursor);
+        const prefIndexExtra = chunk.indexOf(options.eventPrefixExtra, chunkCursor);
+        const nextPrefixIndex =
+          prefIndex < prefIndexExtra
+            ? prefIndex != -1
+              ? prefIndex
+              : prefIndexExtra
+            : prefIndexExtra != -1
+            ? prefIndexExtra
+            : prefIndex;
+        const eventPrefix = prefIndex < prefIndexExtra ? options.eventPrefix : options.eventPrefixExtra;
+
         if (nextPrefixIndex === -1) {
           // No more event in this chunk
           return;

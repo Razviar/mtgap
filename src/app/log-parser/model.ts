@@ -36,6 +36,7 @@ export interface ParsingMetadata {
   fileId: FileIdParsingMetadata;
   events: EventParsingMetadata[];
   eventPrefix: string; // '[UnityCrossThreadLogger]'
+  eventPrefixExtra: string; // '[MTGA.Pro Logger]'
   accountPrefix: string;
   screenNamePrefix: string;
   userChangeEvent: string;

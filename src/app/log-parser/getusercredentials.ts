@@ -17,26 +17,45 @@ export async function getUserCredentials(
       //console.log(path);
       let DisplayName = '';
       let AccountID = '';
+      let HasInjection = false;
       stream.on('data', (chunk: string) => {
-        // Parse each event on the chunk until we find the one we use to identify the log file
-        const accountPrefix = '"authenticateResponse": ';
-        const userID = '"clientId": "';
-        const accountPrefixIndex = chunk.indexOf(accountPrefix);
-        if (accountPrefixIndex !== -1) {
-          const accountIdLocator = accountPrefixIndex + accountPrefix.length;
-          const AccountIDStart = chunk.indexOf(userID, accountIdLocator);
-          AccountID = chunk.slice(AccountIDStart + userID.length).split('"', 2)[0];
+        if (chunk.indexOf('[MTGA.Pro Logger]') !== -1) {
+          HasInjection = true;
+          const accountPrefix = '**Userdata**';
+          const userID = '"userId":"';
+          const accountPrefixIndex = chunk.indexOf(accountPrefix);
+          if (accountPrefixIndex !== -1) {
+            const accountIdLocator = accountPrefixIndex + accountPrefix.length;
+            const AccountIDStart = chunk.indexOf(userID, accountIdLocator);
+            AccountID = chunk.slice(AccountIDStart + userID.length).split('"', 2)[0];
+            const screenNameRealPrefix = '"screenName":"';
+            const screenNameIndex = chunk.indexOf(screenNameRealPrefix, accountPrefixIndex);
+            if (screenNameIndex !== -1) {
+              const screenNameLocator = screenNameIndex + screenNameRealPrefix.length;
+              DisplayName = chunk.slice(screenNameLocator).split('"', 2)[0];
+            }
+          }
+        } else {
+          // Parse each event on the chunk until we find the one we use to identify the log file
+          const accountPrefix = '"authenticateResponse": ';
+          const userID = '"clientId": "';
+          const accountPrefixIndex = chunk.indexOf(accountPrefix);
+          if (accountPrefixIndex !== -1) {
+            const accountIdLocator = accountPrefixIndex + accountPrefix.length;
+            const AccountIDStart = chunk.indexOf(userID, accountIdLocator);
+            AccountID = chunk.slice(AccountIDStart + userID.length).split('"', 2)[0];
 
-          //console.log('AccountID', AccountID);
+            //console.log('AccountID', AccountID);
 
-          //const screenNameRealPrefix = options.screenNamePrefix.replace('{PLAYERID}', AccountID);
-          const screenNameRealPrefix = '"screenName": "';
-          const screenNameIndex = chunk.indexOf(screenNameRealPrefix, accountPrefixIndex);
-          //console.log('screenNameIndex', screenNameIndex);
-          if (screenNameIndex !== -1) {
-            const screenNameLocator = screenNameIndex + screenNameRealPrefix.length;
-            DisplayName = chunk.slice(screenNameLocator).split('"', 2)[0];
-            //console.log('DisplayName', DisplayName);
+            //const screenNameRealPrefix = options.screenNamePrefix.replace('{PLAYERID}', AccountID);
+            const screenNameRealPrefix = '"screenName": "';
+            const screenNameIndex = chunk.indexOf(screenNameRealPrefix, accountPrefixIndex);
+            //console.log('screenNameIndex', screenNameIndex);
+            if (screenNameIndex !== -1) {
+              const screenNameLocator = screenNameIndex + screenNameRealPrefix.length;
+              DisplayName = chunk.slice(screenNameLocator).split('"', 2)[0];
+              //console.log('DisplayName', DisplayName);
+            }
           }
         }
 
@@ -58,7 +77,11 @@ export async function getUserCredentials(
             {...state, bytesRead: 0},
           ]);
         } else {
-          reject('Awaiting User ID. Please play a match to get it.');
+          reject(
+            HasInjection
+              ? 'Awaiting User ID. It will take up to 30s.'
+              : 'Awaiting User ID. Please play a match to get it.'
+          );
         }
         stream.close();
       });

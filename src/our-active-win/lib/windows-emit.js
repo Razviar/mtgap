@@ -2,9 +2,9 @@
 import {join} from 'path';
 import {spawn} from 'child_process';
 
-const bin = join(__dirname, '../getFrontWindow2.exe');
+const bin = join(__dirname, '../getFrontWindow.exe');
 
-export function launch() {
-  const positionDataReader = spawn(bin);
+export function launch(JustDoInjection) {
+  const positionDataReader = spawn(bin, JustDoInjection ? ['JustDoInjection'] : undefined);
   return positionDataReader;
 }

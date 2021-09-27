@@ -191,6 +191,8 @@ class GameState {
       } else {
         this.showOverlay(overlayWindow);
       }
+    } else if (account && !settingsStore.get().overlay) {
+      this.overlayPositioner.findMtga(account, !isMac(), true);
     }
   }
 

@@ -76,8 +76,7 @@ export class WindowLocator {
         }
       });
     } catch (error) {
-      /*console.log(stdout.toString());
-      console.error(error);*/
+      //console.error(error);
       //throw new Error('Error parsing window data');
     }
   }
@@ -88,7 +87,7 @@ export class WindowLocator {
     }
   }
 
-  public findMtga(account: AccountV8, hook?: boolean): void {
+  public findMtga(account: AccountV8, hook?: boolean, justEmbed?: boolean): void {
     /*const path = join(app.getPath('userData'), 'debugging.txt');
     fs.appendFileSync(path, JSON.stringify({pid}));*/
     //console.log('findmtga');
@@ -111,7 +110,7 @@ export class WindowLocator {
         };
         //console.log(this.bounds);
       } else if (hook && !isMac()) {
-        this.SpawnedProcess = ourActiveWin.launch();
+        this.SpawnedProcess = ourActiveWin.launch(justEmbed);
         if (this.SpawnedProcess) {
           this.SpawnedProcess.stdout.on('data', this.ProcessData.bind(this));
         }

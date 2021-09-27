@@ -80,7 +80,7 @@ declare const ourActiveWin: {
   /**Get stream 
   @returns The active window metadata.*/
 
-  launch(): import('child_process').ChildProcessWithoutNullStreams | undefined;
+  launch(justEmbed?: boolean): import('child_process').ChildProcessWithoutNullStreams | undefined;
 };
 
 export = ourActiveWin;

@@ -89,7 +89,11 @@ export function getEventTimestamp(rawEvent: RawLogEvent): number | undefined {
   console.log('timeFromRawData', timeFromRawData);*/
   if (timeFromRawData !== undefined) {
     const epoch = 621355968000000000;
-    return +timeFromRawData > epoch ? Math.floor((timeFromRawData - epoch) / (10 * 1000)) : Math.floor(timeFromRawData);
+    return +timeFromRawData > epoch
+      ? Math.floor((timeFromRawData - epoch) / (10 * 1000))
+      : timeFromRawData.toString().length === 10
+      ? Math.floor(timeFromRawData * 1000)
+      : Math.floor(timeFromRawData);
   }
   const timeFromData = asString(extractValue(rawEvent.data, ['params', 'payloadObject', 'timestamp']));
   //console.log('timeFromData', timeFromData);
@@ -211,7 +215,7 @@ export function parseAsRawEvent(value: string): RawLogEvent | undefined {
     }
     const rawData = JSON.parse(value.slice(firstOpenCurlyBraces));
     const data = extractEventData(eventName, rawData);
-    /*if (eventName == '<== Event_GetCourses') {
+    /*if (eventName == 'InventoryInfo') {
       console.log('eventName', {
         protoName,
         firstOpenCurlyBraces,

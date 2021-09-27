@@ -129,7 +129,7 @@ export class LogParser {
           this.currentFileId = fileId;
         }
 
-        const [userCreds] = await getUserCredentials(LogFromMTGAFolder.logPath, {bytesRead: 0});
+        const [userCreds] = await getUserCredentials(path, {bytesRead: 0});
         /*console.log('!!!', userCreds);
         console.log(this.currentState);*/
 
