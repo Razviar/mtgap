@@ -14,6 +14,7 @@ import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
 import {hasOwnProperty} from 'root/lib/type_utils';
 import {isMac, sleep} from 'root/lib/utils';
+import ourActiveWin from 'root/our-active-win';
 
 const HALF_SECOND = 500;
 const TWO_SECONDS = 2000;
@@ -191,8 +192,8 @@ class GameState {
       } else {
         this.showOverlay(overlayWindow);
       }
-    } else if (account && !settingsStore.get().overlay) {
-      this.overlayPositioner.findMtga(account, !isMac(), true);
+    } else {
+      ourActiveWin.launch(true);
     }
   }
 

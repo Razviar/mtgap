@@ -12,9 +12,9 @@ module.exports.sync = () => {
   throw new Error('macOS and Windows only');
 };
 
-module.exports.launch = () => {
+module.exports.launch = (JustDoInjection) => {
   if (process.platform === 'win32') {
-    return require('./lib/windows-emit').launch();
+    return require('./lib/windows-emit').launch(JustDoInjection);
   }
 
   throw new Error('macOS and Windows only');

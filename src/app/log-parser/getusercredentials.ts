@@ -23,7 +23,7 @@ export async function getUserCredentials(
           HasInjection = true;
           const accountPrefix = '**Userdata**';
           const userID = '"userId":"';
-          const accountPrefixIndex = chunk.indexOf(accountPrefix);
+          const accountPrefixIndex = chunk.lastIndexOf(accountPrefix);
           if (accountPrefixIndex !== -1) {
             const accountIdLocator = accountPrefixIndex + accountPrefix.length;
             const AccountIDStart = chunk.indexOf(userID, accountIdLocator);
@@ -80,7 +80,7 @@ export async function getUserCredentials(
           reject(
             HasInjection
               ? 'Awaiting User ID. It will take up to 30s.'
-              : 'Awaiting User ID. Please play a match to get it.'
+              : 'Awaiting User ID. Please switch into MTGA window.'
           );
         }
         stream.close();

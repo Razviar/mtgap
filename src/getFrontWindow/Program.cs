@@ -219,6 +219,7 @@ namespace getFrontWindow
                             
                             if (JustDoInjection)
                             {
+                                Console.WriteLine("MTGA Found And Injected!");
                                 Environment.Exit(0);
                             }
                         }
