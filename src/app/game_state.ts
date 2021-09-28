@@ -193,7 +193,9 @@ class GameState {
         this.showOverlay(overlayWindow);
       }
     } else {
-      ourActiveWin.launch(true);
+      if (!isMac()) {
+        ourActiveWin.launch(true);
+      }
     }
   }
 

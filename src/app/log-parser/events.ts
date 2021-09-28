@@ -55,6 +55,7 @@ export async function getEvents(
           // If we've found a line break, we have the rest of the event
           currentEvent += res[0];
           chunkCursor += res[0].length;
+          //console.log(currentEvent);
           parseEvent(currentEvent, state, options, oldlog).forEach((e) => allEvents.push(e));
           if (shouldStopParsing(allEvents, options)) {
             fileStream.close();
@@ -78,7 +79,16 @@ export async function getEvents(
             : prefIndexExtra != -1
             ? prefIndexExtra
             : prefIndex;
-        const eventPrefix = prefIndex < prefIndexExtra ? options.eventPrefix : options.eventPrefixExtra;
+        const eventPrefix =
+          prefIndex < prefIndexExtra
+            ? prefIndex != -1
+              ? options.eventPrefix
+              : options.eventPrefixExtra
+            : prefIndexExtra != -1
+            ? options.eventPrefixExtra
+            : options.eventPrefix;
+        //const eventPrefix = prefIndex < prefIndexExtra ? options.eventPrefix : options.eventPrefixExtra;
+        console.log('PREFIXES!!!', prefIndex, prefIndexExtra, nextPrefixIndex, eventPrefix);
 
         if (nextPrefixIndex === -1) {
           // No more event in this chunk
@@ -119,6 +129,7 @@ export async function getEvents(
             .slice(nextPrefixIndex + eventPrefix.length, lineBreakAfter)
             .split(/\r?\n/)
             .join(chunk[nextLineBreakIndex + 1] === '<' ? ' ' : '');
+          //console.log(eventString);
           parseEvent(eventString, state, options).forEach((e) => allEvents.push(e));
           if (shouldStopParsing(allEvents, options)) {
             fileStream.close();
@@ -132,6 +143,7 @@ export async function getEvents(
             nextLineBreakIndex--;
           }
           const eventString = chunk.slice(nextPrefixIndex + eventPrefix.length, nextLineBreakIndex);
+          //console.log(eventString);
           parseEvent(eventString, state, options).forEach((e) => allEvents.push(e));
           if (shouldStopParsing(allEvents, options)) {
             fileStream.close();

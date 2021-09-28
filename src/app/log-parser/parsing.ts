@@ -12,6 +12,7 @@ export function parseEvent(
   if (rawEvent === undefined) {
     return [];
   }
+  //console.log(rawEvent);
   const timestamp = getEventTimestamp(rawEvent);
 
   //console.log('got-timestamp', timestamp);
