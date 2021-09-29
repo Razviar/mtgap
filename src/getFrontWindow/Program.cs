@@ -210,16 +210,12 @@ namespace getFrontWindow
                         }
                         if (!InjectionDone && !DontDoInjection)
                         {
+                            InjectionDone = true;
                             Thread.Sleep(3000);
-                            InjectionDone = Inject($"{AssemblyDirectory}\\GetData2.dll", "GetData2", "Loader", "Load");
-                            if (!InjectionDone)
-                            {
-                                DontDoInjection = true;
-                            }
+                            Inject($"{AssemblyDirectory}\\GetData2.dll", "GetData2", "Loader", "Load");
                             
                             if (JustDoInjection)
                             {
-                                Console.WriteLine("MTGA Found And Injected!");
                                 Environment.Exit(0);
                             }
                         }

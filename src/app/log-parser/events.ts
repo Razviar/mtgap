@@ -88,7 +88,7 @@ export async function getEvents(
             ? options.eventPrefixExtra
             : options.eventPrefix;
         //const eventPrefix = prefIndex < prefIndexExtra ? options.eventPrefix : options.eventPrefixExtra;
-        console.log('PREFIXES!!!', prefIndex, prefIndexExtra, nextPrefixIndex, eventPrefix);
+        //console.log('PREFIXES!!!', prefIndex, prefIndexExtra, nextPrefixIndex, eventPrefix);
 
         if (nextPrefixIndex === -1) {
           // No more event in this chunk
