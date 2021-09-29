@@ -6,19 +6,22 @@
 
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>C:\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Newtonsoft.Json.dll</HintPath>
+      <HintPath>C:\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>C:\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>C:\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>..\..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+      <HintPath>C:\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="Wizards.MDN.GreProtobuf.Unity">
+      <HintPath>C:\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Wizards.MDN.GreProtobuf.Unity.dll</HintPath>
     </Reference>
   </ItemGroup>
 
