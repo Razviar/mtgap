@@ -49,7 +49,7 @@ input#token {
   width: 680px;
   padding: 10px;
   height: 50px;
-  /*-webkit-app-region: drag;*/
+  -webkit-app-region: drag;
 }
 
 .button {

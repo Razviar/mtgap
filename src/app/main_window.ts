@@ -27,11 +27,12 @@ export function createMainWindow(): void {
   mainWindow = new BrowserWindow({
     width: 700,
     height: 500,
+    maxWidth: 700,
+    maxHeight: 500,
     webPreferences: {
       devTools: electronIsDev,
       allowRunningInsecureContent: false,
       contextIsolation: true,
-      enableRemoteModule: false,
       nodeIntegration: false,
       nodeIntegrationInSubFrames: false,
       nodeIntegrationInWorker: false,
@@ -44,7 +45,7 @@ export function createMainWindow(): void {
     frame: false,
     title: 'MTGA Pro Tracker',
     icon: appIcoImg,
-    resizable: false,
+    resizable: true,
   });
   mainWindow.Tray = appIcon;
 

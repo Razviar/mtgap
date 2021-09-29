@@ -26,7 +26,6 @@ export function createOverlayWindow(): BrowserWindow {
       devTools: electronIsDev,
       allowRunningInsecureContent: false,
       contextIsolation: true,
-      enableRemoteModule: false,
       nodeIntegration: false,
       nodeIntegrationInSubFrames: false,
       nodeIntegrationInWorker: false,
