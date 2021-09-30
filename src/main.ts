@@ -20,7 +20,7 @@ const HALF_SECOND = 500;
 require('source-map-support').install();
 
 // tslint:disable-next-line: no-var-requires no-unsafe-any no-require-imports
-if (require('electron-squirrel-startup')) {
+if (require('root/electron-squirrel-startup')) {
   app.quit();
 }
 
@@ -74,8 +74,6 @@ function recreateMainWindow(): void {
     setupAutoUpdater();
   });
 }
-
-app.allowRendererProcessReuse = true;
 
 const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
