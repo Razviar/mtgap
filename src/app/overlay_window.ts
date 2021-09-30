@@ -24,6 +24,7 @@ export function createOverlayWindow(): BrowserWindow {
     height: 200,
     webPreferences: {
       devTools: electronIsDev,
+      webgl: true,
       allowRunningInsecureContent: false,
       contextIsolation: true,
       nodeIntegration: false,

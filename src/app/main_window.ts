@@ -33,6 +33,7 @@ export function createMainWindow(): void {
     minHeight: 500,
     webPreferences: {
       devTools: electronIsDev,
+      webgl: true,
       allowRunningInsecureContent: false,
       contextIsolation: true,
       nodeIntegration: false,
