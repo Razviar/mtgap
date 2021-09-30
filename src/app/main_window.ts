@@ -29,6 +29,8 @@ export function createMainWindow(): void {
     height: 500,
     maxWidth: 700,
     maxHeight: 500,
+    minWidth: 700,
+    minHeight: 500,
     webPreferences: {
       devTools: electronIsDev,
       allowRunningInsecureContent: false,

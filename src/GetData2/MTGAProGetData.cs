@@ -86,14 +86,26 @@ namespace GetData2
         {
             try
             {
+                
                 gotInitialData = true;
                 ourPapaInstance.InventoryManager.UnsubscribeFromAll(InventoryChangeHandler);
                 ourPapaInstance.InventoryManager.SubscribeToAll(InventoryChangeHandler);
                 ourPapaInstance.AccountClient.LoginStateChanged += AccountClient_LoginStateChanged;
+                
                 InventoryManager inventory = ourPapaInstance.InventoryManager;
+                
                 WriteToLog("Userdata", new { userId = ourPapaInstance.AccountClient.AccountInformation.AccountID, screenName = ourPapaInstance.AccountClient.AccountInformation.DisplayName });
                 WriteToLog("Collection", inventory.Cards);
                 WriteToLog("InventoryContent", inventory.Inventory);
+                try
+                {
+                    WriteToLog("CombinedRankInfo", PAPA.Legacy.CombinedRankInfo);
+                }
+                catch (Exception e)
+                {
+                    WriteToLog("ErrorCombinedRankInfo", e);
+                }
+
                 Task task = new Task(() => PeriodicCollectionPrinter());
                 task.Start();
             }
@@ -105,12 +117,19 @@ namespace GetData2
 
         private void PeriodicCollectionPrinter()
         {
-            if (ourPapaInstance != null)
+            try
             {
-                Thread.Sleep(600000);
-                InventoryManager inventory = ourPapaInstance.InventoryManager;
-                WriteToLog("Collection", inventory.Cards);
-                WriteToLog("InventoryContent", inventory.Inventory);
+                if (ourPapaInstance != null)
+                {
+                    Thread.Sleep(600000);
+                    InventoryManager inventory = ourPapaInstance.InventoryManager;
+                    WriteToLog("Collection", inventory.Cards);
+                    WriteToLog("InventoryContent", inventory.Inventory);
+                }
+            }
+            catch (Exception e)
+            {
+                WriteToLog("ErrorPeriodicCollectionPrinter", e);
             }
         }
 
