@@ -127,12 +127,16 @@ export function postProcessEvent(rawEvent: RawLogEvent, options: ParsingMetadata
 
   if (parsingOptions.constraint !== undefined) {
     const value = extractValue(rawEvent.data, parsingOptions.constraint.attributesPath);
+    //console.log(rawEvent.data);
     if (Array.isArray(parsingOptions.constraint.value)) {
       if (!parsingOptions.constraint.value.includes(value)) {
         return [];
       }
     } else {
-      if (value !== parsingOptions.constraint.value) {
+      if (
+        (parsingOptions.constraint.value !== 'defined' && value !== parsingOptions.constraint.value) ||
+        (parsingOptions.constraint.value === 'defined' && value === undefined)
+      ) {
         return [];
       }
     }
