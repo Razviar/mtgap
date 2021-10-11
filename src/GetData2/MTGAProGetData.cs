@@ -15,8 +15,8 @@ namespace GetData2
     public class MTGAProGetData : MonoBehaviour
     {
         private static PAPA ourPapaInstance = null;
-        private static bool gotInitialData=false;
-
+        private static bool gotInitialData = false;
+        private static readonly UnityCrossThreadLogger MTGAProLogger = new UnityCrossThreadLogger("MTGA.Pro Logger");
         public void Start()
         {
             try
@@ -28,9 +28,9 @@ namespace GetData2
                 {
                     rString += ((char)(RNG.Next(1, 26) + 64)).ToString().ToLower();
                 }
-                Debug.Log($"[MTGA.Pro Logger] Unique Log Identifier: {rString}");
+                MTGAProLogger.Debug($" Unique Log Identifier: {rString}");
                 Task task = new Task(() => GetHoldOnPapa());
-                task.Start(); 
+                task.Start();
             }
             catch (Exception e)
             {
@@ -47,17 +47,17 @@ namespace GetData2
                 Thread.Sleep(30000);
                 ourPapaInstance = FindObjectOfType<PAPA>();
 
-                if (!gotInitialData && ourPapaInstance != null && ourPapaInstance.AccountClient!=null && ourPapaInstance.AccountClient.AccountInformation != null &&  ourPapaInstance.InventoryManager != null && ourPapaInstance.InventoryManager.Cards != null && ourPapaInstance.InventoryManager.Cards.Count > 0)
+                if (!gotInitialData && ourPapaInstance != null && ourPapaInstance.AccountClient != null && ourPapaInstance.AccountClient.AccountInformation != null && ourPapaInstance.InventoryManager != null && ourPapaInstance.InventoryManager.Cards != null && ourPapaInstance.InventoryManager.Cards.Count > 0)
                 {
                     GetInitialData();
                     return;
                 }
-                else if(!gotInitialData)
+                else if (!gotInitialData)
                 {
                     ourPapaInstance = null;
                     GetHoldOnPapa();
                 }
-                
+
             }
             catch (Exception e)
             {
@@ -74,11 +74,11 @@ namespace GetData2
                     Payload = report,
                     timestamp = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds().ToString()
                 };
-                Debug.Log($"[MTGA.Pro Logger] **{indicator}** {JsonConvert.SerializeObject(logElem)}");
+                MTGAProLogger.Debug($" **{indicator}** {JsonConvert.SerializeObject(logElem)}");
             }
             catch (Exception e)
             {
-                Debug.Log($"[MTGA.Pro Logger] **WriteToLogError** {e}");
+                MTGAProLogger.Debug($" **WriteToLogError** {e}");
             }
         }
 
@@ -87,13 +87,14 @@ namespace GetData2
             try
             {
                 
+
                 gotInitialData = true;
                 ourPapaInstance.InventoryManager.UnsubscribeFromAll(InventoryChangeHandler);
                 ourPapaInstance.InventoryManager.SubscribeToAll(InventoryChangeHandler);
                 ourPapaInstance.AccountClient.LoginStateChanged += AccountClient_LoginStateChanged;
-                
+
                 InventoryManager inventory = ourPapaInstance.InventoryManager;
-                
+
                 WriteToLog("Userdata", new { userId = ourPapaInstance.AccountClient.AccountInformation.AccountID, screenName = ourPapaInstance.AccountClient.AccountInformation.DisplayName });
                 WriteToLog("Collection", inventory.Cards);
                 WriteToLog("InventoryContent", inventory.Inventory);
@@ -161,6 +162,6 @@ namespace GetData2
             }
         }
 
-        
+
     }
 }
