@@ -24,13 +24,14 @@ export async function initialpositioner(path: string, DisplayName: string, optio
         bytesRead += userLoginPosition;
         foundId = true;
         meaningfulBytesRead = bytesRead;
-        //console.log(`${options.userLoginData.userID}${AccountID}`, '!!!', meaningfulBytesRead);
+        //console.log(`${options.userLoginData.userID}${DisplayName}`, '!!!', meaningfulBytesRead);
+        stream.close();
       }
 
       //chunkStream.close();
       return;
     });
-    stream.on('end', () => {
+    stream.on('close', () => {
       // This would happen if we can find a valid "file id" event in the log file. Should be very rare since
       // the event is logged very early.
       if (foundId) {

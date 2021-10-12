@@ -18,13 +18,22 @@ export async function getUserCredentials(
       let DisplayName = '';
       let AccountID = '';
       let HasInjection = false;
+      let loginStateChangeIndex = 0;
+      let chunkCursor = 0;
       stream.on('data', (chunk: string) => {
-        if (chunk.indexOf('[MTGA.Pro Logger]') !== -1) {
+        if (HasInjection || chunk.indexOf('[MTGA.Pro Logger]') !== -1) {
           HasInjection = true;
+          const loginStateChange = chunk.lastIndexOf('**LoginStateChanged**');
+          if (loginStateChange !== -1) {
+            loginStateChangeIndex = chunkCursor + loginStateChange;
+            DisplayName = '';
+            AccountID = '';
+          }
           const accountPrefix = '**Userdata**';
           const userID = '"userId":"';
           const accountPrefixIndex = chunk.lastIndexOf(accountPrefix);
-          if (accountPrefixIndex !== -1) {
+
+          if (accountPrefixIndex !== -1 && accountPrefixIndex + chunkCursor > loginStateChangeIndex) {
             const accountIdLocator = accountPrefixIndex + accountPrefix.length;
             const AccountIDStart = chunk.indexOf(userID, accountIdLocator);
             AccountID = chunk.slice(AccountIDStart + userID.length).split('"', 2)[0];
@@ -59,9 +68,10 @@ export async function getUserCredentials(
           }
         }
 
-        if (DisplayName !== '' && AccountID !== '') {
+        /*if (DisplayName !== '' && AccountID !== '') {
           stream.close();
-        }
+        }*/
+        chunkCursor += chunk.length;
       });
       stream.on('close', () => {
         // This would happen if we can find a valid "file id" event in the log file. Should be very rare since

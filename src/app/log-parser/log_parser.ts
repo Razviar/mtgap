@@ -35,7 +35,6 @@ export class LogParser {
   private currentState?: StateInfo;
   private internalLoopTimeout: number = 0;
   private parsingMetadata: ParsingMetadata | undefined;
-  private currentFileId: string = '';
 
   public emitter = new LogParserEventEmitter();
 
@@ -115,6 +114,7 @@ export class LogParser {
         // Fetching fileId
         //const [fileId] = await getFileId(path, {bytesRead: 0}, parsingMetadata);
         const fileId = LogFromMTGAFolder.fileId;
+
         if (fileId === undefined || LogFromMTGAFolder.logPath === undefined) {
           throw new Error('Please set correct MTGA/MTGA_Data path in Settings...');
         }
@@ -123,43 +123,46 @@ export class LogParser {
         if (!detailedLogEnabled) {
           throw new Error('Please enable Detailed Logs in MTGA account settings!');
         }
-        //console.log(fileId);
-        if (fileId !== this.currentFileId) {
-          gameState.checkProcessId();
-          this.currentFileId = fileId;
-        }
-
-        const [userCreds] = await getUserCredentials(path, {bytesRead: 0});
-        /*console.log('!!!', userCreds);
-        console.log(this.currentState);*/
-
-        if (userCreds.DisplayName === undefined) {
-          const locationAttempt = getAccountFromPlayerId(userCreds.AccountID);
-          if (locationAttempt && locationAttempt.player) {
-            userCreds.DisplayName = locationAttempt.player.screenName;
-          } else {
-            throw new Error('Awaiting User ID to appear in log. This will happen after the first match you play.');
-          }
-        }
-
-        if (!this.handleUserChangeEvent(userCreds.AccountID, userCreds.DisplayName)) {
-          throw new Error('Parsing paused: newly detected user account must be synced or skipped');
-        }
-
-        // Detecting change in fileId
+        // console.log(fileId, this.currentState?.fileId);
         let nextState: LogFileParsingState;
-        if (!this.currentState || this.currentState.fileId !== fileId) {
-          nextState = detailedLogState;
-          nextState.bytesRead = await initialpositioner(path, userCreds.DisplayName, parsingMetadata);
-          //console.log(nextState);
-          oldStore.saveFileID(new Date().getTime(), fileId);
+
+        if (!this.currentState || fileId !== this.currentState.fileId) {
+          gameState.checkProcessId();
+          //console.log('Getting user creds');
+          const [userCreds] = await getUserCredentials(path, {bytesRead: 0});
+          //console.log('!!!', userCreds);
+
+          if (userCreds.DisplayName === undefined) {
+            const locationAttempt = getAccountFromPlayerId(userCreds.AccountID);
+            if (locationAttempt && locationAttempt.player) {
+              userCreds.DisplayName = locationAttempt.player.screenName;
+            } else {
+              throw new Error('Awaiting User ID to appear in log. This will happen after the first match you play.');
+            }
+          }
+
+          if (!this.handleUserChangeEvent(userCreds.AccountID, userCreds.DisplayName)) {
+            throw new Error('Parsing paused: newly detected user account must be synced or skipped');
+          }
+
+          // Detecting change in fileId
+
+          if (!this.currentState || this.currentState.fileId !== fileId) {
+            nextState = detailedLogState;
+            nextState.bytesRead = await initialpositioner(path, userCreds.DisplayName, parsingMetadata);
+            //console.log(nextState);
+            oldStore.saveFileID(new Date().getTime(), fileId);
+          } else {
+            nextState = this.currentState.state;
+            //console.log('reading on without initialpositioner:', nextState.bytesRead);
+          }
+
+          nextState.screenName = userCreds.DisplayName;
+          nextState.userId = userCreds.AccountID;
         } else {
           nextState = this.currentState.state;
-          //console.log('reading on without initialpositioner:', nextState.bytesRead);
+          //console.log('inherited', nextState);
         }
-
-        nextState.screenName = userCreds.DisplayName;
-        nextState.userId = userCreds.AccountID;
 
         // Parsing events
         const [events, newState] = await getEvents(path, nextState, parsingMetadata);
@@ -297,11 +300,11 @@ export class LogParser {
           });
       }
     }
-
+    //console.log('account', account, account?.player, account?.player?.playerId, newPlayerId);
     if (account && account.player && account.player.playerId === newPlayerId) {
       return true;
     }
-
+    //console.log('skipped through account confirmation');
     sendMessageToHomeWindow('show-status', {message: 'New User Detected!', color: '#dbb63d'});
 
     // If account is defined, it enforces that awaiting is undefined, because account has a screenName
@@ -323,15 +326,16 @@ export class LogParser {
         error('Failure to set user data during a user change event', err, {...userData, version})
       );
       setCreds('userchange');
+      settingsStore.save();
+      return true;
     } else {
       sendMessageToHomeWindow('new-account', undefined);
       sendMessageToHomeWindow('show-prompt', {message: 'New MTGA account detected!', autoclose: 1000});
       settings.awaiting = {playerId: newPlayerId, screenName};
       this.stop();
+      settingsStore.save();
+      return false;
     }
-
-    settingsStore.save();
-    return false;
   }
 
   private handleMatchStartOrEndEvent(event: StatefulLogEvent): void {
