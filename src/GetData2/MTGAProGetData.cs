@@ -119,9 +119,16 @@ namespace GetData2
 
         private void PrintAccountInfo()
         {
-            gotLoginData = true;
-            WrapperController.Instance.AccountClient.LoginStateChanged += AccountClient_LoginStateChanged;
-            WriteToLog("Userdata", new { userId = WrapperController.Instance.AccountClient.AccountInformation.AccountID, screenName = WrapperController.Instance.AccountClient.AccountInformation.DisplayName });
+            try
+            {
+                gotLoginData = true;
+                WrapperController.Instance.AccountClient.LoginStateChanged += AccountClient_LoginStateChanged;
+                WriteToLog("Userdata", new { userId = WrapperController.Instance.AccountClient.AccountInformation.AccountID, screenName = WrapperController.Instance.AccountClient.AccountInformation.DisplayName });
+            }
+            catch (Exception e)
+            {
+                WriteToLog("ErrorPrintAccountInfo", e);
+            }
         }
 
         private void GetInventoryData()
