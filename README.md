@@ -1,5 +1,7 @@
-# MTGA Pro Tracker 2.0
+# MTGA Pro Tracker 2.1
 MTGA Pro Tracker is an advanced Magic the Gathering: Arena tracking tool that automatically uploads collection, decks, battles, draft and inventory from your game client to our server. No manual collection input, no manual uploads. New cards, battles & drafts are added immediately based on in-game events.
+
+**LATEST MAC VERSION IS HERE:** https://github.com/Razviar/mtgap/releases/tag/v2.1.35
 
 ## What can I do with MTGA Pro Tracker?
 * Real Time Collection & Decks Import.
