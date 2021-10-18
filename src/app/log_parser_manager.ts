@@ -148,16 +148,17 @@ export async function parseOldLogs(
 
   let currentState: LogFileParsingState;
   if (!nextState) {
+    const isDev = dev !== undefined && dev;
     // Detecting detailed logs
     try {
       const fileCTime = statSync(logpath).ctime;
       const [detailedLogEnabled, detailedLogState] = await checkDetailedLogEnabled(logpath, parsingMetadata);
       const [userCreds] = await getUserCredentials(logpath, {bytesRead: 0});
-      if (!dev) {
+      if (!isDev) {
         if (userCreds.DisplayName === undefined) {
           return 1;
         }
-        if (!dev) {
+        if (!isDev) {
           if (getAccountFromScreenName(userCreds.DisplayName) === undefined) {
             return 1;
           }
@@ -169,7 +170,7 @@ export async function parseOldLogs(
         if (oldStore.checkLog(fileId, logpath)) {
           return 1;
         }
-        if (!dev) {
+        if (!isDev) {
           oldStore.saveFileID(fileCTime.getTime(), fileId);
           oldStore.saveLogName(fileCTime.getTime(), logpath);
         }
@@ -179,8 +180,8 @@ export async function parseOldLogs(
       currentState.userId = userCreds.AccountID;
       currentState.timestamp = fileCTime.getTime();
     } catch (olde) {
-      if (dev) {
-        console.log(olde);
+      if (isDev) {
+        // console.log(olde);
       }
       return 1;
     }

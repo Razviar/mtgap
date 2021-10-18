@@ -103,11 +103,15 @@ export function getEventTimestamp(rawEvent: RawLogEvent): number | undefined {
       return Date.parse(timeFromData);
     } catch {}
   }
-  if (rawEvent.name == '==> LogBusinessEvents') {
-    if (rawEvent.data !== undefined && rawEvent.data.EventTime !== undefined) {
-      try {
-        return Date.parse(rawEvent.data.EventTime);
-      } catch {}
+  if (rawEvent.name === '==> LogBusinessEvents') {
+    const rawEventData = asMap(rawEvent.data);
+    if (rawEventData !== undefined) {
+      const eventTime = asString(rawEventData.EventTime);
+      if (eventTime !== undefined) {
+        try {
+          return Date.parse(eventTime);
+        } catch {}
+      }
     }
   }
 
@@ -269,8 +273,8 @@ export function extractEventData(eventName: string, rawData: any): any | undefin
   // - on an attribute that is the `eventName`, but camel cased
   // - as first layer of JSON
   if (dataMap.request !== undefined) {
-    const requestExtracted = parseAsJSONIfNeeded(dataMap.request);
-    if (requestExtracted.Payload !== undefined) {
+    const requestExtracted = asMap(parseAsJSONIfNeeded(dataMap.request));
+    if (requestExtracted?.Payload !== undefined) {
       return parseAsJSONIfNeeded(requestExtracted.Payload);
     } else {
       return requestExtracted;
@@ -300,7 +304,7 @@ export function parseAsJSONIfNeeded(data: any): any {
     try {
       return JSON.parse(data);
     } catch (err) {
-      console.log('Error parsing JSON', err);
+      // console.log('Error parsing JSON', err);
     }
   }
   return data;

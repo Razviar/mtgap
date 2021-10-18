@@ -30,7 +30,9 @@ export const HoverEventListener = (theCard: Element) => {
     overlayElements.CardHint.innerHTML = `<img src="${src}"/>`;
 
     const positioner: {
+      // tslint:disable-next-line: deprecation
       pos: ClientRect | DOMRect;
+      // tslint:disable-next-line: deprecation
       moPos: ClientRect | DOMRect;
       cardPosHeight: number;
       maxTop: number;
