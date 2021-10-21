@@ -55,7 +55,7 @@ function mkDir(path: string, root: string | null = null): string | boolean {
     mkdirSync(root);
   } catch (e) {
     if (!statSync(root).isDirectory()) {
-      throw new Error(e);
+      throw e;
     }
   }
 

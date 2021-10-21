@@ -1,4 +1,9 @@
 Please note, that this project, while following numbering syntax, it DOES NOT adhere to Semantic Versioning rules.
+## v.2.2.8 released 13/10/2021
+- Collection tracking restored
+- MTGA Modding improved
+- Muiltiple accounts support fixed
+
 ## v2.1.34 released 27/08/2021
 - Updated parser to match MTGA log changes
 - Fixed related bugs

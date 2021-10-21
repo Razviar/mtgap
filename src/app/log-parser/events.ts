@@ -73,18 +73,18 @@ export async function getEvents(
         const prefIndexExtra = chunk.indexOf(options.eventPrefixExtra, chunkCursor);
         const nextPrefixIndex =
           prefIndex < prefIndexExtra
-            ? prefIndex != -1
+            ? prefIndex !== -1
               ? prefIndex
               : prefIndexExtra
-            : prefIndexExtra != -1
+            : prefIndexExtra !== -1
             ? prefIndexExtra
             : prefIndex;
         const eventPrefix =
           prefIndex < prefIndexExtra
-            ? prefIndex != -1
+            ? prefIndex !== -1
               ? options.eventPrefix
               : options.eventPrefixExtra
-            : prefIndexExtra != -1
+            : prefIndexExtra !== -1
             ? options.eventPrefixExtra
             : options.eventPrefix;
         //const eventPrefix = prefIndex < prefIndexExtra ? options.eventPrefix : options.eventPrefixExtra;
