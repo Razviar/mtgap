@@ -139,8 +139,11 @@ namespace GetData2
                 WrapperController.Instance.InventoryManager.UnsubscribeFromAll(InventoryChangeHandler);
                 WrapperController.Instance.InventoryManager.SubscribeToAll(InventoryChangeHandler);
 
+                PAPA.SceneLoading.OnWrapperSceneLoaded += onWrapperSceneLoaded;
+                PAPA.SceneLoading.OnDuelSceneLoaded += onDuelSceneLoaded;
+
                 WriteToLog("Collection", WrapperController.Instance.InventoryManager.Cards);
-                WriteToLog("InventoryContent", WrapperController.Instance.InventoryManager.Inventory);
+                WriteToLog("InventoryContent", WrapperController.Instance.InventoryManager.Inventory);   
 
                 Task task = new Task(() => PeriodicCollectionPrinter());
                 task.Start();
@@ -151,6 +154,25 @@ namespace GetData2
             }
         }
 
+        private void onWrapperSceneLoaded(object obj)
+        {
+            WriteToLog("onWrapperSceneLoaded", obj);
+            WriteToLog("onWrapperSceneLoaded", PAPA.SceneLoading.CurrentScene);
+            if (WrapperController.Instance.PostMatchClientUpdate != null)
+            {
+                WriteToLog("onWrapperSceneLoadedPostMatchClientUpdate", WrapperController.Instance.PostMatchClientUpdate);
+            }
+        }
+
+        private void onDuelSceneLoaded(UnityEngine.SceneManagement.LoadSceneMode obj)
+        {
+            WriteToLog("onDuelSceneLoaded", obj);
+            WriteToLog("onDuelSceneLoaded", PAPA.SceneLoading.CurrentScene);
+            if (WrapperController.Instance.PostMatchClientUpdate != null)
+            {
+                WriteToLog("onWrapperSceneLoadedPostMatchClientUpdate", WrapperController.Instance.PostMatchClientUpdate);
+            }
+        }
 
         private void PeriodicCollectionPrinter()
         {
