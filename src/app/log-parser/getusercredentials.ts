@@ -21,7 +21,7 @@ export async function getUserCredentials(
       let loginStateChangeIndex = 0;
       let chunkCursor = 0;
       stream.on('data', (chunk: string) => {
-        if (HasInjection || chunk.indexOf('Unique Log Identifier') !== -1) {
+        if (HasInjection || chunk.indexOf('[MTGA.Pro Logger]') !== -1) {
           HasInjection = true;
           const loginStateChange = chunk.lastIndexOf('**LoginStateChanged**');
           if (loginStateChange !== -1) {

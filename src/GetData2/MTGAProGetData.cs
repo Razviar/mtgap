@@ -27,10 +27,19 @@ namespace GetData2
         private static bool gotRankInfo = false;
         private static bool gotUniqueID = false;
         private static List<string> dataWrittenHashes = new List<string>();
+        private static readonly UnityCrossThreadLogger MTGAProLogger = new UnityCrossThreadLogger("MTGA.Pro Logger");
         public void Start()
         {
             try
             {
+                System.Random RNG = new System.Random();
+                int length = 32;
+                string rString = "";
+                for (var i = 0; i < length; i++)
+                {
+                    rString += ((char)(RNG.Next(1, 26) + 64)).ToString().ToLower();
+                }
+                MTGAProLogger.Debug($" Unique Log Identifier: {rString}");
                 Task task = new Task(() => GetHoldOnPapa());
                 task.Start();
             }
@@ -66,30 +75,17 @@ namespace GetData2
             {
                 Thread.Sleep(10000);
 
-                if (!gotUniqueID && WrapperController.Instance != null && WrapperController.Instance.UnityCrossThreadLogger != null)
-                {
-                    System.Random RNG = new System.Random();
-                    int length = 32;
-                    string rString = "";
-                    for (var i = 0; i < length; i++)
-                    {
-                        rString += ((char)(RNG.Next(1, 26) + 64)).ToString().ToLower();
-                    }
-                    WrapperController.Instance.UnityCrossThreadLogger.Debug($" Unique Log Identifier: {rString}");
-                    gotUniqueID = true;
-                }
-
-                if (!gotLoginData && WrapperController.Instance != null && WrapperController.Instance.AccountClient != null && WrapperController.Instance.AccountClient.AccountInformation != null && WrapperController.Instance.AccountClient.AccountInformation.AccountID != null && WrapperController.Instance.UnityCrossThreadLogger != null)
+                if (!gotLoginData && WrapperController.Instance != null && WrapperController.Instance.AccountClient != null && WrapperController.Instance.AccountClient.AccountInformation != null && WrapperController.Instance.AccountClient.AccountInformation.AccountID != null)
                 {
                     PrintAccountInfo();
                 }
 
-                if (!gotInventoryData && WrapperController.Instance != null && WrapperController.Instance.InventoryManager != null && WrapperController.Instance.InventoryManager.Cards != null && WrapperController.Instance.InventoryManager.Cards.Count > 0 && WrapperController.Instance.UnityCrossThreadLogger != null)
+                if (!gotInventoryData && WrapperController.Instance != null && WrapperController.Instance.InventoryManager != null && WrapperController.Instance.InventoryManager.Cards != null && WrapperController.Instance.InventoryManager.Cards.Count > 0)
                 {
                     GetInventoryData();
                 }
                 
-                if (!gotRankInfo && PAPA.Legacy.CombinedRankInfo != null && WrapperController.Instance.UnityCrossThreadLogger != null)
+                if (!gotRankInfo && PAPA.Legacy.CombinedRankInfo != null)
                 {
                     PrintCombinedRankInfo();
                 }
@@ -123,18 +119,15 @@ namespace GetData2
                     timestamp = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds().ToString()
                 };
                 string hashMD5 = CreateMD5(JsonConvert.SerializeObject(report));
-                if (!dataWrittenHashes.Contains(hashMD5) && WrapperController.Instance != null && WrapperController.Instance.UnityCrossThreadLogger != null)
+                if (!dataWrittenHashes.Contains(hashMD5))
                 {
-                    WrapperController.Instance.UnityCrossThreadLogger.Debug($" **{indicator}** {JsonConvert.SerializeObject(logElem)}");
+                    MTGAProLogger.Debug($" **{indicator}** {JsonConvert.SerializeObject(logElem)}");
                     dataWrittenHashes.Add(hashMD5);
                 }
             }
             catch (Exception e)
             {
-                if (WrapperController.Instance != null && WrapperController.Instance.UnityCrossThreadLogger != null)
-                {
-                    WrapperController.Instance.UnityCrossThreadLogger.Debug($" **WriteToLogError** {e}");
-                }
+                MTGAProLogger.Debug($" **WriteToLogError** {e}");
             }
         }
 
