@@ -36,8 +36,8 @@ module.exports = {
       platforms: ['win32'],
       config: {
         name: 'mtgaprotracker',
-        certificateFile: './cert/mtgapro.p12',
-        certificatePassword: 'Devastator9000',
+        certificateFile: './cert/liubov.p12',
+        certificatePassword: '1111',
         iconUrl: 'https://mtgarena.pro/mtg/icon.ico',
       },
     },

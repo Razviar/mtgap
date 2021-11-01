@@ -6,7 +6,7 @@ import {showNotification} from 'root/app/notification';
 import {settingsStore} from 'root/app/settings-store/settings_store';
 
 export function doMtgaPathOps(): void {
-  console.log('doMtgaPathOps');
+  //console.log('doMtgaPathOps');
   let mtgaPath = settingsStore.get().mtgaPath;
   if (mtgaPath === undefined && locateMtgaDir(mtgaPath)) {
     mtgaPath = settingsStore.get().mtgaPath;
@@ -26,7 +26,7 @@ export function doMtgaPathOps(): void {
     });
   }
   if (settingsStore.get().uploads && mtgaPath !== undefined) {
-    console.log('uploadCardData');
+    //console.log('uploadCardData');
     uploadCardData(['Data_loc_', 'Data_cards_'], [mtgaPath, 'Downloads', 'Data']);
     uploadCardData(['Loc_Events_', 'Loc_Decks_', 'Loc_Internal_'], [mtgaPath, 'Downloads', 'Loc']);
   }

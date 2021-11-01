@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -23,19 +25,12 @@ namespace GetData2
         private static bool gotInventoryData = false;
         private static bool gotLoginData = false;
         private static bool gotRankInfo = false;
-        private static readonly UnityCrossThreadLogger MTGAProLogger = new UnityCrossThreadLogger("MTGA.Pro Logger");
+        private static bool gotUniqueID = false;
+        private static List<string> dataWrittenHashes = new List<string>();
         public void Start()
         {
             try
             {
-                System.Random RNG = new System.Random();
-                int length = 32;
-                string rString = "";
-                for (var i = 0; i < length; i++)
-                {
-                    rString += ((char)(RNG.Next(1, 26) + 64)).ToString().ToLower();
-                }
-                MTGAProLogger.Debug($" Unique Log Identifier: {rString}");
                 Task task = new Task(() => GetHoldOnPapa());
                 task.Start();
             }
@@ -46,12 +41,43 @@ namespace GetData2
 
         }
 
+        public static string CreateMD5(string input)
+        {
+            // Use input string to calculate MD5 hash
+            using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
+            {
+                byte[] inputBytes = Encoding.ASCII.GetBytes(input);
+                byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+                // Convert the byte array to hexadecimal string
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < hashBytes.Length; i++)
+                {
+                    sb.Append(hashBytes[i].ToString("X2"));
+                }
+                return sb.ToString();
+            }
+        }
+
 
         private void GetHoldOnPapa()
         {
             try
             {
                 Thread.Sleep(10000);
+
+                if (!gotUniqueID && WrapperController.Instance != null && WrapperController.Instance.UnityCrossThreadLogger != null)
+                {
+                    System.Random RNG = new System.Random();
+                    int length = 32;
+                    string rString = "";
+                    for (var i = 0; i < length; i++)
+                    {
+                        rString += ((char)(RNG.Next(1, 26) + 64)).ToString().ToLower();
+                    }
+                    WrapperController.Instance.UnityCrossThreadLogger.Debug($" Unique Log Identifier: {rString}");
+                    gotUniqueID = true;
+                }
 
                 if (!gotLoginData && WrapperController.Instance != null && WrapperController.Instance.AccountClient != null && WrapperController.Instance.AccountClient.AccountInformation != null)
                 {
@@ -96,11 +122,19 @@ namespace GetData2
                     Payload = report,
                     timestamp = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds().ToString()
                 };
-                MTGAProLogger.Debug($" **{indicator}** {JsonConvert.SerializeObject(logElem)}");
+                string hashCheck = JsonConvert.SerializeObject(report);
+                if (!dataWrittenHashes.Contains(CreateMD5(hashCheck)) && WrapperController.Instance != null && WrapperController.Instance.UnityCrossThreadLogger != null)
+                {
+                    dataWrittenHashes.Add(hashCheck);
+                    WrapperController.Instance.UnityCrossThreadLogger.Debug($" **{indicator}** {JsonConvert.SerializeObject(logElem)}");
+                }
             }
             catch (Exception e)
             {
-                MTGAProLogger.Debug($" **WriteToLogError** {e}");
+                if (WrapperController.Instance != null && WrapperController.Instance.UnityCrossThreadLogger != null)
+                {
+                    WrapperController.Instance.UnityCrossThreadLogger.Debug($" **WriteToLogError** {e}");
+                }
             }
         }
 
@@ -139,8 +173,8 @@ namespace GetData2
                 WrapperController.Instance.InventoryManager.UnsubscribeFromAll(InventoryChangeHandler);
                 WrapperController.Instance.InventoryManager.SubscribeToAll(InventoryChangeHandler);
 
-                PAPA.SceneLoading.OnWrapperSceneLoaded += onWrapperSceneLoaded;
-                PAPA.SceneLoading.OnDuelSceneLoaded += onDuelSceneLoaded;
+                /*PAPA.SceneLoading.OnWrapperSceneLoaded += onWrapperSceneLoaded;
+                PAPA.SceneLoading.OnDuelSceneLoaded += onDuelSceneLoaded;*/
 
                 WriteToLog("Collection", WrapperController.Instance.InventoryManager.Cards);
                 WriteToLog("InventoryContent", WrapperController.Instance.InventoryManager.Inventory);   
@@ -154,7 +188,7 @@ namespace GetData2
             }
         }
 
-        private void onWrapperSceneLoaded(object obj)
+        /*private void onWrapperSceneLoaded(object obj)
         {
             WriteToLog("onWrapperSceneLoaded", obj);
             WriteToLog("onWrapperSceneLoaded", PAPA.SceneLoading.CurrentScene);
@@ -172,7 +206,7 @@ namespace GetData2
             {
                 WriteToLog("onWrapperSceneLoadedPostMatchClientUpdate", WrapperController.Instance.PostMatchClientUpdate);
             }
-        }
+        }*/
 
         private void PeriodicCollectionPrinter()
         {
