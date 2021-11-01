@@ -79,23 +79,23 @@ namespace GetData2
                     gotUniqueID = true;
                 }
 
-                if (!gotLoginData && WrapperController.Instance != null && WrapperController.Instance.AccountClient != null && WrapperController.Instance.AccountClient.AccountInformation != null)
+                if (!gotLoginData && WrapperController.Instance != null && WrapperController.Instance.AccountClient != null && WrapperController.Instance.AccountClient.AccountInformation != null && WrapperController.Instance.AccountClient.AccountInformation.AccountID != null && WrapperController.Instance.UnityCrossThreadLogger != null)
                 {
                     PrintAccountInfo();
                 }
 
-                if (!gotInventoryData && WrapperController.Instance != null && WrapperController.Instance.InventoryManager != null && WrapperController.Instance.InventoryManager.Cards != null && WrapperController.Instance.InventoryManager.Cards.Count > 0)
+                if (!gotInventoryData && WrapperController.Instance != null && WrapperController.Instance.InventoryManager != null && WrapperController.Instance.InventoryManager.Cards != null && WrapperController.Instance.InventoryManager.Cards.Count > 0 && WrapperController.Instance.UnityCrossThreadLogger != null)
                 {
                     GetInventoryData();
                 }
                 
-                if (!gotRankInfo && PAPA.Legacy.CombinedRankInfo != null)
+                if (!gotRankInfo && PAPA.Legacy.CombinedRankInfo != null && WrapperController.Instance.UnityCrossThreadLogger != null)
                 {
                     PrintCombinedRankInfo();
                 }
                 
                 
-                if (gotInventoryData && gotLoginData && gotRankInfo)
+                if (gotUniqueID && gotInventoryData && gotLoginData && gotRankInfo)
                 {
                     return;
                 }
@@ -122,11 +122,11 @@ namespace GetData2
                     Payload = report,
                     timestamp = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds().ToString()
                 };
-                string hashCheck = JsonConvert.SerializeObject(report);
-                if (!dataWrittenHashes.Contains(CreateMD5(hashCheck)) && WrapperController.Instance != null && WrapperController.Instance.UnityCrossThreadLogger != null)
+                string hashMD5 = CreateMD5(JsonConvert.SerializeObject(report));
+                if (!dataWrittenHashes.Contains(hashMD5) && WrapperController.Instance != null && WrapperController.Instance.UnityCrossThreadLogger != null)
                 {
-                    dataWrittenHashes.Add(hashCheck);
                     WrapperController.Instance.UnityCrossThreadLogger.Debug($" **{indicator}** {JsonConvert.SerializeObject(logElem)}");
+                    dataWrittenHashes.Add(hashMD5);
                 }
             }
             catch (Exception e)
@@ -155,9 +155,9 @@ namespace GetData2
         {
             try
             {
-                gotLoginData = true;
-                WrapperController.Instance.AccountClient.LoginStateChanged += AccountClient_LoginStateChanged;
                 WriteToLog("Userdata", new { userId = WrapperController.Instance.AccountClient.AccountInformation.AccountID, screenName = WrapperController.Instance.AccountClient.AccountInformation.DisplayName });
+                WrapperController.Instance.AccountClient.LoginStateChanged += AccountClient_LoginStateChanged;
+                gotLoginData = true;
             }
             catch (Exception e)
             {

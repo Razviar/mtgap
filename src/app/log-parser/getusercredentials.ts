@@ -90,7 +90,7 @@ export async function getUserCredentials(
           reject(
             HasInjection
               ? 'Awaiting User ID. It will take up to 30s.'
-              : 'Awaiting User ID. Please switch into MTGA window.'
+              : 'Awaiting User ID. Switch into MTGA window and wait about 30s'
           );
         }
         stream.close();
