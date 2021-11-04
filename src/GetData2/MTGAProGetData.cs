@@ -104,8 +104,6 @@ namespace GetData2
             catch (Exception e)
             {
                 WriteToLog("ErrorGetHoldOnPapa", e);
-                Thread.Sleep(10000);
-                GetHoldOnPapa();
             }
         }
 
