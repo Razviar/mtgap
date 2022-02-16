@@ -69,6 +69,7 @@ namespace getFrontWindow
             public Owner owner;
             public Bounds bounds;
             public bool admin;
+            public bool cantDoInjection;
         }
 
         private const uint EVENT_OBJECT_LOCATIONCHANGE = 0x800B;
@@ -84,6 +85,7 @@ namespace getFrontWindow
         private static bool hookSet = false;
         private static bool InjectionDone = false;
         private static bool DontDoInjection = false;
+        private static bool CantDoInjection = false;
         private static bool JustDoInjection = false;
         private static WinEventDelegate deleTargetMoved = null;
         private static WinEventDelegate deleForegroundChanged = null;
@@ -122,6 +124,7 @@ namespace getFrontWindow
             Bounds result = new Bounds { x = rct.left < 0 ? 0 : rct.left, y = rct.top < 0 ? 0 : rct.top, width = rct.right - (rct.left < 0 ? 0 : rct.left), height = rct.bottom - (rct.top < 0 ? 0 : rct.top) };
             if(currentBounds.x != result.x || currentBounds.y != result.y || currentBounds.height != result.height || currentBounds.width != result.width)
             {
+                output.cantDoInjection = CantDoInjection;
                 output.bounds = result;
                 string json = new JavaScriptSerializer().Serialize(output);
                 currentBounds.x = result.x;
@@ -148,44 +151,46 @@ namespace getFrontWindow
         private static bool Inject(string assemblyPath, string nmspc, string className, string methodName)
         {
             byte[] assembly;
-            Injector injector = new Injector((int)MTGAprocessID);
-            try
-            {
-                assembly = File.ReadAllBytes(assemblyPath);
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine(e.ToString());
-                return false;
-            }
 
-            using (injector)
-            {
+                Injector injector = new Injector((int)MTGAprocessID);
+
                 try
                 {
-                    injectedAssembly = injector.Inject(assembly, nmspc, className, methodName);
+                    assembly = File.ReadAllBytes(assemblyPath);
                 }
-                catch (InjectorException e)
-                {
-                    Console.WriteLine(e.ToString());
-                    return false;
-                }
-                catch (Exception e)
+                catch(Exception e)
                 {
                     Console.WriteLine(e.ToString());
                     return false;
                 }
 
-                if (injectedAssembly == IntPtr.Zero)
+                using (injector)
                 {
-                    return false;
-                }
-                else
-                {
-                    return true;
-                }
+                    try
+                    {
+                        injectedAssembly = injector.Inject(assembly, nmspc, className, methodName);
+                    }
+                    catch (InjectorException e)
+                    {
+                        Console.WriteLine(e.ToString());
+                        return false;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.ToString());
+                        return false;
+                    }
 
-            }
+                    if (injectedAssembly == IntPtr.Zero)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
+
+                }
         }
 
         static void LocateAndHook()
@@ -211,11 +216,29 @@ namespace getFrontWindow
                         if (!InjectionDone && !DontDoInjection)
                         {
                             InjectionDone = true;
-                            Thread.Sleep(3000);
-                            Inject($"{AssemblyDirectory}\\GetData2.dll", "GetData2", "Loader", "Load");
-                            
+                            if (!JustDoInjection)
+                            {
+                                Thread.Sleep(3000);
+                            }
+                            try
+                            {
+                                Inject($"{AssemblyDirectory}\\GetData2.dll", "GetData2", "Loader", "Load");
+                            }
+                            catch (Exception e)
+                            {
+                                DontDoInjection = true;
+                                CantDoInjection = true;
+                            }
                             if (JustDoInjection)
                             {
+                                if (CantDoInjection)
+                                {
+                                    Console.WriteLine("ERROR");
+                                }
+                                else
+                                {
+                                    Console.WriteLine("OK");
+                                }
                                 Environment.Exit(0);
                             }
                         }

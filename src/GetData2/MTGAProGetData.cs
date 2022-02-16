@@ -84,12 +84,7 @@ namespace GetData2
                 {
                     GetInventoryData();
                 }
-                
-                if (!gotRankInfo && PAPA.Legacy.CombinedRankInfo != null)
-                {
-                    PrintCombinedRankInfo();
-                }
-                
+                                
                 
                 if (gotUniqueID && gotInventoryData && gotLoginData && gotRankInfo)
                 {
@@ -117,7 +112,7 @@ namespace GetData2
                     timestamp = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds().ToString()
                 };
                 string hashMD5 = CreateMD5(JsonConvert.SerializeObject(report));
-                if (!dataWrittenHashes.Contains(hashMD5))
+                if (!dataWrittenHashes.Contains(hashMD5) || indicator == @"LoginStateChanged")
                 {
                     MTGAProLogger.Debug($" **{indicator}** {JsonConvert.SerializeObject(logElem)}");
                     dataWrittenHashes.Add(hashMD5);
@@ -126,19 +121,6 @@ namespace GetData2
             catch (Exception e)
             {
                 MTGAProLogger.Debug($" **WriteToLogError** {e}");
-            }
-        }
-
-        private void PrintCombinedRankInfo()
-        {
-            try
-            {
-                gotRankInfo = true;
-                WriteToLog("CombinedRankInfo", PAPA.Legacy.CombinedRankInfo);
-            }
-            catch (Exception e)
-            {
-                WriteToLog("ErrorCombinedRankInfo", e);
             }
         }
 
@@ -222,6 +204,7 @@ namespace GetData2
                 gotInventoryData = false;
                 gotLoginData = false;
                 gotRankInfo = false;
+                dataWrittenHashes.Clear();
                 Task task = new Task(() => GetHoldOnPapa());
                 task.Start();
             }
