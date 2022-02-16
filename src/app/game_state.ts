@@ -22,6 +22,7 @@ const TWO_SECONDS = 2000;
 class GameState {
   private readonly startTimeMillis: number;
   private running: boolean;
+  private AVBlocked: boolean;
   private overlayInterval: NodeJS.Timeout | undefined;
   private psListInterval: NodeJS.Timeout | undefined;
   private processId: number | undefined;
@@ -36,6 +37,7 @@ class GameState {
   constructor() {
     this.startTimeMillis = Date.now();
     this.running = false;
+    this.AVBlocked = false;
     this.checkProcessId();
   }
 
@@ -50,6 +52,14 @@ class GameState {
 
   public getStartTime(): number {
     return this.startTimeMillis;
+  }
+
+  public setAVBlocked() {
+    this.AVBlocked = true;
+  }
+
+  public getAVBlocked() {
+    return this.AVBlocked;
   }
 
   public setRunning(running: boolean): void {

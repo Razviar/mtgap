@@ -152,6 +152,7 @@ export interface Messages {
   'screen-recording-authorized': boolean;
   'enable-screen-recording': undefined;
   'need-to-restart-mtga': boolean;
+  'cant-inject': undefined;
 }
 
 export enum NetworkStatusMessage {

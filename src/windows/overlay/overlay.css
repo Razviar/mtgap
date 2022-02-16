@@ -39,7 +39,8 @@ a[href^="ftp://"]
   padding-bottom: 5px;
 }
 
-#RestartWarning {
+#RestartWarning,
+#AVWarning {
   position: absolute;
   bottom: 51px;
   left: 50%;

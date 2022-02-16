@@ -2,7 +2,7 @@ import {ChildProcessWithoutNullStreams} from 'child_process';
 import {screen} from 'electron';
 
 import {gameState} from 'root/app/game_state';
-import {sendMessageToOverlayWindow} from 'root/app/messages';
+import {sendMessageToHomeWindow, sendMessageToOverlayWindow} from 'root/app/messages';
 import {AccountV8} from 'root/app/settings-store/v9';
 import {isMac} from 'root/lib/utils';
 import ourActiveWin from 'root/our-active-win';
@@ -72,7 +72,24 @@ export class WindowLocator {
       raw.split('\n').map((line: string) => {
         if (line.indexOf('{') !== -1 && line.indexOf('}') !== -1) {
           const process = JSON.parse(line) as ourActiveWin.Result;
+          if (process.cantDoInjection) {
+            sendMessageToOverlayWindow('cant-inject', undefined);
+            sendMessageToHomeWindow('show-status', {
+              message: 'SharpMonoInjector.dll is blocked by AV!',
+              color: '#cc2d2d',
+            });
+            gameState.setAVBlocked();
+          }
           this.handleProcessRead(process);
+        } else {
+          if (line == 'ERROR') {
+            gameState.setAVBlocked();
+            sendMessageToOverlayWindow('cant-inject', undefined);
+            sendMessageToHomeWindow('show-status', {
+              message: 'SharpMonoInjector.dll is blocked by AV!',
+              color: '#cc2d2d',
+            });
+          }
         }
       });
     } catch (error) {

@@ -368,6 +368,12 @@ export function SetMessages(setInteractiveHandler: (overlaySettings: OverlaySett
       }
     }
   });
+  onMessageFromIpcMain('cant-inject', (state) => {
+    if (overlayElements.AVWarning.classList.contains('hidden')) {
+      overlayElements.AVWarning.classList.remove('hidden');
+    }
+  });
+
   onMessageFromIpcMain('restart-mtga', () => {
     sendMessageToIpcMain('restart-mtga-now', undefined);
   });

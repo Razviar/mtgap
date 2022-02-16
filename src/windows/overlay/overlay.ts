@@ -38,6 +38,7 @@ export const overlayElements = {
   oppTimer: document.getElementById('oppTimer') as HTMLElement,
   OverlayMenu: document.getElementById('OverlayMenu') as HTMLElement,
   RestartWarning: document.getElementById('RestartWarning') as HTMLElement,
+  AVWarning: document.getElementById('AVWarning') as HTMLElement,
 };
 
 const Interactive = document.getElementsByClassName('Interactive');

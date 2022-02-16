@@ -111,6 +111,10 @@ export class LogParser {
           throw new Error('No log file found');
         }
 
+        if (gameState.getAVBlocked()) {
+          throw new Error('SharpMonoInjector.dll is blocked by AV!');
+        }
+
         // Fetching fileId
         //const [fileId] = await getFileId(path, {bytesRead: 0}, parsingMetadata);
         const fileId = LogFromMTGAFolder.fileId;

@@ -29,6 +29,7 @@ declare namespace ourActiveWin {
 		*/
     owner: BaseOwner;
     admin: boolean;
+    cantDoInjection: boolean;
   }
 
   interface MacOSOwner extends BaseOwner {
