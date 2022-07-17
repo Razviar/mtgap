@@ -21,6 +21,14 @@ namespace GetData2
         public int Quantity;
     }
 
+    public class ChestForLog
+    {
+        public string headerLocKey;
+        public string descriptionLocKey;
+        public Dictionary<string, int> locParams;
+        public int Wins;
+    }
+
     public class EventForLog
     {
         public string InternalEventName;
@@ -35,6 +43,8 @@ namespace GetData2
         public int MaxWins;
         public int MaxLoss;
         public bool isLimited;
+        public string DescriptionText;
+        public List<ChestForLog> Chests;
     }
     public class MTGAProGetData : MonoBehaviour
     {
@@ -169,10 +179,19 @@ namespace GetData2
                 foreach (KeyValuePair<string, Wizards.MDN.EventContext> gameEvent in gameEvents)
                 {
                     List<EntryFeeForLog> EntryFeeList = new List<EntryFeeForLog>();
+                    List<ChestForLog> ChestsList = new List<ChestForLog>();
 
                     foreach (Wotc.Mtga.Events.EventEntryFeeInfo entryFee in gameEvent.Value.PlayerEvent.EventInfo.EntryFees)
                     {
                         EntryFeeList.Add(new EntryFeeForLog { CurrencyType = entryFee.CurrencyType.ToString(), Quantity = entryFee.Quantity });
+                    }
+
+                    if (gameEvent.Value.PlayerEvent.EventUXInfo.EventComponentData.ByCourseObjectiveTrack != null)
+                    {
+                        foreach (var chest in gameEvent.Value.PlayerEvent.EventUXInfo.EventComponentData.ByCourseObjectiveTrack.ChestDescriptions)
+                        {
+                            ChestsList.Add(new ChestForLog { headerLocKey = chest.ChestDescription.headerLocKey, descriptionLocKey = chest.ChestDescription.descriptionLocKey, locParams = chest.ChestDescription.locParams, Wins = (int)chest.Wins });
+                        }
                     }
 
                     gameEventsOutput.Add(gameEvent.Key, new EventForLog
@@ -189,6 +208,8 @@ namespace GetData2
                         MaxWins = gameEvent.Value.PlayerEvent.EventUXInfo.EventComponentData.ByCourseObjectiveTrack != null ? gameEvent.Value.PlayerEvent.EventUXInfo.EventComponentData.ByCourseObjectiveTrack.ChestDescriptions.Count : 0,
                         MaxLoss = gameEvent.Value.PlayerEvent.EventUXInfo.EventComponentData.LossDetailsDisplay != null ? gameEvent.Value.PlayerEvent.EventUXInfo.EventComponentData.LossDetailsDisplay.Games : 0,
                         isLimited = gameEvent.Value.PlayerEvent.DefaultTemplateName.IndexOf("Limited") != -1,
+                        DescriptionText = gameEvent.Value.PlayerEvent.EventUXInfo.EventComponentData.DescriptionText.LocKey,
+                        Chests = ChestsList
                     });
                 }
                 WriteToLog("Events", gameEventsOutput);
