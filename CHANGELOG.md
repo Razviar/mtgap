@@ -1,14 +1,25 @@
 Please note, that this project, while following numbering syntax, it DOES NOT adhere to Semantic Versioning rules.
+
+## v.2.2.20 released 17/07/2022
+
+- Active events data brought back to log
+- Adapted tracker to understand new MTGA internal folder structure
+- Fixed cards automatic uploads
+- Packages updated
+
 ## v.2.2.8 released 13/10/2021
+
 - Collection tracking restored
 - MTGA Modding improved
 - Muiltiple accounts support fixed
 
 ## v2.1.34 released 27/08/2021
+
 - Updated parser to match MTGA log changes
 - Fixed related bugs
 
 ## v.2.1.26 released 09/07/2021
+
 - Updated deps
 - Fixed account sync issue
 
