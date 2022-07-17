@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using UnityEngine;
 using Wizards.Mtga.FrontDoorModels;
 
@@ -15,14 +15,31 @@ namespace GetData2
         public object Payload;
     }
 
-    public class DeckForLog
+    public class EntryFeeForLog
     {
-        public string Name;
-        public Wizards.Mtga.Decks.Client_DeckContents Deck;
+        public string CurrencyType;
+        public int Quantity;
+    }
+
+    public class EventForLog
+    {
+        public string InternalEventName;
+        public string PublicEventName;
+        public string TitleLocKey;
+        public DateTime StartTime;
+        public DateTime LockedTime;
+        public DateTime ClosedTime;
+        public bool IsRanked;
+        public List<EntryFeeForLog> EntryFees;
+        public string DeckSelectFormat;
+        public int MaxWins;
+        public int MaxLoss;
+        public bool isLimited;
     }
     public class MTGAProGetData : MonoBehaviour
     {
         private static bool gotInventoryData = false;
+        private static bool gotEventsData = false;
         private static bool gotLoginData = false;
         private static bool gotRankInfo = false;
         private static bool gotUniqueID = false;
@@ -84,9 +101,13 @@ namespace GetData2
                 {
                     GetInventoryData();
                 }
-                                
-                
-                if (gotUniqueID && gotInventoryData && gotLoginData && gotRankInfo)
+
+                if (!gotEventsData && WrapperController.Instance != null && WrapperController.Instance.EventManager != null && WrapperController.Instance.EventManager.EventsByInternalName != null && WrapperController.Instance.EventManager.EventsByInternalName.Count > 0)
+                {
+                    GetEventsData();
+                }
+
+                if (gotUniqueID && gotInventoryData && gotLoginData && gotRankInfo && gotEventsData)
                 {
                     return;
                 }
@@ -138,6 +159,46 @@ namespace GetData2
             }
         }
 
+        private void GetEventsData()
+        {
+            try
+            {
+                gotEventsData = true;
+                Dictionary<string, Wizards.MDN.EventContext> gameEvents = WrapperController.Instance.EventManager.EventsByInternalName;
+                Dictionary<string, EventForLog> gameEventsOutput = new Dictionary<string, EventForLog>();
+                foreach (KeyValuePair<string, Wizards.MDN.EventContext> gameEvent in gameEvents)
+                {
+                    List<EntryFeeForLog> EntryFeeList = new List<EntryFeeForLog>();
+
+                    foreach (Wotc.Mtga.Events.EventEntryFeeInfo entryFee in gameEvent.Value.PlayerEvent.EventInfo.EntryFees)
+                    {
+                        EntryFeeList.Add(new EntryFeeForLog { CurrencyType = entryFee.CurrencyType.ToString(), Quantity = entryFee.Quantity });
+                    }
+
+                    gameEventsOutput.Add(gameEvent.Key, new EventForLog
+                    {
+                        InternalEventName = gameEvent.Value.PlayerEvent.EventInfo.InternalEventName,
+                        PublicEventName = gameEvent.Value.PlayerEvent.EventUXInfo.PublicEventName,
+                        TitleLocKey = gameEvent.Value.PlayerEvent.EventUXInfo.TitleLocKey,
+                        StartTime = gameEvent.Value.PlayerEvent.EventInfo.StartTime,
+                        LockedTime = gameEvent.Value.PlayerEvent.EventInfo.LockedTime,
+                        ClosedTime = gameEvent.Value.PlayerEvent.EventInfo.ClosedTime,
+                        IsRanked = gameEvent.Value.PlayerEvent.EventInfo.IsRanked,
+                        EntryFees = EntryFeeList,
+                        DeckSelectFormat = gameEvent.Value.PlayerEvent.EventUXInfo.DeckSelectFormat,
+                        MaxWins = gameEvent.Value.PlayerEvent.EventUXInfo.EventComponentData.ByCourseObjectiveTrack != null ? gameEvent.Value.PlayerEvent.EventUXInfo.EventComponentData.ByCourseObjectiveTrack.ChestDescriptions.Count : 0,
+                        MaxLoss = gameEvent.Value.PlayerEvent.EventUXInfo.EventComponentData.LossDetailsDisplay != null ? gameEvent.Value.PlayerEvent.EventUXInfo.EventComponentData.LossDetailsDisplay.Games : 0,
+                        isLimited = gameEvent.Value.PlayerEvent.DefaultTemplateName.IndexOf("Limited") != -1,
+                    });
+                }
+                WriteToLog("Events", gameEventsOutput);
+            }
+            catch (Exception e)
+            {
+                WriteToLog("ErrorGetInitialData", e);
+            }
+        }
+
         private void GetInventoryData()
         {
             try
@@ -146,11 +207,8 @@ namespace GetData2
                 WrapperController.Instance.InventoryManager.UnsubscribeFromAll(InventoryChangeHandler);
                 WrapperController.Instance.InventoryManager.SubscribeToAll(InventoryChangeHandler);
 
-                /*PAPA.SceneLoading.OnWrapperSceneLoaded += onWrapperSceneLoaded;
-                PAPA.SceneLoading.OnDuelSceneLoaded += onDuelSceneLoaded;*/
-
                 WriteToLog("Collection", WrapperController.Instance.InventoryManager.Cards);
-                WriteToLog("InventoryContent", WrapperController.Instance.InventoryManager.Inventory);   
+                WriteToLog("InventoryContent", WrapperController.Instance.InventoryManager.Inventory);
 
                 Task task = new Task(() => PeriodicCollectionPrinter());
                 task.Start();
@@ -185,10 +243,10 @@ namespace GetData2
         {
             try
             {
-               Thread.Sleep(600000);
-               WriteToLog("Collection", WrapperController.Instance.InventoryManager.Cards);
-               WriteToLog("InventoryContent", WrapperController.Instance.InventoryManager.Inventory);
-               PeriodicCollectionPrinter();
+                Thread.Sleep(600000);
+                WriteToLog("Collection", WrapperController.Instance.InventoryManager.Cards);
+                WriteToLog("InventoryContent", WrapperController.Instance.InventoryManager.Inventory);
+                PeriodicCollectionPrinter();
             }
             catch (Exception e)
             {

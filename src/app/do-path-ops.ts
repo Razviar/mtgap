@@ -8,8 +8,10 @@ import {settingsStore} from 'root/app/settings-store/settings_store';
 export function doMtgaPathOps(): void {
   //console.log('doMtgaPathOps');
   let mtgaPath = settingsStore.get().mtgaPath;
+  //console.log('mtgaPath1', mtgaPath);
   if (mtgaPath === undefined && locateMtgaDir(mtgaPath)) {
     mtgaPath = settingsStore.get().mtgaPath;
+    //console.log('mtgaPath2', mtgaPath);
   }
   if (mtgaPath === undefined) {
     sendMessageToHomeWindow('show-prompt', {
@@ -27,7 +29,6 @@ export function doMtgaPathOps(): void {
   }
   if (settingsStore.get().uploads && mtgaPath !== undefined) {
     //console.log('uploadCardData');
-    uploadCardData(['Data_loc_', 'Data_cards_'], [mtgaPath, 'Downloads', 'Data']);
-    uploadCardData(['Loc_Events_', 'Loc_Decks_', 'Loc_Internal_'], [mtgaPath, 'Downloads', 'Loc']);
+    uploadCardData(['Raw_CardDatabase', 'Raw_cards', 'Raw_ClientLocalization'], [mtgaPath, 'Downloads', 'Raw']);
   }
 }

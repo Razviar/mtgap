@@ -2,16 +2,12 @@ import fs from 'fs';
 import {join} from 'path';
 
 import {checkFileBeforeUpload, doFileUpload} from 'root/api/checkFileBeforeUpload';
-import {settingsStore} from 'root/app/settings-store/settings_store';
 import {error} from 'root/lib/logger';
 
 export function uploadCardData(FilesOfInterest: string[], pathElements: string[]): void {
   const pth = join(...pathElements);
   fs.readdir(pth, (err, dirToScan) => {
     if (err !== null) {
-      const settings = settingsStore.get();
-      settings.mtgaPath = undefined;
-      settingsStore.save();
       return;
     }
 
@@ -26,14 +22,14 @@ export function uploadCardData(FilesOfInterest: string[], pathElements: string[]
         return pass;
       })
       .forEach((interestingFile) => {
-        fs.readFile(join(pth, interestingFile), 'utf8', (errr: NodeJS.ErrnoException | null, data: string) => {
+        fs.readFile(join(pth, interestingFile), null, (errr: NodeJS.ErrnoException | null, data: Buffer) => {
           fileUploader(errr, data, interestingFile);
         });
       });
   });
 }
 
-const fileUploader = (err: NodeJS.ErrnoException | null, data: string, filename: string) => {
+const fileUploader = (err: NodeJS.ErrnoException | null, data: Buffer, filename: string) => {
   if (err !== null) {
     error('Failure to read MTGA resources files', err);
   }

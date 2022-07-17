@@ -9,8 +9,8 @@ export async function checkFileBeforeUpload(checkmd5: string): Promise<boolean> 
   return resMap === 'UPDATE';
 }
 
-export async function doFileUpload(file: string, name: string): Promise<boolean> {
-  const res = await Request.gzip('/mtg/uploadcards.php?version=1', {file, name});
+export async function doFileUpload(file: Buffer, name: string): Promise<boolean> {
+  const res = await Request.gzip('/mtg/uploadcards.php?version=1', {file: file.toString('base64'), name});
   const resMap = asString(res);
   return resMap === 'UPDATE';
 }

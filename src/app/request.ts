@@ -18,6 +18,8 @@ async function makeAxios(
       ...config,
       withCredentials: false,
       url: `${baseURL}${path.startsWith('/') ? '' : '/'}${path}`,
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity,
       method,
     });
     const sendingEvents = path.indexOf('cm_uploadpackfile') > -1;

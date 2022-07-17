@@ -33,7 +33,9 @@ export function locateMtgaDir(checkPath: string | undefined): boolean {
         return;
       }
       const testPth = join(...possiblePathElements);
+      //console.log(testPth);
       if (fs.existsSync(testPth)) {
+        //console.log('exists!');
         pth = testPth;
         pathFound = true;
       }
@@ -57,7 +59,7 @@ export function locateMtgaDir(checkPath: string | undefined): boolean {
     result = false;
     settings.mtgaPath = undefined;
   }
-
+  //console.log('settingsStore', settingsStore.get().mtgaPath);
   settingsStore.save();
 
   return result;
@@ -71,6 +73,7 @@ interface MostRecentDate {
 
 export function locateMostRecentDate(): MostRecentDate {
   const mtgaPath = settingsStore.get().mtgaPath;
+  //console.log('locateMostRecentDate', mtgaPath);
   if (mtgaPath === undefined) {
     return {date: undefined, fileId: undefined, logPath: undefined};
   }
@@ -78,9 +81,11 @@ export function locateMostRecentDate(): MostRecentDate {
   let fileId: string | undefined;
   let logPath: string | undefined;
   const pth = join(mtgaPath, ...['Logs', 'Logs']);
+  //console.log(pth);
   try {
     const files = fs.readdirSync(pth);
     files.forEach((file) => {
+      //console.log(file);
       logPath = join(pth, file);
       const ctime = fs.statSync(logPath).ctime;
       if (logDate === undefined || logDate < ctime) {
