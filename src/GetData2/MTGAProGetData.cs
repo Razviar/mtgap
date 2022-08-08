@@ -5,7 +5,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using Wizards.Mtga.Decks;
 using Wizards.Mtga.FrontDoorModels;
+using Wotc.Mtgo.Gre.External.Messaging;
 
 namespace GetData2
 {
@@ -46,6 +48,45 @@ namespace GetData2
         public string DescriptionText;
         public List<ChestForLog> Chests;
     }
+
+    public class MatchStartReport
+    {
+        public class LogPlayerInfo
+        {
+            public string UserId;
+            public string PlayerName;
+            public int SystemSeatId;
+            public int TeamId;
+            public string PlatformId;
+            public string RankingClass;
+            public int RankingTier;
+            public float MythicPercentile;
+            public int MythicPlacement;
+        }
+        public uint LocalPlayerSeatId;
+        public string MatchID;
+        public LogPlayerInfo OpponentInfo = new LogPlayerInfo();
+        public LogPlayerInfo LocalPlayerInfo = new LogPlayerInfo();
+        public SuperFormat Format;
+        public string InternalEventName;
+        public DeckForLog UserDeck;
+    }
+
+    public class DeckForLog
+    {
+        public Guid DeckId { get; }
+        public string Name { get; }
+        public Dictionary<string, string> Attributes { get; }
+        public Dictionary<EDeckPile, List<Client_DeckCard>> Content { get; }
+
+        public DeckForLog(Guid deckId, string name, Dictionary<string, string> attributes, Dictionary<EDeckPile, List<Client_DeckCard>> content)
+        {
+            DeckId = deckId;
+            Name = name;
+            Attributes = attributes;
+            Content = content;
+        }
+    }
     public class MTGAProGetData : MonoBehaviour
     {
         private static bool gotInventoryData = false;
@@ -53,8 +94,10 @@ namespace GetData2
         private static bool gotLoginData = false;
         private static bool gotRankInfo = false;
         private static bool gotUniqueID = false;
+        private static bool gotHoldOnMatches = false;
         private static List<string> dataWrittenHashes = new List<string>();
         private static readonly UnityCrossThreadLogger MTGAProLogger = new UnityCrossThreadLogger("MTGA.Pro Logger");
+        private static MatchStartReport matchStartReport = new MatchStartReport();
         public void Start()
         {
             try
@@ -117,7 +160,13 @@ namespace GetData2
                     GetEventsData();
                 }
 
-                if (gotUniqueID && gotInventoryData && gotLoginData && gotRankInfo && gotEventsData)
+                if (!gotHoldOnMatches && WrapperController.Instance != null && WrapperController.Instance.Matchmaking !=null)
+                {
+                    WrapperController.Instance.Matchmaking.MatchManagerInitialized += MatchStartPrinterStarter;
+                    gotHoldOnMatches = true;
+                }
+
+                if (gotUniqueID && gotInventoryData && gotLoginData && gotRankInfo && gotEventsData && gotHoldOnMatches)
                 {
                     return;
                 }
@@ -145,13 +194,13 @@ namespace GetData2
                 string hashMD5 = CreateMD5(JsonConvert.SerializeObject(report));
                 if (!dataWrittenHashes.Contains(hashMD5) || indicator == @"LoginStateChanged")
                 {
-                    MTGAProLogger.Debug($" **{indicator}** {JsonConvert.SerializeObject(logElem)}");
+                    MTGAProLogger.Info($" **{indicator}** {JsonConvert.SerializeObject(logElem)}");
                     dataWrittenHashes.Add(hashMD5);
                 }
             }
             catch (Exception e)
             {
-                MTGAProLogger.Debug($" **WriteToLogError** {e}");
+                MTGAProLogger.Info($" **WriteToLogError** {e}");
             }
         }
 
@@ -186,11 +235,13 @@ namespace GetData2
                         EntryFeeList.Add(new EntryFeeForLog { CurrencyType = entryFee.CurrencyType.ToString(), Quantity = entryFee.Quantity });
                     }
 
+                    int MaxWins = 0;
                     if (gameEvent.Value.PlayerEvent.EventUXInfo.EventComponentData.ByCourseObjectiveTrack != null)
                     {
                         foreach (var chest in gameEvent.Value.PlayerEvent.EventUXInfo.EventComponentData.ByCourseObjectiveTrack.ChestDescriptions)
                         {
                             ChestsList.Add(new ChestForLog { headerLocKey = chest.ChestDescription.headerLocKey, descriptionLocKey = chest.ChestDescription.descriptionLocKey, locParams = chest.ChestDescription.locParams, Wins = (int)chest.Wins });
+                            MaxWins = (int)chest.Wins > MaxWins ? (int)chest.Wins : MaxWins;
                         }
                     }
 
@@ -205,7 +256,7 @@ namespace GetData2
                         IsRanked = gameEvent.Value.PlayerEvent.EventInfo.IsRanked,
                         EntryFees = EntryFeeList,
                         DeckSelectFormat = gameEvent.Value.PlayerEvent.EventUXInfo.DeckSelectFormat,
-                        MaxWins = gameEvent.Value.PlayerEvent.EventUXInfo.EventComponentData.ByCourseObjectiveTrack != null ? gameEvent.Value.PlayerEvent.EventUXInfo.EventComponentData.ByCourseObjectiveTrack.ChestDescriptions.Count : 0,
+                        MaxWins = MaxWins,
                         MaxLoss = gameEvent.Value.PlayerEvent.EventUXInfo.EventComponentData.LossDetailsDisplay != null ? gameEvent.Value.PlayerEvent.EventUXInfo.EventComponentData.LossDetailsDisplay.Games : 0,
                         isLimited = gameEvent.Value.PlayerEvent.DefaultTemplateName.IndexOf("Limited") != -1,
                         DescriptionText = gameEvent.Value.PlayerEvent.EventUXInfo.EventComponentData.DescriptionText.LocKey,
@@ -240,25 +291,81 @@ namespace GetData2
             }
         }
 
-        /*private void onWrapperSceneLoaded(object obj)
+        private void MatchStartPrinterStarter(MatchManager manager)
         {
-            WriteToLog("onWrapperSceneLoaded", obj);
-            WriteToLog("onWrapperSceneLoaded", PAPA.SceneLoading.CurrentScene);
-            if (WrapperController.Instance.PostMatchClientUpdate != null)
+            try
             {
-                WriteToLog("onWrapperSceneLoadedPostMatchClientUpdate", WrapperController.Instance.PostMatchClientUpdate);
+                manager.MatchCommenced += MatchStartPrinter;
+                manager.GreConnection.History.RecordHistory = true;
+            }
+            catch (Exception e)
+            {
+                WriteToLog("ErrorMatchStartPrinterStarter", e);
             }
         }
 
-        private void onDuelSceneLoaded(UnityEngine.SceneManagement.LoadSceneMode obj)
+        private void MatchStartPrinter()
         {
-            WriteToLog("onDuelSceneLoaded", obj);
-            WriteToLog("onDuelSceneLoaded", PAPA.SceneLoading.CurrentScene);
-            if (WrapperController.Instance.PostMatchClientUpdate != null)
+            try
             {
-                WriteToLog("onWrapperSceneLoadedPostMatchClientUpdate", WrapperController.Instance.PostMatchClientUpdate);
+                MatchManager manager = PAPA.DebugAccess.MatchManager;
+
+                Client_Deck CourseDeck = manager.Event.PlayerEvent.CourseData.CourseDeck;
+                DeckForLog CourseDeckPartial = new DeckForLog(CourseDeck.Summary.DeckId, CourseDeck.Summary.Name, CourseDeck.Summary.Attributes, CourseDeck.Contents.Piles);
+                matchStartReport.LocalPlayerSeatId = manager.LocalPlayerSeatId;
+                matchStartReport.MatchID = manager.MatchID;
+                matchStartReport.LocalPlayerInfo.RankingClass = manager.LocalPlayerInfo.RankingClass.ToString();
+                matchStartReport.LocalPlayerInfo.RankingTier = manager.LocalPlayerInfo.RankingTier;
+                matchStartReport.LocalPlayerInfo.MythicPercentile = manager.LocalPlayerInfo.MythicPercentile;
+                matchStartReport.LocalPlayerInfo.MythicPlacement = manager.LocalPlayerInfo.MythicPlacement;
+                matchStartReport.OpponentInfo.RankingClass = manager.OpponentInfo.RankingClass.ToString();
+                matchStartReport.OpponentInfo.RankingTier = manager.OpponentInfo.RankingTier;
+                matchStartReport.OpponentInfo.MythicPercentile = manager.OpponentInfo.MythicPercentile;
+                matchStartReport.OpponentInfo.MythicPlacement = manager.OpponentInfo.MythicPlacement;
+                matchStartReport.InternalEventName = manager.Event.PlayerEvent.EventInfo.InternalEventName;
+                matchStartReport.Format = manager.Format;
+                matchStartReport.UserDeck = CourseDeckPartial;
+
+                foreach (HistoryEntry HistoryElement in manager.GreConnection.History.History)
+                {
+                    if (HistoryElement.Name == "MatchGameRoomStateChangedEvent")
+                    {
+                        MatchServiceToClientMessage evt = JsonConvert.DeserializeObject<MatchServiceToClientMessage>(HistoryElement.FullText);
+                        if (evt != null && evt.MatchGameRoomStateChangedEvent != null && evt.MatchGameRoomStateChangedEvent.GameRoomInfo != null && evt.MatchGameRoomStateChangedEvent.GameRoomInfo.GameRoomConfig != null)
+                        {
+                            foreach (MatchGameRoomPlayerInfo ReservedPlayer in evt.MatchGameRoomStateChangedEvent.GameRoomInfo.GameRoomConfig.ReservedPlayers)
+                            {
+                                if (ReservedPlayer.SystemSeatId == manager.LocalPlayerSeatId)
+                                {
+                                    matchStartReport.LocalPlayerInfo.PlayerName = ReservedPlayer.PlayerName;
+                                    matchStartReport.LocalPlayerInfo.UserId = ReservedPlayer.UserId;
+                                    matchStartReport.LocalPlayerInfo.TeamId = ReservedPlayer.TeamId;
+                                    matchStartReport.LocalPlayerInfo.SystemSeatId = ReservedPlayer.SystemSeatId;
+                                    matchStartReport.LocalPlayerInfo.PlatformId = ReservedPlayer.PlatformId;
+                                }
+                                else
+                                {
+                                    matchStartReport.OpponentInfo.PlayerName = ReservedPlayer.PlayerName;
+                                    matchStartReport.OpponentInfo.UserId = ReservedPlayer.UserId;
+                                    matchStartReport.OpponentInfo.TeamId = ReservedPlayer.TeamId;
+                                    matchStartReport.OpponentInfo.SystemSeatId = ReservedPlayer.SystemSeatId;
+                                    matchStartReport.OpponentInfo.PlatformId = ReservedPlayer.PlatformId;
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+                WriteToLog("MatchStarted", matchStartReport);
+
+                PAPA.DebugAccess.MatchManager.GreConnection.History.RecordHistory = false;
+                PAPA.DebugAccess.MatchManager.GreConnection.History.History.Clear();
             }
-        }*/
+            catch (Exception e)
+            {
+                WriteToLog("ErrorMatchStartPrinter", e);
+            }
+        }
 
         private void PeriodicCollectionPrinter()
         {
@@ -307,4 +414,6 @@ namespace GetData2
 
 
     }
+
+
 }
