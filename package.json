@@ -35,7 +35,6 @@
     "lodash": "4.17.21",
     "moment": "2.29.4",
     "node-abi": "3.24.0",
-    "node-mac-permissions": "2.2.1",
     "pretty-checkbox": "3.0.3",
     "ps-list": "7.2.0",
     "source-map-support": "0.5.21",
@@ -71,6 +70,7 @@
     "webpack-hook-plugin": "1.0.7"
   },
   "optionalDependencies": {
-    "macos-alias": "0.2.11"
+    "macos-alias": "0.2.11",
+    "node-mac-permissions": "2.2.1"
   }
 }

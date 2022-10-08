@@ -2,12 +2,14 @@ import {systemPreferences} from 'electron';
 
 import {PermissionEventEmitter, PermissionEvents, PermissionListener} from 'root/app/permission_events';
 import {isMac} from 'root/lib/utils';
+import {error} from 'root/lib/logger';
 
 class PermissionManager extends PermissionEventEmitter {
   private fetchInterval: NodeJS.Timeout | undefined;
   private isAccessibilityOk = !isMac();
   private isScreenRecordingOk = !isMac();
   private canShowInvitation = true;
+  private macPermissions: undefined;
 
   private readonly fetchMillis = 1000;
 
@@ -17,17 +19,26 @@ class PermissionManager extends PermissionEventEmitter {
     }
     this.checkAuthStatus();
     this.fetchInterval = setInterval(() => this.checkAuthStatus(), this.fetchMillis);
+    try {
+      // tslint:disable-next-line: no-require-imports no-unsafe-any
+      this.macPermissions = require('node-mac-permissions');
+    } catch (e) {
+      error('The node-mac-permissions optional dependency is required on Mac!', e);
+    }
   }
 
   private checkAuthStatus(): void {
-    // tslint:disable-next-line: no-require-imports no-unsafe-any
-    const isAccessibilityOk = require('node-mac-permissions').getAuthStatus('accessibility') === 'authorized';
+    if (!isMac()) {
+      return;
+    }
+    // tslint:disable-next-line: no-unsafe-any
+    const isAccessibilityOk = this.macPermissions.getAuthStatus('accessibility') === 'authorized';
     if (this.isAccessibilityOk !== isAccessibilityOk) {
       this.isAccessibilityOk = isAccessibilityOk;
       this.emit('accessibility', isAccessibilityOk);
     }
-    // tslint:disable-next-line: no-require-imports no-unsafe-any
-    const isScreenRecordingOk = require('node-mac-permissions').getAuthStatus('screen') === 'authorized';
+    // tslint:disable-next-line: no-unsafe-any
+    const isScreenRecordingOk = this.macPermissions.getAuthStatus('screen') === 'authorized';
     if (this.isScreenRecordingOk !== isScreenRecordingOk) {
       this.isScreenRecordingOk = isScreenRecordingOk;
       this.emit('screenRecording', isScreenRecordingOk);
@@ -43,8 +54,8 @@ class PermissionManager extends PermissionEventEmitter {
 
   public requireScreenRecording(): void {
     if (isMac()) {
-      // tslint:disable-next-line: no-require-imports no-unsafe-any
-      require('node-mac-permissions').askForScreenCaptureAccess();
+      // tslint:disable-next-line: no-unsafe-any
+      this.macPermissions.askForScreenCaptureAccess();
     }
   }
 
