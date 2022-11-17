@@ -74,9 +74,9 @@ export function createMainWindow(): void {
       entry: HOME_WINDOW_WEBPACK_ENTRY,
     })
   );
-  if (electronIsDev) {
+  /*if (electronIsDev) {
     const devtools = new BrowserWindow();
     mainWindow.webContents.setDevToolsWebContents(devtools.webContents);
     mainWindow.webContents.openDevTools({mode: 'detach'});
-  }
+  }*/
 }
