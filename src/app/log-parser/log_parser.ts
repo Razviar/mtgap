@@ -346,7 +346,9 @@ export class LogParser {
     //console.log(event);
     const matchId = asString(extractValue(event.data, ['gameRoomInfo', 'gameRoomConfig', 'matchId']));
     const state = asString(extractValue(event.data, ['gameRoomInfo', 'stateType']));
-    const eventId = asString(extractValue(event.data, ['gameRoomInfo', 'gameRoomConfig', 'eventId']));
+    const eventId = asString(
+      extractValue(event.data, ['gameRoomInfo', 'gameRoomConfig', 'reservedPlayers', 0, 'eventId'])
+    );
 
     /*console.log(matchId);
     console.log(state);
@@ -486,7 +488,7 @@ export class LogParser {
         mainDeck[+cid] = +deckEl.quantity;
       }
     });
-    //console.log('deck-submission', {mainDeck, commandZoneGRPIds, deckName, deckId, InternalEventName});
+    console.log('deck-submission', {mainDeck, commandZoneGRPIds, deckName, deckId, InternalEventName});
     this.emitter.emit('deck-submission', {mainDeck, commandZoneGRPIds, deckName, deckId, InternalEventName});
   }
 

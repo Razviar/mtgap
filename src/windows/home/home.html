@@ -4,6 +4,12 @@
 <head>
   <meta charset="UTF-8" />
   <title>MTGA Pro Tracker</title>
+  <meta 
+        http-equiv="Content-Security-Policy" 
+        content="default-src 'self'; 
+          script-src 'self'; 
+          font-src 'self' https://fonts.gstatic.com;
+          style-src 'self' https://fonts.googleapis.com">
 </head>
 
 <body>
@@ -72,34 +78,34 @@
       <div id="UserButtons" class="settingRow">
         <div class="interfaceButton hidden controlButton" data-button="unskip-acc"
           title="Set MTGArena.pro Token and start tracking data from this account!">
-          <img class="imgico" id="uploadIco" width="20" /> Resume Tracking
+          Resume Tracking
         </div>
         <div class="interfaceButton controlButton" data-button="stop-tracker">
-          <img class="imgico" id="stopIco" width="20" /> Stop Tracker
+          Stop Tracker
         </div>
         <div class="interfaceButton controlButton" data-button="restart-me">
-          <img class="imgico" id="restartIco" width="20" />Restart tracker
+          Restart tracker
         </div>
         <br />
         <div class="interfaceButton controlButton hidden devButton" data-button="dev-log-force">
-          <img class="imgico" id="refreshIco" width="20" /> Dev force upload
+          Dev force upload
         </div>
         <div class="interfaceButton controlButton hidden devButton" data-button="dev-log">
-          <img class="imgico" id="refreshIco" width="20" /> Dev log parse
+          Dev log parse
         </div>
         <br class="hidden devButton" />
         <div class="interfaceButton controlButton" data-button="old-log">
-          <img class="imgico" id="refreshIco" width="20" /> Pick log to parse
+          Pick log to parse
         </div>
         <div class="interfaceButton controlButton" data-button="do-shadow-sync">
-          <img class="imgico" id="shadowsyncIco" width="20" /> Sync Old Logs
+          Sync Old Logs
         </div>
         <div class="interfaceButton hidden controlButton" data-button="stop-shadow-sync">
-          <img class="imgico" id="shadowsyncIco" width="20" /> Stop Logs Read
+          Stop Logs Read
         </div>
         <div class="interfaceButton hidden controlButton" data-button="apply-update"
           title="Click to restart the app and apply update">
-          <img class="imgico" id="updateIco" width="20" /> Apply update!
+          Apply update!
         </div>
       </div>
       <div id="UserLinks">
@@ -120,9 +126,6 @@
         </div>
         <div class="interfaceButton link" data-link="https://mtgarena.pro/u/#settings/">
           <img class="imgico Linkico" width="15" /> Profile Settings
-        </div>
-        <div class="interfaceButton link" data-link="https://www.patreon.com/Razviar">
-          <img class="imgico Linkico" width="15" /> Ad-Free Site
         </div>
       </div>
     </div>
@@ -227,7 +230,7 @@
     <div class="settingRowHalf">
       Current MTGA_Data Path:
       <div class="logpath" id="CurrentMTGAPath"></div>
-      <div class="interfaceButton controlButton" data-button="set-mtga-path">Locate MTGA_Data</div>
+      <div class="interfaceButton controlButton" data-button="set-mtga-path">Locate</div>
       <div class="interfaceButton controlButton" data-button="default-mtga-path">Default Path</div>
     </div>
     <div class="settingRow">

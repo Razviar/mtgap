@@ -17,8 +17,6 @@ import {tabclick} from 'root/windows/home/functions/tabclick';
 import 'root/windows/home/home.css';
 import 'root/windows/home/icons.css';
 import {onMessageFromIpcMain, sendMessageToIpcMain} from 'root/windows/messages';
-import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdM3mDbRS.woff2';
-import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdMPmDQ.woff2';
 
 export const HomePageElements = {
   header: document.getElementById('header') as HTMLElement,

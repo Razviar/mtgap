@@ -46,7 +46,7 @@ export function createMainWindow(): void {
     },
     show: false,
     frame: false,
-    title: 'MTGA Pro Tracker',
+    title: 'MTG Arena Tracker',
     icon: appIcoImg,
     resizable: true,
   });
@@ -74,5 +74,9 @@ export function createMainWindow(): void {
       entry: HOME_WINDOW_WEBPACK_ENTRY,
     })
   );
-  mainWindow.webContents.openDevTools({mode: 'detach'});
+  if (electronIsDev) {
+    const devtools = new BrowserWindow();
+    mainWindow.webContents.setDevToolsWebContents(devtools.webContents);
+    mainWindow.webContents.openDevTools({mode: 'detach'});
+  }
 }

@@ -1,9 +1,10 @@
 body,
 html {
-  font-family: 'titillium web', sans-serif;
+  font-family: 'DM Sans', sans-serif;
+  line-height: 1.5em;
   padding: 0;
   margin: 0;
-  background-color: #1b0000;
+  background-color: #13171b;
   color: #9f9f9f;
   width: 100%;
   overflow: hidden;
@@ -35,7 +36,7 @@ input#token {
   height: 23px;
   vertical-align: top;
   background-color: rgba(255, 255, 255, 0.1);
-  border: solid 1px rgb(132, 52, 38);
+  border: solid 1px #3694dd;
 }
 
 #AppVersion {
@@ -49,13 +50,16 @@ input#token {
   width: 680px;
   padding: 10px;
   height: 50px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   -webkit-app-region: drag;
 }
 
 .button {
   text-align: center;
   background-color: transparent;
-  font-family: titillium web, sans-serif;
+  font-family: 'DM Sans', sans-serif;
   display: inline-block;
   margin-right: 2px;
   padding: 1px 5px;
@@ -129,11 +133,8 @@ input#token {
 }
 
 .mtgaproHeader {
-  background-color: rgba(132, 52, 38, 0.9);
-}
-
-.runeterraHeader {
-  background-color: rgba(59, 43, 87, 0.9);
+  background-color: #20252b;
+  border-bottom: solid 2px #434a56;
 }
 
 .white {
@@ -155,7 +156,7 @@ input#token {
 }
 
 .interfaceButton {
-  background-color: rgba(183, 171, 169, 0.1);
+  background-color: #3694dd;
   border: solid 1px rgba(183, 171, 169, 0.15);
   display: inline-block;
   width: 140px;
@@ -165,12 +166,11 @@ input#token {
   transition: all 0.3s linear;
   margin-right: 5px;
   margin-bottom: 5px;
+  color: #fff;
 }
 
 .interfaceButton:hover {
-  border: solid 1px rgba(183, 171, 169, 0.3);
-  background-color: rgba(132, 52, 38, 0.9);
-  color: #fff;
+  filter: brightness(1.2);
 }
 
 .pretty {
@@ -233,8 +233,8 @@ div#UserLinks {
 
 #brightButton {
   color: #fff !important;
-  background-color: rgba(132, 52, 38, 1) !important;
-  border-color: rgb(173, 64, 45) !important;
+  background-color: #3aa0ef !important;
+  border-color: #046ab8 !important;
 }
 
 #brightButton:hover {
@@ -263,6 +263,9 @@ div#UserLinks {
 
 .logpath {
   font-size: 0.8em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /*Prompt*/
@@ -304,7 +307,7 @@ div#UserLinks {
 }
 
 .prompt-wnd .prompt-wnd-header {
-  font-family: titillium web, sans-serif !important;
+  font-family: 'DM Sans', sans-serif;
   font-weight: bold;
 
   margin-top: -20px;
@@ -416,18 +419,19 @@ div#UserLinks {
 
 .stringTitle {
   display: inline-block;
-  width: 100px;
+  width: 160px;
 }
 
 /*HOTKEYS*/
 
 div#hotkeyMap {
-  margin-top: 15px;
+  position: absolute;
+  bottom: 40px;
 }
 
 .hotkey {
   display: inline-block;
-  width: 37%;
+  width: 40%;
   margin-bottom: 6px;
 }
 

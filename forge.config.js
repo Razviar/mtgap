@@ -65,9 +65,10 @@ module.exports = {
     },
   ],
   plugins: [
-    [
-      '@electron-forge/plugin-webpack',
-      {
+    {
+      name: '@electron-forge/plugin-webpack',
+      config: {
+        devServer: {hot: false, liveReload: false},
         mainConfig: './webpack.main.config.js',
         renderer: {
           config: './webpack.renderer.config.js',
@@ -91,6 +92,6 @@ module.exports = {
           ],
         },
       },
-    ],
+    },
   ],
 };
