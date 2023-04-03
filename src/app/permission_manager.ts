@@ -21,17 +21,17 @@ class PermissionManager extends PermissionEventEmitter {
 
   private checkAuthStatus(): void {
     // tslint:disable-next-line: no-require-imports no-unsafe-any
-    const isAccessibilityOk = require('node-mac-permissions').getAuthStatus('accessibility') === 'authorized';
-    if (this.isAccessibilityOk !== isAccessibilityOk) {
+    //const isAccessibilityOk = require('node-mac-permissions').getAuthStatus('accessibility') === 'authorized';
+    /*if (this.isAccessibilityOk !== isAccessibilityOk) {
       this.isAccessibilityOk = isAccessibilityOk;
       this.emit('accessibility', isAccessibilityOk);
-    }
+    }*/
     // tslint:disable-next-line: no-require-imports no-unsafe-any
-    const isScreenRecordingOk = require('node-mac-permissions').getAuthStatus('screen') === 'authorized';
-    if (this.isScreenRecordingOk !== isScreenRecordingOk) {
+    //const isScreenRecordingOk = require('node-mac-permissions').getAuthStatus('screen') === 'authorized';
+    /*if (this.isScreenRecordingOk !== isScreenRecordingOk) {
       this.isScreenRecordingOk = isScreenRecordingOk;
       this.emit('screenRecording', isScreenRecordingOk);
-    }
+    }*/
   }
 
   public requireAccessibility(): void {
@@ -44,7 +44,7 @@ class PermissionManager extends PermissionEventEmitter {
   public requireScreenRecording(): void {
     if (isMac()) {
       // tslint:disable-next-line: no-require-imports no-unsafe-any
-      require('node-mac-permissions').askForScreenCaptureAccess();
+      //require('node-mac-permissions').askForScreenCaptureAccess();
     }
   }
 

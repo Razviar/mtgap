@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>C:\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>C:\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Newtonsoft.Json.dll</HintPath>

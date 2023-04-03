@@ -120,7 +120,7 @@ export class LogParser {
         const fileId = LogFromMTGAFolder.fileId;
 
         if (fileId === undefined || LogFromMTGAFolder.logPath === undefined) {
-          throw new Error('Please set correct MTGA/MTGA_Data path in Settings...');
+          throw new Error('Waiting for the log file to be created...');
         }
 
         const [detailedLogEnabled, detailedLogState] = await checkDetailedLogEnabled(path, parsingMetadata);

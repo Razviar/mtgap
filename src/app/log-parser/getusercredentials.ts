@@ -15,13 +15,16 @@ export async function getUserCredentials(
         start: 0,
       });
       //console.log(path);
+      let currentEvent = '';
       let DisplayName = '';
       let AccountID = '';
       let HasInjection = false;
       let loginStateChangeIndex = 0;
       let chunkCursor = 0;
       stream.on('data', (chunk: string) => {
-        if (HasInjection || chunk.indexOf('[MTGA.Pro Logger]') !== -1) {
+        if (HasInjection || chunk.indexOf('[MTGA.Pro Logger]') !== -1 || currentEvent !== '') {
+          chunk = currentEvent + chunk;
+          //console.log('has injection!');
           HasInjection = true;
           const loginStateChange = chunk.lastIndexOf('**LoginStateChanged**');
           if (loginStateChange !== -1) {
@@ -32,11 +35,23 @@ export async function getUserCredentials(
           const accountPrefix = '**Userdata**';
           const userID = '"userId":"';
           const accountPrefixIndex = chunk.lastIndexOf(accountPrefix);
+          //console.log(accountPrefixIndex);
+
+          let nextLineBreakIndex = chunk.indexOf('\n', accountPrefixIndex + accountPrefix.length);
+          if (nextLineBreakIndex === -1) {
+            // No line break in this chunk. We save what we have of the event and stop there.
+            currentEvent = chunk.slice(accountPrefixIndex);
+            //console.log('currentEvent', currentEvent);
+            return;
+          } else {
+            currentEvent = '';
+          }
 
           if (accountPrefixIndex !== -1 && accountPrefixIndex + chunkCursor > loginStateChangeIndex) {
             const accountIdLocator = accountPrefixIndex + accountPrefix.length;
             const AccountIDStart = chunk.indexOf(userID, accountIdLocator);
             AccountID = chunk.slice(AccountIDStart + userID.length).split('"', 2)[0];
+            //console.log('test', AccountID);
             const screenNameRealPrefix = '"screenName":"';
             const screenNameIndex = chunk.indexOf(screenNameRealPrefix, accountPrefixIndex);
             if (screenNameIndex !== -1) {
@@ -65,6 +80,7 @@ export async function getUserCredentials(
               DisplayName = chunk.slice(screenNameLocator).split('"', 2)[0];
               //console.log('DisplayName', DisplayName);
             }
+            stream.close();
           }
         }
 
