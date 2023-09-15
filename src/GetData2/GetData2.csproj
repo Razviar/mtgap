@@ -34,6 +34,9 @@
     <Reference Include="UnityEngine.IMGUIModule">
       <HintPath>C:\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
     </Reference>
+    <Reference Include="Wizards.Arena.Client.Logging">
+      <HintPath>..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Wizards.Arena.Client.Logging.dll</HintPath>
+    </Reference>
     <Reference Include="Wizards.MDN.GreProtobuf.Unity">
       <HintPath>C:\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Wizards.MDN.GreProtobuf.Unity.dll</HintPath>
     </Reference>

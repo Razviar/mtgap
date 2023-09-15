@@ -26,17 +26,8 @@ rules.push(
   },
   {
     test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
-    use: [
-      {
-        loader: 'file-loader',
-        options: {
-          name: '[name].[ext]',
-          attributes: {
-            nonce: nonce,
-          },
-        },
-      },
-    ],
+    type: 'asset/resource',
+    dependency: {not: ['url']},
   }
 );
 
@@ -58,10 +49,36 @@ module.exports = {
     new CspHtmlWebpackPlugin(
       {
         'base-uri': "'self'",
+        'default-src': [
+          "'self'",
+          'https://mtgarena.pro/',
+          'https://static.mtgarena.pro/',
+          'https://static2.mtgarena.pro/',
+          'data:',
+        ],
         'object-src': "'none'",
+        'img-src': [
+          "'self'",
+          'https://mtgarena.pro/',
+          'https://static.mtgarena.pro/',
+          'https://static2.mtgarena.pro/',
+          'data:',
+        ],
         'script-src': ["'self'"],
-        'img-src': ["'self'", 'https://mtgarena.pro/', 'data:'],
-        'style-src': ["'self'", "'unsafe-inline'"],
+        'style-src': [
+          "'self'",
+          'https://mtgarena.pro/',
+          'https://static.mtgarena.pro/',
+          "'unsafe-inline'",
+          'https://fonts.googleapis.com',
+        ],
+        'font-src': [
+          "'self'",
+          'https://mtgarena.pro/',
+          'https://static.mtgarena.pro/',
+          'https://static2.mtgarena.pro/',
+          'https://fonts.gstatic.com',
+        ],
       },
       {
         enabled: true,

@@ -37,7 +37,7 @@ export async function getUserCredentials(
           const accountPrefixIndex = chunk.lastIndexOf(accountPrefix);
           //console.log(accountPrefixIndex);
 
-          let nextLineBreakIndex = chunk.indexOf('\n', accountPrefixIndex + accountPrefix.length);
+          const nextLineBreakIndex = chunk.indexOf('\n', accountPrefixIndex + accountPrefix.length);
           if (nextLineBreakIndex === -1) {
             // No line break in this chunk. We save what we have of the event and stop there.
             currentEvent = chunk.slice(accountPrefixIndex);

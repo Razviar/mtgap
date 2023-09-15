@@ -1,6 +1,6 @@
 body,
 html {
-  font-family: 'titillium web', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   padding: 0;
   margin: 0;
   color: #9f9f9f;
@@ -97,7 +97,7 @@ a[href^="ftp://"]
 }
 
 .CName {
-  font-family: 'Titillium Web', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   line-height: 20px !important;
   overflow: hidden;
   width: 155px;
@@ -153,7 +153,7 @@ a[href^="ftp://"]
 }
 
 .CardSmallPic {
-  font-family: 'Titillium Web', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 16px;
   line-height: 30px;
   position: relative;
@@ -170,7 +170,7 @@ a[href^="ftp://"]
 }
 
 .Copies {
-  font-family: 'Titillium Web', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 16px;
   line-height: 30px;
   position: relative;

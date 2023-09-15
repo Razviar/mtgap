@@ -2,7 +2,6 @@ const path = require('path');
 const ROOT = path.resolve(__dirname);
 const SRC = path.join(ROOT, 'src');
 const NODE_MODULES = path.join(ROOT, 'node_modules');
-const WebpackHookPlugin = require('webpack-hook-plugin').default;
 const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
@@ -15,18 +14,14 @@ module.exports = {
   module: {
     rules: require('./webpack.rules'),
   },
-  plugins:
-    process.platform === 'darwin'
-      ? [
-          new WebpackHookPlugin({
-            onBuildEnd: ['chmod +x .webpack/main/native_modules/main'],
-          }),
-        ]
-      : [
-          new CopyPlugin({
-            patterns: [{context: 'src/our-active-win', from: '*.dll*', to: 'native_modules'}],
-          }),
-        ],
+  plugins: [
+    new CopyPlugin({
+      patterns: [
+        {context: 'src/our-active-win', from: '*.dll*', to: 'native_modules'},
+        {context: 'src/our-active-win', from: '*.pdb*', to: 'native_modules'},
+      ],
+    }),
+  ],
   resolve: {
     alias: {
       root: SRC,

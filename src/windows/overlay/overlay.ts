@@ -10,12 +10,12 @@ import 'root/windows/keyrune.css';
 import 'root/windows/keyrune.woff2';
 import 'root/windows/mana.css';
 import 'root/windows/mana.woff2';
-import 'root/windows/overlay/overlay.css';
 import {sendMessageToIpcMain} from 'root/windows/messages';
-import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdM3mDbRS.woff2';
-import 'root/windows/NaPecZTIAOhVxoMyOr9n_E7fdMPmDQ.woff2';
 import {SetMessages} from 'root/windows/overlay/functions/messages_ipcmain';
 import {SetHandlers} from 'root/windows/overlay/functions/sethandlers';
+import 'root/windows/overlay/overlay.css';
+import 'root/windows/rP2Hp2ywxg089UriCZ2IHSeH.woff2';
+import 'root/windows/rP2Hp2ywxg089UriCZOIHQ.woff2';
 
 export const overlayElements = {
   MainOut: document.getElementById('MainOut') as HTMLElement,

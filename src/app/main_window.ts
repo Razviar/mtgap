@@ -73,10 +73,11 @@ export function createMainWindow(): void {
     error('Failure to load url in main window', err, {
       entry: HOME_WINDOW_WEBPACK_ENTRY,
     })
-  );
-  /*if (electronIsDev) {
-    const devtools = new BrowserWindow();
-    mainWindow.webContents.setDevToolsWebContents(devtools.webContents);
-    mainWindow.webContents.openDevTools({mode: 'detach'});
-  }*/
+  ).then(()=>{
+    if (electronIsDev && mainWindow) {
+      mainWindow.webContents.openDevTools({mode: 'detach'});
+    }
+  });
+
+  
 }

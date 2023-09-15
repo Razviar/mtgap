@@ -5,8 +5,8 @@ import {isMac} from 'root/lib/utils';
 
 class PermissionManager extends PermissionEventEmitter {
   private fetchInterval: NodeJS.Timeout | undefined;
-  private isAccessibilityOk = !isMac();
-  private isScreenRecordingOk = !isMac();
+  private readonly isAccessibilityOk = !isMac();
+  private readonly isScreenRecordingOk = !isMac();
   private canShowInvitation = true;
 
   private readonly fetchMillis = 1000;
