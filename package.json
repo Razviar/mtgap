@@ -56,7 +56,7 @@
     "csp-html-webpack-plugin": "5.1.0",
     "css-loader": "6.8.1",
     "dotenv-webpack": "8.0.1",
-    "electron": "26.2.1",
+    "electron": "26.2.4",
     "file-loader": "6.2.0",
     "fork-ts-checker-webpack-plugin": "7.2.13",
     "node-loader": "2.0.0",
