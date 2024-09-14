@@ -36,8 +36,7 @@ module.exports = {
       platforms: ['win32'],
       config: {
         name: 'mtgaprotracker',
-        certificateFile: './cert/liubov.p12',
-        certificatePassword: '1111',
+        signWithParams: '/sha1 a2ed9c1235299de7e8178c13fad6d2bdde08ad67 /t http://timestamp.sectigo.com /fd SHA256',
         iconUrl: 'https://mtgarena.pro/mtg/icon.ico',
       },
     },

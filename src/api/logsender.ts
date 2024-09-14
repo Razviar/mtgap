@@ -117,10 +117,10 @@ async function sendNextBatch(): Promise<void> {
   for (const part of internalBuffer) {
     if (events.length === 0 || events.length + part.events.length <= logSenderParsingMetadata.batchSize) {
       for (const event of part.events) {
-        let sendingRate = logSenderParsingMetadata.sendingRates[event.indicator] as number | undefined;
-        if (sendingRate === undefined) {
-          sendingRate = 1;
-        }
+        // let sendingRate = logSenderParsingMetadata.sendingRates[event.indicator] as number | undefined;
+        //if (sendingRate === undefined) {
+        const sendingRate = 1;
+        //}
         if (Math.random() <= sendingRate) {
           events.push(event);
         }

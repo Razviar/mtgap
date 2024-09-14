@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,6 +9,7 @@ using UnityEngine;
 using Wizards.Mtga.Decks;
 using Wizards.Mtga.FrontDoorModels;
 using Wotc.Mtgo.Gre.External.Messaging;
+
 
 namespace GetData2
 {
@@ -160,7 +162,7 @@ namespace GetData2
                     GetEventsData();
                 }
 
-                if (!gotHoldOnMatches && WrapperController.Instance != null && WrapperController.Instance.Matchmaking !=null)
+                if (!gotHoldOnMatches && WrapperController.Instance != null && WrapperController.Instance.Matchmaking != null)
                 {
                     WrapperController.Instance.Matchmaking.MatchManagerInitialized += MatchStartPrinterStarter;
                     gotHoldOnMatches = true;
@@ -304,6 +306,12 @@ namespace GetData2
             }
         }
 
+        private void HandleDeserializationError(object sender, ErrorEventArgs errorArgs)
+        {
+            var currentError = errorArgs.ErrorContext.Error.Message;
+            errorArgs.ErrorContext.Handled = true;
+        }
+
         private void MatchStartPrinter()
         {
             try
@@ -325,36 +333,45 @@ namespace GetData2
                 matchStartReport.InternalEventName = manager.Event.PlayerEvent.EventInfo.InternalEventName;
                 matchStartReport.Format = manager.Format;
                 matchStartReport.UserDeck = CourseDeckPartial;
-
-                foreach (HistoryEntry HistoryElement in manager.GreConnection.History.History)
+                try
                 {
-                    if (HistoryElement.Name == "MatchGameRoomStateChangedEvent")
+                    foreach (HistoryEntry HistoryElement in manager.GreConnection.History.History)
                     {
-                        MatchServiceToClientMessage evt = JsonConvert.DeserializeObject<MatchServiceToClientMessage>(HistoryElement.FullText);
-                        if (evt != null && evt.MatchGameRoomStateChangedEvent != null && evt.MatchGameRoomStateChangedEvent.GameRoomInfo != null && evt.MatchGameRoomStateChangedEvent.GameRoomInfo.GameRoomConfig != null)
+                        if (HistoryElement.Name == "MatchGameRoomStateChangedEvent")
                         {
-                            foreach (MatchGameRoomPlayerInfo ReservedPlayer in evt.MatchGameRoomStateChangedEvent.GameRoomInfo.GameRoomConfig.ReservedPlayers)
+                            var evt = JsonConvert.DeserializeObject<MatchServiceToClientMessage>(HistoryElement.FullText, new JsonSerializerSettings
                             {
-                                if (ReservedPlayer.SystemSeatId == manager.LocalPlayerSeatId)
+                                Error = HandleDeserializationError
+                            });
+                            if (evt != null && evt.MatchGameRoomStateChangedEvent != null && evt.MatchGameRoomStateChangedEvent.GameRoomInfo != null && evt.MatchGameRoomStateChangedEvent.GameRoomInfo.GameRoomConfig != null)
+                            {
+                                foreach (var ReservedPlayer in evt.MatchGameRoomStateChangedEvent.GameRoomInfo.GameRoomConfig.ReservedPlayers)
                                 {
-                                    matchStartReport.LocalPlayerInfo.PlayerName = ReservedPlayer.PlayerName;
-                                    matchStartReport.LocalPlayerInfo.UserId = ReservedPlayer.UserId;
-                                    matchStartReport.LocalPlayerInfo.TeamId = ReservedPlayer.TeamId;
-                                    matchStartReport.LocalPlayerInfo.SystemSeatId = ReservedPlayer.SystemSeatId;
-                                    matchStartReport.LocalPlayerInfo.PlatformId = ReservedPlayer.PlatformId;
-                                }
-                                else
-                                {
-                                    matchStartReport.OpponentInfo.PlayerName = ReservedPlayer.PlayerName;
-                                    matchStartReport.OpponentInfo.UserId = ReservedPlayer.UserId;
-                                    matchStartReport.OpponentInfo.TeamId = ReservedPlayer.TeamId;
-                                    matchStartReport.OpponentInfo.SystemSeatId = ReservedPlayer.SystemSeatId;
-                                    matchStartReport.OpponentInfo.PlatformId = ReservedPlayer.PlatformId;
+                                    if (ReservedPlayer.SystemSeatId == manager.LocalPlayerSeatId)
+                                    {
+                                        matchStartReport.LocalPlayerInfo.PlayerName = ReservedPlayer.PlayerName;
+                                        matchStartReport.LocalPlayerInfo.UserId = ReservedPlayer.UserId;
+                                        matchStartReport.LocalPlayerInfo.TeamId = ReservedPlayer.TeamId;
+                                        matchStartReport.LocalPlayerInfo.SystemSeatId = ReservedPlayer.SystemSeatId;
+                                        matchStartReport.LocalPlayerInfo.PlatformId = ReservedPlayer.PlatformId;
+                                    }
+                                    else
+                                    {
+                                        matchStartReport.OpponentInfo.PlayerName = ReservedPlayer.PlayerName;
+                                        matchStartReport.OpponentInfo.UserId = ReservedPlayer.UserId;
+                                        matchStartReport.OpponentInfo.TeamId = ReservedPlayer.TeamId;
+                                        matchStartReport.OpponentInfo.SystemSeatId = ReservedPlayer.SystemSeatId;
+                                        matchStartReport.OpponentInfo.PlatformId = ReservedPlayer.PlatformId;
+                                    }
                                 }
                             }
+                            break;
                         }
-                        break;
                     }
+                }
+                catch (Exception e)
+                {
+                    WriteToLog("ErrorMatchStartPrinter2", e);
                 }
                 WriteToLog("MatchStarted", matchStartReport);
 

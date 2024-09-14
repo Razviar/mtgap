@@ -4,13 +4,22 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <PreserveCompilationContext>false</PreserveCompilationContext>
     <GenerateDependencyFile>false</GenerateDependencyFile>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>embedded</DebugType>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <DebugType>embedded</DebugType>
   </PropertyGroup>
 
@@ -22,8 +31,29 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="Backtrace.Unity">
+      <HintPath>..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Backtrace.Unity.dll</HintPath>
+    </Reference>
+    <Reference Include="Core">
+      <HintPath>..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Protobuf">
+      <HintPath>..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Google.Protobuf.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>C:\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="SharedClientCore">
+      <HintPath>..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\SharedClientCore.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Services.Core">
+      <HintPath>..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Unity.Services.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Tasks">
+      <HintPath>..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Unity.Tasks.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Timeline">
+      <HintPath>..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Unity.Timeline.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>C:\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\UnityEngine.dll</HintPath>
@@ -34,11 +64,44 @@
     <Reference Include="UnityEngine.IMGUIModule">
       <HintPath>C:\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.UnityTestProtocolModule">
+      <HintPath>..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\UnityEngine.UnityTestProtocolModule.dll</HintPath>
+    </Reference>
     <Reference Include="Wizards.Arena.Client.Logging">
       <HintPath>..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Wizards.Arena.Client.Logging.dll</HintPath>
     </Reference>
-    <Reference Include="Wizards.MDN.GreProtobuf.Unity">
-      <HintPath>C:\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Wizards.MDN.GreProtobuf.Unity.dll</HintPath>
+    <Reference Include="Wizards.Arena.Enums">
+      <HintPath>..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Wizards.Arena.Enums.dll</HintPath>
+    </Reference>
+    <Reference Include="Wizards.Arena.Models">
+      <HintPath>..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Wizards.Arena.Models.dll</HintPath>
+    </Reference>
+    <Reference Include="Wizards.Arena.Promises">
+      <HintPath>..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Wizards.Arena.Promises.dll</HintPath>
+    </Reference>
+    <Reference Include="Wizards.Arena.TcpConnection">
+      <HintPath>..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Wizards.Arena.TcpConnection.dll</HintPath>
+    </Reference>
+    <Reference Include="Wizards.GeneralUtilities">
+      <HintPath>..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Wizards.GeneralUtilities.dll</HintPath>
+    </Reference>
+    <Reference Include="Wizards.MDN.GreProtobuf">
+      <HintPath>..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Wizards.MDN.GreProtobuf.dll</HintPath>
+    </Reference>
+    <Reference Include="Wizards.Mtga.BI.Interfaces">
+      <HintPath>..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Wizards.Mtga.BI.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Wizards.Mtga.Interfaces">
+      <HintPath>..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Wizards.Mtga.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Wizards.Mtga.Metadata">
+      <HintPath>..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Wizards.Mtga.Metadata.dll</HintPath>
+    </Reference>
+    <Reference Include="Wizards.Mtga.Platforms.Windows">
+      <HintPath>..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Wizards.Mtga.Platforms.Windows.dll</HintPath>
+    </Reference>
+    <Reference Include="Wizards.TimelineExtensions.Runtime">
+      <HintPath>..\..\..\..\Program Files\Wizards of the Coast\MTGA\MTGA_Data\Managed\Wizards.TimelineExtensions.Runtime.dll</HintPath>
     </Reference>
   </ItemGroup>
 
