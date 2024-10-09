@@ -18,13 +18,21 @@ export function locateMtgaDir(checkPath: string | undefined): boolean {
       MtgaPathLocator.push([app.getPath('home'), 'Library', 'Application Support', 'com.wizards.mtga']);
     } else {
       const progFiles = process.env['ProgramFiles'];
+      const progFilesX86 = process.env['ProgramFiles(x86)'];
+      const disk = process.env['SystemDrive'];
 
       if (progFiles === undefined) {
         return false;
       }
-
+      if (disk !== undefined) {
+        MtgaPathLocator.push([disk, 'SteamLibrary', 'steamapps', 'common', 'MTGA', 'MTGA_Data']);
+      }
       MtgaPathLocator.push([progFiles, 'Wizards of the Coast', 'MTGA', 'MTGA_Data']);
       MtgaPathLocator.push([progFiles, 'Epic Games', 'MagicTheGathering', 'MTGA_Data']);
+      MtgaPathLocator.push([progFiles, 'Steam', 'steamapps', 'common', 'MTGA', 'MTGA_Data']);
+      if (progFilesX86 !== undefined) {
+        MtgaPathLocator.push([progFilesX86, 'Steam', 'steamapps', 'common', 'MTGA', 'MTGA_Data']);
+      }
     }
 
     let pathFound = false;

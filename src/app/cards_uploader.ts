@@ -1,7 +1,7 @@
 import fs from 'fs';
 import {join} from 'path';
 
-import {checkFileBeforeUpload, doFileUpload} from 'root/api/checkFileBeforeUpload';
+import {checkFileBeforeUpload} from 'root/api/checkFileBeforeUpload';
 import {error} from 'root/lib/logger';
 
 export function uploadCardData(FilesOfInterest: string[], pathElements: string[]): void {
@@ -33,15 +33,7 @@ const fileUploader = (err: NodeJS.ErrnoException | null, data: Buffer, filename:
   if (err !== null) {
     error('Failure to read MTGA resources files', err);
   }
-  checkFileBeforeUpload(filename)
-    .then((res) => {
-      if (res) {
-        doFileUpload(data, filename).catch((errr) => {
-          error('Failure to upload MTGA resources files', errr);
-        });
-      }
-    })
-    .catch((errr) => {
-      error('Failure to check MTGA resources files status', errr);
-    });
+  checkFileBeforeUpload(filename).catch((errr) => {
+    error('Failure to check MTGA resources files status', errr);
+  });
 };
