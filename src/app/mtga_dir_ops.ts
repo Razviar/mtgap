@@ -19,14 +19,28 @@ export function locateMtgaDir(checkPath: string | undefined): boolean {
     } else {
       const progFiles = process.env['ProgramFiles'];
       const progFilesX86 = process.env['ProgramFiles(x86)'];
-      const disk = process.env['SystemDrive'];
+
+      const getAllDisks = (): string[] => {
+        const disks: string[] = [];
+        const drives = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+        drives.forEach((drive) => {
+          const drivePath = `${drive}:\\`;
+          if (fs.existsSync(drivePath) && fs.statSync(drivePath).isDirectory()) {
+            disks.push(drivePath);
+          }
+        });
+        return disks;
+      };
+
+      const allDisks = getAllDisks();
+      allDisks.forEach((disk) => {
+        MtgaPathLocator.push([disk, 'SteamLibrary', 'steamapps', 'common', 'MTGA', 'MTGA_Data']);
+      });
 
       if (progFiles === undefined) {
         return false;
       }
-      if (disk !== undefined) {
-        MtgaPathLocator.push([disk, 'SteamLibrary', 'steamapps', 'common', 'MTGA', 'MTGA_Data']);
-      }
+
       MtgaPathLocator.push([progFiles, 'Wizards of the Coast', 'MTGA', 'MTGA_Data']);
       MtgaPathLocator.push([progFiles, 'Epic Games', 'MagicTheGathering', 'MTGA_Data']);
       MtgaPathLocator.push([progFiles, 'Steam', 'steamapps', 'common', 'MTGA', 'MTGA_Data']);
